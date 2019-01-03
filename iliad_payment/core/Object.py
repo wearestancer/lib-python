@@ -6,6 +6,7 @@ class Object:
 
     def __init__(self, id=None):
         self._id = id
+        self._data = {}
 
     @property
     def id(self):
