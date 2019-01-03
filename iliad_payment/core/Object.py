@@ -4,5 +4,9 @@
 class Object:
     """Manage common code between API object"""
 
-    def __init__(self):
-        pass
+    def __init__(self, id=None):
+        self._id = id
+
+    @property
+    def id(self):
+        return self._id
