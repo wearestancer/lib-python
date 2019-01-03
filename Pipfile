@@ -8,6 +8,8 @@ pytest = "*"
 pylint = "*"
 pycodestyle = "*"
 pydocstyle = "*"
+pytest-xdist = "*"
+pytest-cov = "*"
 
 [packages]
 
