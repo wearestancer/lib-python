@@ -8,5 +8,7 @@ setup(
     packages=['iliad_payment'],
     author='Joel Da Silva',
     author_email='jdasilva@corp.free.fr',
-    keywords=['payments', 'payment solution']
+    keywords=['payments', 'payment solution'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 )
