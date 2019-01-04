@@ -1,19 +1,19 @@
 """Test core object"""
 
 from iliad_payment.core import Object
+from TestHelper import TestHelper
 
 import pytest
-import uuid
 
 
-class TestObject:
+class TestObject(TestHelper):
     def test_id(self):
         assert Object().id is None
 
-        id = uuid.uuid4().hex
+        id = self.random_string(29)
         obj = Object(id)
 
         assert obj.id == id
 
         with pytest.raises(AttributeError):
-            obj.id = uuid.uuid4().hex
+            obj.id = self.random_string(29)
