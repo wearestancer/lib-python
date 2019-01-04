@@ -4,10 +4,15 @@ from .core.Object import Object
 
 
 class Card(Object):
-    """Representation of a card"""
+    """Representation of a card."""
 
     @property
     def cvc(self):
+        """
+        Card Verification Code.
+
+        We use string for CVC to prevent errors with leading zeros.
+        """
         return self._data.get('cvc', None)
 
     @cvc.setter

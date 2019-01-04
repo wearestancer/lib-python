@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""
-    Iliad payment solution
-"""
+"""Iliad payment solution."""
 
 from .Card import Card
 from .Customer import Customer

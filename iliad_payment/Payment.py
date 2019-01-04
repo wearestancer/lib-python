@@ -4,4 +4,4 @@ from .core.Object import Object
 
 
 class Payment(Object):
-    """Representation of a payment"""
+    """Representation of a payment."""
