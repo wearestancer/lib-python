@@ -1,7 +1,7 @@
 """Test core object"""
 
 from iliad_payment.core import Object
-from TestHelper import TestHelper
+from .TestHelper import TestHelper
 
 import pytest
 

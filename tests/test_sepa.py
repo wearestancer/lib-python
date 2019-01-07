@@ -2,7 +2,7 @@
 
 from iliad_payment import Sepa
 from iliad_payment.core import Object
-from TestHelper import TestHelper
+from .TestHelper import TestHelper
 
 
 class TestSepa(TestHelper):

@@ -2,7 +2,7 @@
 
 from iliad_payment import Payment
 from iliad_payment.core import Object
-from TestHelper import TestHelper
+from .TestHelper import TestHelper
 
 
 class TestPayment(TestHelper):
