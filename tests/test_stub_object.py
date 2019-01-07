@@ -1,8 +1,10 @@
 """Test core object"""
 
+from iliad_payment import Card
 from .stub.Object import Object
 from .TestHelper import TestHelper
 
+from datetime import datetime
 import pytest
 
 
@@ -17,3 +19,36 @@ class TestObject(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
+
+    def test_hydrate(self):
+        obj = Object()
+        card = Card()
+        id = self.random_string(29)
+
+        params = {
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'card1': card,
+            'created': 1546867615,
+        }
+
+        assert obj.hydrate(params) == obj
+
+        assert obj.string1 == params['string1']
+        assert obj.integer1 == params['integer1']
+
+        assert isinstance(obj.created, datetime)
+        assert obj.created.year == 2019
+        assert obj.created.month == 1
+        assert obj.created.day == 7
+        assert obj.created.hour == 14
+        assert obj.created.minute == 26
+        assert obj.created.second == 55
+
+        assert obj.card1 == card
+        assert card.id is None
+
+        assert obj.hydrate({'card1': id}) == obj
+
+        assert obj.card1 == card
+        assert card.id == id
