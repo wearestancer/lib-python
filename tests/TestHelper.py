@@ -27,6 +27,22 @@ class TestHelper:
 
         return ''.join(choice(chars) for i in range(limit))
 
+    def random_mobile(self):
+        # Simulate a french mobile phone number
+        first = self.random_integer(6, 7)
+        counter = 4
+
+        mobile = '+33' + str(first)
+
+        if first == 7:
+            mobile += str(self.random_integer(30, 99)).zfill(2)
+            counter -= 1
+
+        for idx in range(counter):
+            mobile += str(self.random_integer(0, 99)).zfill(2)
+
+        return mobile
+
     def card_number_provider():
         return (
             # VISA
