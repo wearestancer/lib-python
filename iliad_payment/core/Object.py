@@ -22,3 +22,13 @@ class Object:
     def id(self):
         """Return current object ID."""
         return self._id
+
+    @property
+    def created(self):
+        """
+        Return the creation date and time of the current object.
+
+        The creation date is provided by the API during server side creation.
+        This method returns a datetime instance.
+        """
+        return self._created
