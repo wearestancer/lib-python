@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=missing-docstring
 
-from .core.Object import Object
-
+# pylint: enable=missing-docstring
 from datetime import date
 import re
+
+from .core.object import Object
 
 
 class Card(Object):
@@ -30,7 +32,7 @@ class Card(Object):
 
     @cvc.setter
     def cvc(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('CVC must be a string')
 
         if len(value) != 3:
@@ -49,7 +51,7 @@ class Card(Object):
 
     @exp_month.setter
     def exp_month(self, value):
-        if type(value) != int:
+        if not isinstance(value, int):
             raise TypeError('Expiration month must be an integer')
 
         if value < 1 or value > 12:
@@ -68,7 +70,7 @@ class Card(Object):
 
     @exp_year.setter
     def exp_year(self, value):
-        if type(value) != int:
+        if not isinstance(value, int):
             raise TypeError('Expiration year must be an integer')
 
         if value < date.today().year:
@@ -86,8 +88,10 @@ class Card(Object):
         """
         number = self.number
 
-        if number is not None:
-            return number[-4:]
+        if number is None:
+            return None
+
+        return number[-4:]
 
     @property
     def name(self):
@@ -100,7 +104,7 @@ class Card(Object):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('Name must be a string')
 
         if len(value) < 4 or len(value) > 64:
@@ -120,7 +124,7 @@ class Card(Object):
 
     @number.setter
     def number(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('Number must be a string')
 
         number = re.sub(r'\D', '', value)
@@ -157,7 +161,7 @@ class Card(Object):
 
     @tokenize.setter
     def tokenize(self, value):
-        if type(value) != bool:
+        if not isinstance(value, bool):
             message = 'You should pass a boolean'
             raise TypeError(message)
 

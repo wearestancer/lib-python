@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=missing-docstring
 
-from .core.Object import Object
+# pylint: enable=missing-docstring
+from .core.object import Object
 
-default_message = '{} must be have at between {} and {} characters'
+_DEFAULT_MESSAGE = '{} must be have at between {} and {} characters'
 
 
 class Customer(Object):
@@ -19,11 +21,11 @@ class Customer(Object):
 
     @email.setter
     def email(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('Email must be a string')
 
         if len(value) < 5 or len(value) > 64:
-            raise TypeError(default_message.format('Email', 5, 64))
+            raise TypeError(_DEFAULT_MESSAGE.format('Email', 5, 64))
 
         self._data['email'] = value
 
@@ -38,11 +40,11 @@ class Customer(Object):
 
     @mobile.setter
     def mobile(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('Mobile phone must be a string')
 
         if len(value) < 8 or len(value) > 16:
-            raise TypeError(default_message.format('Mobile phone', 8, 16))
+            raise TypeError(_DEFAULT_MESSAGE.format('Mobile phone', 8, 16))
 
         self._data['mobile'] = value
 
@@ -57,10 +59,10 @@ class Customer(Object):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('Name must be a string')
 
         if len(value) < 4 or len(value) > 64:
-            raise TypeError(default_message.format('Name', 4, 64))
+            raise TypeError(_DEFAULT_MESSAGE.format('Name', 4, 64))
 
         self._data['name'] = value

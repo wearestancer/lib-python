@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=missing-docstring
 
+# pylint: enable=missing-docstring
 from datetime import datetime
 
 
 class Object:
     """Manage common code between API object."""
 
-    def __init__(self, id=None):
+    def __init__(self, uid=None):
         """
         Create or get an API object.
 
@@ -16,12 +18,12 @@ class Object:
         If you did not provide an id, the current object will be a new API
         object.
         """
-        self._id = id
+        self._id = uid
         self._created = None
         self._data = {}
 
     @property
-    def id(self):
+    def id(self):  # pylint: disable=C0103
         """Return current object ID."""
         return self._id
 
@@ -48,7 +50,7 @@ class Object:
                 tmp = getattr(self, key)
 
                 if hasattr(tmp, 'hydrate'):
-                    val = {'id': value} if type(value) == str else value
+                    val = {'id': value} if isinstance(value, str) else value
                     value = tmp.hydrate(val)
 
             if key == 'id':

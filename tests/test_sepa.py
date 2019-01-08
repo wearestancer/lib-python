@@ -1,11 +1,11 @@
 """Test sepa object"""
 
+import pytest
+import re
+
 from iliad_payment import Sepa
 from iliad_payment.core import Object
 from .TestHelper import TestHelper
-
-import pytest
-import re
 
 
 class TestSepa(TestHelper):

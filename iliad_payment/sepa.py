@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=missing-docstring
 
-from .core.Object import Object
-
+# pylint: enable=missing-docstring
 import re
-import string
+
+from .core.object import Object
 
 
 class Sepa(Object):
@@ -20,7 +21,7 @@ class Sepa(Object):
 
     @bic.setter
     def bic(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('BIC must be a string')
 
         if len(value) != 8 and len(value) != 11:
@@ -43,8 +44,10 @@ class Sepa(Object):
         """
         iban = self.iban
 
-        if iban is not None:
-            return re.sub(r'(.{,4})', '\\1 ', iban).strip()
+        if iban is None:
+            return None
+
+        return re.sub(r'(.{,4})', '\\1 ', iban).strip()
 
     @property
     def iban(self):
@@ -59,7 +62,7 @@ class Sepa(Object):
 
     @iban.setter
     def iban(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('IBAN must be a string')
 
         iban = re.sub(r'\s', '', value).upper()
@@ -87,8 +90,10 @@ class Sepa(Object):
         """
         iban = self.iban
 
-        if iban is not None:
-            return iban[-4:]
+        if iban is None:
+            return None
+
+        return iban[-4:]
 
     @property
     def name(self):
@@ -101,7 +106,7 @@ class Sepa(Object):
 
     @name.setter
     def name(self, value):
-        if type(value) != str:
+        if not isinstance(value, str):
             raise TypeError('Name must be a string')
 
         if len(value) < 4 or len(value) > 64:

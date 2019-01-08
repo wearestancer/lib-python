@@ -5,11 +5,9 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-pylint = "*"
-pycodestyle = "*"
-pydocstyle = "*"
 pytest-xdist = "*"
 pytest-cov = "*"
+pytest-pylint = "*"
 
 [packages]
 

@@ -1,9 +1,9 @@
 """Test core object"""
 
+import pytest
+
 from iliad_payment.core import Object
 from .TestHelper import TestHelper
-
-import pytest
 
 
 class TestObject(TestHelper):

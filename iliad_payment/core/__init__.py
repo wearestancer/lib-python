@@ -1,4 +1,4 @@
 
 """Internal module."""
 
-from .Object import Object
+from .object import Object
