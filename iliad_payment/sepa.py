@@ -4,10 +4,11 @@
 # pylint: enable=missing-docstring
 import re
 
+from .core import AbstractName
 from .core.object import Object
 
 
-class Sepa(Object):
+class Sepa(Object, AbstractName):
     """Representation of a SEPA account."""
 
     @property
@@ -94,23 +95,3 @@ class Sepa(Object):
             return None
 
         return iban[-4:]
-
-    @property
-    def name(self):
-        """
-        Card holder name.
-
-        Must be a string between 4 and 64 characters.
-        """
-        return self._data.get('name', None)
-
-    @name.setter
-    def name(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Name must be a string')
-
-        if len(value) < 4 or len(value) > 64:
-            message = 'Name must be have at between 4 and 64 characters'
-            raise TypeError(message)
-
-        self._data['name'] = value

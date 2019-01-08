@@ -2,12 +2,13 @@
 # pylint: disable=missing-docstring
 
 # pylint: enable=missing-docstring
+from .core.abstract_name import AbstractName
 from .core.object import Object
 
 _DEFAULT_MESSAGE = '{} must be have at between {} and {} characters'
 
 
-class Customer(Object):
+class Customer(Object, AbstractName):
     """Representation of a customer."""
 
     @property
@@ -47,22 +48,3 @@ class Customer(Object):
             raise TypeError(_DEFAULT_MESSAGE.format('Mobile phone', 8, 16))
 
         self._data['mobile'] = value
-
-    @property
-    def name(self):
-        """
-        Customer's name.
-
-        Must be a string between 4 and 64 characters.
-        """
-        return self._data.get('name', None)
-
-    @name.setter
-    def name(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Name must be a string')
-
-        if len(value) < 4 or len(value) > 64:
-            raise TypeError(_DEFAULT_MESSAGE.format('Name', 4, 64))
-
-        self._data['name'] = value
