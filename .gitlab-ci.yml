@@ -1,37 +1,13 @@
 
 before_script:
-  # Show versions
-  - python3 --version
-  - pip --version
-  # Prepare env
-  - mkdir env
-  - python3 -m venv env
-  - source env/bin/activate
-  # Install dependencies
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
+  - tox --version
 
-after_script:
-  - deactivate
-
-pytest:
+tests:
   stage: test
 
-  script: pytest
+  script: tox
 
   coverage: '/TOTAL \s+[\d+\s+]* (\d+%)/'
-
-  artifacts:
-    reports:
-      junit: reports/unit.xml
-
-  tags:
-    - python
-
-lint:
-  stage: test
-
-  script: pytest --pylint
 
   artifacts:
     reports:
