@@ -11,6 +11,8 @@ before_script:
   stage: test
 
   script:
+    - export LC_ALL=C.UTF-8 # py35 and py36 was complaining
+    - export LANG=C.UTF-8   # py35 and py36 was complaining
     - echo "Running $PYTHON_VERSION"
     - tox -e $PYTHON_VERSION
 
