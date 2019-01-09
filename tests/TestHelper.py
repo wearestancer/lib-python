@@ -49,7 +49,8 @@ class TestHelper:
 
         return mobile
 
-    def card_number_provider():
+    @classmethod
+    def card_number_provider(cls):
         return (
             # VISA
             '4532160583905253',
@@ -112,7 +113,8 @@ class TestHelper:
             '4444333322221111',
         )
 
-    def iban_provider():
+    @classmethod
+    def iban_provider(cls):
         # Thanks Wikipedia
         return (
             'BE71 0961 2345 6769',
