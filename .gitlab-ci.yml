@@ -1,18 +1,50 @@
 
+stages:
+  - lint
+  - test
+
 before_script:
   - tox --version
   - pyenv local 2.7.15 3.5.6 3.6.8 3.7.2
 
-tests:
+.tests:
   stage: test
 
-  script: tox
+  script:
+    - echo "Running $PYTHON_VERSION"
+    - tox -e $PYTHON_VERSION
 
   coverage: '/TOTAL \s+[\d+\s+]* (\d+%)/'
 
   artifacts:
     reports:
-      junit: reports/unit.xml
+      junit: reports/$PYTHON_VERSION-unit.xml
 
   tags:
     - python
+
+lint:
+  variables:
+    PYTHON_VERSION: lint
+  extends: .tests
+  stage: lint
+
+tests:py27:
+  variables:
+    PYTHON_VERSION: py27
+  extends: .tests
+
+tests:py35:
+  variables:
+    PYTHON_VERSION: py35
+  extends: .tests
+
+tests:py36:
+  variables:
+    PYTHON_VERSION: py36
+  extends: .tests
+
+tests:py37:
+  variables:
+    PYTHON_VERSION: py37
+  extends: .tests
