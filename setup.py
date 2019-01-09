@@ -9,4 +9,7 @@ setup(
     author='Joel Da Silva',
     author_email='jdasilva@corp.free.fr',
     keywords=['payments', 'payment solution'],
+    install_requires=[
+        'future',
+    ],
 )
