@@ -8,10 +8,8 @@ from __future__ import division
 from __future__ import absolute_import
 from builtins import *
 
-from abc import ABC
 
-
-class AbstractName(ABC):  # pylint: disable=too-few-public-methods
+class AbstractName():  # pylint: disable=too-few-public-methods
     """Commun name management."""
 
     _data = {}
