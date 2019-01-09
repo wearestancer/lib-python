@@ -9,3 +9,6 @@
 *.egg-info/
 .coverage
 reports/
+
+# Dependencies
+Pipfile.lock
