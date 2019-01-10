@@ -16,10 +16,10 @@ from datetime import date
 import re
 
 from .core import AbstractName
-from .core.object import Object
+from .core import AbstractObject
 
 
-class Card(Object, AbstractName):
+class Card(AbstractObject, AbstractName):
     """Representation of a card."""
 
     @property

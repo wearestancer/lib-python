@@ -13,16 +13,16 @@ from datetime import datetime
 import pytest
 
 from iliad_payment import Card
-from .stub.object import Object
+from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 
 
 class TestObject(TestHelper):
     def test_id(self):
-        assert Object().id is None
+        assert StubObject().id is None
 
         id = self.random_string(29)
-        obj = Object(id)
+        obj = StubObject(id)
 
         assert obj.id == id
 
@@ -30,7 +30,7 @@ class TestObject(TestHelper):
             obj.id = self.random_string(29)
 
     def test_hydrate(self):
-        obj = Object()
+        obj = StubObject()
         card = Card()
         id = self.random_string(29)
 

@@ -12,13 +12,13 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 import pytest
 
 from iliad_payment import Customer
-from iliad_payment.core import Object
+from iliad_payment.core.abstract_object import AbstractObject
 from .TestHelper import TestHelper
 
 
 class TestCustomer(TestHelper):
     def test_class(self):
-        assert issubclass(Customer, Object)
+        assert issubclass(Customer, AbstractObject)
 
     def test_email(self):
         obj = Customer()

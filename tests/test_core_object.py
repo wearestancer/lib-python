@@ -11,16 +11,16 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 import pytest
 
-from iliad_payment.core import Object
+from iliad_payment.core.abstract_object import AbstractObject
 from .TestHelper import TestHelper
 
 
 class TestObject(TestHelper):
     def test_id(self):
-        assert Object().id is None
+        assert AbstractObject().id is None
 
         id = self.random_string(29)
-        obj = Object(id)
+        obj = AbstractObject(id)
 
         assert obj.id == id
 

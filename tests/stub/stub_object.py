@@ -8,10 +8,10 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from future import standard_library
 standard_library.install_aliases()
 
-from iliad_payment import core
+from iliad_payment.core import AbstractObject
 
 
-class Object(core.Object):
+class StubObject(AbstractObject):
     @property
     def string1(self):
         return self._data.get('string1', None)

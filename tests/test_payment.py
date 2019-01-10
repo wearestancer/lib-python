@@ -11,10 +11,10 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from iliad_payment import Payment
-from iliad_payment.core import Object
+from iliad_payment.core.abstract_object import AbstractObject
 from .TestHelper import TestHelper
 
 
 class TestPayment(TestHelper):
     def test_class(self):
-        assert issubclass(Payment, Object)
+        assert issubclass(Payment, AbstractObject)

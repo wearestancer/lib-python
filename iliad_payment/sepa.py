@@ -15,10 +15,10 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 import re
 
 from .core import AbstractName
-from .core.object import Object
+from .core import AbstractObject
 
 
-class Sepa(Object, AbstractName):
+class Sepa(AbstractObject, AbstractName):
     """Representation of a SEPA account."""
 
     @property

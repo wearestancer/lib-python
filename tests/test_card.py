@@ -13,13 +13,13 @@ from datetime import date
 import pytest
 
 from iliad_payment import Card
-from iliad_payment.core import Object
+from iliad_payment.core.abstract_object import AbstractObject
 from .TestHelper import TestHelper
 
 
 class TestCard(TestHelper):
     def test_class(self):
-        assert issubclass(Card, Object)
+        assert issubclass(Card, AbstractObject)
 
     def test_id(self):
         assert Card().id is None

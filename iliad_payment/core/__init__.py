@@ -3,4 +3,4 @@
 """Internal module."""
 
 from .abstract_name import AbstractName
-from .object import Object
+from .abstract_object import AbstractObject

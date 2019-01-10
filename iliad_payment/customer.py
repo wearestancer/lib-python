@@ -13,12 +13,12 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from .core.abstract_name import AbstractName
-from .core.object import Object
+from .core.abstract_object import AbstractObject
 
 _DEFAULT_MESSAGE = '{} must be have at between {} and {} characters'
 
 
-class Customer(Object, AbstractName):
+class Customer(AbstractObject, AbstractName):
     """Representation of a customer."""
 
     @property

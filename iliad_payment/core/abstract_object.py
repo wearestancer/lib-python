@@ -15,7 +15,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from datetime import datetime
 
 
-class Object(object):
+class AbstractObject(object):
     """Manage common code between API object."""
 
     def __init__(self, uid=None):
