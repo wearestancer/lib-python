@@ -9,12 +9,14 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
+import pytest
 
 from iliad_payment import Payment
-from iliad_payment.core.abstract_object import AbstractObject
+from iliad_payment.core import AbstractObject, AbstractAmount
 from .TestHelper import TestHelper
 
 
 class TestPayment(TestHelper):
     def test_class(self):
         assert issubclass(Payment, AbstractObject)
+        assert issubclass(Payment, AbstractAmount)

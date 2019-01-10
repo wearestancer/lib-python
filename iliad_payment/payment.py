@@ -12,8 +12,8 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
-from .core.abstract_object import AbstractObject
+from .core import AbstractObject, AbstractAmount
 
 
-class Payment(AbstractObject):
+class Payment(AbstractObject, AbstractAmount):
     """Representation of a payment."""

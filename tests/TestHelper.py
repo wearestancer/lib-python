@@ -117,6 +117,14 @@ class TestHelper(object):
         )
 
     @classmethod
+    def currency_provider(cls):
+        return (
+            'eur',
+            'gbp',
+            'usd',
+        )
+
+    @classmethod
     def iban_provider(cls):
         # Thanks Wikipedia
         return (
