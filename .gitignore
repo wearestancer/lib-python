@@ -7,7 +7,7 @@
 .eggs/
 .pytest_cache/
 *.egg-info/
-.coverage
+.coverage*
 reports/
 
 # Dependencies
