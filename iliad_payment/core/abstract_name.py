@@ -16,7 +16,8 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 class AbstractName(object):  # pylint: disable=too-few-public-methods
     """Commun name management."""
 
-    _data = {}
+    def __init__(self):
+        self._data = {}
 
     @property
     def name(self):
