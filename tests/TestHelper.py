@@ -4,14 +4,17 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
-from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
+from future import standard_library
+standard_library.install_aliases()
+
+from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 import pytest
 from random import randint, choice
 import string
 
 
-class TestHelper:
+class TestHelper(object):
     """Add some helper for tests."""
 
     def random_integer(self, min, max=0):

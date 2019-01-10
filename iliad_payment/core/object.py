@@ -6,12 +6,16 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from __future__ import division
 from __future__ import absolute_import
+
+from future import standard_library
+standard_library.install_aliases()
+
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from datetime import datetime
 
 
-class Object:
+class Object(object):
     """Manage common code between API object."""
 
     def __init__(self, uid=None):
@@ -51,7 +55,7 @@ class Object:
         an object property.
         """
 
-        for key, value in params.items():
+        for key, value in list(params.items()):
             if hasattr(self, key):
                 tmp = getattr(self, key)
 
