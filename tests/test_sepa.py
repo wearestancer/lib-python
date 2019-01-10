@@ -13,13 +13,14 @@ import pytest
 import re
 
 from iliad_payment import Sepa
-from iliad_payment.core.abstract_object import AbstractObject
+from iliad_payment.core import AbstractObject, AbstractName
 from .TestHelper import TestHelper
 
 
 class TestSepa(TestHelper):
     def test_class(self):
         assert issubclass(Sepa, AbstractObject)
+        assert issubclass(Sepa, AbstractName)
 
     def test_bic(self):
         obj = Sepa()
@@ -100,31 +101,3 @@ class TestSepa(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.last4 = self.random_string(4)
-
-    def test_name(self):
-        obj = Sepa()
-        name = self.random_string(10)
-
-        assert obj.name is None
-
-        obj.name = name
-
-        assert obj.name == name
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be a string',
-        ):
-            obj.name = self.random_integer(20)
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be have at between 4 and 64 characters',
-        ):
-            obj.name = self.random_string(3)
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be have at between 4 and 64 characters',
-        ):
-            obj.name = self.random_string(65, 70)

@@ -12,13 +12,14 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 import pytest
 
 from iliad_payment import Customer
-from iliad_payment.core.abstract_object import AbstractObject
+from iliad_payment.core import AbstractObject, AbstractName
 from .TestHelper import TestHelper
 
 
 class TestCustomer(TestHelper):
     def test_class(self):
         assert issubclass(Customer, AbstractObject)
+        assert issubclass(Customer, AbstractName)
 
     def test_email(self):
         obj = Customer()
@@ -75,31 +76,3 @@ class TestCustomer(TestHelper):
             match='Mobile phone must be have at between 8 and 16 characters',
         ):
             obj.mobile = self.random_string(17)
-
-    def test_name(self):
-        obj = Customer()
-        name = self.random_string(10)
-
-        assert obj.name is None
-
-        obj.name = name
-
-        assert obj.name == name
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be a string',
-        ):
-            obj.name = self.random_integer(20)
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be have at between 4 and 64 characters',
-        ):
-            obj.name = self.random_string(3)
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be have at between 4 and 64 characters',
-        ):
-            obj.name = self.random_string(65, 70)

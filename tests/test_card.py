@@ -13,13 +13,14 @@ from datetime import date
 import pytest
 
 from iliad_payment import Card
-from iliad_payment.core.abstract_object import AbstractObject
+from iliad_payment.core import AbstractObject, AbstractName
 from .TestHelper import TestHelper
 
 
 class TestCard(TestHelper):
     def test_class(self):
         assert issubclass(Card, AbstractObject)
+        assert issubclass(Card, AbstractName)
 
     def test_id(self):
         assert Card().id is None
@@ -128,34 +129,6 @@ class TestCard(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.last4 = self.random_string(4)
-
-    def test_name(self):
-        obj = Card()
-        name = self.random_string(4, 64)
-
-        assert obj.name is None
-
-        obj.name = name
-
-        assert obj.name == name
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be a string',
-        ):
-            obj.name = self.random_integer(20)
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be have at between 4 and 64 characters',
-        ):
-            obj.name = self.random_string(3)
-
-        with pytest.raises(
-            TypeError,
-            match='Name must be have at between 4 and 64 characters',
-        ):
-            obj.name = self.random_string(65, 70)
 
     @pytest.mark.parametrize('number', TestHelper.card_number_provider())
     def test_number(self, number):
