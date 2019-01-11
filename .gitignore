@@ -9,6 +9,7 @@
 *.egg-info/
 .coverage*
 reports/
+__pycache__/
 
 # Dependencies
 Pipfile.lock
