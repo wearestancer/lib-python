@@ -47,7 +47,7 @@ class AbstractObject(object):
             representation['id'] = self.id
 
         if self.created is not None:
-            representation['created'] = self.created.isoformat(' ')
+            representation['created'] = str(self.created)
 
         for key, value in self._data.items():
             if hasattr(value, '__dict__'):
