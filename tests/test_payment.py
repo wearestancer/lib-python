@@ -21,6 +21,10 @@ class TestPayment(TestHelper):
         assert issubclass(Payment, AbstractObject)
         assert issubclass(Payment, AbstractAmount)
 
+        assert Payment._filtered_attributes == [
+            'method',
+        ]
+
     def test_capture(self):
         obj = Payment()
 

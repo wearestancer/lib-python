@@ -22,6 +22,11 @@ class TestCard(TestHelper):
         assert issubclass(Card, AbstractObject)
         assert issubclass(Card, AbstractName)
 
+        assert Card._filtered_attributes == [
+            'brand',
+            'country',
+        ]
+
     def test_id(self):
         assert Card().id is None
 
@@ -180,3 +185,32 @@ class TestCard(TestHelper):
             match='You should pass a boolean',
         ):
             obj.tokenize = self.random_string(20)
+
+    def test_to_json(self):
+        obj = Card()
+
+        params = {
+            'brand': self.random_string(15),
+            'country': self.random_string(2),
+            'name': self.random_string(4, 64),
+            'number': '4242424242424242',
+            'exp_month': self.random_integer(1, 12),
+            'exp_year': self.random_integer(0, 20) + date.today().year,
+            'created': 1546867615,
+        }
+
+        obj.hydrate(params)
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+
+        assert result.find('"name":"{}"'.format(params['name'])) > 0
+        assert result.find('"number":"{}"'.format(params['number'])) > 0
+        assert result.find('"exp_month":{}'.format(params['exp_month'])) > 0
+        assert result.find('"exp_year":{}'.format(params['exp_year'])) > 0
+
+        assert result.find('brand') == -1
+        assert result.find('country') == -1
+        assert result.find('created') == -1
+        assert result.find('last4') == -1

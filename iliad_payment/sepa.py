@@ -21,6 +21,10 @@ from .core import AbstractObject
 class Sepa(AbstractObject, AbstractName):
     """Representation of a SEPA account."""
 
+    _filtered_attributes = [
+        'country',
+    ]
+
     @property
     def bic(self):
         """

@@ -19,6 +19,8 @@ import json
 class AbstractObject(object):
     """Manage common code between API object."""
 
+    _filtered_attributes = []
+
     def __init__(self, uid=None):
         """
         Create or get an API object.
@@ -99,14 +101,24 @@ class AbstractObject(object):
         if self.id is not None:
             representation['id'] = self.id
         else:
-            for key, value in self._data.items():
+            items = {
+                k: v
+                for k, v in self._data.items()
+                if k not in self._filtered_attributes
+            }
+
+            for key, value in items.items():
                 if hasattr(value, '__dict__'):
                     child = value.__dict__
 
-                    if 'id' in child:
+                    if 'id' in child and child['id'] is not None:
                         representation[key] = {'id': child['id']}
                     else:
-                        representation[key] = child
+                        representation[key] = {
+                            k: v
+                            for k, v in child.items()
+                            if k not in value._filtered_attributes
+                        }
                 else:
                     representation[key] = value
 

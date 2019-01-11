@@ -22,6 +22,11 @@ from .core import AbstractObject
 class Card(AbstractObject, AbstractName):
     """Representation of a card."""
 
+    _filtered_attributes = [
+        'brand',
+        'country',
+    ]
+
     @property
     def brand(self):
         """Card brand."""

@@ -22,6 +22,10 @@ class TestSepa(TestHelper):
         assert issubclass(Sepa, AbstractObject)
         assert issubclass(Sepa, AbstractName)
 
+        assert Sepa._filtered_attributes == [
+            'country',
+        ]
+
     def test_bic(self):
         obj = Sepa()
         bic = self.random_string(8)

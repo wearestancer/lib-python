@@ -105,9 +105,12 @@ class TestObject(TestHelper):
 
     def test_to_json(self):
         obj = StubObject()
-        card = Card(self.random_string(29))
+        card = Card()
 
-        card.number = '4242424242424242'
+        card.hydrate({
+            'number': '4242424242424242',
+            'brand': self.random_string(10),
+        })
 
         params = {
             'string1': self.random_string(10),
@@ -123,8 +126,14 @@ class TestObject(TestHelper):
         assert isinstance(result, str)
         assert result.find('"string1":"{}"'.format(params['string1'])) > 0
         assert result.find('"integer1":{}'.format(params['integer1'])) > 0
-        assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
+        assert result.find('"card1":{{"number":"{}"}}'.format(card.number)) > 0
         assert result.find('"created"') == -1
+
+        card.hydrate({'id': self.random_string(29)})
+
+        result = obj.to_json()
+
+        assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
 
         id = self.random_string(29)
         obj.hydrate({'id': id})

@@ -21,6 +21,10 @@ from .core import AbstractObject, AbstractAmount
 class Payment(AbstractObject, AbstractAmount):
     """Representation of a payment."""
 
+    _filtered_attributes = [
+        'method',
+    ]
+
     @property
     def capture(self):
         """Do we need to capture the payment ?"""
