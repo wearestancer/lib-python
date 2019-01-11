@@ -33,6 +33,25 @@ class AbstractObject(object):
         self._data = {}
 
     @property
+    def __dict__(self):
+        """Return a dictionary representing the current object."""
+        representation = {}
+
+        if self.id is not None:
+            representation['id'] = self.id
+
+        if self.created is not None:
+            representation['created'] = self.created.isoformat(' ')
+
+        for key, value in self._data.items():
+            if hasattr(value, '__dict__'):
+                representation[key] = value.__dict__
+            else:
+                representation[key] = value
+
+        return representation
+
+    @property
     def id(self):  # pylint: disable=C0103
         """Return current object ID."""
         return self._id

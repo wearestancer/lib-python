@@ -18,6 +18,47 @@ from .TestHelper import TestHelper
 
 
 class TestObject(TestHelper):
+    def test__dict__(self):
+        obj = StubObject()
+        card = Card(self.random_string(29))
+
+        card.number = '4242424242424242'
+
+        params = {
+            'id': self.random_string(29),
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'card1': card,
+            'created': 1546867615,
+        }
+
+        obj.hydrate(params)
+
+        result = obj.__dict__
+
+        assert isinstance(result, dict)
+
+        assert 'id' in result
+        assert result['id'] == params['id']
+
+        assert 'string1' in result
+        assert result['string1'] == params['string1']
+
+        assert 'integer1' in result
+        assert result['integer1'] == params['integer1']
+
+        assert 'created' in result
+        assert result['created'] == '2019-01-07 14:26:55'
+
+        assert 'card1' in result
+        assert isinstance(result['card1'], dict)
+
+        assert 'id' in result['card1']
+        assert result['card1']['id'] == card.id
+
+        assert 'number' in result['card1']
+        assert result['card1']['number'] == card.number
+
     def test_id(self):
         assert StubObject().id is None
 
