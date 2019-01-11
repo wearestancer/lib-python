@@ -5,7 +5,7 @@ stages:
 
 before_script:
   - tox --version
-  - pyenv local 2.7.15 3.5.6 3.6.8 3.7.2
+  - pyenv local 2.7.15 3.5.6 3.6.8 3.7.2 3.8-dev
 
 .tests:
   stage: test
@@ -50,3 +50,9 @@ tests:py37:
   variables:
     PYTHON_VERSION: py37
   extends: .tests
+
+tests:py38:
+  variables:
+    PYTHON_VERSION: py38
+  extends: .tests
+  allow_failure: true
