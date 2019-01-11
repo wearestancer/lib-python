@@ -13,6 +13,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from datetime import datetime
+import json
 
 
 class AbstractObject(object):
@@ -90,3 +91,23 @@ class AbstractObject(object):
                 self._data[key] = value
 
         return self
+
+    def to_json(self):
+        """Return a JSON representation of the current object."""
+        representation = {}
+
+        if self.id is not None:
+            representation['id'] = self.id
+        else:
+            for key, value in self._data.items():
+                if hasattr(value, '__dict__'):
+                    child = value.__dict__
+
+                    if 'id' in child:
+                        representation[key] = {'id': child['id']}
+                    else:
+                        representation[key] = child
+                else:
+                    representation[key] = value
+
+        return json.dumps(representation, separators=(',', ':'))

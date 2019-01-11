@@ -102,3 +102,33 @@ class TestObject(TestHelper):
 
         assert obj.card1 == card
         assert card.id == id
+
+    def test_to_json(self):
+        obj = StubObject()
+        card = Card(self.random_string(29))
+
+        card.number = '4242424242424242'
+
+        params = {
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'card1': card,
+            'created': 1546867615,
+        }
+
+        obj.hydrate(params)
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"string1":"{}"'.format(params['string1'])) > 0
+        assert result.find('"integer1":{}'.format(params['integer1'])) > 0
+        assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
+        assert result.find('"created"') == -1
+
+        id = self.random_string(29)
+        obj.hydrate({'id': id})
+
+        result = obj.to_json()
+
+        assert result == '{{"id":"{}"}}'.format(id)
