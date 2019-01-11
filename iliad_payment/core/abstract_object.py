@@ -19,7 +19,10 @@ import json
 class AbstractObject(object):
     """Manage common code between API object."""
 
-    _filtered_attributes = []
+    _filtered_attributes = [
+        'id',
+        'created',
+    ]
 
     def __init__(self, uid=None):
         """
@@ -69,6 +72,14 @@ class AbstractObject(object):
         """
         return self._created
 
+    def _get_filtered_attributes(self):
+        filtered = self._filtered_attributes
+
+        if hasattr(super(), '_get_filtered_attributes'):
+            filtered += super()._get_filtered_attributes()
+
+        return filtered
+
     def hydrate(self, params):
         """
         Hydrate current object.
@@ -117,7 +128,7 @@ class AbstractObject(object):
                         representation[key] = {
                             k: v
                             for k, v in child.items()
-                            if k not in value._filtered_attributes
+                            if k not in value._get_filtered_attributes()
                         }
                 else:
                     representation[key] = value
