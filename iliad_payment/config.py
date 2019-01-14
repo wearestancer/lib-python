@@ -18,7 +18,12 @@ from .core.singleton import Singleton
 class Config(Singleton):
     """Handle configuration, connection and credential to API"""
 
+    LIVE_MODE = 'live'
+    TEST_MODE = 'test'
+
     def __init__(self):
+        self._mode = self.TEST_MODE
+
         self._host = 'api.iliad78.net'
         self._port = None
         self._timeout = 5
@@ -32,6 +37,22 @@ class Config(Singleton):
     @host.setter
     def host(self, value):
         self._host = value
+
+    @property
+    def mode(self):
+        """API mode."""
+        return self._mode
+
+    @mode.setter
+    def mode(self, value):
+        if value != self.LIVE_MODE and value != self.TEST_MODE:
+            message = 'Unknonw mode "{}". '
+            'Please use class constant '
+            '"LIVE_MODE" or "TEST_MODE".'.format(value)
+
+            raise TypeError(message)
+
+        self._mode = value
 
     @property
     def port(self):

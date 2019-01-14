@@ -32,6 +32,27 @@ class TestConfig(TestHelper):
 
         obj.host = old_host
 
+    def test_mode(self):
+        obj = Config()
+        mode = self.random_string(5)
+
+        assert obj.mode == Config.TEST_MODE
+
+        obj.mode = Config.LIVE_MODE
+
+        assert obj.mode == Config.LIVE_MODE
+
+        message = 'Unknonw mode "{}". '
+        'Please use class constant "LIVE_MODE" or "TEST_MODE".'.format(mode)
+
+        with pytest.raises(
+            TypeError,
+            match=message,
+        ):
+            obj.mode = mode
+
+        obj.mode = Config.TEST_MODE
+
     def test_port(self):
         obj = Config()
         port = self.random_integer(100, 65535)
