@@ -143,7 +143,13 @@ class AbstractObject(object):
     def uri(self):
         """Return a complete location for the current object."""
         conf = Config()
-        location = 'https://{}/v{}'.format(conf.host, conf.version)
+
+        if conf.port is not None:
+            location = 'https://{}:{}'.format(conf.host, conf.port)
+        else:
+            location = 'https://{}'.format(conf.host)
+
+        location += '/v{}'.format(conf.version)
 
         if self._ENDPOINT is not None:
             location += '/' + self._ENDPOINT

@@ -44,8 +44,10 @@ class TestAbstractObject(TestHelper):
 
         host = self.random_string(25) + '.' + self.random_string(3)
         version = self.random_integer(1, 20)
+        port = self.random_integer(100, 65535)
 
         old_host = conf.host
+        old_port = conf.port
         old_version = conf.version
 
         conf.host = host
@@ -53,5 +55,22 @@ class TestAbstractObject(TestHelper):
 
         assert obj.uri == 'https://{}/v{}/{}'.format(host, version, uid)
 
+        pattern = 'https://{}:{}/v{}/{}'
+
+        conf.port = port
+
+        assert obj.uri == pattern.format(host, port, version, uid)
+
+        # If defined 433 port will be shown (no exception)
+        conf.port = 433
+
+        assert obj.uri == pattern.format(host, 433, version, uid)
+
+        # If defined 80 port will be shown (no exception)
+        conf.port = 80
+
+        assert obj.uri == pattern.format(host, 80, version, uid)
+
         conf.host = old_host
+        conf.port = old_port
         conf.version = old_version

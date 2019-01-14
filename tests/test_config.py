@@ -32,6 +32,19 @@ class TestConfig(TestHelper):
 
         obj.host = old_host
 
+    def test_port(self):
+        obj = Config()
+        port = self.random_integer(100, 65535)
+
+        assert obj.port is None
+
+        old_port = obj.port
+        obj.port = port
+
+        assert obj.port == port
+
+        obj.port = old_port
+
     def test_version(self):
         obj = Config()
         version = self.random_integer(1, 20)

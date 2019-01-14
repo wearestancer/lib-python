@@ -20,6 +20,7 @@ class Config(Singleton):
 
     def __init__(self):
         self._host = 'api.iliad78.net'
+        self._port = None
         self._version = 1
 
     @property
@@ -30,6 +31,15 @@ class Config(Singleton):
     @host.setter
     def host(self, value):
         self._host = value
+
+    @property
+    def port(self):
+        """API port."""
+        return self._port
+
+    @port.setter
+    def port(self, value):
+        self._port = value
 
     @property
     def version(self):
