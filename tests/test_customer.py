@@ -79,13 +79,13 @@ class TestCustomer(TestHelper):
 
     def test_uri(self):
         obj = Customer()
-        id = self.random_string(29)
+        uid = self.random_string(29)
 
         assert obj.uri == 'https://api.iliad78.net/v1/customers'
 
-        obj.hydrate({'id': id})
+        obj.hydrate({'id': uid})
 
-        assert obj.uri == 'https://api.iliad78.net/v1/customers/' + id
+        assert obj.uri == 'https://api.iliad78.net/v1/customers/' + uid
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

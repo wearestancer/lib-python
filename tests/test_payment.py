@@ -202,13 +202,13 @@ class TestPayment(TestHelper):
 
     def test_uri(self):
         obj = Payment()
-        id = self.random_string(29)
+        uid = self.random_string(29)
 
         assert obj.uri == 'https://api.iliad78.net/v1/checkout'
 
-        obj.hydrate({'id': id})
+        obj.hydrate({'id': uid})
 
-        assert obj.uri == 'https://api.iliad78.net/v1/checkout/' + id
+        assert obj.uri == 'https://api.iliad78.net/v1/checkout/' + uid
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

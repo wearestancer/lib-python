@@ -62,10 +62,10 @@ class TestObject(TestHelper):
     def test_id(self):
         assert StubObject().id is None
 
-        id = self.random_string(29)
-        obj = StubObject(id)
+        uid = self.random_string(29)
+        obj = StubObject(uid)
 
-        assert obj.id == id
+        assert obj.id == uid
 
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
@@ -73,7 +73,7 @@ class TestObject(TestHelper):
     def test_hydrate(self):
         obj = StubObject()
         card = Card()
-        id = self.random_string(29)
+        uid = self.random_string(29)
 
         params = {
             'string1': self.random_string(10),
@@ -98,10 +98,10 @@ class TestObject(TestHelper):
         assert obj.card1 == card
         assert card.id is None
 
-        assert obj.hydrate({'card1': id}) == obj
+        assert obj.hydrate({'card1': uid}) == obj
 
         assert obj.card1 == card
-        assert card.id == id
+        assert card.id == uid
 
     def test_to_json(self):
         obj = StubObject()
@@ -135,9 +135,9 @@ class TestObject(TestHelper):
 
         assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
 
-        id = self.random_string(29)
-        obj.hydrate({'id': id})
+        uid = self.random_string(29)
+        obj.hydrate({'id': uid})
 
         result = obj.to_json()
 
-        assert result == '{{"id":"{}"}}'.format(id)
+        assert result == '{{"id":"{}"}}'.format(uid)

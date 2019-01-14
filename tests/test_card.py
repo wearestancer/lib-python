@@ -30,10 +30,10 @@ class TestCard(TestHelper):
     def test_id(self):
         assert Card().id is None
 
-        id = self.random_string(29)
-        obj = Card(id)
+        uid = self.random_string(29)
+        obj = Card(uid)
 
-        assert obj.id == id
+        assert obj.id == uid
 
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)

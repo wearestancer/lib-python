@@ -20,10 +20,10 @@ class TestAbstractObject(TestHelper):
     def test_id(self):
         assert AbstractObject().id is None
 
-        id = self.random_string(29)
-        obj = AbstractObject(id)
+        uid = self.random_string(29)
+        obj = AbstractObject(uid)
 
-        assert obj.id == id
+        assert obj.id == uid
 
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
@@ -31,13 +31,13 @@ class TestAbstractObject(TestHelper):
     def test_uri(self):
         obj = AbstractObject()
         conf = Config()
-        id = self.random_string(29)
+        uid = self.random_string(29)
 
         assert obj.uri == 'https://api.iliad78.net/v1'
 
-        obj.hydrate({'id': id})
+        obj.hydrate({'id': uid})
 
-        assert obj.uri == 'https://api.iliad78.net/v1/' + id
+        assert obj.uri == 'https://api.iliad78.net/v1/' + uid
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
@@ -51,7 +51,7 @@ class TestAbstractObject(TestHelper):
         conf.host = host
         conf.version = version
 
-        assert obj.uri == 'https://{}/v{}/{}'.format(host, version, id)
+        assert obj.uri == 'https://{}/v{}/{}'.format(host, version, uid)
 
         conf.host = old_host
         conf.version = old_version
