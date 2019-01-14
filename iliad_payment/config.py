@@ -21,6 +21,7 @@ class Config(Singleton):
     def __init__(self):
         self._host = 'api.iliad78.net'
         self._port = None
+        self._timeout = 5
         self._version = 1
 
     @property
@@ -40,6 +41,15 @@ class Config(Singleton):
     @port.setter
     def port(self, value):
         self._port = value
+
+    @property
+    def timeout(self):
+        """API timeout."""
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        self._timeout = value
 
     @property
     def version(self):

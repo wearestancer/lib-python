@@ -45,6 +45,19 @@ class TestConfig(TestHelper):
 
         obj.port = old_port
 
+    def test_timeout(self):
+        obj = Config()
+        timeout = self.random_integer(1, 1000)
+
+        assert obj.timeout == 5
+
+        old_timeout = obj.timeout
+        obj.timeout = timeout
+
+        assert obj.timeout == timeout
+
+        obj.timeout = old_timeout
+
     def test_version(self):
         obj = Config()
         version = self.random_integer(1, 20)
