@@ -15,6 +15,8 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from datetime import datetime
 import json
 
+from ..config import Config
+
 
 class AbstractObject(object):
     """Manage common code between API object."""
@@ -140,7 +142,8 @@ class AbstractObject(object):
     @property
     def uri(self):
         """Return a complete location for the current object."""
-        location = 'https://{}/v{}'.format('api.iliad78.net', 1)
+        conf = Config()
+        location = 'https://{}/v{}'.format(conf.host, conf.version)
 
         if self._ENDPOINT is not None:
             location += '/' + self._ENDPOINT

@@ -11,6 +11,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 import pytest
 
+from iliad_payment import Config
 from iliad_payment.core import AbstractObject
 from ..TestHelper import TestHelper
 
@@ -29,6 +30,7 @@ class TestAbstractObject(TestHelper):
 
     def test_uri(self):
         obj = AbstractObject()
+        conf = Config()
         id = self.random_string(29)
 
         assert obj.uri == 'https://api.iliad78.net/v1'
@@ -39,3 +41,17 @@ class TestAbstractObject(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
+
+        host = self.random_string(25) + '.' + self.random_string(3)
+        version = self.random_integer(1, 20)
+
+        old_host = conf.host
+        old_version = conf.version
+
+        conf.host = host
+        conf.version = version
+
+        assert obj.uri == 'https://{}/v{}/{}'.format(host, version, id)
+
+        conf.host = old_host
+        conf.version = old_version
