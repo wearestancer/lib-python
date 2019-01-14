@@ -10,6 +10,8 @@
 .coverage*
 reports/
 __pycache__/
+.tox/
+*.pyc
 
 # Dependencies
 Pipfile.lock
