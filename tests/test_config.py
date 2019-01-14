@@ -16,6 +16,9 @@ from .TestHelper import TestHelper
 
 
 class TestConfig(TestHelper):
+    def test_class(self):
+        assert Config() == Config()
+
     def test_host(self):
         obj = Config()
         host = self.random_string(15) + '.' + self.random_string(2)

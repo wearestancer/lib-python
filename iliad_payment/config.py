@@ -12,12 +12,15 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
+from .core.singleton import Singleton
 
-class Config(object):
+
+class Config(Singleton):
     """Handle configuration, connection and credential to API"""
 
-    _host = 'api.iliad78.net'
-    _version = 1
+    def __init__(self):
+        self._host = 'api.iliad78.net'
+        self._version = 1
 
     @property
     def host(self):
