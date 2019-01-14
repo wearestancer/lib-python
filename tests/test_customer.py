@@ -76,3 +76,16 @@ class TestCustomer(TestHelper):
             match='Mobile phone must be have at between 8 and 16 characters',
         ):
             obj.mobile = self.random_string(17)
+
+    def test_uri(self):
+        obj = Customer()
+        id = self.random_string(29)
+
+        assert obj.uri == 'https://api.iliad78.net/v1/customers'
+
+        obj.hydrate({'id': id})
+
+        assert obj.uri == 'https://api.iliad78.net/v1/customers/' + id
+
+        with pytest.raises(AttributeError):
+            obj.uri = self.random_string(29)

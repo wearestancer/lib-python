@@ -19,6 +19,8 @@ import json
 class AbstractObject(object):
     """Manage common code between API object."""
 
+    _ENDPOINT = None
+
     _filtered_attributes = [
         'id',
         'created',
@@ -134,3 +136,16 @@ class AbstractObject(object):
                     representation[key] = value
 
         return json.dumps(representation, separators=(',', ':'))
+
+    @property
+    def uri(self):
+        """Return a complete location for the current object."""
+        location = 'https://{}/v{}'.format('api.iliad78.net', 1)
+
+        if self._ENDPOINT is not None:
+            location += '/' + self._ENDPOINT
+
+        if self.id is not None:
+            location += '/' + self.id
+
+        return location

@@ -21,6 +21,8 @@ _DEFAULT_MESSAGE = '{} must be have at between {} and {} characters'
 class Customer(AbstractObject, AbstractName):
     """Representation of a customer."""
 
+    _ENDPOINT = 'customers'
+
     @property
     def email(self):
         """

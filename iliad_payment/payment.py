@@ -21,6 +21,8 @@ from .core import AbstractObject, AbstractAmount
 class Payment(AbstractObject, AbstractAmount):
     """Representation of a payment."""
 
+    _ENDPOINT = 'checkout'
+
     _filtered_attributes = [
         'method',
     ]

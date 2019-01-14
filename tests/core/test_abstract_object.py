@@ -26,3 +26,16 @@ class TestAbstractObject(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
+
+    def test_uri(self):
+        obj = AbstractObject()
+        id = self.random_string(29)
+
+        assert obj.uri == 'https://api.iliad78.net/v1'
+
+        obj.hydrate({'id': id})
+
+        assert obj.uri == 'https://api.iliad78.net/v1/' + id
+
+        with pytest.raises(AttributeError):
+            obj.uri = self.random_string(29)

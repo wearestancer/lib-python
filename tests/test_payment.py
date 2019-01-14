@@ -199,3 +199,16 @@ class TestPayment(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.status = self.random_string(29)
+
+    def test_uri(self):
+        obj = Payment()
+        id = self.random_string(29)
+
+        assert obj.uri == 'https://api.iliad78.net/v1/checkout'
+
+        obj.hydrate({'id': id})
+
+        assert obj.uri == 'https://api.iliad78.net/v1/checkout/' + id
+
+        with pytest.raises(AttributeError):
+            obj.uri = self.random_string(29)
