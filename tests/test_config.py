@@ -25,9 +25,12 @@ class TestConfig(TestHelper):
 
         assert obj.host == 'api.iliad78.net'
 
+        old_host = obj.host
         obj.host = host
 
         assert obj.host == host
+
+        obj.host = old_host
 
     def test_version(self):
         obj = Config()
@@ -35,6 +38,9 @@ class TestConfig(TestHelper):
 
         assert obj.version == 1
 
+        old_version = obj.version
         obj.version = version
 
         assert obj.version == version
+
+        obj.version = old_version
