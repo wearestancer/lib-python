@@ -42,6 +42,7 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
+        self._modified = False
 
     @property
     def __dict__(self):
@@ -130,7 +131,7 @@ class AbstractObject(object):
         """Return a JSON representation of the current object."""
         representation = {}
 
-        if self.id is not None:
+        if self.id is not None and not self._modified:
             representation['id'] = self.id
         else:
             items = {

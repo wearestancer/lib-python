@@ -11,6 +11,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 import base64
 from datetime import datetime
+import json
 import pytest
 import requests
 import responses
@@ -184,9 +185,35 @@ class TestObject(TestHelper):
 
         assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
 
+        # An object with an ID will return only his ID into the json
         uid = self.random_string(29)
         obj.hydrate({'id': uid})
 
         result = obj.to_json()
 
         assert result == '{{"id":"{}"}}'.format(uid)
+
+        # unless it was modified
+        obj.string2 = self.random_string(20)
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+
+        result = json.loads(result)
+
+        assert 'string1' in result
+        assert result['string1'] == obj.string1
+
+        assert 'string2' in result
+        assert result['string2'] == obj.string2
+
+        assert 'integer1' in result
+        assert result['integer1'] == obj.integer1
+
+        assert 'card1' in result
+        assert 'id' in result['card1']
+        assert result['card1']['id'] == card.id
+
+        assert 'id' not in result
+        assert 'created' not in result

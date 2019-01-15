@@ -17,6 +17,15 @@ class StubObject(AbstractObject):
         return self._data.get('string1', None)
 
     @property
+    def string2(self):
+        return self._data.get('string2', None)
+
+    @string2.setter
+    def string2(self, value):
+        self._modified = True
+        self._data['string2'] = value
+
+    @property
     def integer1(self):
         return self._data.get('integer1', None)
 
