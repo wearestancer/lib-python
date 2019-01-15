@@ -116,14 +116,17 @@ class AbstractObject(object):
         conf = Config()
         username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
 
-        response = requests.post(
-            self.uri,
-            auth=(username, ''),
-            data=self.to_json(),
-        )
+        if self._modified:
+            response = requests.post(
+                self.uri,
+                auth=(username, ''),
+                data=self.to_json(),
+            )
 
-        if response.text is not None:
-            self.hydrate(response.json())
+            if response.text is not None:
+                self.hydrate(response.json())
+
+        self._modified = False
 
         return self
 

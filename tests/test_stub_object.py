@@ -137,6 +137,7 @@ class TestObject(TestHelper):
         }
 
         obj.hydrate(params)
+        obj.string2 = self.random_string(20)
 
         uid = self.random_string(29)
 
@@ -152,6 +153,11 @@ class TestObject(TestHelper):
         assert 'Authorization' in responses.calls[0].request.headers
         assert responses.calls[0].request.headers['Authorization'] == theader
         assert responses.calls[0].request.body == obj_repr
+
+        # Multiple save will not trigger multiple call
+        obj.save()
+
+        assert len(responses.calls) == 1
 
     def test_to_json(self):
         obj = StubObject()
