@@ -32,6 +32,102 @@ class TestConfig(TestHelper):
 
         obj.host = old_host
 
+    def test_keys(self):
+        obj = Config()
+        pprod = 'pprod_' + self.random_string(24)
+        sprod = 'sprod_' + self.random_string(24)
+        ptest = 'ptest_' + self.random_string(24)
+        stest = 'stest_' + self.random_string(24)
+
+        assert obj.pprod is None
+        assert obj.sprod is None
+        assert obj.ptest is None
+        assert obj.stest is None
+        assert isinstance(obj.keys, dict)
+
+        keys = obj.keys
+
+        assert 'pprod' in keys
+        assert keys['pprod'] is None
+        assert 'sprod' in keys
+        assert keys['sprod'] is None
+        assert 'ptest' in keys
+        assert keys['ptest'] is None
+        assert 'stest' in keys
+        assert keys['stest'] is None
+
+        obj.keys = pprod
+
+        assert obj.pprod == pprod
+        assert obj.sprod is None
+        assert obj.ptest is None
+        assert obj.stest is None
+        assert isinstance(obj.keys, dict)
+
+        keys = obj.keys
+
+        assert 'pprod' in keys
+        assert keys['pprod'] == pprod
+        assert 'sprod' in keys
+        assert keys['sprod'] is None
+        assert 'ptest' in keys
+        assert keys['ptest'] is None
+        assert 'stest' in keys
+        assert keys['stest'] is None
+
+        obj.keys = (ptest, stest)
+
+        assert obj.pprod == pprod
+        assert obj.sprod is None
+        assert obj.ptest == ptest
+        assert obj.stest == stest
+        assert isinstance(obj.keys, dict)
+
+        keys = obj.keys
+
+        assert 'pprod' in keys
+        assert keys['pprod'] == pprod
+        assert 'sprod' in keys
+        assert keys['sprod'] is None
+        assert 'ptest' in keys
+        assert keys['ptest'] == ptest
+        assert 'stest' in keys
+        assert keys['stest'] == stest
+
+        obj.keys = (ptest, stest, pprod, sprod)
+
+        assert obj.pprod == pprod
+        assert obj.sprod == sprod
+        assert obj.ptest == ptest
+        assert obj.stest == stest
+        assert isinstance(obj.keys, dict)
+
+        keys = obj.keys
+
+        assert 'pprod' in keys
+        assert keys['pprod'] == pprod
+        assert 'sprod' in keys
+        assert keys['sprod'] == sprod
+        assert 'ptest' in keys
+        assert keys['ptest'] == ptest
+        assert 'stest' in keys
+        assert keys['stest'] == stest
+
+        key1 = 'sprod_' + self.random_string(24)
+        key2 = 'sprod_' + self.random_string(24)
+
+        obj.keys = (key1, key2)
+
+        assert obj.sprod == key2
+
+        bad_key = self.random_string(30)
+
+        with pytest.raises(
+            TypeError,
+            match='"{}" is not a valid API key.'.format(bad_key),
+        ):
+            obj.keys = bad_key
+
     def test_mode(self):
         obj = Config()
         mode = self.random_string(5)

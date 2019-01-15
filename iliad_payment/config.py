@@ -29,6 +29,13 @@ class Config(Singleton):
         self._timeout = 5
         self._version = 1
 
+        self._keys = {
+            'pprod': None,
+            'ptest': None,
+            'sprod': None,
+            'stest': None,
+        }
+
     @property
     def host(self):
         """API host."""
@@ -37,6 +44,26 @@ class Config(Singleton):
     @host.setter
     def host(self, value):
         self._host = value
+
+    @property
+    def keys(self):
+        """API key chain."""
+        return self._keys
+
+    @keys.setter
+    def keys(self, value):
+        keychain = value
+
+        if isinstance(value, str):
+            keychain = (value,)
+
+        for key in keychain:
+            key_prefix = key[:5]
+
+            if key_prefix not in self._keys:
+                raise TypeError('"{}" is not a valid API key.'.format(key))
+
+            self._keys[key_prefix] = key
 
     @property
     def mode(self):
@@ -55,6 +82,11 @@ class Config(Singleton):
         self._mode = value
 
     @property
+    def pprod(self):
+        """Public production API key."""
+        return self.keys['pprod']
+
+    @property
     def port(self):
         """API port."""
         return self._port
@@ -62,6 +94,21 @@ class Config(Singleton):
     @port.setter
     def port(self, value):
         self._port = value
+
+    @property
+    def ptest(self):
+        """Public development API key."""
+        return self.keys['ptest']
+
+    @property
+    def sprod(self):
+        """Secret production API key."""
+        return self.keys['sprod']
+
+    @property
+    def stest(self):
+        """Secret development API key."""
+        return self.keys['stest']
 
     @property
     def timeout(self):
