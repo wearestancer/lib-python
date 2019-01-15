@@ -38,6 +38,12 @@ class AbstractObject(object):
 
         If you did not provide an id, the current object will be a new API
         object.
+
+        Args:
+            uid (str): Object identifier.
+
+        Returns:
+            self: An instance of the current object.
         """
         self._id = uid
         self._created = None
@@ -46,7 +52,12 @@ class AbstractObject(object):
 
     @property
     def __dict__(self):
-        """Return a dictionary representing the current object."""
+        """
+        Dictionary for instance variables.
+
+        Returns:
+            dict: A simple representation of the current object.
+        """
         representation = {}
 
         if self.id is not None:
@@ -65,7 +76,12 @@ class AbstractObject(object):
 
     @property
     def id(self):  # pylint: disable=C0103
-        """Return current object ID."""
+        """
+        Return current object ID.
+
+        Returns:
+            str: Current ID.
+        """
         return self._id
 
     @property
@@ -73,8 +89,9 @@ class AbstractObject(object):
         """
         Return the creation date and time of the current object.
 
-        The creation date is provided by the API during server side creation.
-        This method returns a datetime instance.
+        Returns:
+            datetime: Creation date and time (into the API)
+                during server side creation.
         """
         return self._created
 
@@ -90,8 +107,12 @@ class AbstractObject(object):
         """
         Hydrate current object.
 
-        `params` supposed to be a dictionary within each key will be
-        an object property.
+        Args:
+            params (dict): Elements used to hydrate the object.
+                Every key matching an object property will be used.
+
+        Returns:
+            self: Current instance.
         """
 
         for key, value in list(params.items()):
@@ -112,7 +133,14 @@ class AbstractObject(object):
         return self
 
     def save(self):
-        """Save the current object."""
+        """
+        Save the current object.
+
+        This will create or update the current object.
+
+        Returns:
+            self: Current instance.
+        """
         conf = Config()
         username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
 
@@ -133,7 +161,17 @@ class AbstractObject(object):
         return self
 
     def to_json(self):
-        """Return a JSON representation of the current object."""
+        """
+        Return a JSON representation of the current object.
+
+        Be carefull, this is mainly used in `Object.save()` method.
+        It will return all object data if no ID is present or
+        if the current object is tagged as `modified`.
+        Unless that, it will return a JSON with only the `id` key.
+
+        Returns:
+            str: A JSON representation of the current object.
+        """
         representation = {}
 
         if self.id is not None and not self._modified:
@@ -164,7 +202,18 @@ class AbstractObject(object):
 
     @property
     def uri(self):
-        """Return a complete location for the current object."""
+        """
+        Return a complete location for the current object.
+
+        This method uses `Config.host`, `Config.port` and `Config.version`
+        to generate the complete location.
+
+        If the current object has an ID, it will return the location for
+        this entity.
+
+        Returns:
+            str: Uniform Resource Identifier.
+        """
         conf = Config()
 
         if conf.port is not None:

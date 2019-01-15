@@ -16,12 +16,24 @@ from .core.singleton import Singleton
 
 
 class Config(Singleton):
-    """Handle configuration, connection and credential to API"""
+    """
+    Handle configuration, connection and credential to API.
+
+    To simplify configuration management, this class is a singleton.
+    You can instanciate it anywhere and modify your configuration,
+    it will be directly applying into the module.
+
+    Constants:
+        LIVE_MODE: Used with `Config.mode()` to set or test API mode.
+
+        TEST_MODE: Used with `Config.mode()` to set or test API mode.
+    """
 
     LIVE_MODE = 'live'
     TEST_MODE = 'test'
 
     def __init__(self):
+        """Initialize configuration instance."""
         self._mode = self.TEST_MODE
 
         self._host = 'api.iliad78.net'
@@ -38,7 +50,15 @@ class Config(Singleton):
 
     @property
     def host(self):
-        """API host."""
+        """
+        API host.
+
+        Args:
+            value (str): New host, default "api.iliad78.net".
+
+        Returns:
+            str: API host.
+        """
         return self._host
 
     @host.setter
@@ -47,7 +67,27 @@ class Config(Singleton):
 
     @property
     def keys(self):
-        """API key chain."""
+        """
+        API keychain.
+
+        This module will only use secret keys (they start with "s"), but we
+        allow every public as well (starting with "p").
+        The module can run with only one key, if you choose the right one,
+        but it is simplier to give at least your "sprod" and "stest",
+        the module will choose which one to use depending your `Config.mode`
+        settings.
+        This way, you only have to chance the mode to be development mode.
+
+        Args:
+            value (str|(str,)): One or more keys.
+                This method allows a simple string, but using tuple of strings
+                is butter (as you can pass every keys in one call).
+                Every keys will be tested to find public/secret and
+                production/development keys.
+
+        Returns:
+            dict: Will contain "pprod", "sprod", "ptest" and "stest" keys.
+        """
         return self._keys
 
     @keys.setter
@@ -67,7 +107,15 @@ class Config(Singleton):
 
     @property
     def mode(self):
-        """API mode."""
+        """
+        API mode.
+
+        Args:
+            value (str): New mode, please use class constant.
+
+        Returns:
+            str: Actual mode.
+        """
         return self._mode
 
     @mode.setter
@@ -83,12 +131,27 @@ class Config(Singleton):
 
     @property
     def pprod(self):
-        """Public production API key."""
+        """
+        Public production API key.
+
+        Returns:
+            str: Public production key avalaible in keychain.
+        """
         return self.keys['pprod']
 
     @property
     def port(self):
-        """API port."""
+        """
+        API port.
+
+        You may not need this, but maybe you have a weird network.
+
+        Args:
+            value (int): New port, no default (you let the http client decide).
+
+        Returns:
+            int: API port.
+        """
         return self._port
 
     @port.setter
@@ -97,22 +160,45 @@ class Config(Singleton):
 
     @property
     def ptest(self):
-        """Public development API key."""
+        """
+        Public development API key.
+
+        Returns:
+            str: Public development key avalaible in keychain.
+        """
         return self.keys['ptest']
 
     @property
     def sprod(self):
-        """Secret production API key."""
+        """
+        Secret production API key.
+
+        Returns:
+            str: Secret production key avalaible in keychain.
+        """
         return self.keys['sprod']
 
     @property
     def stest(self):
-        """Secret development API key."""
+        """
+        Secret development API key.
+
+        Returns:
+            str: Secret development key avalaible in keychain.
+        """
         return self.keys['stest']
 
     @property
     def timeout(self):
-        """API timeout."""
+        """
+        API timeout.
+
+        Args:
+            value (int): New timeout, default 5 seconds.
+
+        Returns:
+            int: Timeout.
+        """
         return self._timeout
 
     @timeout.setter
@@ -121,7 +207,17 @@ class Config(Singleton):
 
     @property
     def version(self):
-        """API version."""
+        """
+        API version.
+
+        Not really used for now, it's just in case we need it.
+
+        Args:
+            value (int): New target API version.
+
+        Returns:
+            int: Target API version.
+        """
         return self._version
 
     @version.setter

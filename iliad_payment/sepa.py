@@ -31,6 +31,12 @@ class Sepa(AbstractObject, AbstractName):
         Bank Identifier Code.
 
         Also called SWIFT code.
+
+        Args:
+            value (str): New BIC.
+
+        Returns:
+            str: BIC.
         """
         return self._data.get('bic', None)
 
@@ -47,15 +53,23 @@ class Sepa(AbstractObject, AbstractName):
 
     @property
     def country(self):
-        """Card country."""
+        """
+        Account country.
+
+        Returns:
+            str: Two characters country code (ISO 3166-1 alpha-2).
+        """
         return self._data.get('country', None)
 
     @property
     def formatted_iban(self):
         """
-        Return IBAN with usual readeable format.
+        IBAN in readeable format.
 
         Aka AAAA BBBB CCCC ...
+
+        Returns:
+            str: Formatted IBAN.
         """
         iban = self.iban
 
@@ -72,6 +86,12 @@ class Sepa(AbstractObject, AbstractName):
         IBAN will be sanitize on update, you may use `formatted_iban`
         to get an human readable number, with 4 characters length blocs
         seperated with spaces.
+
+        Args:
+            value (str): New IBAN.
+
+        Returns:
+            str: Sanitized IBAN.
         """
         return self._data.get('iban', None)
 
@@ -99,9 +119,10 @@ class Sepa(AbstractObject, AbstractName):
     @property
     def last4(self):
         """
-        IBAN's last 4 digit.
+        IBAN's last 4 digits.
 
-        Will be a 4 characters lenght string.
+        Returns:
+            str: IBAN's last 4 digits.
         """
         iban = self.iban
 

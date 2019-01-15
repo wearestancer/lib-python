@@ -24,7 +24,11 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
         """
         Customer, card holder or account name.
 
-        Must be a string between 4 and 64 characters.
+        Args:
+            value (str): New name, must be between 4 and 64 characters.
+
+        Returns:
+            str: Current defined name
         """
         return self._data.get('name', None)
 

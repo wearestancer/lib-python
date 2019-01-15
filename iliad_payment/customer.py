@@ -28,7 +28,11 @@ class Customer(AbstractObject, AbstractName):
         """
         Customer's email.
 
-        Must be a string between 5 and 64 characters.
+        Args:
+            value (str): New email, must be between 5 and 64 characters.
+
+        Returns:
+            str: Customer's email.
         """
         return self._data.get('email', None)
 
@@ -47,7 +51,11 @@ class Customer(AbstractObject, AbstractName):
         """
         Customer's mobile phone number.
 
-        Must be a string between 8 and 16 characters.
+        Args:
+            value (str): New mobile, must be between 8 and 16 characters.
+
+        Returns:
+            str: Customer's mobile phone number.
         """
         return self._data.get('mobile', None)
 

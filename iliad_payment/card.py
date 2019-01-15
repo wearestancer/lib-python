@@ -29,7 +29,12 @@ class Card(AbstractObject, AbstractName):
 
     @property
     def brand(self):
-        """Card brand."""
+        """
+        Card brand.
+
+        Returns:
+            str: Brand code as viewed by the API.
+        """
         return self._data.get('brand', None)
 
     @property
@@ -40,6 +45,9 @@ class Card(AbstractObject, AbstractName):
         Whereas `Card.brand` returns brand as a simple normalized
         string like "amex",  `Card.brandname` will return a complete
         and real brand name, like "American Express".
+
+        Returns:
+            str: Brand name if known or brand code returned by `Card.brand`.
         """
         brand = self.brand
 
@@ -60,7 +68,12 @@ class Card(AbstractObject, AbstractName):
 
     @property
     def country(self):
-        """Card country."""
+        """
+        Card country.
+
+        Returns:
+            str: Two characters country code (ISO 3166-1 alpha-2).
+        """
         return self._data.get('country', None)
 
     @property
@@ -69,6 +82,12 @@ class Card(AbstractObject, AbstractName):
         Card Verification Code.
 
         We use string for CVC to prevent errors with leading zeros.
+
+        Args:
+            value (str): New value for CVC.
+
+        Returns:
+            str: Card Verification code.
         """
         return self._data.get('cvc', None)
 
@@ -87,7 +106,11 @@ class Card(AbstractObject, AbstractName):
         """
         Expiration month.
 
-        Must be an integer (between 1 and 12).
+        Args:
+            value (int): Must be an integer (between 1 and 12).
+
+        Returns:
+            int: Card expiration month.
         """
         return self._data.get('exp_month', None)
 
@@ -106,7 +129,11 @@ class Card(AbstractObject, AbstractName):
         """
         Expiration year.
 
-        Must be an integer (at least equal to the current year).
+        Args:
+            value (int): Must be at least equal to the current year.
+
+        Returns:
+            int: Card expiration year.
         """
         return self._data.get('exp_year', None)
 
@@ -124,9 +151,10 @@ class Card(AbstractObject, AbstractName):
     @property
     def last4(self):
         """
-        Card number's last 4 digit.
+        Card number's last 4 digits.
 
-        Will be a 4 characters lenght string.
+        Returns:
+            str: Card's last 4 digits.
         """
         number = self.number
 
@@ -140,7 +168,11 @@ class Card(AbstractObject, AbstractName):
         """
         Card number.
 
-        Must be a string.
+        Args:
+            value (str): New card number.
+
+        Returns:
+            str: Card number.
         """
         return self._data.get('number', None)
 
@@ -178,6 +210,12 @@ class Card(AbstractObject, AbstractName):
     def tokenize(self):
         """
         Indicate if the card can be reuse later.
+
+        Args:
+            value (bool): `True` allow reuse, `False` won't.
+
+        Returns:
+            bool: Tokenize status.
         """
         return self._data.get('tokenize', None)
 

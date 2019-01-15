@@ -29,7 +29,18 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def capture(self):
-        """Do we need to capture the payment ?"""
+        """
+        Do we need to capture the payment ?
+
+        When `False` the payment acts as an authorization and need to be
+        capture later.
+
+        Args:
+            value (bool): New status for capture.
+
+        Returns:
+            bool: Current capture status.
+        """
         return self._data.get('capture', None)
 
     @capture.setter
@@ -41,7 +52,15 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def card(self):
-        """Target card for the payment."""
+        """
+        Source card for the payment.
+
+        Args:
+            value (Card): A valid `Card` object.
+
+        Returns:
+            Card: Card used for the payment.
+        """
         return self._data.get('card', None)
 
     @card.setter
@@ -54,7 +73,15 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def customer(self):
-        """Customer handling the payment."""
+        """
+        Customer handling the payment.
+
+        Args:
+            value (Customer): A valid `Customer` object.
+
+        Returns:
+            Customer: Customer handling the payment.
+        """
         return self._data.get('customer', None)
 
     @customer.setter
@@ -66,7 +93,15 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def description(self):
-        """Open description for your uses."""
+        """
+        Open description for your uses.
+
+        Args:
+            value (str): Must be between 3 and 64 characters.
+
+        Returns:
+            str: Payment description.
+        """
         return self._data.get('description', None)
 
     @description.setter
@@ -85,12 +120,28 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def method(self):
-        """Payment method used."""
+        """
+        Payment method used.
+
+        Returns:
+            str: Payment means used, should be "card" or "sepa".
+        """
         return self._data.get('method', None)
 
     @property
     def order_id(self):
-        """External order id."""
+        """
+        External order id.
+
+        Like `Payment.description`, this is not used by the API,
+        it allow you to add your ID to a payment.
+
+        Args:
+            value (str): Must be maximum 24 characters.
+
+        Returns:
+            str: External order ID.
+        """
         return self._data.get('order_id', None)
 
     @order_id.setter
@@ -109,12 +160,27 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def response_code(self):
-        """API response code."""
+        """
+        API response code.
+
+        `00` is a success, other codes are errors.
+        You may use `Payment.response_message` to get the reason.
+
+        Returns:
+            str: API response for the payment.
+        """
         return self._data.get('response_code', None)
 
     @property
     def response_message(self):
-        """API response message."""
+        """
+        API response message.
+
+        See `Payment.response_code`.
+
+        Returns:
+            str: API response message.
+        """
         response_code = self.response_code
         responses = {
             '00': 'OK',
@@ -128,7 +194,15 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def sepa(self):
-        """Target sepa account for the payment."""
+        """
+        Source SEPA account for the payment.
+
+        Args:
+            value (Sepa): A valid `Sepa` object.
+
+        Returns:
+            Sepa: SEPA used for the payment.
+        """
         return self._data.get('sepa', None)
 
     @sepa.setter
@@ -141,5 +215,10 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     def status(self):
-        """Payment status."""
+        """
+        Payment status.
+
+        Returns:
+            str: Current status.
+        """
         return self._data.get('status', None)
