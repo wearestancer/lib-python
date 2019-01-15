@@ -159,6 +159,22 @@ class TestObject(TestHelper):
 
         assert len(responses.calls) == 1
 
+        conf.mode = Config.LIVE_MODE
+
+        responses.add(responses.PATCH, location + '/' + uid, json={'id': uid})
+
+        # Modified object allows new calls
+        obj.string2 = self.random_string(20)
+        obj_repr = obj.to_json()
+
+        obj.save()
+
+        assert len(responses.calls) == 2
+        assert responses.calls[1].request.body == obj_repr
+
+        # Change mode will change used key
+        assert responses.calls[1].request.headers['Authorization'] == pheader
+
     def test_to_json(self):
         obj = StubObject()
         card = Card()

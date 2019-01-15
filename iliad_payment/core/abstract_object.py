@@ -117,7 +117,9 @@ class AbstractObject(object):
         username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
 
         if self._modified:
-            response = requests.post(
+            method = getattr(requests, 'post' if self.id is None else 'patch')
+
+            response = method(
                 self.uri,
                 auth=(username, ''),
                 data=self.to_json(),
