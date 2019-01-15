@@ -46,6 +46,14 @@ class TestCard(TestHelper):
         with pytest.raises(AttributeError):
             obj.brand = self.random_string(15)
 
+    @pytest.mark.parametrize('brand', TestHelper.card_brand_provider())
+    def test_brandname(self, brand):
+        obj = Card()
+
+        obj.hydrate({'brand': brand[0]})
+
+        assert obj.brandname == brand[1]
+
     def test_country(self):
         obj = Card()
 

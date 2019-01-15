@@ -53,6 +53,22 @@ class TestHelper(object):
         return mobile
 
     @classmethod
+    def card_brand_provider(cls):
+        obj = TestHelper()
+        unknown_brand = obj.random_string(10)
+
+        return [
+            ('visa', 'VISA'),
+            ('mastercard', 'MasterCard'),
+            ('amex', 'American Express'),
+            ('jcb', 'JCB'),
+            ('maestro', 'Maestro'),
+            ('discover', 'Discover'),
+            ('dankort', 'Dankort'),
+            (unknown_brand, unknown_brand),
+        ]
+
+    @classmethod
     def card_number_provider(cls):
         return (
             # VISA

@@ -33,6 +33,32 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('brand', None)
 
     @property
+    def brandname(self):
+        """
+        Return real brand name.
+
+        Whereas `Card.brand` returns brand as a simple normalized
+        string like "amex",  `Card.brandname` will return a complete
+        and real brand name, like "American Express".
+        """
+        brand = self.brand
+
+        names = {
+            'visa': 'VISA',
+            'mastercard': 'MasterCard',
+            'amex': 'American Express',
+            'jcb': 'JCB',
+            'maestro': 'Maestro',
+            'discover': 'Discover',
+            'dankort': 'Dankort',
+        }
+
+        if brand in names:
+            return names[brand]
+
+        return brand
+
+    @property
     def country(self):
         """Card country."""
         return self._data.get('country', None)
