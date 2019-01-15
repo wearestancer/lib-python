@@ -14,6 +14,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 
 from datetime import datetime
 import json
+import requests
 
 from ..config import Config
 
@@ -106,6 +107,22 @@ class AbstractObject(object):
                 self._created = datetime.fromtimestamp(value)
             else:
                 self._data[key] = value
+
+        return self
+
+    def save(self):
+        """Save the current object."""
+        conf = Config()
+        username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
+
+        response = requests.post(
+            self.uri,
+            auth=(username, ''),
+            data=self.to_json(),
+        )
+
+        if response.text is not None:
+            self.hydrate(response.json())
 
         return self
 

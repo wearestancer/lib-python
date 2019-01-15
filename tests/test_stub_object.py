@@ -9,10 +9,13 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
+import base64
 from datetime import datetime
 import pytest
+import requests
+import responses
 
-from iliad_payment import Card
+from iliad_payment import Card, Config
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 
@@ -102,6 +105,52 @@ class TestObject(TestHelper):
 
         assert obj.card1 == card
         assert card.id == uid
+
+    @responses.activate
+    def test_save(self):
+        obj = StubObject()
+        card = Card()
+        conf = Config()
+
+        stest = 'stest_' + self.random_string(24)
+        sprod = 'sprod_' + self.random_string(24)
+
+        phead = base64.b64encode((sprod + ':').encode())
+        pheader = 'Basic {}'.format(phead.decode())
+
+        thead = base64.b64encode((stest + ':').encode())
+        theader = 'Basic {}'.format(thead.decode())
+
+        conf.keys = (sprod, stest)
+
+        card.hydrate({
+            'number': '4242424242424242',
+            'brand': self.random_string(10),
+        })
+
+        params = {
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'card1': card,
+            'created': 1546867615,
+        }
+
+        obj.hydrate(params)
+
+        uid = self.random_string(29)
+
+        location = obj.uri
+        obj_repr = obj.to_json()
+
+        responses.add(responses.POST, location, json={'id': uid})
+
+        assert obj.save() == obj
+        assert obj.id == uid
+
+        assert len(responses.calls) == 1
+        assert 'Authorization' in responses.calls[0].request.headers
+        assert responses.calls[0].request.headers['Authorization'] == theader
+        assert responses.calls[0].request.body == obj_repr
 
     def test_to_json(self):
         obj = StubObject()
