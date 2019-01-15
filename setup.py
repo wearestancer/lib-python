@@ -11,6 +11,7 @@ setup(
     keywords=['payments', 'payment solution'],
     install_requires=[
         'future',
+        'requests',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
