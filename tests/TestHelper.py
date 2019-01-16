@@ -13,9 +13,16 @@ import pytest
 from random import randint, choice
 import string
 
+from iliad_payment import Config
+
 
 class TestHelper(object):
     """Add some helper for tests."""
+
+    def setup_method(self, method):
+        conf = Config()
+
+        conf.keys = 'stest_' + self.random_string(24)
 
     def random_integer(self, min, max=0):
         if max < min:

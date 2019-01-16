@@ -42,7 +42,7 @@ class TestConfig(TestHelper):
         assert obj.pprod is None
         assert obj.sprod is None
         assert obj.ptest is None
-        assert obj.stest is None
+        assert obj.stest is not None  # test setup add a stest key
         assert isinstance(obj.keys, dict)
 
         keys = obj.keys
@@ -54,28 +54,28 @@ class TestConfig(TestHelper):
         assert 'ptest' in keys
         assert keys['ptest'] is None
         assert 'stest' in keys
-        assert keys['stest'] is None
+        assert keys['stest'] is not None
 
-        obj.keys = pprod
+        obj.keys = stest
 
-        assert obj.pprod == pprod
+        assert obj.pprod is None
         assert obj.sprod is None
         assert obj.ptest is None
-        assert obj.stest is None
+        assert obj.stest == stest
         assert isinstance(obj.keys, dict)
 
         keys = obj.keys
 
         assert 'pprod' in keys
-        assert keys['pprod'] == pprod
+        assert keys['pprod'] is None
         assert 'sprod' in keys
         assert keys['sprod'] is None
         assert 'ptest' in keys
         assert keys['ptest'] is None
         assert 'stest' in keys
-        assert keys['stest'] is None
+        assert keys['stest'] == stest
 
-        obj.keys = (ptest, stest)
+        obj.keys = (ptest, pprod)
 
         assert obj.pprod == pprod
         assert obj.sprod is None
