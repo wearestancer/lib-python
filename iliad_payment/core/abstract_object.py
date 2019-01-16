@@ -145,9 +145,8 @@ class AbstractObject(object):
             self: Current instance.
         """
         if not self._populated and self.id is not None:
+            self._populated = True
             Request(self).get
-
-        self._populated = True
 
         return self
 
