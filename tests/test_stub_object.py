@@ -108,6 +108,35 @@ class TestObject(TestHelper):
         assert card.id == uid
 
     @responses.activate
+    def test_populate(self):
+        obj = StubObject(self.random_string(29))
+
+        params = {
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'created': 1546867615,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        obj.populate()
+
+        assert obj.string1 == params['string1']
+        assert obj.integer1 == params['integer1']
+
+        assert len(responses.calls) == 1
+
+        # Multiple populate will not trigger multiple call
+        obj.populate()
+
+        assert len(responses.calls) == 1
+
+        # No ID == no call
+        StubObject().populate()
+
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_save(self):
         obj = StubObject()
         card = Card()

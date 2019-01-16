@@ -49,6 +49,7 @@ class AbstractObject(object):
         self._created = None
         self._data = {}
         self._modified = False
+        self._populated = False
 
     @property
     def __dict__(self):
@@ -129,6 +130,29 @@ class AbstractObject(object):
                 self._created = datetime.fromtimestamp(value)
             else:
                 self._data[key] = value
+
+        return self
+
+    def populate(self):
+        """
+        Populate the current object.
+
+        It will call the API to obtain current object's data.
+        This need an ID.
+
+        Returns:
+            self: Current instance.
+        """
+        conf = Config()
+        username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
+
+        if not self._populated and self.id is not None:
+            response = requests.get(self.uri, auth=(username, ''))
+
+            if response.text is not None:
+                self.hydrate(response.json())
+
+        self._populated = True
 
         return self
 
