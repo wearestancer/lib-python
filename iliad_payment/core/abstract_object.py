@@ -17,6 +17,7 @@ import json
 import requests
 
 from ..config import Config
+from .request import Request
 
 
 class AbstractObject(object):
@@ -143,14 +144,8 @@ class AbstractObject(object):
         Returns:
             self: Current instance.
         """
-        conf = Config()
-        username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
-
         if not self._populated and self.id is not None:
-            response = requests.get(self.uri, auth=(username, ''))
-
-            if response.text is not None:
-                self.hydrate(response.json())
+            Request(self).get
 
         self._populated = True
 
@@ -165,20 +160,8 @@ class AbstractObject(object):
         Returns:
             self: Current instance.
         """
-        conf = Config()
-        username = conf.sprod if conf.mode == Config.LIVE_MODE else conf.stest
-
         if self._modified:
-            method = getattr(requests, 'post' if self.id is None else 'patch')
-
-            response = method(
-                self.uri,
-                auth=(username, ''),
-                data=self.to_json(),
-            )
-
-            if response.text is not None:
-                self.hydrate(response.json())
+            Request(self).post
 
         self._modified = False
 
