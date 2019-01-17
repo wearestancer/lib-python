@@ -11,6 +11,7 @@ standard_library.install_aliases()
 
 import pytest
 import re
+import responses
 
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractObject, AbstractName
@@ -26,6 +27,7 @@ class TestSepa(TestHelper):
             'country',
         ]
 
+    @responses.activate
     def test_bic(self):
         obj = Sepa()
         bic = self.random_string(8)
@@ -52,6 +54,18 @@ class TestSepa(TestHelper):
         ):
             obj.bic = bad_bic
 
+        obj = Sepa(self.random_string(29))
+        params = {
+            'bic': self.random_string(11),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.bic == params['bic']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_country(self):
         obj = Sepa()
 
@@ -60,6 +74,18 @@ class TestSepa(TestHelper):
         with pytest.raises(AttributeError):
             obj.country = self.random_string(2)
 
+        obj = Sepa(self.random_string(29))
+        params = {
+            'country': self.random_string(2),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.country == params['country']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     @pytest.mark.parametrize('iban', TestHelper.iban_provider())
     def test_formatted_iban(self, iban):
         obj = Sepa()
@@ -73,6 +99,18 @@ class TestSepa(TestHelper):
 
         assert obj.formatted_iban == formatted.strip()
 
+        obj = Sepa(self.random_string(29))
+        params = {
+            'iban': iban,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.iban == iban
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     @pytest.mark.parametrize('iban', TestHelper.iban_provider())
     def test_iban(self, iban):
         obj = Sepa()
@@ -102,6 +140,18 @@ class TestSepa(TestHelper):
         ):
             obj.iban = bad_iban
 
+        obj = Sepa(self.random_string(29))
+        params = {
+            'iban': iban,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.iban == iban
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_last4(self):
         obj = Sepa()
 
@@ -109,3 +159,14 @@ class TestSepa(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.last4 = self.random_string(4)
+
+        obj = Sepa(self.random_string(29))
+        params = {
+            'last4': self.random_string(4),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.last4 == params['last4']
+        assert obj.is_populated
+        assert len(responses.calls) == 1

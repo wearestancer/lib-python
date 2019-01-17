@@ -16,6 +16,7 @@ import re
 
 from .core import AbstractName
 from .core import AbstractObject
+from .core.decorators import populate_on_call
 
 
 class Sepa(AbstractObject, AbstractName):
@@ -26,6 +27,7 @@ class Sepa(AbstractObject, AbstractName):
     ]
 
     @property
+    @populate_on_call
     def bic(self):
         """
         Bank Identifier Code.
@@ -53,6 +55,7 @@ class Sepa(AbstractObject, AbstractName):
         self._modified = True
 
     @property
+    @populate_on_call
     def country(self):
         """
         Account country.
@@ -80,6 +83,7 @@ class Sepa(AbstractObject, AbstractName):
         return re.sub(r'(.{,4})', '\\1 ', iban).strip()
 
     @property
+    @populate_on_call
     def iban(self):
         """
         International Bank Account Number.
@@ -119,6 +123,7 @@ class Sepa(AbstractObject, AbstractName):
         self._modified = True
 
     @property
+    @populate_on_call
     def last4(self):
         """
         IBAN's last 4 digits.
@@ -126,9 +131,4 @@ class Sepa(AbstractObject, AbstractName):
         Returns:
             str: IBAN's last 4 digits.
         """
-        iban = self.iban
-
-        if iban is None:
-            return None
-
-        return iban[-4:]
+        return self._data.get('last4')
