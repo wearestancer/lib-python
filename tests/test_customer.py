@@ -26,10 +26,12 @@ class TestCustomer(TestHelper):
         email = self.random_string(10)
 
         assert obj.email is None
+        assert obj.is_not_modified
 
         obj.email = email
 
         assert obj.email == email
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,
@@ -54,10 +56,12 @@ class TestCustomer(TestHelper):
         mobile = self.random_mobile()
 
         assert obj.mobile is None
+        assert obj.is_not_modified
 
         obj.mobile = mobile
 
         assert obj.mobile == mobile
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,
@@ -76,6 +80,20 @@ class TestCustomer(TestHelper):
             match='Mobile phone must be have at between 8 and 16 characters',
         ):
             obj.mobile = self.random_string(17)
+
+    def test_name(self):
+        # More test on test_abstract_name
+        # Here we are just testing the modified flag
+
+        obj = Customer()
+        name = self.random_string(4, 64)
+
+        assert obj.is_not_modified
+
+        obj.name = name
+
+        assert obj.name == name
+        assert obj.is_modified
 
     def test_uri(self):
         obj = Customer()

@@ -49,6 +49,7 @@ class Payment(AbstractObject, AbstractAmount):
             raise TypeError('Capture must be a boolean')
 
         self._data['capture'] = value
+        self._modified = True
 
     @property
     def card(self):
@@ -70,6 +71,7 @@ class Payment(AbstractObject, AbstractAmount):
 
         self._data['card'] = value
         self._data['method'] = 'card'
+        self._modified = True
 
     @property
     def customer(self):
@@ -90,6 +92,7 @@ class Payment(AbstractObject, AbstractAmount):
             raise TypeError('You must provide a valid instance of Customer')
 
         self._data['customer'] = value
+        self._modified = True
 
     @property
     def description(self):
@@ -117,6 +120,7 @@ class Payment(AbstractObject, AbstractAmount):
             raise TypeError(tmp.format(length_min, length_max))
 
         self._data['description'] = value
+        self._modified = True
 
     @property
     def method(self):
@@ -157,6 +161,7 @@ class Payment(AbstractObject, AbstractAmount):
             raise TypeError(tmp.format(length_max))
 
         self._data['order_id'] = value
+        self._modified = True
 
     @property
     def response_code(self):
@@ -212,6 +217,7 @@ class Payment(AbstractObject, AbstractAmount):
 
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
+        self._modified = True
 
     @property
     def status(self):

@@ -50,6 +50,7 @@ class Sepa(AbstractObject, AbstractName):
             raise TypeError('"{}" is not a valid BIC'.format(value))
 
         self._data['bic'] = value
+        self._modified = True
 
     @property
     def country(self):
@@ -115,6 +116,7 @@ class Sepa(AbstractObject, AbstractName):
         self._data['iban'] = iban
         self._data['last4'] = iban[-4:]
         self._data['country'] = iban[0:2].lower()
+        self._modified = True
 
     @property
     def last4(self):

@@ -41,6 +41,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
             raise TypeError(tmp.format('Amount', 4, 64))
 
         self._data['amount'] = value
+        self._modified = True
 
     @property
     def currency(self):
@@ -65,3 +66,4 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
             raise TypeError(message)
 
         self._data['currency'] = currency
+        self._modified = True

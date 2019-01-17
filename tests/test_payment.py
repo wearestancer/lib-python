@@ -25,13 +25,29 @@ class TestPayment(TestHelper):
             'method',
         ]
 
+    def test_amount(self):
+        # More test on test_abstract_amount
+        # Here we are just testing the modified flag
+
+        obj = Payment()
+        amount = self.random_integer(50, 999999)
+
+        assert obj.is_not_modified
+
+        obj.amount = amount
+
+        assert obj.amount == amount
+        assert obj.is_modified
+
     def test_capture(self):
         obj = Payment()
 
         assert obj.capture is None
+        assert obj.is_not_modified
 
         obj.capture = True
         assert obj.capture is True
+        assert obj.is_modified
 
         obj.capture = False
         assert obj.capture is False
@@ -93,6 +109,20 @@ class TestPayment(TestHelper):
             match='You must provide a valid instance of Customer',
         ):
             obj.customer = self.random_string(2)
+
+    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
+    def test_currency(self, currency):
+        # More test on test_abstract_amount
+        # Here we are just testing the modified flag
+
+        obj = Payment()
+
+        assert obj.is_not_modified
+
+        obj.currency = currency
+
+        assert obj.currency == currency
+        assert obj.is_modified
 
     def test_description(self):
         obj = Payment()

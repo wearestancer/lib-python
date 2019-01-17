@@ -43,3 +43,4 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
             raise TypeError(tmp.format('Name', 4, 64))
 
         self._data['name'] = value
+        self._modified = True

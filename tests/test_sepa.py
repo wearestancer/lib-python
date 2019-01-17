@@ -31,10 +31,12 @@ class TestSepa(TestHelper):
         bic = self.random_string(8)
 
         assert obj.bic is None
+        assert obj.is_not_modified
 
         obj.bic = bic
 
         assert obj.bic == bic
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,
@@ -77,12 +79,14 @@ class TestSepa(TestHelper):
         formatted = re.sub(r'\s', '', iban)
 
         assert obj.iban is None
+        assert obj.is_not_modified
 
         obj.iban = iban
 
         assert obj.iban == formatted
         assert obj.last4 == formatted[-4:]
         assert obj.country == formatted[0:2].lower()
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,

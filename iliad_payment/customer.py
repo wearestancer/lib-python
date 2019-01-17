@@ -45,6 +45,7 @@ class Customer(AbstractObject, AbstractName):
             raise TypeError(_DEFAULT_MESSAGE.format('Email', 5, 64))
 
         self._data['email'] = value
+        self._modified = True
 
     @property
     def mobile(self):
@@ -68,3 +69,4 @@ class Customer(AbstractObject, AbstractName):
             raise TypeError(_DEFAULT_MESSAGE.format('Mobile phone', 8, 16))
 
         self._data['mobile'] = value
+        self._modified = True
