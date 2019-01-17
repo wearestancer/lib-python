@@ -41,7 +41,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             bool: Current capture status.
         """
-        return self._data.get('capture', None)
+        return self._data.get('capture')
 
     @capture.setter
     def capture(self, value):
@@ -62,7 +62,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             Card: Card used for the payment.
         """
-        return self._data.get('card', None)
+        return self._data.get('card')
 
     @card.setter
     def card(self, value):
@@ -84,7 +84,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             Customer: Customer handling the payment.
         """
-        return self._data.get('customer', None)
+        return self._data.get('customer')
 
     @customer.setter
     def customer(self, value):
@@ -105,7 +105,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             str: Payment description.
         """
-        return self._data.get('description', None)
+        return self._data.get('description')
 
     @description.setter
     def description(self, value):
@@ -130,7 +130,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             str: Payment means used, should be "card" or "sepa".
         """
-        return self._data.get('method', None)
+        return self._data.get('method')
 
     @property
     def order_id(self):
@@ -146,7 +146,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             str: External order ID.
         """
-        return self._data.get('order_id', None)
+        return self._data.get('order_id')
 
     @order_id.setter
     def order_id(self, value):
@@ -174,7 +174,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             str: API response for the payment.
         """
-        return self._data.get('response_code', None)
+        return self._data.get('response_code')
 
     @property
     def response_message(self):
@@ -195,7 +195,7 @@ class Payment(AbstractObject, AbstractAmount):
             '51': 'Insufficient funds',
         }
 
-        return responses.get(response_code, None)
+        return responses.get(response_code)
 
     @property
     def sepa(self):
@@ -208,7 +208,7 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             Sepa: SEPA used for the payment.
         """
-        return self._data.get('sepa', None)
+        return self._data.get('sepa')
 
     @sepa.setter
     def sepa(self, value):
@@ -227,4 +227,4 @@ class Payment(AbstractObject, AbstractAmount):
         Returns:
             str: Current status.
         """
-        return self._data.get('status', None)
+        return self._data.get('status')

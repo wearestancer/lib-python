@@ -26,12 +26,12 @@ class StubObject(AbstractObject):
     @property
     @populate_on_call
     def string1(self):
-        return self._data.get('string1', None)
+        return self._data.get('string1')
 
     @property
     @populate_on_call
     def string2(self):
-        return self._data.get('string2', None)
+        return self._data.get('string2')
 
     @string2.setter
     def string2(self, value):
@@ -41,8 +41,8 @@ class StubObject(AbstractObject):
     @property
     @populate_on_call
     def integer1(self):
-        return self._data.get('integer1', None)
+        return self._data.get('integer1')
 
     @property
     def card1(self):
-        return self._data.get('card1', None)
+        return self._data.get('card1')

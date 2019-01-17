@@ -38,7 +38,7 @@ class Sepa(AbstractObject, AbstractName):
         Returns:
             str: BIC.
         """
-        return self._data.get('bic', None)
+        return self._data.get('bic')
 
     @bic.setter
     def bic(self, value):
@@ -60,7 +60,7 @@ class Sepa(AbstractObject, AbstractName):
         Returns:
             str: Two characters country code (ISO 3166-1 alpha-2).
         """
-        return self._data.get('country', None)
+        return self._data.get('country')
 
     @property
     def formatted_iban(self):
@@ -94,7 +94,7 @@ class Sepa(AbstractObject, AbstractName):
         Returns:
             str: Sanitized IBAN.
         """
-        return self._data.get('iban', None)
+        return self._data.get('iban')
 
     @iban.setter
     def iban(self, value):

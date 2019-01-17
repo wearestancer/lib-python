@@ -34,7 +34,7 @@ class Customer(AbstractObject, AbstractName):
         Returns:
             str: Customer's email.
         """
-        return self._data.get('email', None)
+        return self._data.get('email')
 
     @email.setter
     def email(self, value):
@@ -58,7 +58,7 @@ class Customer(AbstractObject, AbstractName):
         Returns:
             str: Customer's mobile phone number.
         """
-        return self._data.get('mobile', None)
+        return self._data.get('mobile')
 
     @mobile.setter
     def mobile(self, value):

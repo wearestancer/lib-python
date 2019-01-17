@@ -28,7 +28,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
 
         Must be a an integer and at least 50.
         """
-        return self._data.get('amount', None)
+        return self._data.get('amount')
 
     @amount.setter
     def amount(self, value):
@@ -50,7 +50,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
 
         Must be one of the following items: eur, gbp, usd
         """
-        return self._data.get('currency', None)
+        return self._data.get('currency')
 
     @currency.setter
     def currency(self, value):

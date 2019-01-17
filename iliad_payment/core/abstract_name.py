@@ -30,7 +30,7 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
         Returns:
             str: Current defined name
         """
-        return self._data.get('name', None)
+        return self._data.get('name')
 
     @name.setter
     def name(self, value):

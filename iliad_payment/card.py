@@ -37,7 +37,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             str: Brand code as viewed by the API.
         """
-        return self._data.get('brand', None)
+        return self._data.get('brand')
 
     @property
     def brandname(self):
@@ -77,7 +77,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             str: Two characters country code (ISO 3166-1 alpha-2).
         """
-        return self._data.get('country', None)
+        return self._data.get('country')
 
     @property
     @populate_on_call
@@ -93,7 +93,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             str: Card Verification code.
         """
-        return self._data.get('cvc', None)
+        return self._data.get('cvc')
 
     @cvc.setter
     def cvc(self, value):
@@ -118,7 +118,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             int: Card expiration month.
         """
-        return self._data.get('exp_month', None)
+        return self._data.get('exp_month')
 
     @exp_month.setter
     def exp_month(self, value):
@@ -143,7 +143,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             int: Card expiration year.
         """
-        return self._data.get('exp_year', None)
+        return self._data.get('exp_year')
 
     @exp_year.setter
     def exp_year(self, value):
@@ -166,7 +166,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             str: Card's last 4 digits.
         """
-        return self._data.get('last4', None)
+        return self._data.get('last4')
 
     @property
     @populate_on_call
@@ -180,7 +180,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             str: Card number.
         """
-        return self._data.get('number', None)
+        return self._data.get('number')
 
     @number.setter
     def number(self, value):
@@ -226,7 +226,7 @@ class Card(AbstractObject, AbstractName):
         Returns:
             bool: Tokenize status.
         """
-        return self._data.get('tokenize', None)
+        return self._data.get('tokenize')
 
     @tokenize.setter
     def tokenize(self, value):
