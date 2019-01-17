@@ -9,6 +9,7 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
+import base64
 import pytest
 import responses
 
@@ -54,3 +55,92 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         conf.keys = previous_keys
+
+    @responses.activate
+    def test_get(self):
+        obj = StubObject(self.random_string(29))
+        req = Request(obj)
+        conf = Config()
+
+        responses.add(responses.GET, obj.uri, json={})
+
+        assert req.get == req
+        assert len(responses.calls) == 1
+
+        tmp = base64.b64encode((conf.stest + ':').encode())
+        auth = 'Basic {}'.format(tmp.decode())
+
+        api_call = responses.calls[0]
+
+        assert api_call.request.method == 'GET'
+        assert api_call.request.url == obj.uri
+        assert api_call.request.body is None
+
+        assert 'Authorization' in api_call.request.headers
+        assert api_call.request.headers['Authorization'] == auth
+
+        assert 'Content-Type' in api_call.request.headers
+        assert api_call.request.headers['Content-Type'] == 'application/json'
+
+    @responses.activate
+    def test_post(self):
+        obj = StubObject()
+        req = Request(obj)
+        conf = Config()
+
+        obj.hydrate({
+            'string1': self.random_string(10, 20),
+            'integer1': self.random_integer(10, 999999),
+        })
+
+        ret = {
+            'id': self.random_string(29),
+        }
+
+        obj.force_modified(False)
+
+        responses.add(responses.POST, obj.uri, json=ret)
+
+        location = obj.uri
+        body = obj.to_json()
+
+        assert req.post == req
+        assert obj.id == ret['id']
+        assert len(responses.calls) == 1
+
+        tmp = base64.b64encode((conf.stest + ':').encode())
+        auth = 'Basic {}'.format(tmp.decode())
+
+        api_call = responses.calls[0]
+
+        assert api_call.request.method == 'POST'
+        assert api_call.request.url == location
+        assert api_call.request.body == body
+
+        assert 'Authorization' in api_call.request.headers
+        assert api_call.request.headers['Authorization'] == auth
+
+        assert 'Content-Type' in api_call.request.headers
+        assert api_call.request.headers['Content-Type'] == 'application/json'
+
+        obj.force_modified(True)
+
+        responses.add(responses.PATCH, obj.uri)
+
+        location = obj.uri
+        body = obj.to_json()
+
+        assert req.post == req
+        assert len(responses.calls) == 2
+
+        api_call = responses.calls[1]
+
+        assert api_call.request.method == 'PATCH'
+        assert api_call.request.url == obj.uri
+        assert api_call.request.body == body
+
+        assert 'Authorization' in api_call.request.headers
+        assert api_call.request.headers['Authorization'] == auth
+
+        assert 'Content-Type' in api_call.request.headers
+        assert api_call.request.headers['Content-Type'] == 'application/json'

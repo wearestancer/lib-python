@@ -47,11 +47,19 @@ class Request(object):
 
             method = getattr(requests, name)
 
+            body = None
+
+            if name != 'get':
+                body = self._obj.to_json()
+
             response = method(
                 self._obj.uri,
                 auth=(username, ''),
-                data=self._obj.to_json(),
+                data=body,
                 timeout=self._conf.timeout,
+                headers={
+                    'Content-Type': 'application/json',
+                },
             )
 
             if response.text is not None:
