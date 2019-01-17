@@ -137,6 +137,25 @@ class TestObject(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
+    def test_populate_auto(self):
+        obj = StubObject(self.random_string(29))
+        conf = Config()
+
+        conf.keys = 'stest_' + self.random_string(24)
+
+        params = {
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'created': 1546867615,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.string1 == params['string1']
+        assert obj.integer1 == params['integer1']
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_save(self):
         obj = StubObject()
         card = Card()
