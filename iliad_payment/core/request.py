@@ -51,6 +51,7 @@ class Request(object):
                 self._obj.uri,
                 auth=(username, ''),
                 data=self._obj.to_json(),
+                timeout=self._conf.timeout,
             )
 
             if response.text is not None:
