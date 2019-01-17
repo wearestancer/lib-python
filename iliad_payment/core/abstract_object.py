@@ -189,6 +189,8 @@ class AbstractObject(object):
             self._modified = False
             Request(self).get
 
+        self._populated = True
+
         return self
 
     def save(self):
