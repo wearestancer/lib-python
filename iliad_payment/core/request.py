@@ -27,10 +27,20 @@ class Request(object):
 
     def __getattr__(self, name):
         if name in ['get', 'post']:
-            username = self._conf.stest
+            mode = self._conf.mode
+            username = None
 
             if self._conf.mode == Config.LIVE_MODE:
-                username = self._conf.sprod
+                mode = 'prod'
+
+            for prefix in ['p', 's']:
+                tmp = getattr(self._conf, prefix + mode)
+
+                if tmp is not None:
+                    username = tmp
+
+            if username is None:
+                raise AttributeError('No API key found.')
 
             if name == 'post' and self._obj.id is not None:
                 name = 'patch'

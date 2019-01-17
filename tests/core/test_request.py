@@ -26,3 +26,31 @@ class TestRequest(TestHelper):
 
         assert req.plop == req
         assert len(responses.calls) == 0
+
+    @responses.activate
+    @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
+    def test_api_key_validation(self, key, mode, prefix):
+        obj = StubObject()
+        req = Request(obj)
+        conf = Config()
+
+        previous_keys = conf.keys
+        conf.reset_keys()
+
+        with pytest.raises(
+            AttributeError,
+            match='No API key found.',
+        ):
+            req.get
+
+        assert len(responses.calls) == 0
+
+        conf.mode = mode
+        conf.keys = key
+
+        responses.add(responses.GET, obj.uri, json={})
+
+        assert req.get == req
+        assert len(responses.calls) == 1
+
+        conf.keys = previous_keys
