@@ -72,6 +72,7 @@ class Payment(AbstractObject, AbstractAmount):
         self._modified = True
 
     @property
+    @populate_on_call
     def card(self):
         """
         Source card for the payment.
@@ -94,6 +95,7 @@ class Payment(AbstractObject, AbstractAmount):
         self._modified = True
 
     @property
+    @populate_on_call
     def customer(self):
         """
         Customer handling the payment.
@@ -223,6 +225,7 @@ class Payment(AbstractObject, AbstractAmount):
         return responses.get(response_code)
 
     @property
+    @populate_on_call
     def sepa(self):
         """
         Source SEPA account for the payment.

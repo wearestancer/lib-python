@@ -89,6 +89,7 @@ class TestPayment(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    @responses.activate
     def test_card(self):
         obj = Payment()
         card = Card()
@@ -113,6 +114,20 @@ class TestPayment(TestHelper):
         ):
             obj.card = self.random_string(2)
 
+        obj = Payment(self.random_string(29))
+
+        params = {
+            'card': self.random_string(50),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.card, Card)
+        assert obj.card.id == params['card']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_customer(self):
         obj = Payment()
         customer = Customer()
@@ -134,6 +149,19 @@ class TestPayment(TestHelper):
             match='You must provide a valid instance of Customer',
         ):
             obj.customer = self.random_string(2)
+
+        obj = Payment(self.random_string(29))
+
+        params = {
+            'customer': self.random_string(50),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.customer, Customer)
+        assert obj.customer.id == params['customer']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     @responses.activate
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
@@ -338,6 +366,7 @@ class TestPayment(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    @responses.activate
     def test_sepa(self):
         obj = Payment()
         sepa = Sepa()
@@ -361,6 +390,21 @@ class TestPayment(TestHelper):
             match='You must provide a valid instance of Sepa',
         ):
             obj.sepa = self.random_string(2)
+
+        obj = Payment(self.random_string(29))
+
+        params = {
+            'sepa': {
+                'id': self.random_string(29),
+            },
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.sepa, Sepa)
+        assert obj.sepa.id == params['sepa']['id']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     @responses.activate
     def test_status(self):
