@@ -41,12 +41,7 @@ class Config(Singleton):
         self._timeout = 5
         self._version = 1
 
-        self._keys = {
-            'pprod': None,
-            'ptest': None,
-            'sprod': None,
-            'stest': None,
-        }
+        self.reset_keys()
 
     @property
     def host(self):

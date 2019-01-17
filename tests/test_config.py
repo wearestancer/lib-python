@@ -39,10 +39,14 @@ class TestConfig(TestHelper):
         ptest = 'ptest_' + self.random_string(24)
         stest = 'stest_' + self.random_string(24)
 
+        # test setup add a stest key, we will put back after this test
+        previous_keys = obj.keys
+        obj.reset_keys()
+
         assert obj.pprod is None
         assert obj.sprod is None
         assert obj.ptest is None
-        assert obj.stest is not None  # test setup add a stest key
+        assert obj.stest is None
         assert isinstance(obj.keys, dict)
 
         keys = obj.keys
@@ -54,7 +58,7 @@ class TestConfig(TestHelper):
         assert 'ptest' in keys
         assert keys['ptest'] is None
         assert 'stest' in keys
-        assert keys['stest'] is not None
+        assert keys['stest'] is None
 
         obj.keys = stest
 
@@ -141,6 +145,8 @@ class TestConfig(TestHelper):
             match='"{}" is not a valid API key.'.format(bad_key),
         ):
             obj.keys = bad_key
+
+        obj.keys = previous_keys
 
     def test_mode(self):
         obj = Config()
