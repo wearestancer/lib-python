@@ -21,7 +21,7 @@ from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 
 
-class TestObject(TestHelper):
+class TestStubObject(TestHelper):
     def test__dict__(self):
         obj = StubObject()
         card = Card(self.random_string(29))
