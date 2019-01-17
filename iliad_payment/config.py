@@ -97,13 +97,17 @@ class Config(Singleton):
         if isinstance(value, str):
             keychain = (value,)
 
+        if isinstance(value, dict):
+            keychain = list(value.values())
+
         for key in keychain:
-            key_prefix = key[:5]
+            if isinstance(key, str):
+                key_prefix = key[:5]
 
-            if key_prefix not in self._keys:
-                raise TypeError('"{}" is not a valid API key.'.format(key))
+                if key_prefix not in self._keys:
+                    raise TypeError('"{}" is not a valid API key.'.format(key))
 
-            self._keys[key_prefix] = key
+                self._keys[key_prefix] = key
 
     @property
     def mode(self):

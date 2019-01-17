@@ -120,6 +120,20 @@ class TestConfig(TestHelper):
 
         assert obj.sprod == key2
 
+        keychain = {
+            'pprod': 'pprod_' + self.random_string(24),
+            'sprod': 'sprod_' + self.random_string(24),
+            'ptest': 'ptest_' + self.random_string(24),
+            'stest': 'stest_' + self.random_string(24),
+        }
+
+        obj.keys = keychain
+
+        assert obj.pprod == keychain['pprod']
+        assert obj.sprod == keychain['sprod']
+        assert obj.ptest == keychain['ptest']
+        assert obj.stest == keychain['stest']
+
         bad_key = self.random_string(30)
 
         with pytest.raises(
