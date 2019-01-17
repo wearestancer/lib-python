@@ -50,3 +50,5 @@ class Request(object):
                     # Bypass in case of decoding error
                     #  (if the body is HTML or whatever)
                     pass
+
+        return self
