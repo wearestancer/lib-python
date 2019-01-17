@@ -24,19 +24,20 @@ from .TestHelper import TestHelper
 class TestStubObject(TestHelper):
     def test__dict__(self):
         obj = StubObject()
-        card = Card(self.random_string(29))
-
-        card.number = '4242424242424242'
 
         params = {
             'id': self.random_string(29),
             'string1': self.random_string(10),
             'integer1': self.random_integer(10),
-            'card1': card,
+            'card1': {
+                'id': self.random_string(29),
+                'number': '4242424242424242',
+            },
             'created': 1546867615,
         }
 
         obj.hydrate(params)
+        card = obj.card1
 
         result = obj.__dict__
 
@@ -76,13 +77,12 @@ class TestStubObject(TestHelper):
 
     def test_hydrate(self):
         obj = StubObject()
-        card = Card()
         uid = self.random_string(29)
 
         params = {
             'string1': self.random_string(10),
             'integer1': self.random_integer(10),
-            'card1': card,
+            'card1': {},
             'created': 1546867615,
         }
 
@@ -99,13 +99,28 @@ class TestStubObject(TestHelper):
         assert obj.created.minute == 26
         assert obj.created.second == 55
 
-        assert obj.card1 == card
-        assert card.id is None
+        assert isinstance(obj.card1, Card)
+        assert obj.card1.id is None
+
+        card = obj.card1
 
         assert obj.hydrate({'card1': uid}) == obj
 
         assert obj.card1 == card
         assert card.id == uid
+
+        params = {
+            'card1': {
+                'id': self.random_string(29),
+            },
+        }
+
+        obj = StubObject()
+        obj.hydrate(params)
+
+        assert isinstance(obj.card1, Card)
+        assert obj.card1 != card
+        assert obj.card1.id == params['card1']['id']
 
     def test_modified_status(self):
         obj = StubObject()
@@ -192,7 +207,6 @@ class TestStubObject(TestHelper):
     @responses.activate
     def test_save(self):
         obj = StubObject()
-        card = Card()
         conf = Config()
 
         stest = 'stest_' + self.random_string(24)
@@ -206,20 +220,19 @@ class TestStubObject(TestHelper):
 
         conf.keys = (sprod, stest)
 
-        card.hydrate({
-            'number': '4242424242424242',
-            'brand': self.random_string(10),
-        })
-
         params = {
             'string1': self.random_string(10),
             'integer1': self.random_integer(10),
-            'card1': card,
+            'card1': {
+                'number': '4242424242424242',
+                'brand': self.random_string(10),
+            },
             'created': 1546867615,
         }
 
         obj.hydrate(params)
         obj.string2 = self.random_string(20)
+        card = obj.card1
 
         uid = self.random_string(29)
 
@@ -259,21 +272,19 @@ class TestStubObject(TestHelper):
 
     def test_to_json(self):
         obj = StubObject()
-        card = Card()
-
-        card.hydrate({
-            'number': '4242424242424242',
-            'brand': self.random_string(10),
-        })
 
         params = {
             'string1': self.random_string(10),
             'integer1': self.random_integer(10),
-            'card1': card,
+            'card1': {
+                'number': '4242424242424242',
+                'brand': self.random_string(10),
+            },
             'created': 1546867615,
         }
 
         obj.hydrate(params)
+        card = obj.card1
 
         result = obj.to_json()
 

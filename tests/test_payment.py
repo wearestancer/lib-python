@@ -201,6 +201,49 @@ class TestPayment(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    def test_hydrate(self):
+        obj = Payment()
+
+        params = {
+            'card': {},
+            'customer': {},
+            'sepa': {},
+        }
+
+        assert obj.hydrate(params) == obj
+
+        assert isinstance(obj.card, Card)
+        assert obj.card.id is None
+        card = obj.card
+
+        assert isinstance(obj.customer, Customer)
+        assert obj.customer.id is None
+        customer = obj.customer
+
+        assert isinstance(obj.sepa, Sepa)
+        assert obj.sepa.id is None
+        sepa = obj.sepa
+
+        params = {
+            'card': self.random_string(29),
+            'customer': self.random_string(29),
+            'sepa': self.random_string(29),
+        }
+
+        assert obj.hydrate(params) == obj
+
+        assert isinstance(obj.card, Card)
+        assert obj.card == card
+        assert obj.card.id == params['card']
+
+        assert isinstance(obj.customer, Customer)
+        assert obj.customer == customer
+        assert obj.customer.id == params['customer']
+
+        assert isinstance(obj.sepa, Sepa)
+        assert obj.sepa == sepa
+        assert obj.sepa.id == params['sepa']
+
     @responses.activate
     def test_method(self):
         obj = Payment()

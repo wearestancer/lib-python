@@ -29,6 +29,24 @@ class Payment(AbstractObject, AbstractAmount):
     ]
 
     @property
+    def _init_card(self):
+        self.card = Card()
+
+        return self.card
+
+    @property
+    def _init_customer(self):
+        self.customer = Customer()
+
+        return self.customer
+
+    @property
+    def _init_sepa(self):
+        self.sepa = Sepa()
+
+        return self.sepa
+
+    @property
     @populate_on_call
     def capture(self):
         """

@@ -8,6 +8,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from future import standard_library
 standard_library.install_aliases()
 
+from iliad_payment import Card
 from iliad_payment.core import AbstractObject
 from iliad_payment.core.decorators import populate_on_call
 
@@ -46,3 +47,9 @@ class StubObject(AbstractObject):
     @property
     def card1(self):
         return self._data.get('card1')
+
+    @property
+    def _init_card1(self):
+        self._data['card1'] = Card()
+
+        return self._data['card1']

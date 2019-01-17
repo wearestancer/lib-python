@@ -120,6 +120,10 @@ class AbstractObject(object):
         for key, value in list(params.items()):
             if hasattr(self, key):
                 tmp = getattr(self, key)
+                init_method = '_init_' + key
+
+                if tmp is None and hasattr(self, init_method):
+                    tmp = getattr(self, init_method)
 
                 if hasattr(tmp, 'hydrate'):
                     val = {'id': value} if isinstance(value, str) else value
