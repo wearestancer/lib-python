@@ -16,6 +16,7 @@ from .card import Card
 from .customer import Customer
 from .sepa import Sepa
 from .core import AbstractObject, AbstractAmount
+from .core.decorators import populate_on_call
 
 
 class Payment(AbstractObject, AbstractAmount):
@@ -28,6 +29,7 @@ class Payment(AbstractObject, AbstractAmount):
     ]
 
     @property
+    @populate_on_call
     def capture(self):
         """
         Do we need to capture the payment ?
@@ -95,6 +97,7 @@ class Payment(AbstractObject, AbstractAmount):
         self._modified = True
 
     @property
+    @populate_on_call
     def description(self):
         """
         Open description for your uses.
@@ -123,6 +126,7 @@ class Payment(AbstractObject, AbstractAmount):
         self._modified = True
 
     @property
+    @populate_on_call
     def method(self):
         """
         Payment method used.
@@ -133,6 +137,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('method')
 
     @property
+    @populate_on_call
     def order_id(self):
         """
         External order id.
@@ -164,6 +169,7 @@ class Payment(AbstractObject, AbstractAmount):
         self._modified = True
 
     @property
+    @populate_on_call
     def response_code(self):
         """
         API response code.
@@ -177,6 +183,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('response_code')
 
     @property
+    @populate_on_call
     def response_message(self):
         """
         API response message.
@@ -220,6 +227,7 @@ class Payment(AbstractObject, AbstractAmount):
         self._modified = True
 
     @property
+    @populate_on_call
     def status(self):
         """
         Payment status.

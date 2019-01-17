@@ -12,6 +12,8 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
+from .decorators import populate_on_call
+
 
 class AbstractAmount(object):  # pylint: disable=too-few-public-methods
     """Common amount management."""
@@ -22,6 +24,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
         self._data = {}
 
     @property
+    @populate_on_call
     def amount(self):
         """
         Payment or refund amount.
@@ -44,6 +47,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
         self._modified = True
 
     @property
+    @populate_on_call
     def currency(self):
         """
         Payment or refund currency.

@@ -10,6 +10,7 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 import pytest
+import responses
 
 from iliad_payment import Payment, Card, Customer, Sepa
 from iliad_payment.core import AbstractObject, AbstractAmount
@@ -25,9 +26,10 @@ class TestPayment(TestHelper):
             'method',
         ]
 
+    @responses.activate
     def test_amount(self):
         # More test on test_abstract_amount
-        # Here we are just testing the modified flag
+        # Here we are just testing the modified flag and auto population
 
         obj = Payment()
         amount = self.random_integer(50, 999999)
@@ -39,6 +41,18 @@ class TestPayment(TestHelper):
         assert obj.amount == amount
         assert obj.is_modified
 
+        obj = Payment(self.random_string(29))
+        params = {
+            'amount': self.random_integer(50, 999999),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.amount == params['amount']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_capture(self):
         obj = Payment()
 
@@ -63,6 +77,17 @@ class TestPayment(TestHelper):
             match='Capture must be a boolean',
         ):
             obj.capture = self.random_string(2)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'capture': True,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.capture == params['capture']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     def test_card(self):
         obj = Payment()
@@ -110,10 +135,11 @@ class TestPayment(TestHelper):
         ):
             obj.customer = self.random_string(2)
 
+    @responses.activate
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_currency(self, currency):
         # More test on test_abstract_amount
-        # Here we are just testing the modified flag
+        # Here we are just testing the modified flag and auto population
 
         obj = Payment()
 
@@ -124,6 +150,18 @@ class TestPayment(TestHelper):
         assert obj.currency == currency
         assert obj.is_modified
 
+        obj = Payment(self.random_string(29))
+        params = {
+            'currency': currency,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.currency == params['currency']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_description(self):
         obj = Payment()
         description = self.random_string(3, 64)
@@ -152,6 +190,18 @@ class TestPayment(TestHelper):
         ):
             obj.description = self.random_string(65)
 
+        obj = Payment(self.random_string(29))
+        params = {
+            'description': self.random_string(3, 64),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.description == params['description']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_method(self):
         obj = Payment()
 
@@ -160,6 +210,18 @@ class TestPayment(TestHelper):
         with pytest.raises(AttributeError):
             obj.method = self.random_string(29)
 
+        obj = Payment(self.random_string(29))
+        params = {
+            'method': self.random_string(4),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.method == params['method']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_order_id(self):
         obj = Payment()
         order_id = self.random_string(1, 24)
@@ -182,6 +244,18 @@ class TestPayment(TestHelper):
         ):
             obj.order_id = self.random_string(25, 30)
 
+        obj = Payment(self.random_string(29))
+        params = {
+            'order_id': self.random_string(1, 24),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.order_id == params['order_id']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_response_code(self):
         obj = Payment()
 
@@ -190,6 +264,18 @@ class TestPayment(TestHelper):
         with pytest.raises(AttributeError):
             obj.response_code = self.random_string(29)
 
+        obj = Payment(self.random_string(29))
+        params = {
+            'response_code': self.random_string(2),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.response_code == params['response_code']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_response_message(self):
         obj = Payment()
 
@@ -197,6 +283,17 @@ class TestPayment(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.response_message = self.random_string(29)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'response_code': self.random_string(2),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.response_code == params['response_code']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     def test_sepa(self):
         obj = Payment()
@@ -222,6 +319,7 @@ class TestPayment(TestHelper):
         ):
             obj.sepa = self.random_string(2)
 
+    @responses.activate
     def test_status(self):
         obj = Payment()
 
@@ -229,6 +327,17 @@ class TestPayment(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.status = self.random_string(29)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'status': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.status == params['status']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     def test_uri(self):
         obj = Payment()
