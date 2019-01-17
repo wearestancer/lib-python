@@ -67,10 +67,12 @@ class TestCard(TestHelper):
         cvc = self.random_string(3)
 
         assert obj.cvc is None
+        assert obj.is_not_modified
 
         obj.cvc = cvc
 
         assert obj.cvc == cvc
+        assert obj.is_modified
 
         with pytest.raises(TypeError, match='CVC must have 3 characters'):
             obj.cvc = self.random_string(2)
@@ -83,10 +85,12 @@ class TestCard(TestHelper):
         exp_month = self.random_integer(1, 12)
 
         assert obj.exp_month is None
+        assert obj.is_not_modified
 
         obj.exp_month = exp_month
 
         assert obj.exp_month == exp_month
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,
@@ -118,10 +122,12 @@ class TestCard(TestHelper):
         exp_year = self.random_integer(0, 20) + current_year
 
         assert obj.exp_year is None
+        assert obj.is_not_modified
 
         obj.exp_year = exp_year
 
         assert obj.exp_year == exp_year
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,
@@ -149,11 +155,13 @@ class TestCard(TestHelper):
         last4 = number[-4:]
 
         assert obj.number is None
+        assert obj.is_not_modified
 
         obj.number = number
 
         assert obj.number == number
         assert obj.last4 == last4
+        assert obj.is_modified
 
         with pytest.raises(
             TypeError,
@@ -173,10 +181,12 @@ class TestCard(TestHelper):
         obj = Card()
 
         assert obj.tokenize is None
+        assert obj.is_not_modified
 
         obj.tokenize = True
 
         assert obj.tokenize is True
+        assert obj.is_modified
 
         obj.tokenize = False
 

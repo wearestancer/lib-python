@@ -100,6 +100,7 @@ class Card(AbstractObject, AbstractName):
             raise TypeError('CVC must have 3 characters')
 
         self._data['cvc'] = value
+        self._modified = True
 
     @property
     def exp_month(self):
@@ -123,6 +124,7 @@ class Card(AbstractObject, AbstractName):
             raise TypeError('Expiration month must be between 1 and 12')
 
         self._data['exp_month'] = value
+        self._modified = True
 
     @property
     def exp_year(self):
@@ -147,6 +149,7 @@ class Card(AbstractObject, AbstractName):
             raise TypeError(message)
 
         self._data['exp_year'] = value
+        self._modified = True
 
     @property
     def last4(self):
@@ -205,6 +208,7 @@ class Card(AbstractObject, AbstractName):
             raise TypeError(message)
 
         self._data['number'] = number
+        self._modified = True
 
     @property
     def tokenize(self):
@@ -226,3 +230,4 @@ class Card(AbstractObject, AbstractName):
             raise TypeError(message)
 
         self._data['tokenize'] = value
+        self._modified = True
