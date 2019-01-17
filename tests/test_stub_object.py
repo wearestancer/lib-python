@@ -107,6 +107,32 @@ class TestObject(TestHelper):
         assert obj.card1 == card
         assert card.id == uid
 
+    def test_modified_status(self):
+        obj = StubObject()
+
+        assert not obj.is_modified
+        assert obj.is_not_modified
+
+        obj.force_modified(True)
+
+        assert obj.is_modified
+
+        # useless way to right it, please don't use it that way
+        assert not obj.is_not_modified
+
+    def test_populated_status(self):
+        obj = StubObject()
+
+        assert not obj.is_populated
+        assert obj.is_not_populated
+
+        obj.force_populated(True)
+
+        assert obj.is_populated
+
+        # useless way to right it, please don't use it that way
+        assert not obj.is_not_populated
+
     @responses.activate
     def test_populate(self):
         obj = StubObject(self.random_string(29))
@@ -119,11 +145,11 @@ class TestObject(TestHelper):
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.is_not_populated()
+        assert obj.is_not_populated
 
         obj.force_modified(True)
 
-        assert obj.is_modified()
+        assert obj.is_modified
 
         obj.populate()
 
@@ -131,8 +157,8 @@ class TestObject(TestHelper):
         assert obj.integer1 == params['integer1']
 
         assert len(responses.calls) == 1
-        assert obj.is_populated()
-        assert obj.is_not_modified()
+        assert obj.is_populated
+        assert obj.is_not_modified
 
         # Multiple populate will not trigger multiple call
         obj.populate()

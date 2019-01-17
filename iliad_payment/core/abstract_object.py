@@ -134,6 +134,46 @@ class AbstractObject(object):
 
         return self
 
+    @property
+    def is_modified(self):
+        """
+        Indicate if the object was modified.
+
+        Returns
+            bool: Was it modified ?
+        """
+        return self._modified
+
+    @property
+    def is_not_modified(self):
+        """
+        Indicate if the object was not modified.
+
+        Returns
+            bool: Was it not modified ?
+        """
+        return not self.is_modified
+
+    @property
+    def is_not_populated(self):
+        """
+        Indicate if the object was not populated.
+
+        Returns
+            bool: Was it not populated ?
+        """
+        return not self.is_populated
+
+    @property
+    def is_populated(self):
+        """
+        Indicate if the object was populated.
+
+        Returns
+            bool: Was it populated ?
+        """
+        return self._populated
+
     def populate(self):
         """
         Populate the current object.
