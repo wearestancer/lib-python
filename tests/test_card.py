@@ -11,6 +11,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 from datetime import date
 import pytest
+import responses
 
 from iliad_payment import Card
 from iliad_payment.core import AbstractObject, AbstractName
@@ -38,6 +39,7 @@ class TestCard(TestHelper):
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
 
+    @responses.activate
     def test_brand(self):
         obj = Card()
 
@@ -46,14 +48,33 @@ class TestCard(TestHelper):
         with pytest.raises(AttributeError):
             obj.brand = self.random_string(15)
 
+        obj = Card(self.random_string(29))
+        params = {
+            'brand': self.random_string(50),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.brand == params['brand']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     @pytest.mark.parametrize('brand', TestHelper.card_brand_provider())
     def test_brandname(self, brand):
-        obj = Card()
+        obj = Card(self.random_string(29))
 
-        obj.hydrate({'brand': brand[0]})
+        params = {
+            'brand': brand[0],
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.brandname == brand[1]
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
+    @responses.activate
     def test_country(self):
         obj = Card()
 
@@ -62,6 +83,18 @@ class TestCard(TestHelper):
         with pytest.raises(AttributeError):
             obj.country = self.random_string(2)
 
+        obj = Card(self.random_string(29))
+        params = {
+            'country': self.random_string(2),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.country == params['country']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_cvc(self):
         obj = Card()
         cvc = self.random_string(3)
@@ -80,6 +113,18 @@ class TestCard(TestHelper):
         with pytest.raises(TypeError, match='CVC must be a string'):
             obj.cvc = self.random_integer(1, 100)
 
+        obj = Card(self.random_string(29))
+        params = {
+            'cvc': self.random_string(3),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.cvc == params['cvc']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_exp_month(self):
         obj = Card()
         exp_month = self.random_integer(1, 12)
@@ -116,6 +161,18 @@ class TestCard(TestHelper):
         ):
             obj.exp_month = self.random_integer(1, 12) * -1
 
+        obj = Card(self.random_string(29))
+        params = {
+            'exp_month': self.random_string(1, 12),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.exp_month == params['exp_month']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_exp_year(self):
         obj = Card()
         current_year = date.today().year
@@ -141,6 +198,18 @@ class TestCard(TestHelper):
         ):
             obj.exp_year = current_year - 1
 
+        obj = Card(self.random_string(29))
+        params = {
+            'exp_year': self.random_integer(0, 20) + current_year,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.exp_year == params['exp_year']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_last4(self):
         obj = Card()
 
@@ -149,6 +218,18 @@ class TestCard(TestHelper):
         with pytest.raises(AttributeError):
             obj.last4 = self.random_string(4)
 
+        obj = Card(self.random_string(29))
+        params = {
+            'last4': self.random_string(4),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.last4 == params['last4']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     @pytest.mark.parametrize('number', TestHelper.card_number_provider())
     def test_number(self, number):
         obj = Card()
@@ -177,6 +258,18 @@ class TestCard(TestHelper):
         ):
             obj.number = bad_number
 
+        obj = Card(self.random_string(29))
+        params = {
+            'number': number,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.number == params['number']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_tokenize(self):
         obj = Card()
 
@@ -203,6 +296,17 @@ class TestCard(TestHelper):
             match='You should pass a boolean',
         ):
             obj.tokenize = self.random_string(20)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'tokenize': True,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.tokenize == params['tokenize']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     def test_to_json(self):
         obj = Card()

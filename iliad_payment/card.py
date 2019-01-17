@@ -17,6 +17,7 @@ import re
 
 from .core import AbstractName
 from .core import AbstractObject
+from .core.decorators import populate_on_call
 
 
 class Card(AbstractObject, AbstractName):
@@ -28,6 +29,7 @@ class Card(AbstractObject, AbstractName):
     ]
 
     @property
+    @populate_on_call
     def brand(self):
         """
         Card brand.
@@ -67,6 +69,7 @@ class Card(AbstractObject, AbstractName):
         return brand
 
     @property
+    @populate_on_call
     def country(self):
         """
         Card country.
@@ -77,6 +80,7 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('country', None)
 
     @property
+    @populate_on_call
     def cvc(self):
         """
         Card Verification Code.
@@ -103,6 +107,7 @@ class Card(AbstractObject, AbstractName):
         self._modified = True
 
     @property
+    @populate_on_call
     def exp_month(self):
         """
         Expiration month.
@@ -127,6 +132,7 @@ class Card(AbstractObject, AbstractName):
         self._modified = True
 
     @property
+    @populate_on_call
     def exp_year(self):
         """
         Expiration year.
@@ -152,6 +158,7 @@ class Card(AbstractObject, AbstractName):
         self._modified = True
 
     @property
+    @populate_on_call
     def last4(self):
         """
         Card number's last 4 digits.
@@ -159,14 +166,10 @@ class Card(AbstractObject, AbstractName):
         Returns:
             str: Card's last 4 digits.
         """
-        number = self.number
-
-        if number is None:
-            return None
-
-        return number[-4:]
+        return self._data.get('last4', None)
 
     @property
+    @populate_on_call
     def number(self):
         """
         Card number.
@@ -208,9 +211,11 @@ class Card(AbstractObject, AbstractName):
             raise TypeError(message)
 
         self._data['number'] = number
+        self._data['last4'] = number[-4:]
         self._modified = True
 
     @property
+    @populate_on_call
     def tokenize(self):
         """
         Indicate if the card can be reuse later.
