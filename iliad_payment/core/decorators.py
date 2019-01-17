@@ -18,7 +18,8 @@ from functools import wraps
 def populate_on_call(method):
     @wraps(method)
     def wrapper(self):
-        self.populate()
+        if hasattr(self, 'populate'):
+            self.populate()
 
         return method(self)
     return wrapper

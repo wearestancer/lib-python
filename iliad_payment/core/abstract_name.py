@@ -12,6 +12,8 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
+from .decorators import populate_on_call
+
 
 class AbstractName(object):  # pylint: disable=too-few-public-methods
     """Commun name management."""
@@ -20,6 +22,7 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
         self._data = {}
 
     @property
+    @populate_on_call
     def name(self):
         """
         Customer, card holder or account name.

@@ -14,6 +14,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 
 from .core.abstract_name import AbstractName
 from .core.abstract_object import AbstractObject
+from .core.decorators import populate_on_call
 
 _DEFAULT_MESSAGE = '{} must be have at between {} and {} characters'
 
@@ -24,6 +25,7 @@ class Customer(AbstractObject, AbstractName):
     _ENDPOINT = 'customers'
 
     @property
+    @populate_on_call
     def email(self):
         """
         Customer's email.
@@ -48,6 +50,7 @@ class Customer(AbstractObject, AbstractName):
         self._modified = True
 
     @property
+    @populate_on_call
     def mobile(self):
         """
         Customer's mobile phone number.

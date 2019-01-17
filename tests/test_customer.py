@@ -10,6 +10,7 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 import pytest
+import responses
 
 from iliad_payment import Customer
 from iliad_payment.core import AbstractObject, AbstractName
@@ -21,6 +22,7 @@ class TestCustomer(TestHelper):
         assert issubclass(Customer, AbstractObject)
         assert issubclass(Customer, AbstractName)
 
+    @responses.activate
     def test_email(self):
         obj = Customer()
         email = self.random_string(10)
@@ -51,6 +53,18 @@ class TestCustomer(TestHelper):
         ):
             obj.email = self.random_string(65, 70)
 
+        obj = Customer(self.random_string(29))
+        params = {
+            'email': self.random_string(20),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.email == params['email']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_mobile(self):
         obj = Customer()
         mobile = self.random_mobile()
@@ -81,9 +95,21 @@ class TestCustomer(TestHelper):
         ):
             obj.mobile = self.random_string(17)
 
+        obj = Customer(self.random_string(29))
+        params = {
+            'mobile': self.random_mobile(),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.mobile == params['mobile']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_name(self):
         # More test on test_abstract_name
-        # Here we are just testing the modified flag
+        # Here we are just testing the modified flag and auto population
 
         obj = Customer()
         name = self.random_string(4, 64)
@@ -94,6 +120,17 @@ class TestCustomer(TestHelper):
 
         assert obj.name == name
         assert obj.is_modified
+
+        obj = Customer(self.random_string(29))
+        params = {
+            'name': self.random_string(30),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.name == params['name']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     def test_uri(self):
         obj = Customer()
