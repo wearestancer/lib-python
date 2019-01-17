@@ -176,6 +176,35 @@ class TestConfig(TestHelper):
 
         obj.port = old_port
 
+    @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
+    def test_reset_keys(self, key, mode, prefix):
+        obj = Config()
+
+        previous_keys = obj.keys
+        prefixes = [
+            'pprod',
+            'sprod',
+            'ptest',
+            'stest',
+        ]
+
+        assert obj.reset_keys() == obj
+
+        for key_prefix in prefixes:
+            assert getattr(obj, key_prefix) is None
+
+        obj.keys = key
+
+        assert getattr(obj, prefix) == key
+
+        for key_prefix in prefixes:
+            if key_prefix != prefix:
+                assert getattr(obj, key_prefix) is None
+
+        # reset
+        obj.reset_keys()
+        obj.keys = previous_keys
+
     def test_timeout(self):
         obj = Config()
         timeout = self.random_integer(1, 1000)

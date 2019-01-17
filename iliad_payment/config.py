@@ -172,6 +172,25 @@ class Config(Singleton):
         """
         return self.keys['ptest']
 
+    def reset_keys(self):
+        """
+        Reset keychain.
+
+        Usefull for testing purpose but you may need it too.
+        This will simply put every key to `None`.
+
+        Returns:
+            self: Current instance.
+        """
+        self._keys = {
+            'pprod': None,
+            'ptest': None,
+            'sprod': None,
+            'stest': None,
+        }
+
+        return self
+
     @property
     def sprod(self):
         """

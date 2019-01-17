@@ -60,6 +60,17 @@ class TestHelper(object):
         return mobile
 
     @classmethod
+    def api_key_provider(cls):
+        obj = TestHelper()
+
+        return [
+            ('pprod_' + obj.random_string(24), Config.LIVE_MODE, 'pprod'),
+            ('sprod_' + obj.random_string(24), Config.LIVE_MODE, 'sprod'),
+            ('ptest_' + obj.random_string(24), Config.TEST_MODE, 'ptest'),
+            ('stest_' + obj.random_string(24), Config.TEST_MODE, 'stest'),
+        ]
+
+    @classmethod
     def card_brand_provider(cls):
         obj = TestHelper()
         unknown_brand = obj.random_string(10)
