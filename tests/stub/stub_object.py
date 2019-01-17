@@ -23,6 +23,18 @@ class StubObject(AbstractObject):
 
         return self
 
+    def is_modified(self):
+        return self._modified
+
+    def is_populated(self):
+        return self._populated
+
+    def is_not_modified(self):
+        return not self.is_modified()
+
+    def is_not_populated(self):
+        return not self.is_populated()
+
     @property
     @populate_on_call
     def string1(self):

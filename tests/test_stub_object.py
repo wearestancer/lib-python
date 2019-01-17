@@ -119,12 +119,20 @@ class TestObject(TestHelper):
 
         responses.add(responses.GET, obj.uri, json=params)
 
+        assert obj.is_not_populated()
+
+        obj.force_modified(True)
+
+        assert obj.is_modified()
+
         obj.populate()
 
         assert obj.string1 == params['string1']
         assert obj.integer1 == params['integer1']
 
         assert len(responses.calls) == 1
+        assert obj.is_populated()
+        assert obj.is_not_modified()
 
         # Multiple populate will not trigger multiple call
         obj.populate()

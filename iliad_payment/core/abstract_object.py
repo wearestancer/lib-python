@@ -146,6 +146,7 @@ class AbstractObject(object):
         """
         if not self._populated and self.id is not None:
             self._populated = True
+            self._modified = False
             Request(self).get
 
         return self
