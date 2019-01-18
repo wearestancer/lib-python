@@ -152,7 +152,9 @@ def validate_type(type_expected, **options):
                 raise excep(message)
 
             res = method(self, value, *args, **kwargs)
-            self._modified = True
+
+            if hasattr(self, '_modified'):
+                self._modified = True
 
             return res
         return wrapper

@@ -12,6 +12,7 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
+from .core.decorators import validate_type
 from .core.singleton import Singleton
 from .exceptions import IliadValueError
 
@@ -58,6 +59,7 @@ class Config(Singleton):
         return self._host
 
     @host.setter
+    @validate_type(str)
     def host(self, value):
         self._host = value
 
@@ -121,6 +123,7 @@ class Config(Singleton):
         return self._mode
 
     @mode.setter
+    @validate_type(str)
     def mode(self, value):
         if value != self.LIVE_MODE and value != self.TEST_MODE:
             message = (
@@ -159,6 +162,7 @@ class Config(Singleton):
         return self._port
 
     @port.setter
+    @validate_type(int)
     def port(self, value):
         self._port = value
 
@@ -225,6 +229,7 @@ class Config(Singleton):
         return self._timeout
 
     @timeout.setter
+    @validate_type(int)
     def timeout(self, value):
         self._timeout = value
 
@@ -244,5 +249,6 @@ class Config(Singleton):
         return self._version
 
     @version.setter
+    @validate_type(int)
     def version(self, value):
         self._version = value
