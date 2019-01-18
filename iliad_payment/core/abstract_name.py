@@ -40,4 +40,3 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
     @validate_type(str, min=4, max=64)
     def name(self, value):
         self._data['name'] = value
-        self._modified = True

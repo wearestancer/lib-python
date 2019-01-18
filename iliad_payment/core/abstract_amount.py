@@ -36,7 +36,6 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
     @validate_type(int, min=50)
     def amount(self, value):
         self._data['amount'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -52,4 +51,3 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
     @validate_type(str, allowed=['eur', 'gbp', 'usd'], lowercase=True)
     def currency(self, value):
         self._data['currency'] = value
-        self._modified = True

@@ -68,7 +68,6 @@ class Payment(AbstractObject, AbstractAmount):
     @validate_type(bool)
     def capture(self, value):
         self._data['capture'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -89,7 +88,6 @@ class Payment(AbstractObject, AbstractAmount):
     def card(self, value):
         self._data['card'] = value
         self._data['method'] = 'card'
-        self._modified = True
 
     @property
     @populate_on_call
@@ -109,7 +107,6 @@ class Payment(AbstractObject, AbstractAmount):
     @validate_type(Customer)
     def customer(self, value):
         self._data['customer'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -129,7 +126,6 @@ class Payment(AbstractObject, AbstractAmount):
     @validate_type(str, min=3, max=64)
     def description(self, value):
         self._data['description'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -163,7 +159,6 @@ class Payment(AbstractObject, AbstractAmount):
     @validate_type(str, max=24, name='Order id')
     def order_id(self, value):
         self._data['order_id'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -220,7 +215,6 @@ class Payment(AbstractObject, AbstractAmount):
     def sepa(self, value):
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
-        self._modified = True
 
     @property
     @populate_on_call

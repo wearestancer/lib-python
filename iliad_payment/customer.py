@@ -41,7 +41,6 @@ class Customer(AbstractObject, AbstractName):
     @validate_type(str, min=5, max=64)
     def email(self, value):
         self._data['email'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -61,4 +60,3 @@ class Customer(AbstractObject, AbstractName):
     @validate_type(str, min=8, max=16, name='Mobile phone')
     def mobile(self, value):
         self._data['mobile'] = value
-        self._modified = True

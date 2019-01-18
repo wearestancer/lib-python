@@ -133,6 +133,9 @@ def validate_type(type_expected, **options):
             if message is not None:
                 raise TypeError(message)
 
-            return method(self, value, *args, **kwargs)
+            res = method(self, value, *args, **kwargs)
+            self._modified = True
+
+            return res
         return wrapper
     return wrapper

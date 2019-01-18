@@ -100,7 +100,6 @@ class Card(AbstractObject, AbstractName):
     @validate_type(str, length=3, name='CVC')
     def cvc(self, value):
         self._data['cvc'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -120,7 +119,6 @@ class Card(AbstractObject, AbstractName):
     @validate_type(int, min=1, max=12, name='Expiration month')
     def exp_month(self, value):
         self._data['exp_month'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -140,7 +138,6 @@ class Card(AbstractObject, AbstractName):
     @validate_type(int, min=date.today().year, name='Expiration year')
     def exp_year(self, value):
         self._data['exp_year'] = value
-        self._modified = True
 
     @property
     @populate_on_call
@@ -195,7 +192,6 @@ class Card(AbstractObject, AbstractName):
 
         self._data['number'] = number
         self._data['last4'] = number[-4:]
-        self._modified = True
 
     @property
     @populate_on_call
@@ -215,4 +211,3 @@ class Card(AbstractObject, AbstractName):
     @validate_type(bool)
     def tokenize(self, value):
         self._data['tokenize'] = value
-        self._modified = True
