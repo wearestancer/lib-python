@@ -36,7 +36,7 @@ class TestRequest(TestHelper):
         conf = Config()
 
         previous_keys = conf.keys
-        conf.reset_keys()
+        del conf.keys
 
         with pytest.raises(
             AttributeError,
@@ -54,6 +54,7 @@ class TestRequest(TestHelper):
         assert req.get == req
         assert len(responses.calls) == 1
 
+        del conf.keys
         conf.keys = previous_keys
 
     @responses.activate

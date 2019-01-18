@@ -36,14 +36,12 @@ class Config(Singleton):
 
     def __init__(self):
         """Initialize configuration instance."""
-        self._mode = self.TEST_MODE
-
-        self._host = 'api.iliad78.net'
-        self._port = None
-        self._timeout = 5
-        self._version = 1
-
-        self.reset_keys()
+        del self.mode
+        del self.host
+        del self.port
+        del self.timeout
+        del self.version
+        del self.keys
 
     @property
     def host(self):
@@ -62,6 +60,10 @@ class Config(Singleton):
     @validate_type(str)
     def host(self, value):
         self._host = value
+
+    @host.deleter
+    def host(self):
+        self._host = 'api.iliad78.net'
 
     @property
     def keys(self):
@@ -109,6 +111,15 @@ class Config(Singleton):
 
                 self._keys[key_prefix] = key
 
+    @keys.deleter
+    def keys(self):
+        self._keys = {
+            'pprod': None,
+            'ptest': None,
+            'sprod': None,
+            'stest': None,
+        }
+
     @property
     def mode(self):
         """
@@ -135,6 +146,10 @@ class Config(Singleton):
             raise IliadValueError(message)
 
         self._mode = value
+
+    @mode.deleter
+    def mode(self):
+        self._mode = self.TEST_MODE
 
     @property
     def pprod(self):
@@ -166,6 +181,10 @@ class Config(Singleton):
     def port(self, value):
         self._port = value
 
+    @port.deleter
+    def port(self):
+        self._port = None
+
     @property
     def ptest(self):
         """
@@ -175,25 +194,6 @@ class Config(Singleton):
             str: Public development key avalaible in keychain.
         """
         return self.keys['ptest']
-
-    def reset_keys(self):
-        """
-        Reset keychain.
-
-        Usefull for testing purpose but you may need it too.
-        This will simply put every key to `None`.
-
-        Returns:
-            self: Current instance.
-        """
-        self._keys = {
-            'pprod': None,
-            'ptest': None,
-            'sprod': None,
-            'stest': None,
-        }
-
-        return self
 
     @property
     def sprod(self):
@@ -233,6 +233,10 @@ class Config(Singleton):
     def timeout(self, value):
         self._timeout = value
 
+    @timeout.deleter
+    def timeout(self):
+        self._timeout = 5
+
     @property
     def version(self):
         """
@@ -252,3 +256,7 @@ class Config(Singleton):
     @validate_type(int)
     def version(self, value):
         self._version = value
+
+    @version.deleter
+    def version(self):
+        self._version = 1

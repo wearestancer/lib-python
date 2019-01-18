@@ -47,7 +47,6 @@ class TestAbstractObject(TestHelper):
         port = self.random_integer(100, 65535)
 
         old_host = conf.host
-        old_port = conf.port
         old_version = conf.version
 
         conf.host = host
@@ -71,6 +70,6 @@ class TestAbstractObject(TestHelper):
 
         assert obj.uri == pattern.format(host, 80, version, uid)
 
-        conf.host = old_host
-        conf.port = old_port
-        conf.version = old_version
+        del conf.host
+        del conf.port
+        del conf.version

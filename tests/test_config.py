@@ -26,12 +26,14 @@ class TestConfig(TestHelper):
 
         assert obj.host == 'api.iliad78.net'
 
-        old_host = obj.host
         obj.host = host
 
         assert obj.host == host
 
-        obj.host = old_host
+        # Delete will put it on default
+        del obj.host
+
+        assert obj.host == 'api.iliad78.net'
 
     def test_keys(self):
         obj = Config()
@@ -42,7 +44,7 @@ class TestConfig(TestHelper):
 
         # test setup add a stest key, we will put back after this test
         previous_keys = obj.keys
-        obj.reset_keys()
+        del obj.keys
 
         assert obj.pprod is None
         assert obj.sprod is None
@@ -147,6 +149,7 @@ class TestConfig(TestHelper):
         ):
             obj.keys = bad_key
 
+        del obj.keys
         obj.keys = previous_keys
 
     def test_mode(self):
@@ -170,7 +173,10 @@ class TestConfig(TestHelper):
         ):
             obj.mode = mode
 
-        obj.mode = Config.TEST_MODE
+        # Delete will put it on default
+        del obj.mode
+
+        assert obj.mode == Config.TEST_MODE
 
     def test_port(self):
         obj = Config()
@@ -178,12 +184,14 @@ class TestConfig(TestHelper):
 
         assert obj.port is None
 
-        old_port = obj.port
         obj.port = port
 
         assert obj.port == port
 
-        obj.port = old_port
+        # Delete will put it on default
+        del obj.port
+
+        assert obj.port is None
 
     @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
     def test_reset_keys(self, key, mode, prefix):
@@ -197,7 +205,7 @@ class TestConfig(TestHelper):
             'stest',
         ]
 
-        assert obj.reset_keys() == obj
+        del obj.keys
 
         for key_prefix in prefixes:
             assert getattr(obj, key_prefix) is None
@@ -211,7 +219,7 @@ class TestConfig(TestHelper):
                 assert getattr(obj, key_prefix) is None
 
         # reset
-        obj.reset_keys()
+        del obj.keys
         obj.keys = previous_keys
 
     def test_timeout(self):
@@ -220,12 +228,14 @@ class TestConfig(TestHelper):
 
         assert obj.timeout == 5
 
-        old_timeout = obj.timeout
         obj.timeout = timeout
 
         assert obj.timeout == timeout
 
-        obj.timeout = old_timeout
+        # Delete will put it on default
+        del obj.timeout
+
+        assert obj.timeout == 5
 
     def test_version(self):
         obj = Config()
@@ -233,9 +243,11 @@ class TestConfig(TestHelper):
 
         assert obj.version == 1
 
-        old_version = obj.version
         obj.version = version
 
         assert obj.version == version
 
-        obj.version = old_version
+        # Delete will put it on default
+        del obj.version
+
+        assert obj.version == 1
