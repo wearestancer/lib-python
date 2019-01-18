@@ -140,13 +140,13 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='You must provide a valid instance of Customer',
+            match='You must provide a valid instance of Customer.',
         ):
             obj.customer = self.random_integer(2)
 
         with pytest.raises(
             TypeError,
-            match='You must provide a valid instance of Customer',
+            match='You must provide a valid instance of Customer.',
         ):
             obj.customer = self.random_string(2)
 
@@ -202,19 +202,19 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Description must be a string',
+            match='Description must be a string.',
         ):
             obj.description = self.random_integer(20)
 
         with pytest.raises(
             TypeError,
-            match='A valid description must be between 3 and 64 characters',
+            match='Description must be between 3 and 64 characters.',
         ):
             obj.description = self.random_string(2)
 
         with pytest.raises(
             TypeError,
-            match='A valid description must be between 3 and 64 characters',
+            match='Description must be between 3 and 64 characters.',
         ):
             obj.description = self.random_string(65)
 
@@ -305,13 +305,13 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Order id must be a string',
+            match='Order id must be a string.',
         ):
             obj.order_id = self.random_integer(20)
 
         with pytest.raises(
             TypeError,
-            match='Order id must have maximum 24 characters',
+            match='Order id must be 24 characters maximum.',
         ):
             obj.order_id = self.random_string(25, 30)
 
@@ -381,13 +381,13 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='You must provide a valid instance of Sepa',
+            match='You must provide a valid instance of Sepa.',
         ):
             obj.sepa = self.random_integer(2)
 
         with pytest.raises(
             TypeError,
-            match='You must provide a valid instance of Sepa',
+            match='You must provide a valid instance of Sepa.',
         ):
             obj.sepa = self.random_string(2)
 

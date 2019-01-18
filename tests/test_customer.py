@@ -37,19 +37,19 @@ class TestCustomer(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Email must be a string',
+            match='Email must be a string.',
         ):
             obj.email = self.random_integer(20)
 
         with pytest.raises(
             TypeError,
-            match='Email must be have at between 5 and 64 characters',
+            match='Email must be between 5 and 64 characters.',
         ):
             obj.email = self.random_string(4)
 
         with pytest.raises(
             TypeError,
-            match='Email must be have at between 5 and 64 characters',
+            match='Email must be between 5 and 64 characters.',
         ):
             obj.email = self.random_string(65, 70)
 
@@ -79,19 +79,19 @@ class TestCustomer(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Mobile phone must be a string',
+            match='Mobile phone must be a string.',
         ):
             obj.mobile = self.random_integer(20)
 
         with pytest.raises(
             TypeError,
-            match='Mobile phone must be have at between 8 and 16 characters',
+            match='Mobile phone must be between 8 and 16 characters.',
         ):
             obj.mobile = self.random_string(7)
 
         with pytest.raises(
             TypeError,
-            match='Mobile phone must be have at between 8 and 16 characters',
+            match='Mobile phone must be between 8 and 16 characters.',
         ):
             obj.mobile = self.random_string(17)
 

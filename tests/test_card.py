@@ -107,10 +107,10 @@ class TestCard(TestHelper):
         assert obj.cvc == cvc
         assert obj.is_modified
 
-        with pytest.raises(TypeError, match='CVC must have 3 characters'):
+        with pytest.raises(TypeError, match='CVC must have 3 characters.'):
             obj.cvc = self.random_string(2)
 
-        with pytest.raises(TypeError, match='CVC must be a string'):
+        with pytest.raises(TypeError, match='CVC must be a string.'):
             obj.cvc = self.random_integer(1, 100)
 
         obj = Card(self.random_string(29))
@@ -139,25 +139,25 @@ class TestCard(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Expiration month must be an integer',
+            match='Expiration month must be an integer.',
         ):
             obj.exp_month = self.random_string(2)
 
         with pytest.raises(
             TypeError,
-            match='Expiration month must be between 1 and 12',
+            match='Expiration month must be between 1 and 12.',
         ):
             obj.exp_month = self.random_integer(13, 100)
 
         with pytest.raises(
             TypeError,
-            match='Expiration month must be between 1 and 12',
+            match='Expiration month must be between 1 and 12.',
         ):
             obj.exp_month = 0
 
         with pytest.raises(
             TypeError,
-            match='Expiration month must be between 1 and 12',
+            match='Expiration month must be between 1 and 12.',
         ):
             obj.exp_month = self.random_integer(1, 12) * -1
 
@@ -188,13 +188,18 @@ class TestCard(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Expiration year must be an integer',
+            match='Expiration year must be an integer.',
         ):
-            obj.exp_year = self.random_string(0, 2)
+            obj.exp_year = self.random_string(4)
+
+        message = (
+            'Expiration year must be greater '
+            'than or equal to {}.'
+        ).format(current_year)
 
         with pytest.raises(
             TypeError,
-            match='Expiration year must be at least the current year',
+            match=message,
         ):
             obj.exp_year = current_year - 1
 
@@ -246,7 +251,7 @@ class TestCard(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Number must be a string',
+            match='Number must be a string.',
         ):
             obj.number = self.random_integer(10000)
 
@@ -254,7 +259,7 @@ class TestCard(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='{} is not a valid credit card number'.format(bad_number),
+            match='"{}" is not a valid credit card number.'.format(bad_number),
         ):
             obj.number = bad_number
 
@@ -287,13 +292,13 @@ class TestCard(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='You should pass a boolean',
+            match='Tokenize must be a boolean.',
         ):
             obj.tokenize = self.random_integer(20)
 
         with pytest.raises(
             TypeError,
-            match='You should pass a boolean',
+            match='Tokenize must be a boolean.',
         ):
             obj.tokenize = self.random_string(20)
 

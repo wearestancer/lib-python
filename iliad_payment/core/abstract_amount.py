@@ -13,12 +13,11 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from .decorators import populate_on_call
+from .decorators import validate_type
 
 
 class AbstractAmount(object):  # pylint: disable=too-few-public-methods
     """Common amount management."""
-
-    _allowed_currencies = ('eur', 'gbp', 'usd')
 
     def __init__(self):
         self._data = {}
@@ -34,15 +33,8 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
         return self._data.get('amount')
 
     @amount.setter
+    @validate_type(int, min=50)
     def amount(self, value):
-        if not isinstance(value, int):
-            raise TypeError('Amount must be an integer')
-
-        if value < 50:
-            tmp = 'Amount must be greater than or equal to 50'
-
-            raise TypeError(tmp.format('Amount', 4, 64))
-
         self._data['amount'] = value
         self._modified = True
 
@@ -57,17 +49,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
         return self._data.get('currency')
 
     @currency.setter
+    @validate_type(str, allowed=['eur', 'gbp', 'usd'], lowercase=True)
     def currency(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Currency must be a string')
-
-        currency = value.lower()
-
-        if currency not in self._allowed_currencies:
-            message = '{} is not a valid currency,'\
-                'please use one of following: {}'\
-                .format(value, ', '.join(self._allowed_currencies))
-            raise TypeError(message)
-
-        self._data['currency'] = currency
+        self._data['currency'] = value
         self._modified = True

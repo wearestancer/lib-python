@@ -29,19 +29,19 @@ class TestAbstractAmount(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Amount must be an integer',
+            match='Amount must be an integer.',
         ):
             obj.amount = self.random_string(2)
 
         with pytest.raises(
             TypeError,
-            match='Amount must be greater than or equal to 50',
+            match='Amount must be greater than or equal to 50.',
         ):
             obj.amount = self.random_integer(49)
 
         with pytest.raises(
             TypeError,
-            match='Amount must be greater than or equal to 50',
+            match='Amount must be greater than or equal to 50.',
         ):
             obj.amount = 0
 
@@ -61,15 +61,16 @@ class TestAbstractAmount(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Currency must be a string',
+            match='Currency must be a string.',
         ):
             obj.currency = self.random_integer(100)
 
         allowed_currency = ['eur', 'gbp', 'usd']
         bad_currency = self.random_string(3)
-        message = '{} is not a valid currency,'\
-            'please use one of following: {}'\
-            .format(bad_currency, ', '.join(allowed_currency))
+        message = (
+            '"{}" is not a valid currency, '
+            'please use one of following: {}'
+        ).format(bad_currency, ', '.join(allowed_currency))
 
         with pytest.raises(
             TypeError,

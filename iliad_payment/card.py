@@ -18,6 +18,7 @@ import re
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
+from .core.decorators import validate_type
 
 
 class Card(AbstractObject, AbstractName):
@@ -96,13 +97,8 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('cvc')
 
     @cvc.setter
+    @validate_type(str, length=3, name='CVC')
     def cvc(self, value):
-        if not isinstance(value, str):
-            raise TypeError('CVC must be a string')
-
-        if len(value) != 3:
-            raise TypeError('CVC must have 3 characters')
-
         self._data['cvc'] = value
         self._modified = True
 
@@ -121,13 +117,8 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('exp_month')
 
     @exp_month.setter
+    @validate_type(int, min=1, max=12, name='Expiration month')
     def exp_month(self, value):
-        if not isinstance(value, int):
-            raise TypeError('Expiration month must be an integer')
-
-        if value < 1 or value > 12:
-            raise TypeError('Expiration month must be between 1 and 12')
-
         self._data['exp_month'] = value
         self._modified = True
 
@@ -146,14 +137,8 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('exp_year')
 
     @exp_year.setter
+    @validate_type(int, min=date.today().year, name='Expiration year')
     def exp_year(self, value):
-        if not isinstance(value, int):
-            raise TypeError('Expiration year must be an integer')
-
-        if value < date.today().year:
-            message = 'Expiration year must be at least the current year'
-            raise TypeError(message)
-
         self._data['exp_year'] = value
         self._modified = True
 
@@ -183,10 +168,8 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('number')
 
     @number.setter
+    @validate_type(str)
     def number(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Number must be a string')
-
         number = re.sub(r'\D', '', value)
         parts = list(map(int, number))
         calc = [
@@ -207,7 +190,7 @@ class Card(AbstractObject, AbstractName):
         chk = [calc[val] if idx % 2 else val for idx, val in enumerate(parts)]
 
         if sum(chk) % 10:
-            message = '{} is not a valid credit card number'.format(number)
+            message = '"{}" is not a valid credit card number.'.format(number)
             raise TypeError(message)
 
         self._data['number'] = number
@@ -229,10 +212,7 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('tokenize')
 
     @tokenize.setter
+    @validate_type(bool)
     def tokenize(self, value):
-        if not isinstance(value, bool):
-            message = 'You should pass a boolean'
-            raise TypeError(message)
-
         self._data['tokenize'] = value
         self._modified = True

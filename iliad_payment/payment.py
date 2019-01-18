@@ -17,6 +17,7 @@ from .customer import Customer
 from .sepa import Sepa
 from .core import AbstractObject, AbstractAmount
 from .core.decorators import populate_on_call
+from .core.decorators import validate_type
 
 
 class Payment(AbstractObject, AbstractAmount):
@@ -64,10 +65,8 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('capture')
 
     @capture.setter
+    @validate_type(bool)
     def capture(self, value):
-        if not isinstance(value, bool):
-            raise TypeError('Capture must be a boolean')
-
         self._data['capture'] = value
         self._modified = True
 
@@ -86,10 +85,8 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('card')
 
     @card.setter
+    @validate_type(Card)
     def card(self, value):
-        if not isinstance(value, Card):
-            raise TypeError('You must provide a valid instance of Card')
-
         self._data['card'] = value
         self._data['method'] = 'card'
         self._modified = True
@@ -109,10 +106,8 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('customer')
 
     @customer.setter
+    @validate_type(Customer)
     def customer(self, value):
-        if not isinstance(value, Customer):
-            raise TypeError('You must provide a valid instance of Customer')
-
         self._data['customer'] = value
         self._modified = True
 
@@ -131,17 +126,8 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('description')
 
     @description.setter
+    @validate_type(str, min=3, max=64)
     def description(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Description must be a string')
-
-        (length_min, length_max) = (3, 64)
-
-        if len(value) < length_min or len(value) > length_max:
-            tmp = 'A valid description must be between {} and {} characters'
-
-            raise TypeError(tmp.format(length_min, length_max))
-
         self._data['description'] = value
         self._modified = True
 
@@ -174,17 +160,8 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('order_id')
 
     @order_id.setter
+    @validate_type(str, max=24, name='Order id')
     def order_id(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Order id must be a string')
-
-        length_max = 24
-
-        if len(value) > length_max:
-            tmp = 'Order id must have maximum {} characters'
-
-            raise TypeError(tmp.format(length_max))
-
         self._data['order_id'] = value
         self._modified = True
 
@@ -239,10 +216,8 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('sepa')
 
     @sepa.setter
+    @validate_type(Sepa)
     def sepa(self, value):
-        if not isinstance(value, Sepa):
-            raise TypeError('You must provide a valid instance of Sepa')
-
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
         self._modified = True

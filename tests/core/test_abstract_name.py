@@ -28,18 +28,18 @@ class TestAbstractName(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='Name must be a string',
+            match='Name must be a string.',
         ):
             obj.name = self.random_integer(20)
 
         with pytest.raises(
             TypeError,
-            match='Name must be have at between 4 and 64 characters',
+            match='Name must be between 4 and 64 characters.',
         ):
             obj.name = self.random_string(3)
 
         with pytest.raises(
             TypeError,
-            match='Name must be have at between 4 and 64 characters',
+            match='Name must be between 4 and 64 characters.',
         ):
             obj.name = self.random_string(65, 70)

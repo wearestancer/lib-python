@@ -42,7 +42,7 @@ class TestSepa(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='BIC must be a string',
+            match='BIC must be a string.',
         ):
             obj.bic = self.random_integer(20)
 
@@ -128,7 +128,7 @@ class TestSepa(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='IBAN must be a string',
+            match='IBAN must be a string.',
         ):
             obj.iban = self.random_integer(10000)
 
@@ -136,7 +136,7 @@ class TestSepa(TestHelper):
 
         with pytest.raises(
             TypeError,
-            match='"{}" is not a valid IBAN'.format(bad_iban),
+            match='"{}" is not a valid IBAN.'.format(bad_iban),
         ):
             obj.iban = bad_iban
 

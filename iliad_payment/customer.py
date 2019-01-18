@@ -15,8 +15,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from .core.abstract_name import AbstractName
 from .core.abstract_object import AbstractObject
 from .core.decorators import populate_on_call
-
-_DEFAULT_MESSAGE = '{} must be have at between {} and {} characters'
+from .core.decorators import validate_type
 
 
 class Customer(AbstractObject, AbstractName):
@@ -39,13 +38,8 @@ class Customer(AbstractObject, AbstractName):
         return self._data.get('email')
 
     @email.setter
+    @validate_type(str, min=5, max=64)
     def email(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Email must be a string')
-
-        if len(value) < 5 or len(value) > 64:
-            raise TypeError(_DEFAULT_MESSAGE.format('Email', 5, 64))
-
         self._data['email'] = value
         self._modified = True
 
@@ -64,12 +58,7 @@ class Customer(AbstractObject, AbstractName):
         return self._data.get('mobile')
 
     @mobile.setter
+    @validate_type(str, min=8, max=16, name='Mobile phone')
     def mobile(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Mobile phone must be a string')
-
-        if len(value) < 8 or len(value) > 16:
-            raise TypeError(_DEFAULT_MESSAGE.format('Mobile phone', 8, 16))
-
         self._data['mobile'] = value
         self._modified = True

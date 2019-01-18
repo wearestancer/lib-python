@@ -17,6 +17,7 @@ import re
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
+from .core.decorators import validate_type
 
 
 class Sepa(AbstractObject, AbstractName):
@@ -43,13 +44,11 @@ class Sepa(AbstractObject, AbstractName):
         return self._data.get('bic')
 
     @bic.setter
+    @validate_type(str, name='BIC')
     def bic(self, value):
-        if not isinstance(value, str):
-            raise TypeError('BIC must be a string')
-
         if len(value) != 8 and len(value) != 11:
             # Poorly test but I have nothing more to test
-            raise TypeError('"{}" is not a valid BIC'.format(value))
+            raise TypeError('"{}" is not a valid BIC.'.format(value))
 
         self._data['bic'] = value
         self._modified = True
@@ -101,10 +100,8 @@ class Sepa(AbstractObject, AbstractName):
         return self._data.get('iban')
 
     @iban.setter
+    @validate_type(str, name='IBAN')
     def iban(self, value):
-        if not isinstance(value, str):
-            raise TypeError('IBAN must be a string')
-
         iban = re.sub(r'\s', '', value).upper()
         code = ''
 
@@ -115,7 +112,7 @@ class Sepa(AbstractObject, AbstractName):
                 code += letter
 
         if int(code) % 97 != 1:
-            raise TypeError('"{}" is not a valid IBAN'.format(value))
+            raise TypeError('"{}" is not a valid IBAN.'.format(value))
 
         self._data['iban'] = iban
         self._data['last4'] = iban[-4:]

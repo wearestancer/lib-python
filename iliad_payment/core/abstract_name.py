@@ -13,6 +13,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from .decorators import populate_on_call
+from .decorators import validate_type
 
 
 class AbstractName(object):  # pylint: disable=too-few-public-methods
@@ -36,14 +37,7 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
         return self._data.get('name')
 
     @name.setter
+    @validate_type(str, min=4, max=64)
     def name(self, value):
-        if not isinstance(value, str):
-            raise TypeError('Name must be a string')
-
-        if len(value) < 4 or len(value) > 64:
-            tmp = '{} must be have at between {} and {} characters'
-
-            raise TypeError(tmp.format('Name', 4, 64))
-
         self._data['name'] = value
         self._modified = True
