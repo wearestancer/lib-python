@@ -13,6 +13,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from .core.singleton import Singleton
+from .exceptions import IliadValueError
 
 
 class Config(Singleton):
@@ -100,7 +101,9 @@ class Config(Singleton):
                 key_prefix = key[:5]
 
                 if key_prefix not in self._keys:
-                    raise TypeError('"{}" is not a valid API key.'.format(key))
+                    message = '"{}" is not a valid API key.'.format(key)
+
+                    raise IliadValueError(message)
 
                 self._keys[key_prefix] = key
 
@@ -120,11 +123,13 @@ class Config(Singleton):
     @mode.setter
     def mode(self, value):
         if value != self.LIVE_MODE and value != self.TEST_MODE:
-            message = 'Unknonw mode "{}". '
-            'Please use class constant '
-            '"LIVE_MODE" or "TEST_MODE".'.format(value)
+            message = (
+                'Unknonw mode "{}". '
+                'Please use class constant '
+                '"LIVE_MODE" or "TEST_MODE".'
+            ).format(value)
 
-            raise TypeError(message)
+            raise IliadValueError(message)
 
         self._mode = value
 

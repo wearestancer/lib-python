@@ -12,6 +12,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 import pytest
 
 from iliad_payment import Config
+from iliad_payment.exceptions import IliadValueError
 from .TestHelper import TestHelper
 
 
@@ -141,7 +142,7 @@ class TestConfig(TestHelper):
         bad_key = self.random_string(30)
 
         with pytest.raises(
-            TypeError,
+            IliadValueError,
             match='"{}" is not a valid API key.'.format(bad_key),
         ):
             obj.keys = bad_key
@@ -158,11 +159,13 @@ class TestConfig(TestHelper):
 
         assert obj.mode == Config.LIVE_MODE
 
-        message = 'Unknonw mode "{}". '
-        'Please use class constant "LIVE_MODE" or "TEST_MODE".'.format(mode)
+        message = (
+            'Unknonw mode "{}". '
+            'Please use class constant "LIVE_MODE" or "TEST_MODE".'
+        ).format(mode)
 
         with pytest.raises(
-            TypeError,
+            IliadValueError,
             match=message,
         ):
             obj.mode = mode

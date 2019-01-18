@@ -46,6 +46,7 @@ def validate_type(type_expected, **options):
             type_name = 'a ' + type_expected.__name__
             message = None
             std_type = False
+            excep = ValueError
 
             try:
                 length = len(value)
@@ -66,6 +67,7 @@ def validate_type(type_expected, **options):
 
             if not isinstance(value, type_expected):
                 message = '{} must be {}.'.format(name, type_name)
+                excep = TypeError
 
                 if not std_type:
                     message = (
@@ -144,8 +146,6 @@ def validate_type(type_expected, **options):
                 value = tmp_value
 
             if message is not None:
-                excep = TypeError
-
                 if 'throws' in options:
                     excep = options['throws']
 
