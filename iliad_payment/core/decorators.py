@@ -16,6 +16,12 @@ from functools import wraps
 
 
 def populate_on_call(method):
+    """
+    Do a `populate` call before getting the value.
+
+    This permits to get fresh data only when you need it,
+    and reduce API calls.
+    """
     @wraps(method)
     def wrapper(self):
         if hasattr(self, 'populate'):
@@ -26,6 +32,13 @@ def populate_on_call(method):
 
 
 def validate_type(type_expected, **options):
+    """
+    Validate type, length... before setting values.
+
+    This also add modified flag after modification.
+
+    And this one is a bit long.....
+    """
     def wrapper(method):
         @wraps(method)
         def wrapper(self, value, *args, **kwargs):
