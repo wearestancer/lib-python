@@ -15,6 +15,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from .decorators import populate_on_call
 from .decorators import validate_type
 from ..exceptions import InvalidAmountError
+from ..exceptions import InvalidCurrencyError
 
 
 class AbstractAmount(object):  # pylint: disable=too-few-public-methods
@@ -49,6 +50,11 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
         return self._data.get('currency')
 
     @currency.setter
-    @validate_type(str, allowed=['eur', 'gbp', 'usd'], lowercase=True)
+    @validate_type(
+        str,
+        allowed=['eur', 'gbp', 'usd'],
+        lowercase=True,
+        throws=InvalidCurrencyError,
+    )
     def currency(self, value):
         self._data['currency'] = value

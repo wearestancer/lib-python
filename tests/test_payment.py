@@ -14,6 +14,12 @@ import responses
 
 from iliad_payment import Payment, Card, Customer, Sepa
 from iliad_payment.core import AbstractObject, AbstractAmount
+from iliad_payment.exceptions import InvalidCardError
+from iliad_payment.exceptions import InvalidCustomerError
+from iliad_payment.exceptions import InvalidPaymentCaptureError
+from iliad_payment.exceptions import InvalidPaymentDescriptionError
+from iliad_payment.exceptions import InvalidPaymentOrderIdError
+from iliad_payment.exceptions import InvalidSepaError
 from .TestHelper import TestHelper
 
 
@@ -67,13 +73,13 @@ class TestPayment(TestHelper):
         assert obj.capture is False
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentCaptureError,
             match='Capture must be a boolean',
         ):
             obj.capture = self.random_integer(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentCaptureError,
             match='Capture must be a boolean',
         ):
             obj.capture = self.random_string(2)
@@ -103,13 +109,13 @@ class TestPayment(TestHelper):
         assert obj.method == 'card'
 
         with pytest.raises(
-            TypeError,
+            InvalidCardError,
             match='You must provide a valid instance of Card',
         ):
             obj.card = self.random_integer(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidCardError,
             match='You must provide a valid instance of Card',
         ):
             obj.card = self.random_string(2)
@@ -139,13 +145,13 @@ class TestPayment(TestHelper):
         assert obj.customer == customer
 
         with pytest.raises(
-            TypeError,
+            InvalidCustomerError,
             match='You must provide a valid instance of Customer.',
         ):
             obj.customer = self.random_integer(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidCustomerError,
             match='You must provide a valid instance of Customer.',
         ):
             obj.customer = self.random_string(2)
@@ -201,19 +207,19 @@ class TestPayment(TestHelper):
         assert obj.description == description
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentDescriptionError,
             match='Description must be a string.',
         ):
             obj.description = self.random_integer(20)
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentDescriptionError,
             match='Description must be between 3 and 64 characters.',
         ):
             obj.description = self.random_string(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentDescriptionError,
             match='Description must be between 3 and 64 characters.',
         ):
             obj.description = self.random_string(65)
@@ -304,13 +310,13 @@ class TestPayment(TestHelper):
         assert obj.order_id == order_id
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentOrderIdError,
             match='Order id must be a string.',
         ):
             obj.order_id = self.random_integer(20)
 
         with pytest.raises(
-            TypeError,
+            InvalidPaymentOrderIdError,
             match='Order id must be 24 characters maximum.',
         ):
             obj.order_id = self.random_string(25, 30)
@@ -380,13 +386,13 @@ class TestPayment(TestHelper):
         assert obj.method == 'sepa'
 
         with pytest.raises(
-            TypeError,
+            InvalidSepaError,
             match='You must provide a valid instance of Sepa.',
         ):
             obj.sepa = self.random_integer(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidSepaError,
             match='You must provide a valid instance of Sepa.',
         ):
             obj.sepa = self.random_string(2)

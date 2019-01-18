@@ -15,6 +15,8 @@ import responses
 
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractObject, AbstractName
+from iliad_payment.exceptions import InvalidBicError
+from iliad_payment.exceptions import InvalidIbanError
 from .TestHelper import TestHelper
 
 
@@ -41,7 +43,7 @@ class TestSepa(TestHelper):
         assert obj.is_modified
 
         with pytest.raises(
-            TypeError,
+            InvalidBicError,
             match='BIC must be a string.',
         ):
             obj.bic = self.random_integer(20)
@@ -49,7 +51,7 @@ class TestSepa(TestHelper):
         bad_bic = self.random_string(15)
 
         with pytest.raises(
-            TypeError,
+            InvalidBicError,
             match='"{}" is not a valid BIC'.format(bad_bic),
         ):
             obj.bic = bad_bic
@@ -127,7 +129,7 @@ class TestSepa(TestHelper):
         assert obj.is_modified
 
         with pytest.raises(
-            TypeError,
+            InvalidIbanError,
             match='IBAN must be a string.',
         ):
             obj.iban = self.random_integer(10000)
@@ -135,7 +137,7 @@ class TestSepa(TestHelper):
         bad_iban = 'FR87BARC20658244971655'
 
         with pytest.raises(
-            TypeError,
+            InvalidIbanError,
             match='"{}" is not a valid IBAN.'.format(bad_iban),
         ):
             obj.iban = bad_iban

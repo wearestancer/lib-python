@@ -37,3 +37,71 @@ class IliadWarning(IliadException, Warning):
 
 class InvalidAmountError(IliadValueError):
     """Raised when an invalid amount is used."""
+
+
+class InvalidBicError(IliadValueError):
+    """Raised when an invalid BIC is used."""
+
+
+class InvalidCardError(IliadValueError):
+    """Raised when an invalid card is used."""
+
+
+class InvalidCardExpirationMonthError(IliadValueError):
+    """Raised when an invalid expiration month is used."""
+
+
+class InvalidCardExpirationYearError(IliadValueError):
+    """Raised when an invalid expiration year is used."""
+
+
+class InvalidCardNumberError(IliadValueError):
+    """Raised when an invalid card number is used."""
+
+
+class InvalidCardTokenizeError(IliadTypeError):
+    """Raised when an invalid card tokenize status is used."""
+
+
+class InvalidCardVerificationCodeError(IliadValueError):
+    """Raised when an invalid CVC is used."""
+
+
+class InvalidCurrencyError(IliadValueError):
+    """Raised when an invalid currency is used."""
+
+
+class InvalidCustomerError(IliadValueError):
+    """Raised when an invalid customer is used."""
+
+
+class InvalidCustomerEmailError(IliadValueError):
+    """Raised when an invalid email is used."""
+
+
+class InvalidCustomerMobileError(IliadValueError):
+    """Raised when an invalid mobile phone number is used."""
+
+
+class InvalidIbanError(IliadValueError):
+    """Raised when an invalid IBAN is used."""
+
+
+class InvalidNameError(IliadValueError):
+    """Raised when an invalid name is used."""
+
+
+class InvalidPaymentCaptureError(IliadTypeError):
+    """Raised when an invalid capture is used."""
+
+
+class InvalidPaymentDescriptionError(IliadValueError):
+    """Raised when an invalid description is used."""
+
+
+class InvalidPaymentOrderIdError(IliadValueError):
+    """Raised when an invalid order ID is used."""
+
+
+class InvalidSepaError(IliadValueError):
+    """Raised when an invalid SEPA account is used."""

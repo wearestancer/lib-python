@@ -19,6 +19,11 @@ from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .exceptions import InvalidCardVerificationCodeError
+from .exceptions import InvalidCardExpirationMonthError
+from .exceptions import InvalidCardExpirationYearError
+from .exceptions import InvalidCardNumberError
+from .exceptions import InvalidCardTokenizeError
 
 
 class Card(AbstractObject, AbstractName):
@@ -97,7 +102,12 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('cvc')
 
     @cvc.setter
-    @validate_type(str, length=3, name='CVC')
+    @validate_type(
+        str,
+        length=3,
+        name='CVC',
+        throws=InvalidCardVerificationCodeError,
+    )
     def cvc(self, value):
         self._data['cvc'] = value
 
@@ -116,7 +126,13 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('exp_month')
 
     @exp_month.setter
-    @validate_type(int, min=1, max=12, name='Expiration month')
+    @validate_type(
+        int,
+        min=1,
+        max=12,
+        name='Expiration month',
+        throws=InvalidCardExpirationMonthError,
+    )
     def exp_month(self, value):
         self._data['exp_month'] = value
 
@@ -135,7 +151,12 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('exp_year')
 
     @exp_year.setter
-    @validate_type(int, min=date.today().year, name='Expiration year')
+    @validate_type(
+        int,
+        min=date.today().year,
+        name='Expiration year',
+        throws=InvalidCardExpirationYearError,
+    )
     def exp_year(self, value):
         self._data['exp_year'] = value
 
@@ -165,7 +186,7 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('number')
 
     @number.setter
-    @validate_type(str)
+    @validate_type(str, throws=InvalidCardNumberError)
     def number(self, value):
         number = re.sub(r'\D', '', value)
         parts = list(map(int, number))
@@ -188,7 +209,7 @@ class Card(AbstractObject, AbstractName):
 
         if sum(chk) % 10:
             message = '"{}" is not a valid credit card number.'.format(number)
-            raise TypeError(message)
+            raise InvalidCardNumberError(message)
 
         self._data['number'] = number
         self._data['last4'] = number[-4:]
@@ -208,6 +229,6 @@ class Card(AbstractObject, AbstractName):
         return self._data.get('tokenize')
 
     @tokenize.setter
-    @validate_type(bool)
+    @validate_type(bool, throws=InvalidCardTokenizeError)
     def tokenize(self, value):
         self._data['tokenize'] = value

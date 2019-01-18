@@ -15,6 +15,11 @@ import responses
 
 from iliad_payment import Card
 from iliad_payment.core import AbstractObject, AbstractName
+from iliad_payment.exceptions import InvalidCardVerificationCodeError
+from iliad_payment.exceptions import InvalidCardExpirationMonthError
+from iliad_payment.exceptions import InvalidCardExpirationYearError
+from iliad_payment.exceptions import InvalidCardNumberError
+from iliad_payment.exceptions import InvalidCardTokenizeError
 from .TestHelper import TestHelper
 
 
@@ -107,10 +112,16 @@ class TestCard(TestHelper):
         assert obj.cvc == cvc
         assert obj.is_modified
 
-        with pytest.raises(TypeError, match='CVC must have 3 characters.'):
+        with pytest.raises(
+            InvalidCardVerificationCodeError,
+            match='CVC must have 3 characters.',
+        ):
             obj.cvc = self.random_string(2)
 
-        with pytest.raises(TypeError, match='CVC must be a string.'):
+        with pytest.raises(
+            InvalidCardVerificationCodeError,
+            match='CVC must be a string.',
+        ):
             obj.cvc = self.random_integer(1, 100)
 
         obj = Card(self.random_string(29))
@@ -138,25 +149,25 @@ class TestCard(TestHelper):
         assert obj.is_modified
 
         with pytest.raises(
-            TypeError,
+            InvalidCardExpirationMonthError,
             match='Expiration month must be an integer.',
         ):
             obj.exp_month = self.random_string(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidCardExpirationMonthError,
             match='Expiration month must be between 1 and 12.',
         ):
             obj.exp_month = self.random_integer(13, 100)
 
         with pytest.raises(
-            TypeError,
+            InvalidCardExpirationMonthError,
             match='Expiration month must be between 1 and 12.',
         ):
             obj.exp_month = 0
 
         with pytest.raises(
-            TypeError,
+            InvalidCardExpirationMonthError,
             match='Expiration month must be between 1 and 12.',
         ):
             obj.exp_month = self.random_integer(1, 12) * -1
@@ -187,7 +198,7 @@ class TestCard(TestHelper):
         assert obj.is_modified
 
         with pytest.raises(
-            TypeError,
+            InvalidCardExpirationYearError,
             match='Expiration year must be an integer.',
         ):
             obj.exp_year = self.random_string(4)
@@ -198,7 +209,7 @@ class TestCard(TestHelper):
         ).format(current_year)
 
         with pytest.raises(
-            TypeError,
+            InvalidCardExpirationYearError,
             match=message,
         ):
             obj.exp_year = current_year - 1
@@ -250,7 +261,7 @@ class TestCard(TestHelper):
         assert obj.is_modified
 
         with pytest.raises(
-            TypeError,
+            InvalidCardNumberError,
             match='Number must be a string.',
         ):
             obj.number = self.random_integer(10000)
@@ -258,7 +269,7 @@ class TestCard(TestHelper):
         bad_number = str(int(number) + 1)
 
         with pytest.raises(
-            TypeError,
+            InvalidCardNumberError,
             match='"{}" is not a valid credit card number.'.format(bad_number),
         ):
             obj.number = bad_number
@@ -291,13 +302,13 @@ class TestCard(TestHelper):
         assert obj.tokenize is False
 
         with pytest.raises(
-            TypeError,
+            InvalidCardTokenizeError,
             match='Tokenize must be a boolean.',
         ):
             obj.tokenize = self.random_integer(20)
 
         with pytest.raises(
-            TypeError,
+            InvalidCardTokenizeError,
             match='Tokenize must be a boolean.',
         ):
             obj.tokenize = self.random_string(20)

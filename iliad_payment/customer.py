@@ -16,6 +16,8 @@ from .core.abstract_name import AbstractName
 from .core.abstract_object import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .exceptions import InvalidCustomerEmailError
+from .exceptions import InvalidCustomerMobileError
 
 
 class Customer(AbstractObject, AbstractName):
@@ -38,7 +40,7 @@ class Customer(AbstractObject, AbstractName):
         return self._data.get('email')
 
     @email.setter
-    @validate_type(str, min=5, max=64)
+    @validate_type(str, min=5, max=64, throws=InvalidCustomerEmailError)
     def email(self, value):
         self._data['email'] = value
 
@@ -57,6 +59,12 @@ class Customer(AbstractObject, AbstractName):
         return self._data.get('mobile')
 
     @mobile.setter
-    @validate_type(str, min=8, max=16, name='Mobile phone')
+    @validate_type(
+        str,
+        min=8,
+        max=16,
+        name='Mobile phone',
+        throws=InvalidCustomerMobileError,
+    )
     def mobile(self, value):
         self._data['mobile'] = value

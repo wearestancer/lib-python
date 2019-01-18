@@ -12,6 +12,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 import pytest
 
 from iliad_payment.core import AbstractName
+from iliad_payment.exceptions import InvalidNameError
 from ..TestHelper import TestHelper
 
 
@@ -27,19 +28,19 @@ class TestAbstractName(TestHelper):
         assert obj.name == name
 
         with pytest.raises(
-            TypeError,
+            InvalidNameError,
             match='Name must be a string.',
         ):
             obj.name = self.random_integer(20)
 
         with pytest.raises(
-            TypeError,
+            InvalidNameError,
             match='Name must be between 4 and 64 characters.',
         ):
             obj.name = self.random_string(3)
 
         with pytest.raises(
-            TypeError,
+            InvalidNameError,
             match='Name must be between 4 and 64 characters.',
         ):
             obj.name = self.random_string(65, 70)

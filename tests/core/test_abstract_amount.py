@@ -13,6 +13,7 @@ import pytest
 
 from iliad_payment.core import AbstractAmount
 from iliad_payment.exceptions import InvalidAmountError
+from iliad_payment.exceptions import InvalidCurrencyError
 from ..TestHelper import TestHelper
 
 
@@ -61,7 +62,7 @@ class TestAbstractAmount(TestHelper):
         assert obj.currency == currency.lower()
 
         with pytest.raises(
-            TypeError,
+            InvalidCurrencyError,
             match='Currency must be a string.',
         ):
             obj.currency = self.random_integer(100)
@@ -74,7 +75,7 @@ class TestAbstractAmount(TestHelper):
         ).format(bad_currency, ', '.join(allowed_currency))
 
         with pytest.raises(
-            TypeError,
+            InvalidCurrencyError,
             match=message,
         ):
             obj.currency = bad_currency

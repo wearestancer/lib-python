@@ -18,6 +18,12 @@ from .sepa import Sepa
 from .core import AbstractObject, AbstractAmount
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .exceptions import InvalidCardError
+from .exceptions import InvalidCustomerError
+from .exceptions import InvalidPaymentCaptureError
+from .exceptions import InvalidPaymentDescriptionError
+from .exceptions import InvalidPaymentOrderIdError
+from .exceptions import InvalidSepaError
 
 
 class Payment(AbstractObject, AbstractAmount):
@@ -65,7 +71,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('capture')
 
     @capture.setter
-    @validate_type(bool)
+    @validate_type(bool, throws=InvalidPaymentCaptureError)
     def capture(self, value):
         self._data['capture'] = value
 
@@ -84,7 +90,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('card')
 
     @card.setter
-    @validate_type(Card)
+    @validate_type(Card, throws=InvalidCardError)
     def card(self, value):
         self._data['card'] = value
         self._data['method'] = 'card'
@@ -104,7 +110,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('customer')
 
     @customer.setter
-    @validate_type(Customer)
+    @validate_type(Customer, throws=InvalidCustomerError)
     def customer(self, value):
         self._data['customer'] = value
 
@@ -123,7 +129,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('description')
 
     @description.setter
-    @validate_type(str, min=3, max=64)
+    @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
     def description(self, value):
         self._data['description'] = value
 
@@ -156,7 +162,12 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('order_id')
 
     @order_id.setter
-    @validate_type(str, max=24, name='Order id')
+    @validate_type(
+        str,
+        max=24,
+        name='Order id',
+        throws=InvalidPaymentOrderIdError,
+    )
     def order_id(self, value):
         self._data['order_id'] = value
 
@@ -211,7 +222,7 @@ class Payment(AbstractObject, AbstractAmount):
         return self._data.get('sepa')
 
     @sepa.setter
-    @validate_type(Sepa)
+    @validate_type(Sepa, throws=InvalidSepaError)
     def sepa(self, value):
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
