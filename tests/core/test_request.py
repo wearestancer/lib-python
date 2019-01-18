@@ -54,6 +54,7 @@ class TestRequest(TestHelper):
         assert req.get == req
         assert len(responses.calls) == 1
 
+        del conf.mode
         del conf.keys
         conf.keys = previous_keys
 
@@ -62,6 +63,7 @@ class TestRequest(TestHelper):
         obj = StubObject(self.random_string(29))
         req = Request(obj)
         conf = Config()
+        conf.mode = Config.TEST_MODE
 
         responses.add(responses.GET, obj.uri, json={})
 
@@ -88,6 +90,7 @@ class TestRequest(TestHelper):
         obj = StubObject()
         req = Request(obj)
         conf = Config()
+        conf.mode = Config.TEST_MODE
 
         obj.hydrate({
             'string1': self.random_string(10, 20),
