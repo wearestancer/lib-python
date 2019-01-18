@@ -12,6 +12,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 import pytest
 
 from iliad_payment.core import AbstractAmount
+from iliad_payment.exceptions import InvalidAmountError
 from ..TestHelper import TestHelper
 
 
@@ -28,19 +29,19 @@ class TestAbstractAmount(TestHelper):
         assert obj.amount == amount
 
         with pytest.raises(
-            TypeError,
+            InvalidAmountError,
             match='Amount must be an integer.',
         ):
             obj.amount = self.random_string(2)
 
         with pytest.raises(
-            TypeError,
+            InvalidAmountError,
             match='Amount must be greater than or equal to 50.',
         ):
             obj.amount = self.random_integer(49)
 
         with pytest.raises(
-            TypeError,
+            InvalidAmountError,
             match='Amount must be greater than or equal to 50.',
         ):
             obj.amount = 0

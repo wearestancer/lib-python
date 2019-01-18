@@ -14,6 +14,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 
 from .decorators import populate_on_call
 from .decorators import validate_type
+from ..exceptions import InvalidAmountError
 
 
 class AbstractAmount(object):  # pylint: disable=too-few-public-methods
@@ -33,7 +34,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
         return self._data.get('amount')
 
     @amount.setter
-    @validate_type(int, min=50)
+    @validate_type(int, min=50, throws=InvalidAmountError)
     def amount(self, value):
         self._data['amount'] = value
 

@@ -10,10 +10,7 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
-from iliad_payment.exceptions import IliadException
-from iliad_payment.exceptions import IliadTypeError
-from iliad_payment.exceptions import IliadValueError
-from iliad_payment.exceptions import IliadWarning
+from iliad_payment.exceptions import *  # pylint: disable=wildcard-import
 from .TestHelper import TestHelper
 
 
@@ -32,3 +29,6 @@ class TestExceptions(TestHelper):
     def test_iliad_warning(self):
         assert issubclass(IliadWarning, IliadException)
         assert issubclass(IliadWarning, Warning)
+
+    def test_invalid_amount_error(self):
+        assert issubclass(InvalidAmountError, IliadValueError)

@@ -144,7 +144,12 @@ def validate_type(type_expected, **options):
                 value = tmp_value
 
             if message is not None:
-                raise TypeError(message)
+                excep = TypeError
+
+                if 'throws' in options:
+                    excep = options['throws']
+
+                raise excep(message)
 
             res = method(self, value, *args, **kwargs)
             self._modified = True

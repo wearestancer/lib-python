@@ -33,3 +33,7 @@ class IliadValueError(IliadException, ValueError):
 
 class IliadWarning(IliadException, Warning):
     """Base class for warning categories."""
+
+
+class InvalidAmountError(IliadValueError):
+    """Raised when an invalid amount is used."""
