@@ -124,10 +124,12 @@ class AbstractObject(object):
 
                 if tmp is None and hasattr(self, init_method):
                     tmp = getattr(self, init_method)
+                    tmp._populated = True
 
                 if hasattr(tmp, 'hydrate'):
                     val = {'id': value} if isinstance(value, str) else value
                     value = tmp.hydrate(val)
+                    value._populated = self._populated
 
             if key == 'id':
                 self._id = value

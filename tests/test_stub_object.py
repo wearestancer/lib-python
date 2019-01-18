@@ -36,6 +36,7 @@ class TestStubObject(TestHelper):
             'created': 1546867615,
         }
 
+        obj.force_populated(True)
         obj.hydrate(params)
         card = obj.card1
 
