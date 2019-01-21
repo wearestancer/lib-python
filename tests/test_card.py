@@ -9,7 +9,6 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
-from datetime import date
 import pytest
 import responses
 
@@ -190,8 +189,7 @@ class TestCard(TestHelper):
     @responses.activate
     def test_exp_year(self):
         obj = Card()
-        current_year = date.today().year
-        exp_year = self.random_integer(0, 20) + current_year
+        exp_year = self.random_year()
 
         assert obj.exp_year is None
         assert obj.is_not_modified
@@ -210,17 +208,17 @@ class TestCard(TestHelper):
         message = (
             'Expiration year must be greater '
             'than or equal to {}.'
-        ).format(current_year)
+        ).format(self.current_year)
 
         with pytest.raises(
             InvalidCardExpirationYearError,
             match=message,
         ):
-            obj.exp_year = current_year - 1
+            obj.exp_year = self.current_year - 1
 
         obj = Card(self.random_string(29))
         params = {
-            'exp_year': self.random_integer(0, 20) + current_year,
+            'exp_year': self.random_year(),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
@@ -337,7 +335,7 @@ class TestCard(TestHelper):
             'name': self.random_string(4, 64),
             'number': '4242424242424242',
             'exp_month': self.random_integer(1, 12),
-            'exp_year': self.random_integer(0, 20) + date.today().year,
+            'exp_year': self.random_year(),
             'created': 1546867615,
         }
 

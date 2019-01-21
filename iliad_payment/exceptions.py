@@ -109,3 +109,7 @@ class InvalidSepaError(IliadValueError):
 
 class InvalidZipCodeError(IliadValueError):
     """Raised when an invalid zip code is used."""
+
+
+class MissingPaymentMethodError(IliadValueError):
+    """Raised when no card or SEPA account is provided."""

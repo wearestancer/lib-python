@@ -9,6 +9,7 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
+from datetime import date
 import pytest
 from random import randint, choice
 import string
@@ -58,6 +59,13 @@ class TestHelper(object):
             mobile += str(self.random_integer(0, 99)).zfill(2)
 
         return mobile
+
+    def random_year(self):
+        return self.random_integer(0, 20) + self.current_year
+
+    @property
+    def current_year(self):
+        return date.today().year
 
     @classmethod
     def api_key_provider(cls):

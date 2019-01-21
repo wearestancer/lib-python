@@ -9,17 +9,21 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
+from datetime import date
 import pytest
 import responses
 
 from iliad_payment import Payment, Card, Customer, Sepa
 from iliad_payment.core import AbstractObject, AbstractAmount
+from iliad_payment.exceptions import InvalidAmountError
 from iliad_payment.exceptions import InvalidCardError
+from iliad_payment.exceptions import InvalidCurrencyError
 from iliad_payment.exceptions import InvalidCustomerError
 from iliad_payment.exceptions import InvalidPaymentCaptureError
 from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidSepaError
+from iliad_payment.exceptions import MissingPaymentMethodError
 from .TestHelper import TestHelper
 
 
@@ -374,6 +378,91 @@ class TestPayment(TestHelper):
         assert obj.response_code == params['response_code']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_save_with_card(self):
+        obj = Payment()
+
+        card = Card()
+        card.cvc = self.random_string(3)
+        card.exp_month = self.random_integer(1, 12)
+        card.exp_year = self.random_year()
+        card.number = '4111111111111111'
+
+        customer = Customer()
+        customer.name = self.random_string(15)
+        customer.email = self.random_string(15) + '@example.org'
+        customer.mobile = self.random_mobile()
+
+        with open('./tests/fixtures/payment/create-card.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            InvalidAmountError,
+            match='You must provide an amount before sending a payment.',
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        obj.amount = self.random_integer(50, 999999)
+
+        with pytest.raises(
+            InvalidCurrencyError,
+            match='You must provide a currency before sending a payment.',
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        obj.currency = 'eur'
+
+        with pytest.raises(
+            MissingPaymentMethodError,
+            match=(
+                'You must provide a valid credit card '
+                'or SEPA account before sending a payment.'
+            ),
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        obj.card = card
+        obj.customer = customer
+
+        assert obj.save() == obj
+        assert len(responses.calls) == 1
+
+        # Data from fixture
+        assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.timestamp()) == 1538564253
+        assert obj.amount == 100
+        assert obj.capture is True
+        assert obj.card == card
+        assert obj.currency == 'eur'
+        assert obj.customer == customer
+        assert obj.description == 'le test restfull v1'
+        assert obj.method == 'card'
+        assert obj.order_id is None
+        assert obj.sepa is None
+
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
+        assert card.exp_month == 2
+        assert card.exp_year == 2020
+        assert card.last4 == '4444'
+        assert card.name is None
+        # Number is unchanged in save process
+        assert card.number == '4111111111111111'
+        assert card.zip_code is None
+
+        assert customer.id == 'cust_9Cle7TXKkjhwqcWx4Kl5cQYk'
 
     @responses.activate
     def test_sepa(self):

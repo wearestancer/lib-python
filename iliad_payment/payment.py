@@ -18,12 +18,15 @@ from .sepa import Sepa
 from .core import AbstractObject, AbstractAmount
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
+from .exceptions import InvalidCurrencyError
 from .exceptions import InvalidCustomerError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidSepaError
+from .exceptions import MissingPaymentMethodError
 
 
 class Payment(AbstractObject, AbstractAmount):
@@ -206,6 +209,25 @@ class Payment(AbstractObject, AbstractAmount):
         }
 
         return responses.get(response_code)
+
+    def save(self):
+        if self.amount is None:
+            message = 'You must provide an amount before sending a payment.'
+            raise InvalidAmountError(message)
+
+        if self.currency is None:
+            message = 'You must provide a currency before sending a payment.'
+            raise InvalidCurrencyError(message)
+
+        if self.card is None and self.sepa is None:
+            message = (
+                'You must provide a valid credit card '
+                'or SEPA account before sending a payment.'
+            ),
+
+            raise MissingPaymentMethodError(message)
+
+        return super().save()
 
     @property
     @populate_on_call

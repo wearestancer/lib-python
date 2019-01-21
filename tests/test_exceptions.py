@@ -86,3 +86,6 @@ class TestExceptions(TestHelper):
 
     def test_invalid_zip_code_error(self):
         assert issubclass(InvalidZipCodeError, IliadValueError)
+
+    def test_missing_payment_method_error(self):
+        assert issubclass(MissingPaymentMethodError, IliadValueError)
