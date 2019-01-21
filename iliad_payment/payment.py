@@ -138,6 +138,19 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
+    def live_mode(self):
+        """
+        Indicate if we are in live or test mode.
+
+        True => live / False => test
+
+        Returns:
+            bool: Are we in live mode ?
+        """
+        return self._data.get('live_mode')
+
+    @property
+    @populate_on_call
     def method(self):
         """
         Payment method used.
