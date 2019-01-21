@@ -485,6 +485,85 @@ class TestPayment(TestHelper):
         assert customer.id == 'cust_9Cle7TXKkjhwqcWx4Kl5cQYk'
 
     @responses.activate
+    def test_save_with_sepa(self):
+        obj = Payment()
+
+        sepa = Sepa()
+        sepa.bic = 'DEUTDEFF'  # Thx Wikipedia
+        sepa.iban = 'DE91 1000 0000 0123 4567 89'  # Thx Wikipedia
+
+        customer = Customer()
+        customer.name = self.random_string(15)
+        customer.email = self.random_string(15) + '@example.org'
+        customer.mobile = self.random_mobile()
+
+        with open('./tests/fixtures/payment/create-sepa.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            InvalidAmountError,
+            match='You must provide an amount before sending a payment.',
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        obj.amount = self.random_integer(50, 999999)
+
+        with pytest.raises(
+            InvalidCurrencyError,
+            match='You must provide a currency before sending a payment.',
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        obj.currency = 'eur'
+
+        with pytest.raises(
+            MissingPaymentMethodError,
+            match=(
+                'You must provide a valid credit card '
+                'or SEPA account before sending a payment.'
+            ),
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        obj.sepa = sepa
+        obj.customer = customer
+
+        assert obj.save() == obj
+        assert len(responses.calls) == 1
+
+        # Data from fixture
+        assert obj.id == 'paym_5IptC9R1Wu2wKBR5cjM2so7k'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.timestamp()) == 1538564504
+        assert obj.amount == 100
+        assert obj.card is None
+        assert obj.capture is True
+        assert obj.currency == 'eur'
+        assert obj.customer == customer
+        assert obj.description == 'le test restfull v1'
+        assert obj.live_mode is False
+        assert obj.method == 'sepa'
+        assert obj.order_id is None
+
+        assert sepa.id == 'sepa_oazGliEo6BuqUlyCzE42hcNp'
+        assert sepa.bic == 'ILADFRPP'
+        # Iban is unchanged in save process
+        assert sepa.iban == 'DE91100000000123456789'
+        assert sepa.last4 == '2606'
+        assert sepa.name == 'David Coaster'
+
+        assert customer.id == 'cust_9Cle7TXKkjhwqcWx4Kl5cQYk'
+
+    @responses.activate
     def test_sepa(self):
         obj = Payment()
         sepa = Sepa()
