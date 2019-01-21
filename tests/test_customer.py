@@ -72,6 +72,55 @@ class TestCustomer(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    def test_is_complete(self):
+        email = self.random_string(5, 64)
+        name = self.random_string(4, 64)
+        mobile = self.random_mobile()
+
+        # Empty customer is not complete
+        assert Customer().is_complete is False
+        assert Customer().is_not_complete is True
+
+        # Only email => complete
+        obj = Customer()
+
+        obj.email = email
+        # obj.name
+        # obj.mobile
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
+
+        # Only name => incomplete
+        obj = Customer()
+
+        # obj.email
+        obj.name = name
+        # obj.mobile
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Only mobile => complete
+        obj = Customer()
+
+        # obj.email
+        # obj.name
+        obj.mobile = mobile
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
+
+        # Of course, will all => complete
+        obj = Customer()
+
+        obj.email = email
+        obj.name = name
+        obj.mobile = mobile
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
+
     @responses.activate
     def test_mobile(self):
         obj = Customer()

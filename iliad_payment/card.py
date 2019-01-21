@@ -162,6 +162,40 @@ class Card(AbstractObject, AbstractName):
         self._data['exp_year'] = value
 
     @property
+    def is_complete(self):
+        """
+        Indicate if all mandatory card data are provided.
+
+        Returns:
+            bool: Is the card complete ?
+        """
+        if self.cvc is None:
+            return False
+
+        if self.exp_month is None:
+            return False
+
+        if self.exp_year is None:
+            return False
+
+        if self.number is None:
+            return False
+
+        return True
+
+    @property
+    def is_not_complete(self):
+        """
+        Indicate if all mandatory card data are NOT provided.
+
+        It's simply a `not self.is_complete`.
+
+        Returns:
+            bool: Is the card not complete ?
+        """
+        return not self.is_complete
+
+    @property
     @populate_on_call
     def last4(self):
         """

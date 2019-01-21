@@ -156,6 +156,41 @@ class TestSepa(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    def test_is_complete(self):
+        bic = self.random_string(8)
+        iban = 'GB82WEST12345698765432'
+
+        # Empty SEPA is not complete
+        assert Sepa().is_complete is False
+        assert Sepa().is_not_complete is True
+
+        # Without BIC => incomplete
+        obj = Sepa()
+
+        # obj.bic
+        obj.iban = iban
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Without BIC => incomplete
+        obj = Sepa()
+
+        obj.bic = bic
+        # obj.iban
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Minimum to be complete
+        obj = Sepa()
+
+        obj.bic = bic
+        obj.iban = iban
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
+
     @responses.activate
     def test_last4(self):
         obj = Sepa()

@@ -227,6 +227,71 @@ class TestCard(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    def test_is_complete(self):
+        cvc = self.random_string(3)
+        exp_month = self.random_integer(1, 12)
+        exp_year = self.random_year()
+        number = '4242424242424242'
+
+        # Empty card is not complete
+        assert Card().is_complete is False
+        assert Card().is_not_complete is True
+
+        # Without CVC => incomplete
+        obj = Card()
+
+        # obj.cvc
+        obj.exp_month = exp_month
+        obj.exp_year = exp_year
+        obj.number = number
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Without expiration month => incomplete
+        obj = Card()
+
+        obj.cvc = cvc
+        # obj.exp_month
+        obj.exp_year = exp_year
+        obj.number = number
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Without expiration year => incomplete
+        obj = Card()
+
+        obj.cvc = cvc
+        obj.exp_month = exp_month
+        # obj.exp_year
+        obj.number = number
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Without number => incomplete
+        obj = Card()
+
+        obj.cvc = cvc
+        obj.exp_month = exp_month
+        obj.exp_year = exp_year
+        # obj.number
+
+        assert obj.is_complete is False
+        assert obj.is_not_complete is True
+
+        # Minimum to be complete
+        obj = Card()
+
+        obj.cvc = cvc
+        obj.exp_month = exp_month
+        obj.exp_year = exp_year
+        obj.number = number
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
+
     @responses.activate
     def test_last4(self):
         obj = Card()

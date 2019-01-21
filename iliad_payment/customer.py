@@ -45,6 +45,31 @@ class Customer(AbstractObject, AbstractName):
         self._data['email'] = value
 
     @property
+    def is_complete(self):
+        """
+        Indicate if all mandatory customer data are provided.
+
+        Returns:
+            bool: Is the customer complete ?
+        """
+        if self.email is None and self.mobile is None:
+            return False
+
+        return True
+
+    @property
+    def is_not_complete(self):
+        """
+        Indicate if all mandatory customer data are NOT provided.
+
+        It's simply a `not self.is_complete`.
+
+        Returns:
+            bool: Is the customer not complete ?
+        """
+        return not self.is_complete
+
+    @property
     @populate_on_call
     def mobile(self):
         """
