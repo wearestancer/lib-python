@@ -232,12 +232,20 @@ class Payment(AbstractObject, AbstractAmount):
             message = 'You must provide a currency before sending a payment.'
             raise InvalidCurrencyError(message)
 
-        if self.card is None and self.sepa is None:
-            message = (
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment.'
-            ),
+        message = (
+            'You must provide a valid credit card '
+            'or SEPA account before sending a payment.'
+        )
 
+        if self.card is None and self.sepa is None:
+            raise MissingPaymentMethodError(message)
+
+        if self.card is not None and self.card.is_not_complete:
+            message += ' Your card is incomplete.'
+            raise MissingPaymentMethodError(message)
+
+        if self.sepa is not None and self.sepa.is_not_complete:
+            message += ' Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
         return super().save()

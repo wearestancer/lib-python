@@ -404,10 +404,6 @@ class TestPayment(TestHelper):
         obj = Payment()
 
         card = Card()
-        card.cvc = self.random_string(3)
-        card.exp_month = self.random_integer(1, 12)
-        card.exp_year = self.random_year()
-        card.number = '4111111111111111'
 
         customer = Customer()
         customer.name = self.random_string(15)
@@ -454,6 +450,23 @@ class TestPayment(TestHelper):
         obj.card = card
         obj.customer = customer
 
+        with pytest.raises(
+            MissingPaymentMethodError,
+            match=(
+                'You must provide a valid credit card '
+                'or SEPA account before sending a payment. '
+                'Your card is incomplete.'
+            ),
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        card.cvc = self.random_string(3)
+        card.exp_month = self.random_integer(1, 12)
+        card.exp_year = self.random_year()
+        card.number = '4111111111111111'
+
         assert obj.save() == obj
         assert len(responses.calls) == 1
 
@@ -489,8 +502,6 @@ class TestPayment(TestHelper):
         obj = Payment()
 
         sepa = Sepa()
-        sepa.bic = 'DEUTDEFF'  # Thx Wikipedia
-        sepa.iban = 'DE91 1000 0000 0123 4567 89'  # Thx Wikipedia
 
         customer = Customer()
         customer.name = self.random_string(15)
@@ -536,6 +547,21 @@ class TestPayment(TestHelper):
 
         obj.sepa = sepa
         obj.customer = customer
+
+        with pytest.raises(
+            MissingPaymentMethodError,
+            match=(
+                'You must provide a valid credit card '
+                'or SEPA account before sending a payment. '
+                'Your SEPA account is incomplete.'
+            ),
+        ):
+            obj.save()
+
+        assert len(responses.calls) == 0
+
+        sepa.bic = 'DEUTDEFF'  # Thx Wikipedia
+        sepa.iban = 'DE91 1000 0000 0123 4567 89'  # Thx Wikipedia
 
         assert obj.save() == obj
         assert len(responses.calls) == 1
