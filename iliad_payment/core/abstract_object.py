@@ -97,11 +97,13 @@ class AbstractObject(object):
         """
         return self._created
 
-    def _get_filtered_attributes(self):
-        filtered = self._filtered_attributes
+    @classmethod
+    def _get_filtered_attributes(cls):
+        filtered = cls._filtered_attributes
 
-        if hasattr(super(), '_get_filtered_attributes'):
-            filtered += super()._get_filtered_attributes()
+        for parent in cls.mro():
+            if parent != cls and hasattr(parent, '_get_filtered_attributes'):
+                filtered += parent._get_filtered_attributes()
 
         return filtered
 
@@ -248,7 +250,7 @@ class AbstractObject(object):
                         representation[key] = {
                             k: v
                             for k, v in child.items()
-                            if k not in value._get_filtered_attributes()
+                            if k not in type(value)._get_filtered_attributes()
                         }
                 else:
                     representation[key] = value

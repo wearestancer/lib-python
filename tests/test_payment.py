@@ -28,9 +28,12 @@ class TestPayment(TestHelper):
         assert issubclass(Payment, AbstractObject)
         assert issubclass(Payment, AbstractAmount)
 
-        assert Payment._filtered_attributes == [
-            'method',
-        ]
+        attrs = Payment._get_filtered_attributes()
+
+        assert isinstance(attrs, list)
+        assert 'created' in attrs
+        assert 'id' in attrs
+        assert 'method' in attrs
 
     @responses.activate
     def test_amount(self):

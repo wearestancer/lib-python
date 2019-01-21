@@ -24,6 +24,12 @@ class TestCustomer(TestHelper):
         assert issubclass(Customer, AbstractObject)
         assert issubclass(Customer, AbstractName)
 
+        attrs = Customer._get_filtered_attributes()
+
+        assert isinstance(attrs, list)
+        assert 'created' in attrs
+        assert 'id' in attrs
+
     @responses.activate
     def test_email(self):
         obj = Customer()

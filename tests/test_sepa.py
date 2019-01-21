@@ -25,9 +25,12 @@ class TestSepa(TestHelper):
         assert issubclass(Sepa, AbstractObject)
         assert issubclass(Sepa, AbstractName)
 
-        assert Sepa._filtered_attributes == [
-            'country',
-        ]
+        attrs = Sepa._get_filtered_attributes()
+
+        assert isinstance(attrs, list)
+        assert 'country' in attrs
+        assert 'created' in attrs
+        assert 'id' in attrs
 
     @responses.activate
     def test_bic(self):

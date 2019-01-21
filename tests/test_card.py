@@ -28,10 +28,13 @@ class TestCard(TestHelper):
         assert issubclass(Card, AbstractObject)
         assert issubclass(Card, AbstractName)
 
-        assert Card._filtered_attributes == [
-            'brand',
-            'country',
-        ]
+        attrs = Card._get_filtered_attributes()
+
+        assert isinstance(attrs, list)
+        assert 'brand' in attrs
+        assert 'country' in attrs
+        assert 'created' in attrs
+        assert 'id' in attrs
 
     def test_id(self):
         assert Card().id is None
