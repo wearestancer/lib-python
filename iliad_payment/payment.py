@@ -138,6 +138,27 @@ class Payment(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
+    def is_success(self):
+        """
+        Is the operation a success ?
+
+        Returns:
+            bool: Is the operation a success ?
+        """
+        return self.response_code == '00'
+
+    @property
+    def is_error(self):
+        """
+        Is the operation an error ?
+
+        Returns:
+            bool: Is the operation an error ?
+        """
+        return not self.is_success
+
+    @property
+    @populate_on_call
     def live_mode(self):
         """
         Indicate if we are in live or test mode.

@@ -285,6 +285,19 @@ class TestPayment(TestHelper):
         assert obj.sepa == sepa
         assert obj.sepa.id == params['sepa']
 
+    def test_is_success(self):
+        obj = Payment()
+
+        obj.hydrate({'response_code': '00'})
+
+        assert obj.is_success is True
+        assert obj.is_error is False
+
+        obj.hydrate({'response_code': self.random_string(2)})
+
+        assert obj.is_success is False
+        assert obj.is_error is True
+
     @responses.activate
     def test_live_mode(self):
         obj = Payment()
