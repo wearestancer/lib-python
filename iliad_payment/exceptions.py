@@ -105,3 +105,7 @@ class InvalidPaymentOrderIdError(IliadValueError):
 
 class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
+
+
+class InvalidZipCodeError(IliadValueError):
+    """Raised when an invalid zip code is used."""

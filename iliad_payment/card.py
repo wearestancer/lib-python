@@ -24,6 +24,7 @@ from .exceptions import InvalidCardExpirationMonthError
 from .exceptions import InvalidCardExpirationYearError
 from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
+from .exceptions import InvalidZipCodeError
 
 
 class Card(AbstractObject, AbstractName):
@@ -232,3 +233,28 @@ class Card(AbstractObject, AbstractName):
     @validate_type(bool, throws=InvalidCardTokenizeError)
     def tokenize(self, value):
         self._data['tokenize'] = value
+
+    @property
+    @populate_on_call
+    def zip_code(self):
+        """
+        City zip code.
+
+        Args:
+            value (str): New zip code, must be between 2 and 8 characters.
+
+        Returns:
+            str: City zip code.
+        """
+        return self._data.get('zip_code')
+
+    @zip_code.setter
+    @validate_type(
+        str,
+        min=2,
+        max=8,
+        name='Zip code',
+        throws=InvalidZipCodeError,
+    )
+    def zip_code(self, value):
+        self._data['zip_code'] = value

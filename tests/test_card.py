@@ -20,6 +20,7 @@ from iliad_payment.exceptions import InvalidCardExpirationMonthError
 from iliad_payment.exceptions import InvalidCardExpirationYearError
 from iliad_payment.exceptions import InvalidCardNumberError
 from iliad_payment.exceptions import InvalidCardTokenizeError
+from iliad_payment.exceptions import InvalidZipCodeError
 from .TestHelper import TestHelper
 
 
@@ -355,3 +356,45 @@ class TestCard(TestHelper):
         assert result.find('country') == -1
         assert result.find('created') == -1
         assert result.find('last4') == -1
+
+    @responses.activate
+    def test_zip_code(self):
+        obj = Card()
+        zip_code = self.random_string(2, 8)
+
+        assert obj.zip_code is None
+        assert obj.is_not_modified
+
+        obj.zip_code = zip_code
+
+        assert obj.zip_code == zip_code
+        assert obj.is_modified
+
+        with pytest.raises(
+            InvalidZipCodeError,
+            match='Zip code must be a string.',
+        ):
+            obj.zip_code = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidZipCodeError,
+            match='Zip code must be between 2 and 8 characters.',
+        ):
+            obj.zip_code = self.random_string(1)
+
+        with pytest.raises(
+            InvalidZipCodeError,
+            match='Zip code must be between 2 and 8 characters.',
+        ):
+            obj.zip_code = self.random_string(9, 10)
+
+        obj = Card(self.random_string(2, 8))
+        params = {
+            'zip_code': True,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.zip_code == params['zip_code']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
