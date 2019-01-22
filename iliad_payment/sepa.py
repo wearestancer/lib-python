@@ -14,6 +14,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 
 import re
 
+from .core import AbstractCountry
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -22,12 +23,8 @@ from .exceptions import InvalidBicError
 from .exceptions import InvalidIbanError
 
 
-class Sepa(AbstractObject, AbstractName):
+class Sepa(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a SEPA account."""
-
-    _filtered_attributes = [
-        'country',
-    ]
 
     @property
     @populate_on_call
@@ -53,17 +50,6 @@ class Sepa(AbstractObject, AbstractName):
             raise InvalidBicError('"{}" is not a valid BIC.'.format(value))
 
         self._data['bic'] = value
-
-    @property
-    @populate_on_call
-    def country(self):
-        """
-        Account country.
-
-        Returns:
-            str: Two characters country code (ISO 3166-1 alpha-2).
-        """
-        return self._data.get('country')
 
     @property
     def formatted_iban(self):

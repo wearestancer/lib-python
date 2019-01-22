@@ -15,7 +15,9 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from .card import Card
 from .customer import Customer
 from .sepa import Sepa
-from .core import AbstractObject, AbstractAmount
+from .core import AbstractAmount
+from .core import AbstractCountry
+from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidAmountError
@@ -29,7 +31,7 @@ from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
 
 
-class Payment(AbstractObject, AbstractAmount):
+class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     """Representation of a payment."""
 
     _ENDPOINT = 'checkout'

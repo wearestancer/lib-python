@@ -102,8 +102,8 @@ class AbstractObject(object):
         filtered = cls._filtered_attributes
 
         for parent in cls.mro():
-            if parent != cls and hasattr(parent, '_get_filtered_attributes'):
-                filtered += parent._get_filtered_attributes()
+            if parent != cls and hasattr(parent, '_filtered_attributes'):
+                filtered += parent._filtered_attributes
 
         return filtered
 

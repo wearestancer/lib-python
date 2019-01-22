@@ -13,7 +13,9 @@ import pytest
 import responses
 
 from iliad_payment import Card
-from iliad_payment.core import AbstractObject, AbstractName
+from iliad_payment.core import AbstractCountry
+from iliad_payment.core import AbstractObject
+from iliad_payment.core import AbstractName
 from iliad_payment.exceptions import InvalidCardVerificationCodeError
 from iliad_payment.exceptions import InvalidCardExpirationMonthError
 from iliad_payment.exceptions import InvalidCardExpirationYearError
@@ -25,8 +27,9 @@ from .TestHelper import TestHelper
 
 class TestCard(TestHelper):
     def test_class(self):
-        assert issubclass(Card, AbstractObject)
+        assert issubclass(Card, AbstractCountry)
         assert issubclass(Card, AbstractName)
+        assert issubclass(Card, AbstractObject)
 
         attrs = Card._get_filtered_attributes()
 

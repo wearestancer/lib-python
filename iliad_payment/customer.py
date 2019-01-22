@@ -12,15 +12,16 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
-from .core.abstract_name import AbstractName
-from .core.abstract_object import AbstractObject
+from .core import AbstractCountry
+from .core import AbstractName
+from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidCustomerEmailError
 from .exceptions import InvalidCustomerMobileError
 
 
-class Customer(AbstractObject, AbstractName):
+class Customer(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a customer."""
 
     _ENDPOINT = 'customers'

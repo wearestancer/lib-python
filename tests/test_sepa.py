@@ -14,7 +14,9 @@ import re
 import responses
 
 from iliad_payment import Sepa
-from iliad_payment.core import AbstractObject, AbstractName
+from iliad_payment.core import AbstractCountry
+from iliad_payment.core import AbstractObject
+from iliad_payment.core import AbstractName
 from iliad_payment.exceptions import InvalidBicError
 from iliad_payment.exceptions import InvalidIbanError
 from .TestHelper import TestHelper
@@ -22,8 +24,9 @@ from .TestHelper import TestHelper
 
 class TestSepa(TestHelper):
     def test_class(self):
-        assert issubclass(Sepa, AbstractObject)
+        assert issubclass(Sepa, AbstractCountry)
         assert issubclass(Sepa, AbstractName)
+        assert issubclass(Sepa, AbstractObject)
 
         attrs = Sepa._get_filtered_attributes()
 

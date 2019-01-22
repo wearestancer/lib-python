@@ -14,7 +14,9 @@ import pytest
 import responses
 
 from iliad_payment import Payment, Card, Customer, Sepa
-from iliad_payment.core import AbstractObject, AbstractAmount
+from iliad_payment.core import AbstractAmount
+from iliad_payment.core import AbstractCountry
+from iliad_payment.core import AbstractObject
 from iliad_payment.exceptions import InvalidAmountError
 from iliad_payment.exceptions import InvalidCardError
 from iliad_payment.exceptions import InvalidCurrencyError
@@ -29,12 +31,14 @@ from .TestHelper import TestHelper
 
 class TestPayment(TestHelper):
     def test_class(self):
-        assert issubclass(Payment, AbstractObject)
+        assert issubclass(Payment, AbstractCountry)
         assert issubclass(Payment, AbstractAmount)
+        assert issubclass(Payment, AbstractObject)
 
         attrs = Payment._get_filtered_attributes()
 
         assert isinstance(attrs, list)
+        assert 'country' in attrs
         assert 'created' in attrs
         assert 'id' in attrs
         assert 'method' in attrs

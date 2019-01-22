@@ -15,6 +15,7 @@ from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-impor
 from datetime import date
 import re
 
+from .core import AbstractCountry
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -27,7 +28,7 @@ from .exceptions import InvalidCardTokenizeError
 from .exceptions import InvalidZipCodeError
 
 
-class Card(AbstractObject, AbstractName):
+class Card(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a card."""
 
     _filtered_attributes = [
@@ -74,17 +75,6 @@ class Card(AbstractObject, AbstractName):
             return names[brand]
 
         return brand
-
-    @property
-    @populate_on_call
-    def country(self):
-        """
-        Card country.
-
-        Returns:
-            str: Two characters country code (ISO 3166-1 alpha-2).
-        """
-        return self._data.get('country')
 
     @property
     @populate_on_call

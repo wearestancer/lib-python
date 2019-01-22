@@ -13,7 +13,9 @@ import pytest
 import responses
 
 from iliad_payment import Customer
-from iliad_payment.core import AbstractObject, AbstractName
+from iliad_payment.core import AbstractCountry
+from iliad_payment.core import AbstractObject
+from iliad_payment.core import AbstractName
 from iliad_payment.exceptions import InvalidCustomerEmailError
 from iliad_payment.exceptions import InvalidCustomerMobileError
 from .TestHelper import TestHelper
@@ -21,12 +23,14 @@ from .TestHelper import TestHelper
 
 class TestCustomer(TestHelper):
     def test_class(self):
-        assert issubclass(Customer, AbstractObject)
+        assert issubclass(Customer, AbstractCountry)
         assert issubclass(Customer, AbstractName)
+        assert issubclass(Customer, AbstractObject)
 
         attrs = Customer._get_filtered_attributes()
 
         assert isinstance(attrs, list)
+        assert 'country' in attrs
         assert 'created' in attrs
         assert 'id' in attrs
 
