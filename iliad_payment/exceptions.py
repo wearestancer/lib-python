@@ -125,21 +125,46 @@ class IliadHTTPError(IliadException, HTTPError):
     They also inherit from `requests.HTTPError`.
     """
 
+    def __init__(self, response, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.response = response
+        self.status_code = response.status_code
+
+        if hasattr(response, 'reason'):
+            self.reason = getattr(response, 'reason')
+
+        self.request = getattr(response, 'request')
+
+        self.type = ''
+        self.message = ''
+
+        try:
+            res = response.json()
+
+            if 'type' in res:
+                self.type = res.type
+
+            if 'message' in res:
+                self.message = res.message
+        except ValueError:
+            pass
+
     @classmethod
-    def factory(cls, status_code, *args, **kwargs):
-        if status_code >= 500:
+    def factory(cls, response, *args, **kwargs):
+        if response.status_code >= 500:
             for tmp in IliadHTTPServerError.__subclasses__():
-                if tmp.status_code == status_code:
-                    return tmp(*args, **kwargs)
+                if tmp.status_code == response.status_code:
+                    return tmp(response, *args, **kwargs)
 
-            return IliadHTTPServerError(*args, **kwargs)
+            return IliadHTTPServerError(response, *args, **kwargs)
 
-        if status_code >= 400:
+        if response.status_code >= 400:
             for tmp in IliadHTTPClientError.__subclasses__():
-                if tmp.status_code == status_code:
-                    return tmp(*args, **kwargs)
+                if tmp.status_code == response.status_code:
+                    return tmp(response, *args, **kwargs)
 
-            return IliadHTTPClientError(*args, **kwargs)
+            return IliadHTTPClientError(response, *args, **kwargs)
 
 
 class IliadHTTPClientError(IliadHTTPError):
