@@ -89,3 +89,73 @@ class TestExceptions(TestHelper):
 
     def test_missing_payment_method_error(self):
         assert issubclass(MissingPaymentMethodError, IliadValueError)
+
+    def test_iliad_http_error(self):
+        assert issubclass(IliadHTTPError, IliadException)
+        assert issubclass(IliadHTTPError, HTTPError)
+
+    def test_iliad_http_client_error(self):
+        assert issubclass(IliadHTTPClientError, IliadHTTPError)
+
+    def test_iliad_http_server_error(self):
+        assert issubclass(IliadHTTPServerError, IliadHTTPError)
+
+    def test_bad_request_error(self):
+        assert issubclass(BadRequestError, IliadHTTPClientError)
+        assert BadRequestError.status_code == 400
+        assert BadRequestError.reason == 'Bad Request'
+
+    def test_not_authorized_error(self):
+        assert issubclass(NotAuthorizedError, IliadHTTPClientError)
+        assert NotAuthorizedError.status_code == 401
+        assert NotAuthorizedError.reason == 'Not Authorized'
+
+    def test_payment_required_error(self):
+        assert issubclass(PaymentRequiredError, IliadHTTPClientError)
+        assert PaymentRequiredError.status_code == 402
+        assert PaymentRequiredError.reason == 'Payment Required'
+
+    def test_forbidden_error(self):
+        assert issubclass(ForbiddenError, IliadHTTPClientError)
+        assert ForbiddenError.status_code == 403
+        assert ForbiddenError.reason == 'Forbidden'
+
+    def test_not_found_error(self):
+        assert issubclass(NotFoundError, IliadHTTPClientError)
+        assert NotFoundError.status_code == 404
+        assert NotFoundError.reason == 'Not Found'
+
+    def test_method_not_allowed_error(self):
+        assert issubclass(MethodNotAllowedError, IliadHTTPClientError)
+        assert MethodNotAllowedError.status_code == 405
+        assert MethodNotAllowedError.reason == 'Method Not Allowed'
+
+    def test_not_acceptable_error(self):
+        assert issubclass(NotAcceptableError, IliadHTTPClientError)
+        assert NotAcceptableError.status_code == 406
+        assert NotAcceptableError.reason == 'Not Acceptable'
+
+    def test_proxy_authentication_required_error(self):
+        assert issubclass(ProxyAuthenticationRequiredError, IliadHTTPClientError)
+        assert ProxyAuthenticationRequiredError.status_code == 407
+        assert ProxyAuthenticationRequiredError.reason == 'Proxy Authentication Required'
+
+    def test_request_timeout_error(self):
+        assert issubclass(RequestTimeoutError, IliadHTTPClientError)
+        assert RequestTimeoutError.status_code == 408
+        assert RequestTimeoutError.reason == 'Request Timeout'
+
+    def test_conflict_error(self):
+        assert issubclass(ConflictError, IliadHTTPClientError)
+        assert ConflictError.status_code == 409
+        assert ConflictError.reason == 'Conflict'
+
+    def test_gone_error(self):
+        assert issubclass(GoneError, IliadHTTPClientError)
+        assert GoneError.status_code == 410
+        assert GoneError.reason == 'Gone'
+
+    def test_internal_server_error(self):
+        assert issubclass(InternalServerError, IliadHTTPServerError)
+        assert InternalServerError.status_code == 500
+        assert InternalServerError.reason == 'Internal Server Error'
