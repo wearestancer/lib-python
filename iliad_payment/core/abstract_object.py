@@ -28,6 +28,7 @@ class AbstractObject(object):
     _filtered_attributes = [
         'id',
         'created',
+        'live_mode',
     ]
 
     def __init__(self, uid=None):
