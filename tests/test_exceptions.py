@@ -9,6 +9,7 @@ from future import standard_library
 standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
+import pytest
 
 from iliad_payment.exceptions import *  # pylint: disable=wildcard-import
 from .TestHelper import TestHelper
@@ -159,3 +160,9 @@ class TestExceptions(TestHelper):
         assert issubclass(InternalServerError, IliadHTTPServerError)
         assert InternalServerError.status_code == 500
         assert InternalServerError.reason == 'Internal Server Error'
+
+    @pytest.mark.parametrize('status_code, cls', TestHelper.http_code_provider())
+    def test_factory(self, status_code, cls):
+        obj = IliadHTTPError.factory(status_code)
+
+        assert isinstance(obj, cls)

@@ -15,6 +15,7 @@ from random import randint, choice
 import string
 
 from iliad_payment import Config
+from iliad_payment.exceptions import *  # pylint: disable=wildcard-import
 
 
 class TestHelper(object):
@@ -165,6 +166,25 @@ class TestHelper(object):
             'gbp',
             'usd',
         )
+
+    @classmethod
+    def http_code_provider(cls):
+        return [
+            (400, BadRequestError),
+            (401, NotAuthorizedError),
+            (402, PaymentRequiredError),
+            (403, ForbiddenError),
+            (404, NotFoundError),
+            (405, MethodNotAllowedError),
+            (406, NotAcceptableError),
+            (407, ProxyAuthenticationRequiredError),
+            (408, RequestTimeoutError),
+            (409, ConflictError),
+            (410, GoneError),
+            (500, InternalServerError),
+            (499, IliadHTTPClientError),
+            (599, IliadHTTPServerError),
+        ]
 
     @classmethod
     def iban_provider(cls):

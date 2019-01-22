@@ -125,6 +125,22 @@ class IliadHTTPError(IliadException, HTTPError):
     They also inherit from `requests.HTTPError`.
     """
 
+    @classmethod
+    def factory(cls, status_code, *args, **kwargs):
+        if status_code >= 500:
+            for tmp in IliadHTTPServerError.__subclasses__():
+                if tmp.status_code == status_code:
+                    return tmp(*args, **kwargs)
+
+            return IliadHTTPServerError(*args, **kwargs)
+
+        if status_code >= 400:
+            for tmp in IliadHTTPClientError.__subclasses__():
+                if tmp.status_code == status_code:
+                    return tmp(*args, **kwargs)
+
+            return IliadHTTPClientError(*args, **kwargs)
+
 
 class IliadHTTPClientError(IliadHTTPError):
     """Base exception for HTTP 4xx status."""
