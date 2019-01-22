@@ -12,6 +12,7 @@ standard_library.install_aliases()
 
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
+from ..exceptions import IliadHTTPError
 import json
 import requests
 
@@ -61,6 +62,9 @@ class Request(object):
                     'Content-Type': 'application/json',
                 },
             )
+
+            if not response.ok:
+                raise IliadHTTPError.factory(response)
 
             if response.text is not None:
                 try:

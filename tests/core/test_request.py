@@ -15,6 +15,7 @@ import responses
 
 from iliad_payment import Config
 from iliad_payment.core import Request
+from iliad_payment.exceptions import NotAuthorizedError
 from ..stub.stub_object import StubObject
 from ..TestHelper import TestHelper
 
@@ -49,6 +50,25 @@ class TestRequest(TestHelper):
         conf.mode = mode
         conf.keys = key
 
+        # Bad key
+        with open('./tests/fixtures/auth/not-authorized.json') as opened_file:
+            content = opened_file.read()
+
+        responses.add(responses.GET, obj.uri, body=content, status=401)
+
+        with pytest.raises(NotAuthorizedError) as error:
+            req.get
+
+            assert error.status_code == 401
+            assert error.reason == 'Not Authorized'
+            assert error.type == 'invalid_request_error'
+            tmp = 'You are not authorized to access that resource'
+            assert error.message == tmp
+
+            assert len(responses.calls) == 1
+
+        # All ok
+        responses.reset()
         responses.add(responses.GET, obj.uri, json={})
 
         assert req.get == req
@@ -57,6 +77,19 @@ class TestRequest(TestHelper):
         del conf.mode
         del conf.keys
         conf.keys = previous_keys
+
+    @responses.activate
+    @pytest.mark.parametrize('status_code, cls', TestHelper.http_code_provider())
+    def test_exceptions(self, status_code, cls):
+        obj = StubObject()
+        req = Request(obj)
+
+        responses.add(responses.GET, obj.uri, status=status_code)
+
+        with pytest.raises(cls):
+            req.get
+
+            assert len(responses.calls) == 1
 
     @responses.activate
     def test_get(self):
