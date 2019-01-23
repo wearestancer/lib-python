@@ -14,6 +14,13 @@ from iliad_payment.core.decorators import populate_on_call
 
 
 class StubObject(AbstractObject):
+    _allowed_attributes = [
+        'card1',
+        'integer1',
+        'string1',
+        'string2',
+    ]
+
     def force_modified(self, status):
         self._modified = status
 

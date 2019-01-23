@@ -18,7 +18,6 @@ from ..TestHelper import TestHelper
 
 
 class TestAbstractAmount(TestHelper):
-
     def test_amount(self):
         obj = AbstractAmount()
         amount = self.random_integer(50, 999999)

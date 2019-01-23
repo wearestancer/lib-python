@@ -36,8 +36,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     _ENDPOINT = 'checkout'
 
-    _filtered_attributes = [
-        'method',
+    _allowed_attributes = [
+        'capture',
+        'card',
+        'customer',
+        'description',
+        'order_id',
+        'sepa',
     ]
 
     @property

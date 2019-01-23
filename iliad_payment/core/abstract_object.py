@@ -25,12 +25,6 @@ class AbstractObject(object):
 
     _ENDPOINT = None
 
-    _filtered_attributes = [
-        'id',
-        'created',
-        'live_mode',
-    ]
-
     def __init__(self, uid=None):
         """
         Create or get an API object.
@@ -99,14 +93,17 @@ class AbstractObject(object):
         return self._created
 
     @classmethod
-    def _get_filtered_attributes(cls):
-        filtered = cls._filtered_attributes
+    def _get_allowed_attributes(cls):
+        allowed = []
+
+        if hasattr(cls, '_allowed_attributes'):
+            allowed = cls._allowed_attributes
 
         for parent in cls.mro():
-            if parent != cls and hasattr(parent, '_filtered_attributes'):
-                filtered += parent._filtered_attributes
+            if parent != cls and hasattr(parent, '_allowed_attributes'):
+                allowed += parent._allowed_attributes
 
-        return filtered
+        return allowed
 
     def hydrate(self, params):
         """
@@ -238,7 +235,7 @@ class AbstractObject(object):
             items = {
                 k: v
                 for k, v in self._data.items()
-                if k not in self._filtered_attributes
+                if k in self._get_allowed_attributes()
             }
 
             for key, value in items.items():
@@ -251,7 +248,7 @@ class AbstractObject(object):
                         representation[key] = {
                             k: v
                             for k, v in child.items()
-                            if k not in type(value)._get_filtered_attributes()
+                            if k in type(value)._get_allowed_attributes()
                         }
                 else:
                     representation[key] = value

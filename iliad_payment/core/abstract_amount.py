@@ -21,6 +21,11 @@ from ..exceptions import InvalidCurrencyError
 class AbstractAmount(object):  # pylint: disable=too-few-public-methods
     """Common amount management."""
 
+    _allowed_attributes = [
+        'amount',
+        'currency',
+    ]
+
     def __init__(self):
         self._data = {}
 

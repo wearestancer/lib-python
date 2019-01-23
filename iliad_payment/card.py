@@ -31,9 +31,13 @@ from .exceptions import InvalidZipCodeError
 class Card(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a card."""
 
-    _filtered_attributes = [
-        'brand',
-        'country',
+    _allowed_attributes = [
+        'cvc',
+        'exp_month',
+        'exp_year',
+        'number',
+        'tokenize',
+        'zip_code',
     ]
 
     @property

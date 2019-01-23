@@ -20,6 +20,10 @@ from ..exceptions import InvalidNameError
 class AbstractName(object):  # pylint: disable=too-few-public-methods
     """Commun name management."""
 
+    _allowed_attributes = [
+        'name',
+    ]
+
     def __init__(self):
         self._data = {}
 

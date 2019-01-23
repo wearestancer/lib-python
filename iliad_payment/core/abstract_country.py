@@ -18,10 +18,6 @@ from .decorators import populate_on_call
 class AbstractCountry(object):
     """Common country management."""
 
-    _filtered_attributes = [
-        'country',
-    ]
-
     def __init__(self):
         self._data = {}
 

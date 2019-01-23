@@ -35,13 +35,17 @@ class TestPayment(TestHelper):
         assert issubclass(Payment, AbstractAmount)
         assert issubclass(Payment, AbstractObject)
 
-        attrs = Payment._get_filtered_attributes()
+        attrs = Payment._get_allowed_attributes()
 
         assert isinstance(attrs, list)
-        assert 'country' in attrs
-        assert 'created' in attrs
-        assert 'id' in attrs
-        assert 'method' in attrs
+        assert 'amount' in attrs
+        assert 'capture' in attrs
+        assert 'card' in attrs
+        assert 'currency' in attrs
+        assert 'customer' in attrs
+        assert 'description' in attrs
+        assert 'order_id' in attrs
+        assert 'sepa' in attrs
 
     @responses.activate
     def test_amount(self):

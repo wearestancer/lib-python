@@ -26,6 +26,11 @@ from .exceptions import InvalidIbanError
 class Sepa(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a SEPA account."""
 
+    _allowed_attributes = [
+        'bic',
+        'iban',
+    ]
+
     @property
     @populate_on_call
     def bic(self):

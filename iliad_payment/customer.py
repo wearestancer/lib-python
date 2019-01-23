@@ -26,6 +26,11 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     _ENDPOINT = 'customers'
 
+    _allowed_attributes = [
+        'email',
+        'mobile',
+    ]
+
     @property
     @populate_on_call
     def email(self):
