@@ -101,6 +101,8 @@ class AbstractObject(object):
         """
         Request(self).delete
 
+        self._modified = True
+
         return self
 
     @classmethod

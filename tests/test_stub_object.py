@@ -86,6 +86,7 @@ class TestStubObject(TestHelper):
         assert obj.delete() == obj
         assert len(responses.calls) == 1
         assert obj.id is None
+        assert obj.is_modified
 
     def test_id(self):
         assert StubObject().id is None
