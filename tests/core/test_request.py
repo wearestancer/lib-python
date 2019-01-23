@@ -60,13 +60,13 @@ class TestRequest(TestHelper):
         with pytest.raises(NotAuthorizedError) as error:
             req.get
 
-            assert error.status_code == 401
-            assert error.reason == 'Not Authorized'
-            assert error.type == 'invalid_request_error'
-            tmp = 'You are not authorized to access that resource'
-            assert error.message == tmp
+        assert error.value.status_code == 401
+        assert error.value.reason == 'Unauthorized'
+        assert error.value.type == 'invalid_request_error'
+        tmp = 'You are not authorized to access that resource'
+        assert error.value.message == tmp
 
-            assert len(responses.calls) == 1
+        assert len(responses.calls) == 1
 
         # All ok
         responses.reset()
@@ -90,7 +90,7 @@ class TestRequest(TestHelper):
         with pytest.raises(cls):
             req.get
 
-            assert len(responses.calls) == 1
+        assert len(responses.calls) == 1
 
     @responses.activate
     def test_delete(self):

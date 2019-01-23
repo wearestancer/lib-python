@@ -146,11 +146,12 @@ class IliadHTTPError(IliadException, HTTPError):
         try:
             res = response.json()
 
-            if 'type' in res:
-                self.type = res.type
+            if 'error' in res:
+                if 'type' in res['error']:
+                    self.type = res['error']['type']
 
-            if 'message' in res:
-                self.message = res.message
+                if 'message' in res['error']:
+                    self.message = res['error']['message']
         except ValueError:
             pass
 
