@@ -507,7 +507,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
         assert isinstance(obj.created, date)
-        assert int(obj.created.timestamp()) == 1538564253
+        assert int(obj.created.strftime('%s')) == 1538564253
         assert obj.amount == 100
         assert obj.capture is True
         assert obj.card == card
@@ -603,7 +603,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_5IptC9R1Wu2wKBR5cjM2so7k'
         assert isinstance(obj.created, date)
-        assert int(obj.created.timestamp()) == 1538564504
+        assert int(obj.created.strftime('%s')) == 1538564504
         assert obj.amount == 100
         assert obj.card is None
         assert obj.capture is True
