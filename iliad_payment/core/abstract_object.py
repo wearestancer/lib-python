@@ -92,6 +92,17 @@ class AbstractObject(object):
         """
         return self._created
 
+    def delete(self):
+        """
+        Delete the current object.
+
+        Returns:
+            self: Current instance.
+        """
+        Request(self).delete
+
+        return self
+
     @classmethod
     def _get_allowed_attributes(cls):
         allowed = []

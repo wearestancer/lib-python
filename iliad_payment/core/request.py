@@ -27,7 +27,7 @@ class Request(object):
         self._conf = Config()
 
     def __getattr__(self, name):
-        if name in ['get', 'post']:
+        if name in ['delete', 'get', 'post']:
             mode = self._conf.mode
             username = None
 
@@ -50,7 +50,7 @@ class Request(object):
 
             body = None
 
-            if name != 'get':
+            if name != 'get' and name != 'delete':
                 body = self._obj.to_json()
 
             response = method(
@@ -65,6 +65,9 @@ class Request(object):
 
             if not response.ok:
                 raise IliadHTTPError.factory(response)
+
+            if response.ok and name == 'delete':
+                self._obj.hydrate({'id': None})
 
             if response.text is not None:
                 try:

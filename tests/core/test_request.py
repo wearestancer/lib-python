@@ -92,6 +92,36 @@ class TestRequest(TestHelper):
             assert len(responses.calls) == 1
 
     @responses.activate
+    def test_delete(self):
+        obj = StubObject(self.random_string(29))
+        req = Request(obj)
+        conf = Config()
+        conf.mode = Config.TEST_MODE
+        location = obj.uri
+
+        responses.add(responses.DELETE, obj.uri, status=204)
+
+        assert req.delete == req
+        assert len(responses.calls) == 1
+
+        tmp = base64.b64encode((conf.stest + ':').encode())
+        auth = 'Basic {}'.format(tmp.decode())
+
+        api_call = responses.calls[0]
+
+        assert obj.id is None
+
+        assert api_call.request.method == 'DELETE'
+        assert api_call.request.url == location
+        assert api_call.request.body is None
+
+        assert 'Authorization' in api_call.request.headers
+        assert api_call.request.headers['Authorization'] == auth
+
+        assert 'Content-Type' in api_call.request.headers
+        assert api_call.request.headers['Content-Type'] == 'application/json'
+
+    @responses.activate
     def test_get(self):
         obj = StubObject(self.random_string(29))
         req = Request(obj)

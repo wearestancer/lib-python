@@ -65,6 +65,16 @@ class TestStubObject(TestHelper):
         assert 'number' in result['card1']
         assert result['card1']['number'] == card.number
 
+    @responses.activate
+    def test_delete(self):
+        obj = StubObject(self.random_string(29))
+
+        responses.add(responses.DELETE, obj.uri, status=204)
+
+        assert obj.delete() == obj
+        assert len(responses.calls) == 1
+        assert obj.id is None
+
     def test_id(self):
         assert StubObject().id is None
 
