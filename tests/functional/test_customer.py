@@ -44,3 +44,68 @@ class TestFunctionalCustomer(TestHelper):
         assert obj.name == 'John Doe'
         assert obj.email == 'john.doe@example.com'
         assert obj.mobile == '+33666172730'  # Random generated number
+
+    def test_save(self):
+        obj = Customer()
+
+        tmp = self.random_string(5)
+        name = 'John Doe ({})'.format(tmp)
+        email = 'john.doe+{}@example.com'.format(tmp)
+        mobile = self.random_mobile()
+
+        obj.name = name
+        obj.email = email
+        obj.mobile = mobile
+
+        assert obj.id is None
+        assert obj.save() == obj
+        assert obj.id is not None
+
+        uid = obj.id
+
+        # If saved, we can get it
+        obj = Customer(uid)
+
+        assert obj.name == name
+        assert obj.email == email
+        assert obj.mobile == mobile
+
+        # Clean it
+        assert obj.delete() == obj
+        assert obj.id is None
+
+    def test_update(self):
+        obj = Customer()
+
+        tmp = self.random_string(5)
+        name = 'John Doe ({})'.format(tmp)
+        email = 'john.doe+{}@example.com'.format(tmp)
+        mobile = self.random_mobile()
+
+        obj.mobile = mobile
+
+        assert obj.id is None
+        assert obj.save() == obj
+        assert obj.id is not None
+        assert obj.name is None
+        assert obj.email is None
+        assert obj.mobile == mobile
+
+        obj.name = name
+        obj.save()
+
+        assert obj.name == name
+        assert obj.email is None
+        assert obj.mobile == mobile
+
+        obj.email = email
+        obj.mobile = self.random_mobile()
+        obj.save()
+
+        assert obj.name == name
+        assert obj.email == email
+        assert obj.mobile != mobile
+
+        # Clean it
+        assert obj.delete() == obj
+        assert obj.id is None
