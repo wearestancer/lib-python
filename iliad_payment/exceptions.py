@@ -18,6 +18,10 @@ class IliadException(Exception):
     """Base exception for all exceptions raised by this module."""
 
 
+class IliadNotImplementedError(IliadException, NotImplementedError):
+    """Raised when a not defined operation or function is called."""
+
+
 class IliadTypeError(IliadException, TypeError):
     """
     Raised when an operation or function is applied to an object

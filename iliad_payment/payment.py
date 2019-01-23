@@ -20,6 +20,7 @@ from .core import AbstractCountry
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .exceptions import IliadNotImplementedError
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
@@ -123,6 +124,14 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     @validate_type(Customer, throws=InvalidCustomerError)
     def customer(self, value):
         self._data['customer'] = value
+
+    def delete(self):
+        message = (
+            'You are not allowed to delete a payment, '
+            'you need to refund it instead.'
+        )
+
+        raise IliadNotImplementedError(message)
 
     @property
     @populate_on_call

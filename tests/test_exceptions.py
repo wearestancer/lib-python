@@ -20,6 +20,10 @@ class TestExceptions(TestHelper):
     def test_iliad_exception(self):
         assert issubclass(IliadException, Exception)
 
+    def test_iliad_not_implemented_error(self):
+        assert issubclass(IliadNotImplementedError, IliadException)
+        assert issubclass(IliadNotImplementedError, NotImplementedError)
+
     def test_iliad_type_error(self):
         assert issubclass(IliadTypeError, IliadException)
         assert issubclass(IliadTypeError, TypeError)

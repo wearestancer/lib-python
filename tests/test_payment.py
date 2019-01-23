@@ -17,6 +17,7 @@ from iliad_payment import Payment, Card, Customer, Sepa
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject
+from iliad_payment.exceptions import IliadNotImplementedError
 from iliad_payment.exceptions import InvalidAmountError
 from iliad_payment.exceptions import InvalidCardError
 from iliad_payment.exceptions import InvalidCurrencyError
@@ -249,6 +250,18 @@ class TestPayment(TestHelper):
         assert obj.description == params['description']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    def test_delete(self):
+        obj = Payment(self.random_string(29))
+
+        with pytest.raises(
+            IliadNotImplementedError,
+            match=(
+                'You are not allowed to delete a payment, '
+                'you need to refund it instead.'
+            ),
+        ):
+            obj.delete()
 
     def test_hydrate(self):
         obj = Payment()
