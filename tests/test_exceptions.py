@@ -171,7 +171,23 @@ class TestExceptions(TestHelper):
         res = Response()
         res.status_code = status_code
 
+        req = self.random_string(20)
+        res.request = req
+
+        content = {
+            'error': {
+                'type': self.random_string(10),
+                'message': self.random_string(10),
+            },
+        }
+
+        res.json = lambda: content
+
         obj = IliadHTTPError.factory(res)
 
         assert isinstance(obj, cls)
         assert obj.status_code == status_code
+        assert obj.response == res
+        assert obj.request == req
+        assert obj.type == content['error']['type']
+        assert obj.message == content['error']['message']
