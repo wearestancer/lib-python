@@ -140,9 +140,11 @@ class AbstractObject(object):
 
                 if hasattr(tmp, 'hydrate'):
                     val = {'id': value} if isinstance(value, str) else value
-                    tmp._populated = True
-                    value = tmp.hydrate(val)
-                    value._populated = self._populated
+
+                    if val is not None:
+                        tmp._populated = True
+                        value = tmp.hydrate(val)
+                        value._populated = self._populated
 
             if key == 'id':
                 self._id = value
@@ -249,6 +251,7 @@ class AbstractObject(object):
                 k: v
                 for k, v in self._data.items()
                 if k in self._get_allowed_attributes()
+                and v is not None
             }
 
             for key, value in items.items():
@@ -262,6 +265,7 @@ class AbstractObject(object):
                             k: v
                             for k, v in child.items()
                             if k in type(value)._get_allowed_attributes()
+                            and v is not None
                         }
                 else:
                     representation[key] = value

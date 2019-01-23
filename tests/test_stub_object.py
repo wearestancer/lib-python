@@ -356,3 +356,15 @@ class TestStubObject(TestHelper):
 
         assert 'id' not in result
         assert 'created' not in result
+
+        # None values are not exported
+        params = {
+            'string1': None,
+            'integer1': None,
+            'card1': None,
+        }
+
+        obj = StubObject()
+        obj.hydrate(params)
+
+        assert obj.to_json() == '{}'
