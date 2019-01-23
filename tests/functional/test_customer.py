@@ -31,8 +31,8 @@ class TestFunctionalCustomer(TestHelper):
         conf = Config()
 
         del conf.keys
-        conf.keys = os.getenv('API_KEY')
-        conf.host = os.getenv('API_HOST')
+        conf.keys = str(os.getenv('API_KEY'))
+        conf.host = str(os.getenv('API_HOST'))
 
     def test_get(self):
         with pytest.raises(NotFoundError):

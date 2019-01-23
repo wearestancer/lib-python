@@ -64,7 +64,7 @@ class AbstractObject(object):
             representation['created'] = str(self.created)
 
         for key, value in self._data.items():
-            if hasattr(value, '__dict__'):
+            if hasattr(value, '__dict__') and not isinstance(value, str):
                 representation[key] = value.__dict__
             else:
                 representation[key] = value
@@ -255,7 +255,7 @@ class AbstractObject(object):
             }
 
             for key, value in items.items():
-                if hasattr(value, '__dict__'):
+                if hasattr(value, '__dict__') and not isinstance(value, str):
                     child = value.__dict__
 
                     if 'id' in child and child['id'] is not None:
