@@ -13,6 +13,7 @@ standard_library.install_aliases()
 from builtins import *  # pylint: disable=unused-wildcard-import, wildcard-import
 
 from ..exceptions import IliadHTTPError
+from ..exceptions import IliadValueError
 import json
 import requests
 
@@ -30,6 +31,14 @@ class Request(object):
         if name in ['delete', 'get', 'post']:
             mode = self._conf.mode
             username = None
+
+            if self._obj.id is None and (name == 'get' or name == 'delete'):
+                message = (
+                    'You can not {} an object without an ID.'
+                ).format(name)
+
+                raise IliadValueError(message)
+
 
             if self._conf.mode == Config.LIVE_MODE:
                 mode = 'prod'

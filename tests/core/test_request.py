@@ -15,6 +15,7 @@ import responses
 
 from iliad_payment import Config
 from iliad_payment.core import Request
+from iliad_payment.exceptions import IliadValueError
 from iliad_payment.exceptions import NotAuthorizedError
 from ..stub.stub_object import StubObject
 from ..TestHelper import TestHelper
@@ -32,7 +33,7 @@ class TestRequest(TestHelper):
     @responses.activate
     @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
     def test_api_key_validation(self, key, mode, prefix):
-        obj = StubObject()
+        obj = StubObject(self.random_string(29))
         req = Request(obj)
         conf = Config()
 
@@ -81,7 +82,7 @@ class TestRequest(TestHelper):
     @responses.activate
     @pytest.mark.parametrize('status_code, cls', TestHelper.http_code_provider())
     def test_exceptions(self, status_code, cls):
-        obj = StubObject()
+        obj = StubObject(self.random_string(29))
         req = Request(obj)
 
         responses.add(responses.GET, obj.uri, status=status_code)
@@ -93,10 +94,21 @@ class TestRequest(TestHelper):
 
     @responses.activate
     def test_delete(self):
-        obj = StubObject(self.random_string(29))
+        obj = StubObject()
         req = Request(obj)
         conf = Config()
         conf.mode = Config.TEST_MODE
+
+        with pytest.raises(
+            IliadValueError,
+            match='You can not delete an object without an ID.',
+        ):
+            req.delete
+
+        assert len(responses.calls) == 0
+
+        obj = StubObject(self.random_string(29))
+        req = Request(obj)
         location = obj.uri
 
         responses.add(responses.DELETE, obj.uri, status=204)
@@ -123,10 +135,21 @@ class TestRequest(TestHelper):
 
     @responses.activate
     def test_get(self):
-        obj = StubObject(self.random_string(29))
+        obj = StubObject()
         req = Request(obj)
         conf = Config()
         conf.mode = Config.TEST_MODE
+
+        with pytest.raises(
+            IliadValueError,
+            match='You can not get an object without an ID.',
+        ):
+            req.get
+
+        assert len(responses.calls) == 0
+
+        obj = StubObject(self.random_string(29))
+        req = Request(obj)
 
         responses.add(responses.GET, obj.uri, json={})
 

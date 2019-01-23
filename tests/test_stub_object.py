@@ -16,7 +16,9 @@ import pytest
 import requests
 import responses
 
-from iliad_payment import Card, Config
+from iliad_payment import Card
+from iliad_payment import Config
+from iliad_payment.exceptions import IliadValueError
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 
@@ -67,6 +69,16 @@ class TestStubObject(TestHelper):
 
     @responses.activate
     def test_delete(self):
+        obj = StubObject()
+
+        with pytest.raises(
+            IliadValueError,
+            match='You can not delete an object without an ID.',
+        ):
+            obj.delete()
+
+        assert len(responses.calls) == 0
+
         obj = StubObject(self.random_string(29))
 
         responses.add(responses.DELETE, obj.uri, status=204)
