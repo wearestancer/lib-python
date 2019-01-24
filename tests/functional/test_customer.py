@@ -36,9 +36,16 @@ class TestFunctionalCustomer(TestHelper):
         conf.timeout = 1
 
     def test_get(self):
-        with pytest.raises(NotFoundError):
+        with pytest.raises(NotFoundError) as error:
             obj = Customer(self.random_string(29))
             obj.name
+
+        assert error.value.status_code == 404
+        assert error.value.reason == 'Not Found'
+        assert error.value.type == 'invalid_request_error'
+        assert isinstance(error.value.message, dict)
+        message = 'No such customer {}'.format(obj.id)
+        assert error.value.message['id'] == message
 
         obj = Customer('cust_aEBF8w2szNdhreJ0uEmrplen')
 
