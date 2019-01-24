@@ -1,4 +1,4 @@
-"""Test core object"""
+"""Test abstract object object"""
 
 from __future__ import unicode_literals
 from __future__ import print_function
