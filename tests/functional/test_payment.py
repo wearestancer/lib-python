@@ -72,6 +72,7 @@ class TestFunctionalPayment(TestHelper):
         del conf.keys
         conf.keys = str(os.getenv('API_KEY'))
         conf.host = str(os.getenv('API_HOST'))
+        conf.timeout = 1
 
     def test_get(self):
         with pytest.raises(NotFoundError) as error:
