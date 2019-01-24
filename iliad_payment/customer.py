@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-
 from .core import AbstractCountry
 from .core import AbstractName
 from .core import AbstractObject

@@ -1,7 +1,5 @@
 """Test payment object"""
 
-from __future__ import unicode_literals
-
 from datetime import date
 import pytest
 import responses

@@ -1,8 +1,5 @@
 """Functional tests for payment object"""
 
-from __future__ import unicode_literals
-from builtins import str
-
 import os
 import platform
 import pytest

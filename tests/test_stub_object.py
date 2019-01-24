@@ -1,7 +1,5 @@
 """Test abstract object"""
 
-from builtins import str
-
 import base64
 from datetime import datetime
 import json

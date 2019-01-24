@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import super
-
 from requests import HTTPError
 
 # pylint: disable=too-many-ancestors

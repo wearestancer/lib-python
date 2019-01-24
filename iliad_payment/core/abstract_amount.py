@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import int
-from builtins import str
-
 from .decorators import populate_on_call
 from .decorators import validate_type
 from ..exceptions import InvalidAmountError

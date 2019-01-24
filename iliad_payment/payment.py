@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-from builtins import super
-
 from .card import Card
 from .customer import Customer
 from .sepa import Sepa

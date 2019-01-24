@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import int
-from builtins import str
-
 from functools import wraps
 
 
