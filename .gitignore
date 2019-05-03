@@ -2,3 +2,16 @@
 # macOS files
 .DS_Store
 ._*
+
+# Generated files
+.eggs/
+.pytest_cache/
+*.egg-info/
+.coverage*
+reports/
+__pycache__/
+.tox/
+*.pyc
+
+# Dependencies
+Pipfile.lock
