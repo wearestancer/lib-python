@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[packages]
+future = "*"
+requests = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-xdist = "*"
+pytest-cov = "*"
+pytest-pylint = "*"
+responses = "*"
