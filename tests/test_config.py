@@ -209,7 +209,10 @@ class TestConfig(TestHelper):
         del obj.keys
         obj.keys = previous_keys
 
-    @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
+    @pytest.mark.parametrize(
+        'key, mode, prefix',
+        TestHelper.api_key_provider(),
+    )
     def test_reset_keys(self, key, mode, prefix):
         obj = Config()
 

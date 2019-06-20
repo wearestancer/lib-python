@@ -22,7 +22,10 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 0
 
     @responses.activate
-    @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
+    @pytest.mark.parametrize(
+        'key, mode, prefix',
+        TestHelper.api_key_provider(),
+    )
     def test_api_key_validation(self, key, mode, prefix):
         obj = StubObject(self.random_string(29))
         req = Request(obj)
@@ -71,7 +74,10 @@ class TestRequest(TestHelper):
         conf.keys = previous_keys
 
     @responses.activate
-    @pytest.mark.parametrize('status_code, cls', TestHelper.http_code_provider())
+    @pytest.mark.parametrize(
+        'status_code, cls',
+        TestHelper.http_code_provider(),
+    )
     def test_exceptions(self, status_code, cls):
         obj = StubObject(self.random_string(29))
         req = Request(obj)
