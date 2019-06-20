@@ -189,6 +189,32 @@ class Config(Singleton):
         return self.keys['ptest']
 
     @property
+    def public_key(self):
+        """
+        Public API key.
+
+        Returns:
+            str: Public key available in keychain.
+        """
+        if self.mode == self.LIVE_MODE:
+            return self.pprod
+
+        return self.ptest
+
+    @property
+    def secret_key(self):
+        """
+        Secret API key.
+
+        Returns:
+            str: Secret key available in keychain.
+        """
+        if self.mode == self.LIVE_MODE:
+            return self.sprod
+
+        return self.stest
+
+    @property
     def sprod(self):
         """
         Secret production API key.

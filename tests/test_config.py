@@ -184,6 +184,31 @@ class TestConfig(TestHelper):
 
         assert obj.port is None
 
+    def test_public_key(self):
+        obj = Config()
+        pprod = 'pprod_' + self.random_string(24)
+        sprod = 'sprod_' + self.random_string(24)
+        ptest = 'ptest_' + self.random_string(24)
+        stest = 'stest_' + self.random_string(24)
+
+        # test setup add a stest key, we will put back after this test
+        previous_keys = obj.keys
+        del obj.keys
+
+        obj.keys = (ptest, stest, pprod, sprod)
+
+        assert obj.mode == Config.TEST_MODE
+        assert obj.public_key == ptest
+
+        obj.mode = Config.LIVE_MODE
+
+        assert obj.public_key == pprod
+
+        obj.mode = Config.TEST_MODE
+
+        del obj.keys
+        obj.keys = previous_keys
+
     @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
     def test_reset_keys(self, key, mode, prefix):
         obj = Config()
@@ -210,6 +235,32 @@ class TestConfig(TestHelper):
                 assert getattr(obj, key_prefix) is None
 
         # reset
+        del obj.keys
+        obj.keys = previous_keys
+
+    def test_secret_key(self):
+        obj = Config()
+        pprod = 'pprod_' + self.random_string(24)
+        sprod = 'sprod_' + self.random_string(24)
+        ptest = 'ptest_' + self.random_string(24)
+        stest = 'stest_' + self.random_string(24)
+
+        # test setup add a stest key, we will put back after this test
+        previous_keys = obj.keys
+        del obj.keys
+        del obj.mode
+
+        obj.keys = (ptest, stest, pprod, sprod)
+
+        assert obj.mode == Config.TEST_MODE
+        assert obj.secret_key == stest
+
+        obj.mode = Config.LIVE_MODE
+
+        assert obj.secret_key == sprod
+
+        obj.mode = Config.TEST_MODE
+
         del obj.keys
         obj.keys = previous_keys
 
