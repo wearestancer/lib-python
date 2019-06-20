@@ -150,7 +150,7 @@ class Config(Singleton):
         Public production API key.
 
         Returns:
-            str: Public production key avalaible in keychain.
+            str: Public production key available in keychain.
         """
         return self.keys['pprod']
 
@@ -184,9 +184,35 @@ class Config(Singleton):
         Public development API key.
 
         Returns:
-            str: Public development key avalaible in keychain.
+            str: Public development key available in keychain.
         """
         return self.keys['ptest']
+
+    @property
+    def public_key(self):
+        """
+        Public API key.
+
+        Returns:
+            str: Public key available in keychain.
+        """
+        if self.mode == self.LIVE_MODE:
+            return self.pprod
+
+        return self.ptest
+
+    @property
+    def secret_key(self):
+        """
+        Secret API key.
+
+        Returns:
+            str: Secret key available in keychain.
+        """
+        if self.mode == self.LIVE_MODE:
+            return self.sprod
+
+        return self.stest
 
     @property
     def sprod(self):
@@ -194,7 +220,7 @@ class Config(Singleton):
         Secret production API key.
 
         Returns:
-            str: Secret production key avalaible in keychain.
+            str: Secret production key available in keychain.
         """
         return self.keys['sprod']
 
@@ -204,7 +230,7 @@ class Config(Singleton):
         Secret development API key.
 
         Returns:
-            str: Secret development key avalaible in keychain.
+            str: Secret development key available in keychain.
         """
         return self.keys['stest']
 
