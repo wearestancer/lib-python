@@ -24,7 +24,7 @@ class TestRequest(TestHelper):
     @responses.activate
     @pytest.mark.parametrize(
         'key, mode, prefix',
-        TestHelper.api_key_provider(),
+        TestHelper.secret_api_key_provider(),
     )
     def test_api_key_validation(self, key, mode, prefix):
         obj = StubObject(self.random_string(29))
@@ -68,6 +68,42 @@ class TestRequest(TestHelper):
 
         assert req.get == req
         assert len(responses.calls) == 1
+
+        del conf.mode
+        del conf.keys
+        conf.keys = previous_keys
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        'key, mode, prefix',
+        TestHelper.public_api_key_provider(),
+    )
+    def test_api_public_key_error(self, key, mode, prefix):
+        obj = StubObject(self.random_string(29))
+        req = Request(obj)
+        conf = Config()
+
+        previous_keys = conf.keys
+        del conf.keys
+
+        with pytest.raises(
+            AttributeError,
+            match='No API key found.',
+        ):
+            req.get
+
+        assert len(responses.calls) == 0
+
+        conf.mode = mode
+        conf.keys = key
+
+        with pytest.raises(
+            AttributeError,
+            match='No API key found.',
+        ):
+            req.get
+
+        assert len(responses.calls) == 0
 
         del conf.mode
         del conf.keys

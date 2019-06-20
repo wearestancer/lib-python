@@ -65,10 +65,23 @@ class TestHelper(object):
     def api_key_provider(cls):
         obj = TestHelper()
 
+        return obj.public_api_key_provider() + obj.secret_api_key_provider()
+
+    @classmethod
+    def public_api_key_provider(cls):
+        obj = TestHelper()
+
         return [
             ('pprod_' + obj.random_string(24), Config.LIVE_MODE, 'pprod'),
-            ('sprod_' + obj.random_string(24), Config.LIVE_MODE, 'sprod'),
             ('ptest_' + obj.random_string(24), Config.TEST_MODE, 'ptest'),
+        ]
+
+    @classmethod
+    def secret_api_key_provider(cls):
+        obj = TestHelper()
+
+        return [
+            ('sprod_' + obj.random_string(24), Config.LIVE_MODE, 'sprod'),
             ('stest_' + obj.random_string(24), Config.TEST_MODE, 'stest'),
         ]
 
