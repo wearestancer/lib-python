@@ -150,7 +150,7 @@ class Config(Singleton):
         Public production API key.
 
         Returns:
-            str: Public production key avalaible in keychain.
+            str: Public production key available in keychain.
         """
         return self.keys['pprod']
 
@@ -184,7 +184,7 @@ class Config(Singleton):
         Public development API key.
 
         Returns:
-            str: Public development key avalaible in keychain.
+            str: Public development key available in keychain.
         """
         return self.keys['ptest']
 
@@ -194,7 +194,7 @@ class Config(Singleton):
         Secret production API key.
 
         Returns:
-            str: Secret production key avalaible in keychain.
+            str: Secret production key available in keychain.
         """
         return self.keys['sprod']
 
@@ -204,7 +204,7 @@ class Config(Singleton):
         Secret development API key.
 
         Returns:
-            str: Secret development key avalaible in keychain.
+            str: Secret development key available in keychain.
         """
         return self.keys['stest']
 
