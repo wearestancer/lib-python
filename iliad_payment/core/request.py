@@ -19,9 +19,6 @@ class Request(object):
 
     def __getattr__(self, name):
         if name in ['delete', 'get', 'post']:
-            mode = self._conf.mode
-            username = None
-
             if self._obj.id is None and (name == 'get' or name == 'delete'):
                 message = (
                     'You can not {} an object without an ID.'
@@ -29,15 +26,7 @@ class Request(object):
 
                 raise IliadValueError(message)
 
-
-            if self._conf.mode == Config.LIVE_MODE:
-                mode = 'prod'
-
-            for prefix in ['p', 's']:
-                tmp = getattr(self._conf, prefix + mode)
-
-                if tmp is not None:
-                    username = tmp
+            username = self._conf.secret_key
 
             if username is None:
                 raise AttributeError('No API key found.')
