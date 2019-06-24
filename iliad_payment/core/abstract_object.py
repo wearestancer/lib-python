@@ -2,9 +2,14 @@
 
 from datetime import datetime
 import json
+from typing import List
+from typing import TypeVar
 
 from ..config import Config
 from .request import Request
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
 
 
 class AbstractObject(object):
@@ -36,7 +41,7 @@ class AbstractObject(object):
         self._populated = False
 
     @property
-    def __dict__(self):
+    def __dict__(self) -> dict:
         """
         Dictionary for instance variables.
 
@@ -60,7 +65,7 @@ class AbstractObject(object):
         return representation
 
     @property
-    def id(self):  # pylint: disable=invalid-name
+    def id(self) -> str:  # pylint: disable=invalid-name
         """
         Return current object ID.
 
@@ -70,7 +75,7 @@ class AbstractObject(object):
         return self._id
 
     @property
-    def created(self):
+    def created(self) -> datetime:
         """
         Return the creation date and time of the current object.
 
@@ -80,7 +85,7 @@ class AbstractObject(object):
         """
         return self._created
 
-    def delete(self):
+    def delete(self) -> CurrentInstance:
         """
         Delete the current object.
 
@@ -94,7 +99,7 @@ class AbstractObject(object):
         return self
 
     @classmethod
-    def _get_allowed_attributes(cls):
+    def _get_allowed_attributes(cls) -> List[str]:
         allowed = []
 
         if hasattr(cls, '_allowed_attributes'):
@@ -106,7 +111,7 @@ class AbstractObject(object):
 
         return allowed
 
-    def hydrate(self, params):
+    def hydrate(self, params: dict) -> CurrentInstance:
         """
         Hydrate current object.
 
@@ -143,7 +148,7 @@ class AbstractObject(object):
         return self
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory data are provided.
 
@@ -155,7 +160,7 @@ class AbstractObject(object):
         return True
 
     @property
-    def is_modified(self):
+    def is_modified(self) -> bool:
         """
         Indicate if the object was modified.
 
@@ -165,7 +170,7 @@ class AbstractObject(object):
         return self._modified
 
     @property
-    def is_not_complete(self):
+    def is_not_complete(self) -> bool:
         """
         Indicate if all mandatory data are NOT provided.
 
@@ -177,7 +182,7 @@ class AbstractObject(object):
         return not self.is_complete
 
     @property
-    def is_not_modified(self):
+    def is_not_modified(self) -> bool:
         """
         Indicate if the object was not modified.
 
@@ -187,7 +192,7 @@ class AbstractObject(object):
         return not self.is_modified
 
     @property
-    def is_not_populated(self):
+    def is_not_populated(self) -> bool:
         """
         Indicate if the object was not populated.
 
@@ -197,7 +202,7 @@ class AbstractObject(object):
         return not self.is_populated
 
     @property
-    def is_populated(self):
+    def is_populated(self) -> bool:
         """
         Indicate if the object was populated.
 
@@ -206,7 +211,7 @@ class AbstractObject(object):
         """
         return self._populated
 
-    def populate(self):
+    def populate(self) -> CurrentInstance:
         """
         Populate the current object.
 
@@ -225,7 +230,7 @@ class AbstractObject(object):
 
         return self
 
-    def save(self):
+    def save(self) -> CurrentInstance:
         """
         Save the current object.
 
@@ -241,7 +246,7 @@ class AbstractObject(object):
 
         return self
 
-    def to_json(self):
+    def to_json(self) -> str:
         """
         Return a JSON representation of the current object.
 
@@ -284,7 +289,7 @@ class AbstractObject(object):
         return json.dumps(representation, separators=(',', ':'))
 
     @property
-    def uri(self):
+    def uri(self) -> str:
         """
         Return a complete location for the current object.
 

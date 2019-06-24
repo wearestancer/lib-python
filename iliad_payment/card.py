@@ -2,6 +2,7 @@
 
 from datetime import date
 import re
+from typing import TypeVar
 
 from .core import AbstractCountry
 from .core import AbstractName
@@ -14,6 +15,9 @@ from .exceptions import InvalidCardExpirationYearError
 from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
 from .exceptions import InvalidZipCodeError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Card')
 
 
 class Card(AbstractObject, AbstractName, AbstractCountry):
@@ -30,7 +34,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def brand(self):
+    def brand(self) -> str:
         """
         Card brand.
 
@@ -40,7 +44,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         return self._data.get('brand')
 
     @property
-    def brandname(self):
+    def brandname(self) -> str:
         """
         Return real brand name.
 
@@ -70,7 +74,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def cvc(self):
+    def cvc(self) -> str:
         """
         Card Verification Code.
 
@@ -91,12 +95,12 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='CVC',
         throws=InvalidCardVerificationCodeError,
     )
-    def cvc(self, value):
+    def cvc(self, value: str):
         self._data['cvc'] = value
 
     @property
     @populate_on_call
-    def exp_month(self):
+    def exp_month(self) -> int:
         """
         Expiration month.
 
@@ -116,12 +120,12 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='Expiration month',
         throws=InvalidCardExpirationMonthError,
     )
-    def exp_month(self, value):
+    def exp_month(self, value: int):
         self._data['exp_month'] = value
 
     @property
     @populate_on_call
-    def exp_year(self):
+    def exp_year(self) -> int:
         """
         Expiration year.
 
@@ -140,11 +144,11 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='Expiration year',
         throws=InvalidCardExpirationYearError,
     )
-    def exp_year(self, value):
+    def exp_year(self, value: int):
         self._data['exp_year'] = value
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory card data are provided.
 
@@ -167,7 +171,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def last4(self):
+    def last4(self) -> str:
         """
         Card number's last 4 digits.
 
@@ -178,7 +182,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def number(self):
+    def number(self) -> str:
         """
         Card number.
 
@@ -192,7 +196,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @number.setter
     @validate_type(str, throws=InvalidCardNumberError)
-    def number(self, value):
+    def number(self, value: str):
         number = re.sub(r'\D', '', value)
         parts = list(map(int, number))
         calc = [
@@ -221,7 +225,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def tokenize(self):
+    def tokenize(self) -> CurrentInstance:
         """
         Indicate if the card can be reuse later.
 
@@ -235,12 +239,12 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @tokenize.setter
     @validate_type(bool, throws=InvalidCardTokenizeError)
-    def tokenize(self, value):
+    def tokenize(self, value: bool):
         self._data['tokenize'] = value
 
     @property
     @populate_on_call
-    def zip_code(self):
+    def zip_code(self) -> str:
         """
         City zip code.
 
@@ -260,5 +264,5 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='Zip code',
         throws=InvalidZipCodeError,
     )
-    def zip_code(self, value):
+    def zip_code(self, value: str):
         self._data['zip_code'] = value

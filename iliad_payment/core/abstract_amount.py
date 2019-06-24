@@ -20,7 +20,7 @@ class AbstractAmount(object):
 
     @property
     @populate_on_call
-    def amount(self):
+    def amount(self) -> int:
         """
         Payment or refund amount.
 
@@ -30,12 +30,12 @@ class AbstractAmount(object):
 
     @amount.setter
     @validate_type(int, min=50, throws=InvalidAmountError)
-    def amount(self, value):
+    def amount(self, value: int):
         self._data['amount'] = value
 
     @property
     @populate_on_call
-    def currency(self):
+    def currency(self) -> str:
         """
         Payment or refund currency.
 
@@ -50,5 +50,5 @@ class AbstractAmount(object):
         lowercase=True,
         throws=InvalidCurrencyError,
     )
-    def currency(self, value):
+    def currency(self, value: str):
         self._data['currency'] = value

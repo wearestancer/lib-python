@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import TypeVar
+
 from .card import Card
 from .customer import Customer
 from .sepa import Sepa
@@ -20,6 +22,13 @@ from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
 
 
+CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
+
+CardInstance = TypeVar('CurrentInstance', bound='Card')
+CustomerInstance = TypeVar('CurrentInstance', bound='Customer')
+SepaInstance = TypeVar('CurrentInstance', bound='Sepa')
+
+
 class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     """Representation of a payment."""
 
@@ -35,26 +44,26 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     ]
 
     @property
-    def _init_card(self):
+    def _init_card(self) -> CardInstance:
         self.card = Card()
 
         return self.card
 
     @property
-    def _init_customer(self):
+    def _init_customer(self) -> CustomerInstance:
         self.customer = Customer()
 
         return self.customer
 
     @property
-    def _init_sepa(self):
+    def _init_sepa(self) -> SepaInstance:
         self.sepa = Sepa()
 
         return self.sepa
 
     @property
     @populate_on_call
-    def capture(self):
+    def capture(self) -> bool:
         """
         Do we need to capture the payment ?
 
@@ -71,12 +80,12 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @capture.setter
     @validate_type(bool, throws=InvalidPaymentCaptureError)
-    def capture(self, value):
+    def capture(self, value) -> str:
         self._data['capture'] = value
 
     @property
     @populate_on_call
-    def card(self):
+    def card(self) -> CardInstance:
         """
         Source card for the payment.
 
@@ -90,13 +99,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @card.setter
     @validate_type(Card, throws=InvalidCardError)
-    def card(self, value):
+    def card(self, value: CardInstance):
         self._data['card'] = value
         self._data['method'] = 'card'
 
     @property
     @populate_on_call
-    def customer(self):
+    def customer(self) -> CustomerInstance:
         """
         Customer handling the payment.
 
@@ -110,7 +119,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value):
+    def customer(self, value: CustomerInstance):
         self._data['customer'] = value
 
     def delete(self):
@@ -130,7 +139,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def description(self):
+    def description(self) -> str:
         """
         Open description for your uses.
 
@@ -144,12 +153,12 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
-    def description(self, value):
+    def description(self, value: str):
         self._data['description'] = value
 
     @property
     @populate_on_call
-    def is_success(self):
+    def is_success(self) -> bool:
         """
         Is the operation a success ?
 
@@ -159,7 +168,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         return self.response_code == '00'
 
     @property
-    def is_error(self):
+    def is_error(self) -> bool:
         """
         Is the operation an error ?
 
@@ -170,7 +179,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def live_mode(self):
+    def live_mode(self) -> bool:
         """
         Indicate if we are in live or test mode.
 
@@ -183,7 +192,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def method(self):
+    def method(self) -> str:
         """
         Payment method used.
 
@@ -194,7 +203,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def order_id(self):
+    def order_id(self) -> str:
         """
         External order id.
 
@@ -216,12 +225,12 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
-    def order_id(self, value):
+    def order_id(self, value: str):
         self._data['order_id'] = value
 
     @property
     @populate_on_call
-    def response_code(self):
+    def response_code(self) -> str:
         """
         API response code.
 
@@ -235,7 +244,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def response_message(self):
+    def response_message(self) -> str:
         """
         API response message.
 
@@ -255,7 +264,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         return responses.get(response_code)
 
-    def save(self):
+    def save(self) -> CurrentInstance:
         """
         Create or update the payment.
 
@@ -290,7 +299,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def sepa(self):
+    def sepa(self) -> SepaInstance:
         """
         Source SEPA account for the payment.
 
@@ -304,13 +313,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value):
+    def sepa(self, value: str):
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
 
     @property
     @populate_on_call
-    def status(self):
+    def status(self) -> str:
         """
         Payment status.
 

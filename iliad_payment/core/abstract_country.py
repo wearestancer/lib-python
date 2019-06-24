@@ -12,7 +12,7 @@ class AbstractCountry(object):
 
     @property
     @populate_on_call
-    def country(self):
+    def country(self) -> str:
         """
         Card, SEPA, customer, payment country.
 

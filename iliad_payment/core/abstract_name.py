@@ -18,7 +18,7 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
 
     @property
     @populate_on_call
-    def name(self):
+    def name(self) -> str:
         """
         Customer, card holder or account name.
 
@@ -32,5 +32,5 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
 
     @name.setter
     @validate_type(str, min=4, max=64, throws=InvalidNameError)
-    def name(self, value):
+    def name(self, value: str):
         self._data['name'] = value
