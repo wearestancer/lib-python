@@ -433,5 +433,7 @@ class TestStubObject(TestHelper):
         assert 'string2' in result
         assert result['string2'] == obj.string2
 
+        assert 'integer1' not in result
+
         assert 'id' not in result
         assert 'created' not in result

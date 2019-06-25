@@ -133,3 +133,34 @@ class TestRefund(TestHelper):
 
         assert obj.status == params['status']
         assert obj.status == RefundStatus.REFUNDED
+
+    def test_to_json(self):
+        obj = Refund()
+        payment = Payment(self.random_string(29))
+
+        params = {
+            'amount': self.random_integer(50, 9999999),
+            'payment': payment,
+        }
+
+        obj.hydrate(**params)
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"amount":{}'.format(params['amount'])) > 0
+        assert result.find('"payment":"{}"'.format(payment.id)) > 0
+
+        obj = Refund()
+
+        params = {
+            'payment': payment,
+        }
+
+        obj.hydrate(**params)
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"amount":') == -1
+        assert result.find('"payment":"{}"'.format(payment.id)) > 0
