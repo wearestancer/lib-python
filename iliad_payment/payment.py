@@ -235,6 +235,51 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     def order_id(self, value: str):
         self._data['order_id'] = value
 
+    @validate_type(int, min=50, throws=InvalidAmountError, optional=True)
+    def refund(self, amount: int = 0) -> CurrentInstance:
+        """
+        Refund a payment, or part of it.
+
+        Args:
+            amount (int): Amount to refund,
+                if not present all paid amount will be refund.
+
+        Raises:
+            InvalidAmountError: When trying to refund more than paid.
+            InvalidAmountError: When the amount is invalid.
+        """
+        from .refund import Refund
+
+        refund = Refund()
+        params = {
+            'payment': self,
+        }
+
+        if amount:
+            if amount > self.refundable_amount:
+                message = (
+                    'You are trying to refund ({amount:.2f} {currency}) '
+                    'more than possible ({max:.2f} {currency}).'
+                ).format(
+                    amount=amount / 100,
+                    currency=self.currency.upper(),
+                    max=self.refundable_amount / 100,
+                )
+
+                raise InvalidAmountError(message)
+
+            params['amount'] = amount
+
+        refund.hydrate(**params)._modified = True
+        refund.save()
+
+        refunds = self._data.get('refunds', [])
+        refunds.append(refund)
+
+        self._data['refunds'] = refunds
+
+        return self
+
     @property
     def refunded_amount(self) -> int:
         """

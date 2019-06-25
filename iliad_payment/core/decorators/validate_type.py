@@ -44,10 +44,11 @@ def validate_type(type_expected, **options):
 
     def wrapper(method):
         @wraps(method)
-        def wrapper(self, value, *args, **kwargs):
+        def wrapper(self, value=None, *args, **kwargs):
             name = options.get('name', method.__name__.capitalize())
             message = None
             excep = ValueError
+            is_optional = value is None and options.get('optional', False)
 
             (std_type, type_name) = is_std_type()
 
@@ -122,7 +123,7 @@ def validate_type(type_expected, **options):
 
                 value = tmp_value
 
-            if message is not None:
+            if message is not None and not is_optional:
                 if 'throws' in options:
                     excep = options['throws']
 
