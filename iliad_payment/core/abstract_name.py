@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import str
 
 from .decorators import populate_on_call
@@ -17,6 +15,7 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
     ]
 
     def __init__(self):
+        """Init internal data."""
         self._data = {}
 
     @property

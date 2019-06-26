@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import int
 from builtins import str
 
@@ -20,6 +18,7 @@ class AbstractAmount(object):  # pylint: disable=too-few-public-methods
     ]
 
     def __init__(self):
+        """Init internal data."""
         self._data = {}
 
     @property

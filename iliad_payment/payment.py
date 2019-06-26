@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import str
 from builtins import super
 
@@ -119,6 +117,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         self._data['customer'] = value
 
     def delete(self):
+        """
+        Delete the current object.
+
+        Raises:
+            IliadNotImplementedError: In every case, payments can not be
+                delete, refund it.
+        """
         message = (
             'You are not allowed to delete a payment, '
             'you need to refund it instead.'
@@ -254,6 +259,12 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         return responses.get(response_code)
 
     def save(self):
+        """
+        Create or update the payment.
+
+        Returns:
+            self: Current instance.
+        """
         if self.amount is None:
             message = 'You must provide an amount before sending a payment.'
             raise InvalidAmountError(message)

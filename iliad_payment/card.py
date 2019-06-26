@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import int
 from builtins import str
 

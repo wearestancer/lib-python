@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from __future__ import unicode_literals
 from builtins import str
 
@@ -122,7 +120,6 @@ class AbstractObject(object):
         Returns:
             self: Current instance.
         """
-
         for key, value in list(params.items()):
             if hasattr(self, key):
                 tmp = getattr(self, key)

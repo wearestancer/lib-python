@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import int
 from builtins import str
 
@@ -29,8 +27,6 @@ def validate_type(type_expected, **options):
     Validate type, length... before setting values.
 
     This also add modified flag after modification.
-
-    And this one is a bit long.....
     """
     def wrapper(method):
         @wraps(method)
