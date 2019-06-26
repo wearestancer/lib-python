@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from .decorators import populate_on_call
 
 
@@ -9,6 +7,7 @@ class AbstractCountry(object):
     """Common country management."""
 
     def __init__(self):
+        """Init internal data."""
         self._data = {}
 
     @property

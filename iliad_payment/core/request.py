@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from ..exceptions import IliadHTTPError
 from ..exceptions import IliadValueError
 import json
@@ -14,10 +12,12 @@ class Request(object):
     """API request manager."""
 
     def __init__(self, obj):
+        """Initialize"""
         self._obj = obj
         self._conf = Config()
 
     def __getattr__(self, name):
+        """Handle automaticaly "get", "post" and "delete" method."""
         if name in ['delete', 'get', 'post']:
             if self._obj.id is None and (name == 'get' or name == 'delete'):
                 message = (

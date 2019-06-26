@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
-
-# pylint: enable=missing-docstring
 
 
 class _Singleton(type):
@@ -16,5 +13,5 @@ class _Singleton(type):
         return cls._instances[cls]
 
 
-class Singleton(_Singleton('SingletonMeta', (object,), {})):
+class Singleton(_Singleton('SingletonMeta', (object,), {})):  # noqa D101
     pass

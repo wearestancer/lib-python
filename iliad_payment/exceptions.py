@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import super
 
 from requests import HTTPError
@@ -15,14 +13,14 @@ class IliadNotImplementedError(IliadException, NotImplementedError):
     """Raised when a not defined operation or function is called."""
 
 
-class IliadTypeError(IliadException, TypeError):
+class IliadTypeError(IliadException, TypeError):  # noqa D205
     """
     Raised when an operation or function is applied to an object
     of inappropriate type.
     """
 
 
-class IliadValueError(IliadException, ValueError):
+class IliadValueError(IliadException, ValueError):  # noqa D205
     """
     Raised when an operation or function receives an argument
     that has the right type but an inappropriate value.
@@ -150,6 +148,12 @@ class IliadHTTPError(IliadException, HTTPError):
 
     @classmethod
     def factory(cls, response, *args, **kwargs):
+        """
+        Return correct error instance form HTTP status.
+
+        Returns:
+            IliadHTTPError: An child instance of IliadHTTPError.
+        """
         if response.status_code >= 500:
             for tmp in IliadHTTPServerError.__subclasses__():
                 if tmp.status_code == response.status_code:

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from builtins import str
 
 import re
@@ -53,7 +51,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         """
         IBAN in readeable format.
 
-        Aka AAAA BBBB CCCC ...
+        Aka "FRAA BBBB CCCC DDDD EEEE FFFF GGG" for a french account.
 
         Returns:
             str: Formatted IBAN.
@@ -134,7 +132,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
     @populate_on_call
     def last4(self):
         """
-        IBAN's last 4 digits.
+        Return IBAN's last 4 digits.
 
         Returns:
             str: IBAN's last 4 digits.

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
 from __future__ import unicode_literals
 from builtins import str
 
@@ -20,7 +18,6 @@ class Config(Singleton):
 
     Constants:
         LIVE_MODE: Used with `Config.mode()` to set or test API mode.
-
         TEST_MODE: Used with `Config.mode()` to set or test API mode.
     """
 
