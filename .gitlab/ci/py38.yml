@@ -3,9 +3,6 @@
   variables:
     PYTHON_VERSION: py38
 
-  allow_failure: true
-
-
 py38:tests:
   extends:
     - .py38
