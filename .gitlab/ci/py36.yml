@@ -1,0 +1,14 @@
+
+.py36:
+  variables:
+    PYTHON_VERSION: py36
+
+py36:tests:
+  extends:
+    - .py36
+    - .tests
+
+py36:coverage:
+  extends:
+    - .py36
+    - .coverage-check
