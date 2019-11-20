@@ -8,8 +8,8 @@ future = "*"
 requests = "*"
 
 [dev-packages]
+pylint = "*"
 pytest = "*"
 pytest-xdist = "*"
 pytest-cov = "*"
-pytest-pylint = "*"
 responses = "*"
