@@ -126,7 +126,7 @@ class Config(Singleton):
     @mode.setter
     @validate_type(str)
     def mode(self, value):
-        if value != self.LIVE_MODE and value != self.TEST_MODE:
+        if value not in (self.LIVE_MODE, self.TEST_MODE):
             message = (
                 'Unknonw mode "{}". '
                 'Please use class constant '
