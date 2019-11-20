@@ -3,12 +3,23 @@
   variables:
     PYTHON_VERSION: py37
 
+py37:lint:
+  extends:
+    - .py37
+    - .lint
+
 py37:tests:
   extends:
     - .py37
     - .tests
 
+  needs:
+    - py37:lint
+
 py37:coverage:
   extends:
     - .py37
     - .coverage-check
+
+  needs:
+    - py37:tests
