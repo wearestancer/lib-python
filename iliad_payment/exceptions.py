@@ -162,6 +162,8 @@ class IliadHTTPError(IliadException, HTTPError):
 
             return IliadHTTPClientError(response, *args, **kwargs)
 
+        return IliadHTTPError(response, *args, **kwargs)
+
 
 class IliadHTTPClientError(IliadHTTPError):
     """Base exception for HTTP 4xx status."""
