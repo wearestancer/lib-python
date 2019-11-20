@@ -9,6 +9,7 @@ requests = "*"
 
 [dev-packages]
 pylint = "*"
+pylint-junit = "*"
 pytest = "*"
 pytest-xdist = "*"
 pytest-cov = "*"
