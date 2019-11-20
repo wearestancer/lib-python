@@ -1,0 +1,14 @@
+
+.py37:
+  variables:
+    PYTHON_VERSION: py37
+
+py37:tests:
+  extends:
+    - .py37
+    - .tests
+
+py37:coverage:
+  extends:
+    - .py37
+    - .coverage-check

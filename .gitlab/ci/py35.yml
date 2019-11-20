@@ -1,0 +1,14 @@
+
+.py35:
+  variables:
+    PYTHON_VERSION: py35
+
+py35:tests:
+  extends:
+    - .py35
+    - .tests
+
+py35:coverage:
+  extends:
+    - .py35
+    - .coverage-check

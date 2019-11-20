@@ -69,6 +69,7 @@ class TestFunctionalPayment(TestHelper):
         conf.timeout = 1
 
     def test_get(self):
+        # 404 with an unknown payment (with a random id)
         with pytest.raises(NotFoundError) as error:
             obj = Payment(self.random_string(29))
             obj.amount
@@ -77,10 +78,11 @@ class TestFunctionalPayment(TestHelper):
         assert error.value.reason == 'Not Found'
         assert error.value.type == 'invalid_request_error'
         assert isinstance(error.value.message, dict)
-        message = 'No such payment id {}'.format(obj.id)
+        message = 'No such payment {}'.format(obj.id)
         assert error.value.message['id'] == message
 
-        obj = Payment('paym_uyqKGrWvxC7AlsuJq1vlh5FF')
+        # Recover a valid payment
+        obj = Payment('paym_FQgpGVJpyGPVJVIuQtO3zy6i')
 
         assert obj.amount == 7810
         assert obj.currency == 'usd'
@@ -88,10 +90,10 @@ class TestFunctionalPayment(TestHelper):
         assert obj.method == 'card'
 
         assert isinstance(obj.card, Card)
-        assert obj.card.id == 'card_nc1Xikd2ihaz1n5OjRciHoZK'
+        assert obj.card.id == 'card_nsA0eap90E6HRod6j54pnVWg'
 
         assert isinstance(obj.customer, Customer)
-        assert obj.customer.id == 'cust_Ptlig1Zc0ln17OHqeANRdHHU'
+        assert obj.customer.id == 'cust_6FbQaYtxjADzerqdO5gs79as'
 
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_save(self, currency):

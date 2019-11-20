@@ -41,7 +41,7 @@ class TestFunctionalCustomer(TestHelper):
         message = 'No such customer {}'.format(obj.id)
         assert error.value.message['id'] == message
 
-        obj = Customer('cust_aEBF8w2szNdhreJ0uEmrplen')
+        obj = Customer('cust_9y1U3mHPd1yPvbx07VBRqd9C')
 
         assert obj.name == 'John Doe'
         assert obj.email == 'john.doe@example.com'

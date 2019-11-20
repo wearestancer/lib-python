@@ -1,0 +1,14 @@
+
+.py27:
+  variables:
+    PYTHON_VERSION: py27
+
+py27:tests:
+  extends:
+    - .py27
+    - .tests
+
+py27:coverage:
+  extends:
+    - .py27
+    - .coverage-check
