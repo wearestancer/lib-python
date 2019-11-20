@@ -1,0 +1,12 @@
+
+.update-coverage:
+  extends:
+    - .cache
+
+  stage: coverage
+
+  script:
+    - tox -e $PYTHON_VERSION-unit | grep '^TOTAL ' | sed -E -e 's/\%$//' | awk '{ print $NF * 100 }' > coverage
+
+  only:
+    - develop

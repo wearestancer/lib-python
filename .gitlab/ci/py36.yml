@@ -16,10 +16,12 @@ py36:tests:
   needs:
     - py36:lint
 
-py36:coverage:
+py36:coverage-check:
   extends:
     - .py36
     - .coverage-check
 
-  needs:
-    - py36:tests
+py36:update-coverage:
+  extends:
+    - .py36
+    - .update-coverage

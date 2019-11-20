@@ -16,10 +16,12 @@ py35:tests:
   needs:
     - py35:lint
 
-py35:coverage:
+py35:coverage-check:
   extends:
     - .py35
     - .coverage-check
 
-  needs:
-    - py35:tests
+py35:update-coverage:
+  extends:
+    - .py35
+    - .update-coverage

@@ -16,10 +16,12 @@ py38:tests:
   needs:
     - py38:lint
 
-py38:coverage:
+py38:coverage-check:
   extends:
     - .py38
     - .coverage-check
 
-  needs:
-    - py38:tests
+py38:update-coverage:
+  extends:
+    - .py38
+    - .update-coverage

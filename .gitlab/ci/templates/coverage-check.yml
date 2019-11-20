@@ -1,12 +1,12 @@
 
 .coverage-check:
   extends:
+    - .cache
     - .versions
 
   stage: coverage
 
   script:
-    - echo "Running $PYTHON_VERSION"
     - echo '0' >> coverage
     - export saved=`head -n 1 coverage`
     - export coverage=`tox -e $PYTHON_VERSION-unit | grep '^TOTAL ' | sed -E -e 's/\%$//' | awk '{ print $NF * 100 }'`
@@ -14,9 +14,7 @@
     - if [ "$coverage" -lt $saved ]; then exit 1; fi
 
   cache:
-    key: "$PYTHON_VERSION"
-    paths:
-      - coverage
+    policy: pull
 
   except:
     - tags

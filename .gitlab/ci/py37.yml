@@ -16,10 +16,12 @@ py37:tests:
   needs:
     - py37:lint
 
-py37:coverage:
+py37:coverage-check:
   extends:
     - .py37
     - .coverage-check
 
-  needs:
-    - py37:tests
+py37:update-coverage:
+  extends:
+    - .py37
+    - .update-coverage

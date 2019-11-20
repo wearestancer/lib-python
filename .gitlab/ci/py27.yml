@@ -16,10 +16,12 @@ py27:tests:
   needs:
     - py27:lint
 
-py27:coverage:
+py27:coverage-check:
   extends:
     - .py27
     - .coverage-check
 
-  needs:
-    - py27:tests
+py27:update-coverage:
+  extends:
+    - .py27
+    - .update-coverage
