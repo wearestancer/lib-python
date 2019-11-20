@@ -13,18 +13,12 @@ class IliadNotImplementedError(IliadException, NotImplementedError):
     """Raised when a not defined operation or function is called."""
 
 
-class IliadTypeError(IliadException, TypeError):  # noqa D205
-    """
-    Raised when an operation or function is applied to an object
-    of inappropriate type.
-    """
+class IliadTypeError(IliadException, TypeError):
+    """Raised when an operation or function is applied with an inappropriate type."""
 
 
-class IliadValueError(IliadException, ValueError):  # noqa D205
-    """
-    Raised when an operation or function receives an argument
-    that has the right type but an inappropriate value.
-    """
+class IliadValueError(IliadException, ValueError):
+    """Raised when an operation or function receives an inappropriate value."""
 
 
 class IliadWarning(IliadException, Warning):
