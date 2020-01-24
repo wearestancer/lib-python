@@ -47,4 +47,4 @@ allow-global-unused-variables = yes
 ignore-comments = yes
 ignore-docstrings = yes
 ignore-imports = no
-min-similarity-lines = 4
+min-similarity-lines = 7
