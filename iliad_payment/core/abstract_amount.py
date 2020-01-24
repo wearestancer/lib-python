@@ -9,7 +9,7 @@ from ..exceptions import InvalidAmountError
 from ..exceptions import InvalidCurrencyError
 
 
-class AbstractAmount(object):  # pylint: disable=too-few-public-methods
+class AbstractAmount(object):
     """Common amount management."""
 
     _allowed_attributes = [
