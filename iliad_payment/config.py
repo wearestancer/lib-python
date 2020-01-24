@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-from builtins import str
+from typing import List
+from typing import TypeVar
+from typing import Union
 
-from .core.decorators import validate_type
 from .core.singleton import Singleton
 from .exceptions import IliadValueError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Config')
 
 
 class Config(Singleton):
@@ -41,7 +44,7 @@ class Config(Singleton):
         del self.version
 
     @property
-    def host(self):
+    def host(self) -> str:
         """
         API host.
 
@@ -54,8 +57,7 @@ class Config(Singleton):
         return self._host
 
     @host.setter
-    @validate_type(str)
-    def host(self, value):
+    def host(self, value: str):
         self._host = value
 
     @host.deleter
@@ -63,7 +65,7 @@ class Config(Singleton):
         self._host = 'api.iliad78.net'
 
     @property
-    def keys(self):
+    def keys(self) -> dict:
         """
         API keychain.
 
@@ -88,7 +90,7 @@ class Config(Singleton):
         return self._keys
 
     @keys.setter
-    def keys(self, value):
+    def keys(self, value: Union[List[str], str]):
         keychain = value
 
         if isinstance(value, str):
@@ -118,7 +120,7 @@ class Config(Singleton):
         }
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         """
         API mode.
 
@@ -131,8 +133,7 @@ class Config(Singleton):
         return self._mode
 
     @mode.setter
-    @validate_type(str)
-    def mode(self, value):
+    def mode(self, value: str):
         if value not in (self.LIVE_MODE, self.TEST_MODE):
             message = (
                 'Unknonw mode "{}". '
@@ -149,7 +150,7 @@ class Config(Singleton):
         self._mode = self.TEST_MODE
 
     @property
-    def pprod(self):
+    def pprod(self) -> str:
         """
         Public production API key.
 
@@ -159,7 +160,7 @@ class Config(Singleton):
         return self.keys['pprod']
 
     @property
-    def port(self):
+    def port(self) -> int:
         """
         API port.
 
@@ -174,16 +175,15 @@ class Config(Singleton):
         return self._port
 
     @port.setter
-    @validate_type(int)
-    def port(self, value):
+    def port(self, value: int):
         self._port = value
 
     @port.deleter
-    def port(self):
+    def port(self) -> str:
         self._port = None
 
     @property
-    def ptest(self):
+    def ptest(self) -> str:
         """
         Public development API key.
 
@@ -193,7 +193,7 @@ class Config(Singleton):
         return self.keys['ptest']
 
     @property
-    def public_key(self):
+    def public_key(self) -> str:
         """
         Public API key.
 
@@ -206,7 +206,7 @@ class Config(Singleton):
         return self.ptest
 
     @property
-    def secret_key(self):
+    def secret_key(self) -> str:
         """
         Secret API key.
 
@@ -219,7 +219,7 @@ class Config(Singleton):
         return self.stest
 
     @property
-    def sprod(self):
+    def sprod(self) -> str:
         """
         Secret production API key.
 
@@ -229,7 +229,7 @@ class Config(Singleton):
         return self.keys['sprod']
 
     @property
-    def stest(self):
+    def stest(self) -> str:
         """
         Secret development API key.
 
@@ -239,7 +239,7 @@ class Config(Singleton):
         return self.keys['stest']
 
     @property
-    def timeout(self):
+    def timeout(self) -> int:
         """
         API timeout.
 
@@ -252,8 +252,7 @@ class Config(Singleton):
         return self._timeout
 
     @timeout.setter
-    @validate_type(int)
-    def timeout(self, value):
+    def timeout(self, value: int):
         self._timeout = value
 
     @timeout.deleter
@@ -261,7 +260,7 @@ class Config(Singleton):
         self._timeout = 5
 
     @property
-    def version(self):
+    def version(self) -> int:
         """
         API version.
 
@@ -276,8 +275,7 @@ class Config(Singleton):
         return self._version
 
     @version.setter
-    @validate_type(int)
-    def version(self, value):
+    def version(self, value: int):
         self._version = value
 
     @version.deleter

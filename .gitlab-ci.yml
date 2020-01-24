@@ -6,7 +6,6 @@ stages:
 
 include:
   - local: .gitlab/ci/templates.yml
-  - local: .gitlab/ci/py27.yml
   - local: .gitlab/ci/py35.yml
   - local: .gitlab/ci/py36.yml
   - local: .gitlab/ci/py37.yml

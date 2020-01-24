@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-
 from .core import AbstractCountry
 from .core import AbstractName
 from .core import AbstractObject
@@ -23,7 +21,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def email(self):
+    def email(self) -> str:
         """
         Customer's email.
 
@@ -37,11 +35,11 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @email.setter
     @validate_type(str, min=5, max=64, throws=InvalidCustomerEmailError)
-    def email(self, value):
+    def email(self, value: str):
         self._data['email'] = value
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory customer data are provided.
 
@@ -55,7 +53,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def mobile(self):
+    def mobile(self) -> str:
         """
         Customer's mobile phone number.
 
@@ -75,5 +73,5 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         name='Mobile phone',
         throws=InvalidCustomerMobileError,
     )
-    def mobile(self, value):
+    def mobile(self, value: str):
         self._data['mobile'] = value

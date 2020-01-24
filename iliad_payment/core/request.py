@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from typing import TypeVar
+
 import requests
 
 from ..config import Config
 from ..exceptions import IliadHTTPError
 from ..exceptions import IliadValueError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Request')
 
 
 class Request(object):
@@ -15,8 +20,9 @@ class Request(object):
         self._obj = obj
         self._conf = Config()
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> CurrentInstance:
         """Handle automaticaly "get", "post" and "delete" method."""
+
         if name in ['delete', 'get', 'post']:
             if self._obj.id is None and name in ('get', 'delete'):
                 message = (

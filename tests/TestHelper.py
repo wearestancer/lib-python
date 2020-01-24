@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=missing-docstring
 
-from __future__ import unicode_literals
-
+# pylint: enable=missing-docstring
 from datetime import date
 import pytest
 from random import randint, choice

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from builtins import str
-
 import re
 
 from .core import AbstractCountry
@@ -23,7 +21,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def bic(self):
+    def bic(self) -> str:
         """
         Bank Identifier Code.
 
@@ -39,7 +37,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @bic.setter
     @validate_type(str, name='BIC', throws=InvalidBicError)
-    def bic(self, value):
+    def bic(self, value: str):
         if len(value) != 8 and len(value) != 11:
             # Poorly test but I have nothing more to test
             raise InvalidBicError('"{}" is not a valid BIC.'.format(value))
@@ -47,7 +45,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         self._data['bic'] = value
 
     @property
-    def formatted_iban(self):
+    def formatted_iban(self) -> str:
         """
         IBAN in readeable format.
 
@@ -65,7 +63,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def iban(self):
+    def iban(self) -> str:
         """
         International Bank Account Number.
 
@@ -83,7 +81,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @iban.setter
     @validate_type(str, name='IBAN', throws=InvalidIbanError)
-    def iban(self, value):
+    def iban(self, value: str):
         iban = re.sub(r'\s', '', value).upper()
         code = ''
 
@@ -101,7 +99,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         self._data['country'] = iban[0:2].lower()
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory data are provided.
 
@@ -118,7 +116,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def last4(self):
+    def last4(self) -> str:
         """
         Return IBAN's last 4 digits.
 
