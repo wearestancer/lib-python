@@ -16,7 +16,8 @@ enable = all
 disable = locally-disabled,
     missing-module-docstring,
     suppressed-message,
-    too-few-public-methods
+    too-few-public-methods,
+    useless-object-inheritance
 
 [BASIC]
 
