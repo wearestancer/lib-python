@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ..exceptions import IliadHTTPError
-from ..exceptions import IliadValueError
-import json
 import requests
 
 from ..config import Config
+from ..exceptions import IliadHTTPError
+from ..exceptions import IliadValueError
 
 
 class Request(object):
