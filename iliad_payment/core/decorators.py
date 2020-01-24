@@ -112,17 +112,10 @@ def validate_type(type_expected, **options):
 
                 tmp_value = value
 
-                if (
-                    'lowercase' in options
-                    and options['lowercase']
-                    and hasattr(value, 'lower')
-                ):
+                if 'lowercase' in options and options['lowercase'] and hasattr(value, 'lower'):
                     tmp_value = value.lower()
 
-                if (
-                    'allowed' in options
-                    and tmp_value not in options['allowed']
-                ):
+                if 'allowed' in options and tmp_value not in options['allowed']:
                     message = (
                         '"{}" is not a valid {}, '
                         'please use one of following: {}'
