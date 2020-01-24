@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import requests
 from typing import TypeVar
+
+import requests
 
 from ..config import Config
 from ..exceptions import IliadHTTPError
