@@ -1,5 +1,6 @@
 
 .py39:
+  allow_failure: true
   variables:
     PYTHON_VERSION: py39
 
