@@ -13,7 +13,9 @@ output-format = colorized
 [MESSAGES CONTROL]
 
 enable = all
-disable = missing-module-docstring,
+disable = locally-disabled,
+    missing-module-docstring,
+    suppressed-message,
     too-few-public-methods
 
 [BASIC]
