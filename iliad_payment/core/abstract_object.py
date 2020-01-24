@@ -105,7 +105,7 @@ class AbstractObject(object):
 
         for parent in cls.mro():
             if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes
+                allowed += parent._allowed_attributes  ## pylint: disable=protected-access
 
         return allowed
 
@@ -132,9 +132,9 @@ class AbstractObject(object):
                     val = {'id': value} if isinstance(value, str) else value
 
                     if val is not None:
-                        tmp._populated = True
+                        tmp._populated = True  ## pylint: disable=protected-access
                         value = tmp.hydrate(val)
-                        value._populated = self._populated
+                        value._populated = self._populated  ## pylint: disable=protected-access
 
             if key == 'id':
                 self._id = value
@@ -254,7 +254,7 @@ class AbstractObject(object):
                         representation[key] = {
                             k: v
                             for k, v in child.items()
-                            if k in type(value)._get_allowed_attributes()
+                            if k in type(value)._get_allowed_attributes()  ## pylint: disable=protected-access
                             and v is not None
                         }
                 else:

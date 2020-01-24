@@ -136,7 +136,7 @@ def validate_type(type_expected, **options):
             res = method(self, value, *args, **kwargs)
 
             if hasattr(self, '_modified'):
-                self._modified = True
+                self._modified = True  ## pylint: disable=protected-access
 
             return res
         return wrapper
