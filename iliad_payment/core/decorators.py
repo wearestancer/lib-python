@@ -71,42 +71,42 @@ def validate_type(type_expected, **options):
                         options['length'],
                     )
 
-                min = None
-                max = None
+                minimum = None
+                maximum = None
                 char_suffix = ''
 
                 if 'min' in options:
-                    min = options['min']
+                    minimum = options['min']
 
                 if 'max' in options:
-                    max = options['max']
+                    maximum = options['max']
 
                 if isinstance(value, str):
                     char_suffix = ' characters'
 
-                if min is not None:
-                    if max is not None:
-                        if length < min or length > max:
+                if minimum is not None:
+                    if maximum is not None:
+                        if length < minimum or length > maximum:
                             message = '{} must be between {} and {}{}.'.format(
                                 name,
-                                min,
-                                max,
+                                minimum,
+                                maximum,
                                 char_suffix,
                             )
-                    elif length < min:
+                    elif length < minimum:
                         message = (
                             '{} must be greater '
                             'than or equal to {}{}.'
                         ).format(
                             name,
-                            min,
+                            minimum,
                             char_suffix,
                         )
 
-                elif max is not None and length > max:
+                elif maximum is not None and length > maximum:
                     message = '{} must be {}{} maximum.'.format(
                         name,
-                        max,
+                        maximum,
                         char_suffix,
                     )
 
