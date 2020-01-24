@@ -28,31 +28,50 @@ def validate_type(type_expected, **options):
 
     This also add modified flag after modification.
     """
+
+    def get_min_max(options):
+        minimum = None
+        maximum = None
+
+        if 'min' in options:
+            minimum = options['min']
+
+        if 'max' in options:
+            maximum = options['max']
+
+        return (minimum, maximum)
+
+    def is_std_type():
+        type_name = 'a ' + type_expected.__name__
+        std_type = False
+
+        if type_expected == str:
+            type_name = 'a string'
+            std_type = True
+
+        if type_expected == int:
+            type_name = 'an integer'
+            std_type = True
+
+        if type_expected == bool:
+            type_name = 'a boolean'
+            std_type = True
+
+        return (std_type, type_name)
+
     def wrapper(method):
         @wraps(method)
         def wrapper(self, value, *args, **kwargs):
             name = options.get('name', method.__name__.capitalize())
-            type_name = 'a ' + type_expected.__name__
             message = None
-            std_type = False
             excep = ValueError
+
+            (std_type, type_name) = is_std_type()
 
             try:
                 length = len(value)
             except TypeError:
                 length = value
-
-            if type_expected == str:
-                type_name = 'a string'
-                std_type = True
-
-            if type_expected == int:
-                type_name = 'an integer'
-                std_type = True
-
-            if type_expected == bool:
-                type_name = 'a boolean'
-                std_type = True
 
             if not isinstance(value, type_expected):
                 message = '{} must be {}.'.format(name, type_name)
@@ -71,15 +90,8 @@ def validate_type(type_expected, **options):
                         options['length'],
                     )
 
-                minimum = None
-                maximum = None
+                (minimum, maximum) = get_min_max(options)
                 char_suffix = ''
-
-                if 'min' in options:
-                    minimum = options['min']
-
-                if 'max' in options:
-                    maximum = options['max']
 
                 if isinstance(value, str):
                     char_suffix = ' characters'
