@@ -115,7 +115,7 @@ class IliadHTTPError(IliadException, HTTPError):
     """
 
     def __init__(self, response, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(IliadHTTPError, self).__init__(*args, **kwargs)
 
         self.response = response
         self.status_code = response.status_code
