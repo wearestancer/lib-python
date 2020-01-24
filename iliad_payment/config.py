@@ -4,7 +4,6 @@ from typing import List
 from typing import TypeVar
 from typing import Union
 
-from .core.decorators import validate_type
 from .core.singleton import Singleton
 from .exceptions import IliadValueError
 
