@@ -14,7 +14,7 @@ from .request import Request
 class AbstractObject(object):
     """Manage common code between API object."""
 
-    _ENDPOINT = None
+    _ENDPOINT = None  # pylint: disable=invalid-name
 
     def __init__(self, uid=None):
         """
@@ -63,7 +63,7 @@ class AbstractObject(object):
         return representation
 
     @property
-    def id(self):  # pylint: disable=C0103
+    def id(self):  # pylint: disable=invalid-name
         """
         Return current object ID.
 

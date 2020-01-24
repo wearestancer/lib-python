@@ -17,12 +17,12 @@ class Config(Singleton):
     it will be directly applying into the module.
 
     Constants:
-        LIVE_MODE: Used with `Config.mode()` to set or test API mode.
-        TEST_MODE: Used with `Config.mode()` to set or test API mode.
+        LIVE_MODE: Used with `Config.mode()` to set live or test API mode.
+        TEST_MODE: Used with `Config.mode()` to set live or test API mode.
     """
 
-    LIVE_MODE = 'live'
-    TEST_MODE = 'test'
+    LIVE_MODE = 'live'  # pylint: disable=invalid-name
+    TEST_MODE = 'test'  # pylint: disable=invalid-name
 
     def __init__(self):
         """Initialize configuration instance."""
