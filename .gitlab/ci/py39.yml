@@ -1,0 +1,27 @@
+
+.py39:
+  variables:
+    PYTHON_VERSION: py39
+
+py39:lint:
+  extends:
+    - .py39
+    - .lint
+
+py39:tests:
+  extends:
+    - .py39
+    - .tests
+
+  needs:
+    - py39:lint
+
+py39:coverage-check:
+  extends:
+    - .py39
+    - .coverage-check
+
+py39:update-coverage:
+  extends:
+    - .py39
+    - .update-coverage
