@@ -14,6 +14,7 @@ class AbstractObject(object):
     """Manage common code between API object."""
 
     _ENDPOINT = None  # pylint: disable=invalid-name
+    _allowed_attributes = []
 
     def __init__(self, uid=None):
         """
