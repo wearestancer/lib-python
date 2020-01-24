@@ -90,7 +90,7 @@ class AbstractObject(object):
         Returns:
             self: Current instance.
         """
-        Request(self).delete
+        Request(self).delete  ## pylint: disable=expression-not-assigned
 
         self._modified = True
 
@@ -198,7 +198,7 @@ class AbstractObject(object):
         if not self._populated and self.id is not None:
             self._populated = True
             self._modified = False
-            Request(self).get
+            Request(self).get  ## pylint: disable=expression-not-assigned
 
         self._populated = True
 
@@ -214,7 +214,7 @@ class AbstractObject(object):
             self: Current instance.
         """
         if self._modified:
-            Request(self).post
+            Request(self).post  ## pylint: disable=expression-not-assigned
 
         self._modified = False
 
