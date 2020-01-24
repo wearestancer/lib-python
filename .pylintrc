@@ -15,6 +15,7 @@ output-format = colorized
 enable = all
 disable = consider-using-get,
     locally-disabled,
+    missing-docstring,
     missing-module-docstring,
     suppressed-message,
     too-few-public-methods,
