@@ -4,6 +4,8 @@ from builtins import super
 
 from requests import HTTPError
 
+# pylint: disable=too-many-ancestors
+
 
 class IliadException(Exception):
     """Base exception for all exceptions raised by this module."""
@@ -13,18 +15,12 @@ class IliadNotImplementedError(IliadException, NotImplementedError):
     """Raised when a not defined operation or function is called."""
 
 
-class IliadTypeError(IliadException, TypeError):  # noqa D205
-    """
-    Raised when an operation or function is applied to an object
-    of inappropriate type.
-    """
+class IliadTypeError(IliadException, TypeError):
+    """Raised when an operation or function is applied with an inappropriate type."""
 
 
-class IliadValueError(IliadException, ValueError):  # noqa D205
-    """
-    Raised when an operation or function receives an argument
-    that has the right type but an inappropriate value.
-    """
+class IliadValueError(IliadException, ValueError):
+    """Raised when an operation or function receives an inappropriate value."""
 
 
 class IliadWarning(IliadException, Warning):
@@ -121,7 +117,7 @@ class IliadHTTPError(IliadException, HTTPError):
     """
 
     def __init__(self, response, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super(IliadHTTPError, self).__init__(*args, **kwargs)
 
         self.response = response
         self.status_code = response.status_code
@@ -167,6 +163,8 @@ class IliadHTTPError(IliadException, HTTPError):
                     return tmp(response, *args, **kwargs)
 
             return IliadHTTPClientError(response, *args, **kwargs)
+
+        return IliadHTTPError(response, *args, **kwargs)
 
 
 class IliadHTTPClientError(IliadHTTPError):

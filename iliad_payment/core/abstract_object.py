@@ -5,7 +5,6 @@ from builtins import str
 
 from datetime import datetime
 import json
-import requests
 
 from ..config import Config
 from .request import Request
@@ -14,7 +13,8 @@ from .request import Request
 class AbstractObject(object):
     """Manage common code between API object."""
 
-    _ENDPOINT = None
+    _ENDPOINT = None  # pylint: disable=invalid-name
+    _allowed_attributes = []
 
     def __init__(self, uid=None):
         """
@@ -63,7 +63,7 @@ class AbstractObject(object):
         return representation
 
     @property
-    def id(self):  # pylint: disable=C0103
+    def id(self):  # pylint: disable=invalid-name
         """
         Return current object ID.
 
@@ -90,7 +90,7 @@ class AbstractObject(object):
         Returns:
             self: Current instance.
         """
-        Request(self).delete
+        Request(self).delete  ## pylint: disable=expression-not-assigned
 
         self._modified = True
 
@@ -105,7 +105,7 @@ class AbstractObject(object):
 
         for parent in cls.mro():
             if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes
+                allowed += parent._allowed_attributes  ## pylint: disable=protected-access
 
         return allowed
 
@@ -132,9 +132,9 @@ class AbstractObject(object):
                     val = {'id': value} if isinstance(value, str) else value
 
                     if val is not None:
-                        tmp._populated = True
+                        tmp._populated = True  ## pylint: disable=protected-access
                         value = tmp.hydrate(val)
-                        value._populated = self._populated
+                        value._populated = self._populated  ## pylint: disable=protected-access
 
             if key == 'id':
                 self._id = value
@@ -146,6 +146,18 @@ class AbstractObject(object):
         return self
 
     @property
+    def is_complete(self):
+        """
+        Indicate if all mandatory data are provided.
+
+        Should be modified in other sub classes.
+
+        Returns:
+            bool: Is the object complete ?
+        """
+        return True
+
+    @property
     def is_modified(self):
         """
         Indicate if the object was modified.
@@ -154,6 +166,18 @@ class AbstractObject(object):
             bool: Was it modified ?
         """
         return self._modified
+
+    @property
+    def is_not_complete(self):
+        """
+        Indicate if all mandatory data are NOT provided.
+
+        It's simply a `not self.is_complete`.
+
+        Returns:
+            bool: Is the object not complete ?
+        """
+        return not self.is_complete
 
     @property
     def is_not_modified(self):
@@ -198,7 +222,7 @@ class AbstractObject(object):
         if not self._populated and self.id is not None:
             self._populated = True
             self._modified = False
-            Request(self).get
+            Request(self).get  ## pylint: disable=expression-not-assigned
 
         self._populated = True
 
@@ -214,7 +238,7 @@ class AbstractObject(object):
             self: Current instance.
         """
         if self._modified:
-            Request(self).post
+            Request(self).post  ## pylint: disable=expression-not-assigned
 
         self._modified = False
 
@@ -254,7 +278,7 @@ class AbstractObject(object):
                         representation[key] = {
                             k: v
                             for k, v in child.items()
-                            if k in type(value)._get_allowed_attributes()
+                            if k in type(value)._get_allowed_attributes()  ## pylint: disable=protected-access
                             and v is not None
                         }
                 else:

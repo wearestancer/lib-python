@@ -3,12 +3,25 @@
   variables:
     PYTHON_VERSION: py38
 
+py38:lint:
+  extends:
+    - .py38
+    - .lint
+
 py38:tests:
   extends:
     - .py38
     - .tests
 
-py38:coverage:
+  needs:
+    - py38:lint
+
+py38:coverage-check:
   extends:
     - .py38
     - .coverage-check
+
+py38:update-coverage:
+  extends:
+    - .py38
+    - .update-coverage

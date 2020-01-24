@@ -13,5 +13,5 @@ class _Singleton(type):
         return cls._instances[cls]
 
 
-class Singleton(_Singleton('SingletonMeta', (object,), {})):  # noqa D101
-    pass
+class Singleton(_Singleton('SingletonMeta', (object,), {})):
+    """Base class for using singleton."""

@@ -1,9 +1,0 @@
-
-lint:
-  extends:
-    - .tests
-
-  stage: lint
-
-  variables:
-    PYTHON_VERSION: lint

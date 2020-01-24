@@ -54,18 +54,6 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         return True
 
     @property
-    def is_not_complete(self):
-        """
-        Indicate if all mandatory customer data are NOT provided.
-
-        It's simply a `not self.is_complete`.
-
-        Returns:
-            bool: Is the customer not complete ?
-        """
-        return not self.is_complete
-
-    @property
     @populate_on_call
     def mobile(self):
         """

@@ -55,7 +55,7 @@ class TestHelper(object):
         return mobile
 
     def random_year(self):
-        return self.random_integer(0, 20) + self.current_year
+        return self.random_integer(1, 20) + self.current_year
 
     @property
     def current_year(self):

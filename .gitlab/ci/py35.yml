@@ -3,12 +3,25 @@
   variables:
     PYTHON_VERSION: py35
 
+py35:lint:
+  extends:
+    - .py35
+    - .lint
+
 py35:tests:
   extends:
     - .py35
     - .tests
 
-py35:coverage:
+  needs:
+    - py35:lint
+
+py35:coverage-check:
   extends:
     - .py35
     - .coverage-check
+
+py35:update-coverage:
+  extends:
+    - .py35
+    - .update-coverage

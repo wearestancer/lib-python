@@ -17,21 +17,28 @@ class Config(Singleton):
     it will be directly applying into the module.
 
     Constants:
-        LIVE_MODE: Used with `Config.mode()` to set or test API mode.
-        TEST_MODE: Used with `Config.mode()` to set or test API mode.
+        LIVE_MODE: Used with `Config.mode()` to set live or test API mode.
+        TEST_MODE: Used with `Config.mode()` to set live or test API mode.
     """
 
-    LIVE_MODE = 'live'
-    TEST_MODE = 'test'
+    LIVE_MODE = 'live'  # pylint: disable=invalid-name
+    TEST_MODE = 'test'  # pylint: disable=invalid-name
 
     def __init__(self):
         """Initialize configuration instance."""
-        del self.mode
+        self._host = None
+        self._keys = []
+        self._mode = None
+        self._port = None
+        self._timeout = 0
+        self._version = None
+
         del self.host
+        del self.keys
+        del self.mode
         del self.port
         del self.timeout
         del self.version
-        del self.keys
 
     @property
     def host(self):
@@ -126,7 +133,7 @@ class Config(Singleton):
     @mode.setter
     @validate_type(str)
     def mode(self, value):
-        if value != self.LIVE_MODE and value != self.TEST_MODE:
+        if value not in (self.LIVE_MODE, self.TEST_MODE):
             message = (
                 'Unknonw mode "{}". '
                 'Please use class constant '

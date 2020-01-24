@@ -3,12 +3,25 @@
   variables:
     PYTHON_VERSION: py36
 
+py36:lint:
+  extends:
+    - .py36
+    - .lint
+
 py36:tests:
   extends:
     - .py36
     - .tests
 
-py36:coverage:
+  needs:
+    - py36:lint
+
+py36:coverage-check:
   extends:
     - .py36
     - .coverage-check
+
+py36:update-coverage:
+  extends:
+    - .py36
+    - .update-coverage

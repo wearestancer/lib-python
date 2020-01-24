@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ..exceptions import IliadHTTPError
-from ..exceptions import IliadValueError
-import json
 import requests
 
 from ..config import Config
+from ..exceptions import IliadHTTPError
+from ..exceptions import IliadValueError
 
 
 class Request(object):
@@ -19,7 +18,7 @@ class Request(object):
     def __getattr__(self, name):
         """Handle automaticaly "get", "post" and "delete" method."""
         if name in ['delete', 'get', 'post']:
-            if self._obj.id is None and (name == 'get' or name == 'delete'):
+            if self._obj.id is None and name in ('get', 'delete'):
                 message = (
                     'You can not {} an object without an ID.'
                 ).format(name)
@@ -38,7 +37,7 @@ class Request(object):
 
             body = None
 
-            if name != 'get' and name != 'delete':
+            if name not in ('get', 'delete'):
                 body = self._obj.to_json()
 
             response = method(
