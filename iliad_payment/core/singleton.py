@@ -15,5 +15,3 @@ class _Singleton(type):
 
 class Singleton(_Singleton('SingletonMeta', (object,), {})):
     """Base class for using singleton."""
-
-    pass
