@@ -26,12 +26,19 @@ class Config(Singleton):
 
     def __init__(self):
         """Initialize configuration instance."""
-        del self.mode
+        self._host = None
+        self._keys = []
+        self._mode = None
+        self._port = None
+        self._timeout = 0
+        self._version = None
+
         del self.host
+        del self.keys
+        del self.mode
         del self.port
         del self.timeout
         del self.version
-        del self.keys
 
     @property
     def host(self):
