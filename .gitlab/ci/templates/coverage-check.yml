@@ -18,4 +18,5 @@
 
   except:
     - tags
+    - develop
     - master
