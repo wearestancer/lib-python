@@ -5,7 +5,6 @@ from builtins import str
 
 from datetime import datetime
 import json
-import requests
 
 from ..config import Config
 from .request import Request
