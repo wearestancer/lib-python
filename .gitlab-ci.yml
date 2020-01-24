@@ -11,3 +11,4 @@ include:
   - local: .gitlab/ci/py36.yml
   - local: .gitlab/ci/py37.yml
   - local: .gitlab/ci/py38.yml
+  - local: .gitlab/ci/py39.yml
