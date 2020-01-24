@@ -6,6 +6,8 @@ from builtins import str
 from functools import wraps
 
 
+# pylint: disable=too-many-branches, too-many-statements
+
 def populate_on_call(method):
     """
     Do a `populate` call before getting the value.
