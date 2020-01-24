@@ -4,6 +4,8 @@ from builtins import super
 
 from requests import HTTPError
 
+# pylint: disable=too-many-ancestors
+
 
 class IliadException(Exception):
     """Base exception for all exceptions raised by this module."""
