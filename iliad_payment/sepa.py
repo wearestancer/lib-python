@@ -117,18 +117,6 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         return True
 
     @property
-    def is_not_complete(self):
-        """
-        Indicate if all mandatory data are NOT provided.
-
-        It's simply a `not self.is_complete`.
-
-        Returns:
-            bool: Is the SEPA account not complete ?
-        """
-        return not self.is_complete
-
-    @property
     @populate_on_call
     def last4(self):
         """

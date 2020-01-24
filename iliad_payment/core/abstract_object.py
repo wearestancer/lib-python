@@ -146,6 +146,18 @@ class AbstractObject(object):
         return self
 
     @property
+    def is_complete(self):
+        """
+        Indicate if all mandatory data are provided.
+
+        Should be modified in other sub classes.
+
+        Returns:
+            bool: Is the object complete ?
+        """
+        return True
+
+    @property
     def is_modified(self):
         """
         Indicate if the object was modified.
@@ -154,6 +166,18 @@ class AbstractObject(object):
             bool: Was it modified ?
         """
         return self._modified
+
+    @property
+    def is_not_complete(self):
+        """
+        Indicate if all mandatory data are NOT provided.
+
+        It's simply a `not self.is_complete`.
+
+        Returns:
+            bool: Is the object not complete ?
+        """
+        return not self.is_complete
 
     @property
     def is_not_modified(self):
