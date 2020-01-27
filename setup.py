@@ -1,8 +1,14 @@
+
 from setuptools import setup
+
+
+# Import version
+exec(open('iliad_payment/version.py').read())
+
 
 setup(
     name='iliad-payment',
-    version='0.0.1',
+    version=__version__,
     description='Iliad payment solution',
     license='MIT',
     packages=['iliad_payment'],
