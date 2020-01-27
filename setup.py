@@ -10,7 +10,6 @@ setup(
     author_email='jdasilva@corp.free.fr',
     keywords=['payments', 'payment solution'],
     install_requires=[
-        'future',
         'requests',
     ],
     classifiers=[
