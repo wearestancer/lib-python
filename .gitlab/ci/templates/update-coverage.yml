@@ -2,6 +2,7 @@
 .update-coverage:
   extends:
     - .cache
+    - .versions
 
   stage: coverage
 
