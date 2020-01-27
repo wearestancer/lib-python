@@ -20,6 +20,7 @@ from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
+from .status.payment import PaymentStatus
 
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
