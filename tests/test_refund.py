@@ -8,6 +8,7 @@ import responses
 from iliad_payment import Config
 from iliad_payment import Payment
 from iliad_payment import Refund
+from iliad_payment import RefundStatus
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractObject
 from .TestHelper import TestHelper
@@ -121,3 +122,14 @@ class TestRefund(TestHelper):
         obj.hydrate(**params)
 
         assert obj.status == params['status']
+
+        # Works with constants
+
+        params = {
+            'status': 'refunded',
+        }
+
+        obj.hydrate(**params)
+
+        assert obj.status == params['status']
+        assert obj.status == RefundStatus.REFUNDED

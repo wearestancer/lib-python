@@ -8,6 +8,8 @@ from .core.decorators import populate_on_call
 from .config import Config
 from .payment import Payment
 
+from .status.refund import RefundStatus
+
 
 class Refund(AbstractObject, AbstractAmount):
     """Representation of a refund."""
