@@ -8,7 +8,13 @@ setup(
     packages=['iliad_payment'],
     author='Joel Da Silva',
     author_email='jdasilva@corp.free.fr',
-    keywords=['payments', 'payment solution'],
+    keywords=[
+        'payments',
+        'payment solution',
+        'payment gateway',
+        'credit cards',
+        'sepa',
+    ],
     install_requires=[
         'requests',
     ],
