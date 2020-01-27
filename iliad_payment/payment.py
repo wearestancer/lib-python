@@ -235,6 +235,15 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     def order_id(self, value: str):
         self._data['order_id'] = value
 
+    @property
+    def refunded_amount(self) -> int:
+        """
+        Amount already refunded.
+
+        Returns:
+            int: Amount already refund.
+        """
+        return sum(map(lambda refund: refund.amount, self.refunds))
 
     @property
     @populate_on_call

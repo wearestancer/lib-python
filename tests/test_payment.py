@@ -1,12 +1,14 @@
 """Test payment object"""
 
 from datetime import date
+import json
 import pytest
 import responses
 
 from iliad_payment import Card
 from iliad_payment import Customer
 from iliad_payment import Payment
+from iliad_payment import Refund
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractCountry
@@ -386,6 +388,32 @@ class TestPayment(TestHelper):
         assert obj.order_id == params['order_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_refunded_amount(self):
+        with open('./tests/fixtures/payment/read.json') as opened_file:
+            payment_content = json.load(opened_file)
+
+        with open('./tests/fixtures/refund/read.json') as opened_file:
+            refund_content = json.load(opened_file)
+
+        obj = Payment(payment_content['id'])
+
+        paid = payment_content['amount']
+
+        refund_amount = self.random_integer(50, paid - 50)
+        refund_content['amount'] = refund_amount
+        ref = Refund()
+
+        responses.reset()
+        responses.add(responses.GET, obj.uri, json=payment_content)
+        responses.add(responses.POST, ref.uri, json=refund_content)
+
+        assert obj.refunded_amount == 0
+
+        obj.refund(refund_amount)
+
+        assert obj.refunded_amount == refund_amount
 
     @responses.activate
     def test_response_code(self):
