@@ -4,7 +4,10 @@ from datetime import date
 import pytest
 import responses
 
-from iliad_payment import Payment, Card, Customer, Sepa
+from iliad_payment import Card
+from iliad_payment import Customer
+from iliad_payment import Payment
+from iliad_payment import Sepa
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject

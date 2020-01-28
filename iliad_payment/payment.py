@@ -312,7 +312,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             message += ' Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
-        return super(Payment, self).save()
+        return super().save()
 
     @property
     @populate_on_call
