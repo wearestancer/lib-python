@@ -390,6 +390,32 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
+    def test_refundable_amount(self):
+        with open('./tests/fixtures/payment/read.json') as opened_file:
+            payment_content = json.load(opened_file)
+
+        with open('./tests/fixtures/refund/read.json') as opened_file:
+            refund_content = json.load(opened_file)
+
+        obj = Payment(payment_content['id'])
+
+        paid = payment_content['amount']
+
+        refund_amount = self.random_integer(50, paid - 50)
+        refund_content['amount'] = refund_amount
+        ref = Refund()
+
+        responses.reset()
+        responses.add(responses.GET, obj.uri, json=payment_content)
+        responses.add(responses.POST, ref.uri, json=refund_content)
+
+        assert obj.refundable_amount == obj.amount
+
+        obj.refund(refund_amount)
+
+        assert obj.refundable_amount == paid - refund_amount
+
+    @responses.activate
     def test_refunded_amount(self):
         with open('./tests/fixtures/payment/read.json') as opened_file:
             payment_content = json.load(opened_file)

@@ -246,6 +246,16 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         return sum(map(lambda refund: refund.amount, self.refunds))
 
     @property
+    def refundable_amount(self) -> int:
+        """
+        Amount not already refunded.
+
+        Returns:
+            int: Amount left to refund.
+        """
+        return self.amount - self.refunded_amount
+
+    @property
     @populate_on_call
     def refunds(self):
         """
