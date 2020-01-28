@@ -14,7 +14,7 @@ def populate_on_call(method):
     def wrapper(self):
         value = method(self)
 
-        if value is None and hasattr(self, 'populate'):
+        if (not value) and hasattr(self, 'populate'):
             self.populate()
 
         return method(self)

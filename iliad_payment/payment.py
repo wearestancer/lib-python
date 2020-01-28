@@ -235,6 +235,18 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     def order_id(self, value: str):
         self._data['order_id'] = value
 
+
+    @property
+    @populate_on_call
+    def refunds(self):
+        """
+        Returns refund's list.
+
+        Returns:
+            Refund[]: Refund's list
+        """
+        return self._data.get('refunds', [])
+
     @property
     @populate_on_call
     def response_code(self) -> str:
