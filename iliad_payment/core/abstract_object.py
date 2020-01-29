@@ -29,10 +29,10 @@ class AbstractObject(object):
         object.
 
         Args:
-            uid (str): Object identifier.
+            uid: Object identifier.
 
         Returns:
-            self: An instance of the current object.
+            An instance of the current object.
         """
         self._id = uid
         self._created = None
@@ -46,7 +46,7 @@ class AbstractObject(object):
         Dictionary for instance variables.
 
         Returns:
-            dict: A simple representation of the current object.
+            A simple representation of the current object.
         """
         representation = {}
 
@@ -70,7 +70,7 @@ class AbstractObject(object):
         Return current object ID.
 
         Returns:
-            str: Current ID.
+            Current ID.
         """
         return self._id
 
@@ -80,8 +80,7 @@ class AbstractObject(object):
         Return the creation date and time of the current object.
 
         Returns:
-            datetime: Creation date and time (into the API)
-                during server side creation.
+            Creation date and time (into the API) during server side creation.
         """
         return self._created
 
@@ -90,7 +89,10 @@ class AbstractObject(object):
         Delete the current object.
 
         Returns:
-            self: Current instance.
+            Current instance.
+
+        Raises:
+            IliadHTTPError: On error during with the API.
         """
         Request(self).delete  ## pylint: disable=expression-not-assigned
 
@@ -116,11 +118,11 @@ class AbstractObject(object):
         Hydrate current object.
 
         Args:
-            params (dict): Elements used to hydrate the object.
+            params: Elements used to hydrate the object.
                 Every key matching an object property will be used.
 
         Returns:
-            self: Current instance.
+            Current instance.
         """
         config = Config()
 
@@ -157,7 +159,7 @@ class AbstractObject(object):
         Should be modified in other sub classes.
 
         Returns:
-            bool: Is the object complete ?
+            Is the object complete ?
         """
         return True
 
@@ -167,7 +169,7 @@ class AbstractObject(object):
         Indicate if the object was modified.
 
         Returns
-            bool: Was it modified ?
+            Was it modified ?
         """
         return self._modified
 
@@ -179,7 +181,7 @@ class AbstractObject(object):
         It's simply a `not self.is_complete`.
 
         Returns:
-            bool: Is the object not complete ?
+            Is the object not complete ?
         """
         return not self.is_complete
 
@@ -189,7 +191,7 @@ class AbstractObject(object):
         Indicate if the object was not modified.
 
         Returns
-            bool: Was it not modified ?
+            Was it not modified ?
         """
         return not self.is_modified
 
@@ -199,7 +201,7 @@ class AbstractObject(object):
         Indicate if the object was not populated.
 
         Returns
-            bool: Was it not populated ?
+            Was it not populated ?
         """
         return not self.is_populated
 
@@ -209,7 +211,7 @@ class AbstractObject(object):
         Indicate if the object was populated.
 
         Returns
-            bool: Was it populated ?
+            Was it populated ?
         """
         return self._populated
 
@@ -221,7 +223,7 @@ class AbstractObject(object):
         This need an ID.
 
         Returns:
-            self: Current instance.
+            Current instance.
         """
         if not self._populated and self.id is not None:
             self._populated = True
@@ -239,7 +241,10 @@ class AbstractObject(object):
         This will create or update the current object.
 
         Returns:
-            self: Current instance.
+            Current instance.
+
+        Raises:
+            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
         """
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
@@ -258,7 +263,7 @@ class AbstractObject(object):
         Unless that, it will return a JSON with only the `id` key.
 
         Returns:
-            str: A JSON representation of the current object.
+            A JSON representation of the current object.
         """
         representation = {}
 
@@ -302,7 +307,7 @@ class AbstractObject(object):
         this entity.
 
         Returns:
-            str: Uniform Resource Identifier.
+            Uniform Resource Identifier.
         """
         conf = Config()
 

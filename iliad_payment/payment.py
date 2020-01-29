@@ -71,10 +71,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         capture later.
 
         Args:
-            value (bool): New status for capture.
+            value: New status for capture.
 
         Returns:
-            bool: Current capture status.
+            Current capture status.
+
+        Raises:
+            InvalidPaymentCaptureError: When capture flag is invalid.
         """
         return self._data.get('capture')
 
@@ -94,6 +97,9 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             Card: Card used for the payment.
+
+        Raises:
+            InvalidCardError: When card is invalid.
         """
         return self._data.get('card')
 
@@ -114,6 +120,9 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             Customer: Customer handling the payment.
+
+        Raises:
+            InvalidCustomerError: When customer is invalid.
         """
         return self._data.get('customer')
 
@@ -148,6 +157,9 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             str: Payment description.
+
+        Raises:
+            InvalidPaymentDescriptionError: When description is invalid.
         """
         return self._data.get('description')
 
@@ -163,7 +175,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         Is the operation a success ?
 
         Returns:
-            bool: Is the operation a success ?
+            Is the operation a success ?
         """
         return self.response_code == '00'
 
@@ -173,7 +185,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         Is the operation an error ?
 
         Returns:
-            bool: Is the operation an error ?
+            Is the operation an error ?
         """
         return not self.is_success
 
@@ -186,7 +198,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         True => live / False => test
 
         Returns:
-            bool: Are we in live mode ?
+            Are we in live mode ?
         """
         return self._data.get('live_mode')
 
@@ -215,6 +227,9 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             str: External order ID.
+
+        Raises:
+            InvalidPaymentOrderIdError: When order id is invalid.
         """
         return self._data.get('order_id')
 
@@ -269,7 +284,15 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         Create or update the payment.
 
         Returns:
-            self: Current instance.
+            Current instance.
+
+        Raises:
+            InvalidAmountError: When called without any amount setted.
+            InvalidCurrencyError: When called without any currency.
+            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
+            MissingPaymentMethodError: When called without any payment method
+                or if this method is uncomplete
+                (you may have forgotten the card number).
         """
         if self.amount is None:
             message = 'You must provide an amount before sending a payment.'
@@ -308,6 +331,9 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             Sepa: SEPA used for the payment.
+
+        Raises:
+            InvalidSepaError: When sepa is invalid.
         """
         return self._data.get('sepa')
 

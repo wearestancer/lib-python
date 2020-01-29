@@ -72,10 +72,10 @@ class Config(Singleton):
         API host.
 
         Args:
-            value (str): New host, default "api.iliad78.net".
+            value: New host, default "api.iliad78.net".
 
         Returns:
-            str: API host.
+            API host.
         """
         return self._host
 
@@ -101,14 +101,17 @@ class Config(Singleton):
         This way, you only have to chance the mode to be development mode.
 
         Args:
-            value (str|(str,)): One or more keys.
+            value: One or more keys.
                 This method allows a simple string, but using tuple of strings
                 is butter (as you can pass every keys in one call).
                 Every keys will be tested to find public/secret and
                 production/development keys.
 
         Returns:
-            dict: Will contain "pprod", "sprod", "ptest" and "stest" keys.
+            Will contain "pprod", "sprod", "ptest" and "stest" keys.
+
+        Raises:
+            IliadValueError: When a key is not valid.
         """
         return self._keys
 
@@ -148,10 +151,13 @@ class Config(Singleton):
         API mode.
 
         Args:
-            value (str): New mode, please use class constant.
+            value: New mode, please use class constant.
 
         Returns:
-            str: Actual mode.
+            Actual mode.
+
+        Raises:
+            IliadValueError: If ``mode`` is not one of class contant.
         """
         return self._mode
 
@@ -178,7 +184,7 @@ class Config(Singleton):
         Public production API key.
 
         Returns:
-            str: Public production key available in keychain.
+            Public production key available in keychain.
         """
         return self.keys['pprod']
 
@@ -190,10 +196,10 @@ class Config(Singleton):
         You may not need this, but maybe you have a weird network.
 
         Args:
-            value (int): New port, no default (you let the http client decide).
+            value: New port, no default (you let the http client decide).
 
         Returns:
-            int: API port.
+            API port.
         """
         return self._port
 
@@ -211,7 +217,7 @@ class Config(Singleton):
         Public development API key.
 
         Returns:
-            str: Public development key available in keychain.
+            Public development key available in keychain.
         """
         return self.keys['ptest']
 
@@ -221,7 +227,7 @@ class Config(Singleton):
         Public API key.
 
         Returns:
-            str: Public key available in keychain.
+            Public key available in keychain.
         """
         if self.mode == self.LIVE_MODE:
             return self.pprod
@@ -234,7 +240,7 @@ class Config(Singleton):
         Secret API key.
 
         Returns:
-            str: Secret key available in keychain.
+            Secret key available in keychain.
         """
         if self.mode == self.LIVE_MODE:
             return self.sprod
@@ -247,7 +253,7 @@ class Config(Singleton):
         Secret production API key.
 
         Returns:
-            str: Secret production key available in keychain.
+            Secret production key available in keychain.
         """
         return self.keys['sprod']
 
@@ -257,7 +263,7 @@ class Config(Singleton):
         Secret development API key.
 
         Returns:
-            str: Secret development key available in keychain.
+            Secret development key available in keychain.
         """
         return self.keys['stest']
 
@@ -267,10 +273,10 @@ class Config(Singleton):
         API timeout.
 
         Args:
-            value (int): New timeout, default 5 seconds.
+            value: New timeout, default 5 seconds.
 
         Returns:
-            int: Timeout.
+            Timeout.
         """
         return self._timeout
 
@@ -290,10 +296,10 @@ class Config(Singleton):
         Not really used for now, it's just in case we need it.
 
         Args:
-            value (int): New target API version.
+            value: New target API version.
 
         Returns:
-            int: Target API version.
+            Target API version.
         """
         return self._version
 
