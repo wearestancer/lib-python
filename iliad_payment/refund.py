@@ -29,3 +29,14 @@ class Refund(AbstractObject, AbstractAmount):
             Payment: Original payment.
         """
         return self._data.get('payment')
+
+    @property
+    @populate_on_call
+    def status(self) -> str:
+        """
+        Refund status.
+
+        Returns:
+            str: Current status.
+        """
+        return self._data.get('status')

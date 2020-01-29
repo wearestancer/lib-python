@@ -38,3 +38,19 @@ class TestRefund(TestHelper):
         assert obj.payment.id == params['payment']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    def test_status(self):
+        obj = Refund()
+
+        assert obj.status is None
+
+        with pytest.raises(AttributeError):
+            obj.status = self.random_string(29)
+
+        params = {
+            'status': self.random_string(10),
+        }
+
+        obj.hydrate(**params)
+
+        assert obj.status == params['status']
