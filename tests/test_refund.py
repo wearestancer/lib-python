@@ -1,5 +1,9 @@
 """Test refund object"""
 
+import pytest
+import responses
+
+from iliad_payment import Payment
 from iliad_payment import Refund
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractObject
@@ -12,3 +16,25 @@ class TestRefund(TestHelper):
         assert issubclass(Refund, AbstractObject)
 
         assert Refund._ENDPOINT == 'refunds'
+
+    @responses.activate
+    def test_payment(self):
+        obj = Refund()
+        payment = Payment()
+
+        assert obj.payment is None
+
+        with pytest.raises(AttributeError):
+            obj.payment = payment
+
+        obj = Refund(self.random_string(29))
+        params = {
+            'payment': self.random_string(50),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.payment, Payment)
+        assert obj.payment.id == params['payment']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
