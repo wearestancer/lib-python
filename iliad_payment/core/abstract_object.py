@@ -122,6 +122,8 @@ class AbstractObject(object):
         Returns:
             self: Current instance.
         """
+        config = Config()
+
         for key, value in list(params.items()):
             if hasattr(self, key):
                 tmp = getattr(self, key)
@@ -141,7 +143,7 @@ class AbstractObject(object):
             if key == 'id':
                 self._id = value
             elif key == 'created':
-                self._created = datetime.fromtimestamp(value)
+                self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 self._data[key] = value
 
