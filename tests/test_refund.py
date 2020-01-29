@@ -52,6 +52,38 @@ class TestRefund(TestHelper):
 
         del config.default_timezone
 
+    def test_date_refund(self):
+        obj = Refund()
+        config = Config()
+        date = self.random_integer(1500000000, 1600000000)
+        zone = self.random_timezone()
+
+        assert obj.date_refund is None
+
+        with pytest.raises(AttributeError):
+            obj.date_refund = date
+
+        params = {
+            'date_refund': date,
+        }
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.date_refund, datetime)
+        assert obj.date_refund.timestamp() == date
+        assert obj.date_refund.tzinfo is None
+
+        config.default_timezone = timezone(zone)
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.date_refund, datetime)
+        assert obj.date_refund.timestamp() == date
+        assert isinstance(obj.date_refund.tzinfo, tzinfo)
+        assert obj.date_refund.tzinfo.zone == zone
+
+        del config.default_timezone
+
     @responses.activate
     def test_payment(self):
         obj = Refund()

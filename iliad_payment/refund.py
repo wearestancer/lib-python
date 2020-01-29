@@ -21,6 +21,9 @@ class Refund(AbstractObject, AbstractAmount):
     def _init_date_bank(self, timestamp) -> datetime:
         return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
 
+    def _init_date_refund(self, timestamp) -> datetime:
+        return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
+
     @property
     def _init_payment(self) -> Payment:
         return Payment
@@ -35,6 +38,17 @@ class Refund(AbstractObject, AbstractAmount):
             datetime: Value date of the refund.
         """
         return self._data.get('date_bank')
+
+    @property
+    @populate_on_call
+    def date_refund(self):
+        """
+        Date when the refund is sent to the bank.
+
+        Returns:
+            datetime: When refund was sent to the bank.
+        """
+        return self._data.get('date_refund')
 
     @property
     @populate_on_call
