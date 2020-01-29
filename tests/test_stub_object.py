@@ -1,9 +1,10 @@
 """Test abstract object"""
 
 import base64
-from datetime import datetime
+from datetime import datetime, tzinfo
 import json
 import pytest
+from pytz import timezone
 import requests
 import responses
 
@@ -57,6 +58,31 @@ class TestStubObject(TestHelper):
 
         assert 'number' in result['card1']
         assert result['card1']['number'] == card.number
+
+    def test_created(self):
+        obj = StubObject()
+        config = Config()
+        zone = 'Europe/Paris'
+        date = self.random_integer(1500000000, 1600000000)
+
+        params = {
+            'created': date,
+        }
+
+        obj.hydrate(params)
+
+        assert isinstance(obj.created, datetime)
+        assert obj.created.timestamp() == date
+        assert obj.created.tzinfo is None
+
+        config.default_timezone = timezone(zone)
+
+        obj.hydrate(params)
+
+        assert isinstance(obj.created, datetime)
+        assert obj.created.timestamp() == date
+        assert isinstance(obj.created.tzinfo, tzinfo)
+        assert obj.created.tzinfo.zone == zone
 
     @responses.activate
     def test_delete(self):
