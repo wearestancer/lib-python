@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import tzinfo
 from typing import List
 from typing import TypeVar
 from typing import Union
@@ -29,6 +30,7 @@ class Config(Singleton):
 
     def __init__(self):
         """Initialize configuration instance."""
+        self._default_timezone = None
         self._host = None
         self._keys = []
         self._mode = None
@@ -42,6 +44,27 @@ class Config(Singleton):
         del self.port
         del self.timeout
         del self.version
+
+    @property
+    def default_timezone(self) -> tzinfo:
+        """
+        Will be used as default time zone for every datetime object created by the API.
+
+        Args:
+            tz: New time zone.
+
+        Returns:
+            str: Default time zone
+        """
+        return self._default_timezone
+
+    @default_timezone.setter
+    def default_timezone(self, zone: tzinfo):
+        self._default_timezone = zone
+
+    @default_timezone.deleter
+    def default_timezone(self):
+        self._default_timezone = None
 
     @property
     def host(self) -> str:

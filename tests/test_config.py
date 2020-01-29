@@ -1,6 +1,7 @@
 """Test config object"""
 
 import pytest
+from pytz import timezone
 
 from iliad_payment import Config
 from iliad_payment.exceptions import IliadValueError
@@ -10,6 +11,20 @@ from .TestHelper import TestHelper
 class TestConfig(TestHelper):
     def test_class(self):
         assert Config() == Config()
+
+    def test_default_timezone(self):
+        obj = Config()
+        tz = timezone('Europe/Paris')
+
+        assert obj.default_timezone is None
+
+        obj.default_timezone = tz
+
+        assert obj.default_timezone is tz
+
+        del obj.default_timezone
+
+        assert obj.default_timezone is None
 
     def test_host(self):
         obj = Config()
