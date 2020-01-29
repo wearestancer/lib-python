@@ -1,8 +1,11 @@
 """Test refund object"""
 
+from datetime import datetime, tzinfo
 import pytest
+from pytz import timezone
 import responses
 
+from iliad_payment import Config
 from iliad_payment import Payment
 from iliad_payment import Refund
 from iliad_payment.core import AbstractAmount
@@ -16,6 +19,38 @@ class TestRefund(TestHelper):
         assert issubclass(Refund, AbstractObject)
 
         assert Refund._ENDPOINT == 'refunds'
+
+    def test_date_bank(self):
+        obj = Refund()
+        config = Config()
+        date = self.random_integer(1500000000, 1600000000)
+        zone = self.random_timezone()
+
+        assert obj.date_bank is None
+
+        with pytest.raises(AttributeError):
+            obj.date_bank = date
+
+        params = {
+            'date_bank': date,
+        }
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.date_bank, datetime)
+        assert obj.date_bank.timestamp() == date
+        assert obj.date_bank.tzinfo is None
+
+        config.default_timezone = timezone(zone)
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.date_bank, datetime)
+        assert obj.date_bank.timestamp() == date
+        assert isinstance(obj.date_bank.tzinfo, tzinfo)
+        assert obj.date_bank.tzinfo.zone == zone
+
+        del config.default_timezone
 
     @responses.activate
     def test_payment(self):
