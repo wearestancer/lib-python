@@ -1,35 +1,15 @@
 """Functional tests for refunds"""
 
-from __future__ import unicode_literals
-
-import os
 import pytest
 
 from iliad_payment import Card
-from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Payment
 from iliad_payment import Refund
-from ..TestHelper import TestHelper
+from .TestHelper import TestHelper
 
 
-@pytest.mark.skipif(
-    os.getenv('API_KEY') is None,
-    reason='Require an API key',
-)
-@pytest.mark.skipif(
-    os.getenv('API_HOST') is None,
-    reason='Require an API host',
-)
 class TestFunctionalRefund(TestHelper):
-    def setup_method(self, method):
-        conf = Config()
-
-        del conf.keys
-        conf.keys = str(os.getenv('API_KEY'))
-        conf.host = str(os.getenv('API_HOST'))
-        conf.timeout = 1
-
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_single_refund(self, currency):
         amount = self.random_integer(50, 10000)
