@@ -8,3 +8,5 @@ from .TestHelper import TestHelper
 class TestRefund(TestHelper):
     def test_class(self):
         assert issubclass(Refund, AbstractObject)
+
+        assert Refund._ENDPOINT == 'refunds'
