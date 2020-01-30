@@ -98,6 +98,23 @@ class TestStubObject(TestHelper):
         assert with_id.id == uid
         assert with_id.__dict__ == {'id': uid}
 
+        params = {
+            'string1': self.random_string(10),
+            'integer1': self.random_integer(10),
+            'created': 1546867615,
+        }
+
+        hydrated = StubObject()
+        hydrated.hydrate(**params)
+
+        assert isinstance(hydrated, StubObject)
+        assert hydrated.id is None
+        assert hydrated.string1 == params['string1']
+        assert hydrated.integer1 == params['integer1']
+
+        assert isinstance(hydrated.created, datetime)
+        assert hydrated.created.timestamp() == params['created']
+
     @responses.activate
     def test_delete(self):
         obj = StubObject()
