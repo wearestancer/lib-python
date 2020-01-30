@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from requests import HTTPError
+from typing import TypeVar
+from requests import HTTPError, Response
+
+CurrentInstance = TypeVar('CurrentInstance', bound='IliadHTTPError')
 
 
 class IliadException(Exception):
@@ -112,7 +115,7 @@ class IliadHTTPError(IliadException, HTTPError):
     They also inherit from `requests.HTTPError`.
     """
 
-    def __init__(self, response, *args, **kwargs):
+    def __init__(self, response: Response, *args, **kwargs):
         super(IliadHTTPError, self).__init__(*args, **kwargs)
 
         self.response = response
@@ -139,12 +142,17 @@ class IliadHTTPError(IliadException, HTTPError):
             pass
 
     @classmethod
-    def factory(cls, response, *args, **kwargs):
+    def factory(cls, response: Response, *args, **kwargs) -> CurrentInstance:
         """
         Return correct error instance form HTTP status.
 
+        Args:
+            response: HTTP Response that produced the exception
+            *args: Variable lenght argument list, will passed to the new instance.
+            **kwargs: Arbitrary keywors arguments, will passed to the new instance.
+
         Returns:
-            IliadHTTPError: An child instance of IliadHTTPError.
+            An child instance of IliadHTTPError.
         """
         if response.status_code >= 500:
             for tmp in IliadHTTPServerError.__subclasses__():

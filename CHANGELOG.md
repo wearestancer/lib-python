@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Allow `kwargs` at instance creation
+- `Object.hydrate()` use now `kwargs`
 - Default time zone configuration
 - Better key management
 - Coverage regression test
+- Add exceptions raised to docstring
+- Remove typing from docstring
 
 ## [0.0.1] - 2019-06-29
 

@@ -104,7 +104,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         Indicate if all mandatory data are provided.
 
         Returns:
-            bool: Is the SEPA account complete ?
+            Is the SEPA account complete ?
         """
         if self.bic is None:
             return False

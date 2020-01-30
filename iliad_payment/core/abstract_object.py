@@ -18,7 +18,7 @@ class AbstractObject(object):
     _ENDPOINT = None  # pylint: disable=invalid-name
     _allowed_attributes = []
 
-    def __init__(self, uid=None):
+    def __init__(self, uid: str = None, **kwargs):
         """
         Create or get an API object.
 
@@ -28,16 +28,24 @@ class AbstractObject(object):
         If you did not provide an id, the current object will be a new API
         object.
 
+        You may also pass keywords arguments, we will use them hydrate the object.
+
         Args:
-            uid (str): Object identifier.
+            uid: Object identifier.
+            **kwargs: Arbitrary keyword arguments, used to hydrate the object.
 
         Returns:
-            self: An instance of the current object.
+            An instance of the current object.
         """
         self._id = uid
         self._created = None
         self._data = {}
         self._modified = False
+        self._populated = True
+
+        if kwargs:
+            self.hydrate(**kwargs)
+
         self._populated = False
 
     @property
@@ -46,7 +54,7 @@ class AbstractObject(object):
         Dictionary for instance variables.
 
         Returns:
-            dict: A simple representation of the current object.
+            A simple representation of the current object.
         """
         representation = {}
 
@@ -70,9 +78,13 @@ class AbstractObject(object):
         Return current object ID.
 
         Returns:
-            str: Current ID.
+            Current ID.
         """
         return self._id
+
+    @id.deleter
+    def id(self):  # pylint: disable=invalid-name
+        self._id = None
 
     @property
     def created(self) -> datetime:
@@ -80,8 +92,7 @@ class AbstractObject(object):
         Return the creation date and time of the current object.
 
         Returns:
-            datetime: Creation date and time (into the API)
-                during server side creation.
+            Creation date and time (into the API) during server side creation.
         """
         return self._created
 
@@ -90,7 +101,10 @@ class AbstractObject(object):
         Delete the current object.
 
         Returns:
-            self: Current instance.
+            Current instance.
+
+        Raises:
+            IliadHTTPError: On error during with the API.
         """
         Request(self).delete  ## pylint: disable=expression-not-assigned
 
@@ -111,33 +125,41 @@ class AbstractObject(object):
 
         return allowed
 
-    def hydrate(self, params: dict) -> CurrentInstance:
+    def hydrate(self, **params) -> CurrentInstance:
         """
         Hydrate current object.
 
         Args:
-            params (dict): Elements used to hydrate the object.
+            **params: Elements used to hydrate the object.
                 Every key matching an object property will be used.
 
         Returns:
-            self: Current instance.
+            Current instance.
         """
         config = Config()
 
         for key, value in list(params.items()):
+            if value is None:
+                continue
+
             if hasattr(self, key):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
+                val = {'id': value} if isinstance(value, str) else value
 
                 if tmp is None and hasattr(self, init_method):
                     tmp = getattr(self, init_method)
 
-                if hasattr(tmp, 'hydrate'):
-                    val = {'id': value} if isinstance(value, str) else value
+                if callable(tmp):
+                    if val is None:
+                        value = tmp()
+                    else:
+                        value = tmp(**val)
 
+                elif hasattr(tmp, 'hydrate'):
                     if val is not None:
                         tmp._populated = True  ## pylint: disable=protected-access
-                        value = tmp.hydrate(val)
+                        value = tmp.hydrate(**val)
                         value._populated = self._populated  ## pylint: disable=protected-access
 
             if key == 'id':
@@ -157,7 +179,7 @@ class AbstractObject(object):
         Should be modified in other sub classes.
 
         Returns:
-            bool: Is the object complete ?
+            Is the object complete ?
         """
         return True
 
@@ -167,7 +189,7 @@ class AbstractObject(object):
         Indicate if the object was modified.
 
         Returns
-            bool: Was it modified ?
+            Was it modified ?
         """
         return self._modified
 
@@ -179,7 +201,7 @@ class AbstractObject(object):
         It's simply a `not self.is_complete`.
 
         Returns:
-            bool: Is the object not complete ?
+            Is the object not complete ?
         """
         return not self.is_complete
 
@@ -189,7 +211,7 @@ class AbstractObject(object):
         Indicate if the object was not modified.
 
         Returns
-            bool: Was it not modified ?
+            Was it not modified ?
         """
         return not self.is_modified
 
@@ -199,7 +221,7 @@ class AbstractObject(object):
         Indicate if the object was not populated.
 
         Returns
-            bool: Was it not populated ?
+            Was it not populated ?
         """
         return not self.is_populated
 
@@ -209,7 +231,7 @@ class AbstractObject(object):
         Indicate if the object was populated.
 
         Returns
-            bool: Was it populated ?
+            Was it populated ?
         """
         return self._populated
 
@@ -221,9 +243,9 @@ class AbstractObject(object):
         This need an ID.
 
         Returns:
-            self: Current instance.
+            Current instance.
         """
-        if not self._populated and self.id is not None:
+        if self.id is not None and not self._populated:
             self._populated = True
             self._modified = False
             Request(self).get  ## pylint: disable=expression-not-assigned
@@ -239,7 +261,10 @@ class AbstractObject(object):
         This will create or update the current object.
 
         Returns:
-            self: Current instance.
+            Current instance.
+
+        Raises:
+            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
         """
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
@@ -258,7 +283,7 @@ class AbstractObject(object):
         Unless that, it will return a JSON with only the `id` key.
 
         Returns:
-            str: A JSON representation of the current object.
+            A JSON representation of the current object.
         """
         representation = {}
 
@@ -302,7 +327,7 @@ class AbstractObject(object):
         this entity.
 
         Returns:
-            str: Uniform Resource Identifier.
+            Uniform Resource Identifier.
         """
         conf = Config()
 

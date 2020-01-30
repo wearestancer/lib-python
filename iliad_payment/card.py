@@ -39,7 +39,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Card brand.
 
         Returns:
-            str: Brand code as viewed by the API.
+            Brand code as viewed by the API.
         """
         return self._data.get('brand')
 
@@ -53,7 +53,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         and real brand name, like "American Express".
 
         Returns:
-            str: Brand name if known or brand code returned by `Card.brand`.
+            Brand name if known or brand code returned by `Card.brand`.
         """
         brand = self.brand
 
@@ -81,10 +81,13 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         We use string for CVC to prevent errors with leading zeros.
 
         Args:
-            value (str): New value for CVC.
+            value: New value for CVC.
 
         Returns:
-            str: Card Verification code.
+            Card Verification code.
+
+        Raises:
+            InvalidCardVerificationCodeError: When the CVC is invalid.
         """
         return self._data.get('cvc')
 
@@ -105,10 +108,13 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Expiration month.
 
         Args:
-            value (int): Must be an integer (between 1 and 12).
+            value: Must be an integer (between 1 and 12).
 
         Returns:
-            int: Card expiration month.
+            Card expiration month.
+
+        Raises:
+            InvalidCardExpirationMonthError: When the expiration month is invalid.
         """
         return self._data.get('exp_month')
 
@@ -130,10 +136,13 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Expiration year.
 
         Args:
-            value (int): Must be at least equal to the current year.
+            value: Must be at least equal to the current year.
 
         Returns:
-            int: Card expiration year.
+            Card expiration year.
+
+        Raises:
+            InvalidCardExpirationYearError: When the expiration year is invalid.
         """
         return self._data.get('exp_year')
 
@@ -153,7 +162,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Indicate if all mandatory card data are provided.
 
         Returns:
-            bool: Is the card complete ?
+            Is the card complete ?
         """
         if self.cvc is None:
             return False
@@ -176,7 +185,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Card number's last 4 digits.
 
         Returns:
-            str: Card's last 4 digits.
+            Card's last 4 digits.
         """
         return self._data.get('last4')
 
@@ -187,10 +196,13 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Card number.
 
         Args:
-            value (str): New card number.
+            value: New card number.
 
         Returns:
-            str: Card number.
+            Card number.
+
+        Raises:
+            InvalidCardNumberError: When the card number is invalid.
         """
         return self._data.get('number')
 
@@ -230,10 +242,13 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Indicate if the card can be reuse later.
 
         Args:
-            value (bool): `True` allow reuse, `False` won't.
+            value: `True` allow reuse, `False` won't.
 
         Returns:
-            bool: Tokenize status.
+            Tokenize status.
+
+        Raises:
+            InvalidCardTokenizeError: When the token is invalid (should never occur).
         """
         return self._data.get('tokenize')
 
@@ -249,10 +264,13 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         City zip code.
 
         Args:
-            value (str): New zip code, must be between 2 and 8 characters.
+            value: New zip code, must be between 2 and 8 characters.
 
         Returns:
-            str: City zip code.
+            City zip code.
+
+        Raises:
+            InvalidZipCodeError: When the zip code is invalid.
         """
         return self._data.get('zip_code')
 

@@ -25,6 +25,15 @@ class AbstractAmount(object):
         Payment or refund amount.
 
         Must be a an integer and at least 50.
+
+        Args:
+            value: New amount.
+
+        Returns:
+            Current amount.
+
+        Raises:
+            InvalidAmountError: When amount is under 50.
         """
         return self._data.get('amount')
 
@@ -40,6 +49,15 @@ class AbstractAmount(object):
         Payment or refund currency.
 
         Must be one of the following items: eur, gbp, usd
+
+        Args:
+            value: New currency.
+
+        Returns:
+            Current currency.
+
+        Raises:
+            InvalidCurrencyError: When currency is not ``eur``, ``gbp`` or ``usd``.
         """
         return self._data.get('currency')
 

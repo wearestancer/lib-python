@@ -60,11 +60,11 @@ class Request(object):
                 raise IliadHTTPError.factory(response)
 
             if response.ok and name == 'delete':
-                self._obj.hydrate({'id': None})
+                del self._obj.id
 
             if response.text is not None:
                 try:
-                    self._obj.hydrate(response.json())
+                    self._obj.hydrate(**response.json())
                 except ValueError:
                     # Bypass in case of decoding error
                     #  (if the body is HTML or whatever)

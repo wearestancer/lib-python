@@ -30,6 +30,9 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
         Returns:
             str: Customer's email.
+
+        Raises:
+            InvalidCustomerEmailError: When email is invalid.
         """
         return self._data.get('email')
 
@@ -44,7 +47,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         Indicate if all mandatory customer data are provided.
 
         Returns:
-            bool: Is the customer complete ?
+            Is the customer complete ?
         """
         if self.email is None and self.mobile is None:
             return False
@@ -62,6 +65,9 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
         Returns:
             str: Customer's mobile phone number.
+
+        Raises:
+            InvalidCustomerMobileError: When mobile phone number is invalid.
         """
         return self._data.get('mobile')
 
