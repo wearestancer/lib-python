@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from requests import HTTPError, Response
 from typing import TypeVar
+from requests import HTTPError, Response
 
 CurrentInstance = TypeVar('CurrentInstance', bound='IliadHTTPError')
 

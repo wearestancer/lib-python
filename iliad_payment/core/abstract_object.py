@@ -83,7 +83,7 @@ class AbstractObject(object):
         return self._id
 
     @id.deleter
-    def id(self):
+    def id(self):  # pylint: disable=invalid-name
         self._id = None
 
     @property
