@@ -31,7 +31,7 @@ class TestStubObject(TestHelper):
         }
 
         obj.force_populated(True)
-        obj.hydrate(params)
+        obj.hydrate(**params)
         card = obj.card1
 
         result = obj.__dict__
@@ -69,7 +69,7 @@ class TestStubObject(TestHelper):
             'created': date,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         assert isinstance(obj.created, datetime)
         assert obj.created.timestamp() == date
@@ -77,7 +77,7 @@ class TestStubObject(TestHelper):
 
         config.default_timezone = timezone(zone)
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         assert isinstance(obj.created, datetime)
         assert obj.created.timestamp() == date
@@ -127,7 +127,7 @@ class TestStubObject(TestHelper):
             'created': 1546867615,
         }
 
-        assert obj.hydrate(params) == obj
+        assert obj.hydrate(**params) == obj
 
         assert obj.string1 == params['string1']
         assert obj.integer1 == params['integer1']
@@ -145,7 +145,7 @@ class TestStubObject(TestHelper):
 
         card = obj.card1
 
-        assert obj.hydrate({'card1': uid}) == obj
+        assert obj.hydrate(card1=uid) == obj
 
         assert obj.card1 == card
         assert card.id == uid
@@ -157,7 +157,7 @@ class TestStubObject(TestHelper):
         }
 
         obj = StubObject()
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         assert isinstance(obj.card1, Card)
         assert obj.card1 != card
@@ -271,7 +271,7 @@ class TestStubObject(TestHelper):
             'created': 1546867615,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
         obj.string2 = self.random_string(20)
         card = obj.card1
 
@@ -324,7 +324,7 @@ class TestStubObject(TestHelper):
             'created': 1546867615,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
         card = obj.card1
 
         result = obj.to_json()
@@ -335,7 +335,7 @@ class TestStubObject(TestHelper):
         assert result.find('"card1":{{"number":"{}"}}'.format(card.number)) > 0
         assert result.find('"created"') == -1
 
-        card.hydrate({'id': self.random_string(29)})
+        card.hydrate(id=self.random_string(29))
 
         result = obj.to_json()
 
@@ -343,7 +343,7 @@ class TestStubObject(TestHelper):
 
         # An object with an ID will return only his ID into the json
         uid = self.random_string(29)
-        obj.hydrate({'id': uid})
+        obj.hydrate(id=uid)
 
         result = obj.to_json()
 
@@ -382,6 +382,6 @@ class TestStubObject(TestHelper):
         }
 
         obj = StubObject()
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         assert obj.to_json() == '{}'

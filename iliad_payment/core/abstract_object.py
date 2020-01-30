@@ -113,12 +113,12 @@ class AbstractObject(object):
 
         return allowed
 
-    def hydrate(self, params: dict) -> CurrentInstance:
+    def hydrate(self, **params) -> CurrentInstance:
         """
         Hydrate current object.
 
         Args:
-            params: Elements used to hydrate the object.
+            **params: Elements used to hydrate the object.
                 Every key matching an object property will be used.
 
         Returns:
@@ -139,7 +139,7 @@ class AbstractObject(object):
 
                     if val is not None:
                         tmp._populated = True  ## pylint: disable=protected-access
-                        value = tmp.hydrate(val)
+                        value = tmp.hydrate(**val)
                         value._populated = self._populated  ## pylint: disable=protected-access
 
             if key == 'id':

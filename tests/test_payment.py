@@ -263,7 +263,7 @@ class TestPayment(TestHelper):
             'sepa': {},
         }
 
-        assert obj.hydrate(params) == obj
+        assert obj.hydrate(**params) == obj
 
         assert isinstance(obj.card, Card)
         assert obj.card.id is None
@@ -283,7 +283,7 @@ class TestPayment(TestHelper):
             'sepa': self.random_string(29),
         }
 
-        assert obj.hydrate(params) == obj
+        assert obj.hydrate(**params) == obj
 
         assert isinstance(obj.card, Card)
         assert obj.card == card
@@ -300,12 +300,12 @@ class TestPayment(TestHelper):
     def test_is_success(self):
         obj = Payment()
 
-        obj.hydrate({'response_code': '00'})
+        obj.hydrate(response_code='00')
 
         assert obj.is_success is True
         assert obj.is_error is False
 
-        obj.hydrate({'response_code': self.random_string(2)})
+        obj.hydrate(response_code=self.random_string(2))
 
         assert obj.is_success is False
         assert obj.is_error is True
@@ -680,7 +680,7 @@ class TestPayment(TestHelper):
 
         assert obj.uri == 'https://api.iliad78.net/v1/checkout'
 
-        obj.hydrate({'id': uid})
+        obj.hydrate(id=uid)
 
         assert obj.uri == 'https://api.iliad78.net/v1/checkout/' + uid
 

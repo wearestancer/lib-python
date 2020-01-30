@@ -26,7 +26,7 @@ class TestAbstractObject(TestHelper):
 
         assert obj.uri == 'https://api.iliad78.net/v1'
 
-        obj.hydrate({'id': uid})
+        obj.hydrate(id=uid)
 
         assert obj.uri == 'https://api.iliad78.net/v1/' + uid
 

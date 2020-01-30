@@ -401,7 +401,7 @@ class TestCard(TestHelper):
             'created': 1546867615,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         result = obj.to_json()
 
