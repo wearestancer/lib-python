@@ -45,21 +45,15 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     def _init_card(self) -> CardInstance:
-        self.card = Card()
-
-        return self.card
+        return Card
 
     @property
     def _init_customer(self) -> CustomerInstance:
-        self.customer = Customer()
-
-        return self.customer
+        return Customer
 
     @property
     def _init_sepa(self) -> SepaInstance:
-        self.sepa = Sepa()
-
-        return self.sepa
+        return Sepa
 
     @property
     @populate_on_call
