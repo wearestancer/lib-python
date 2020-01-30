@@ -41,10 +41,12 @@ class AbstractObject(object):
         self._created = None
         self._data = {}
         self._modified = False
-        self._populated = False
+        self._populated = True
 
         if kwargs:
             self.hydrate(**kwargs)
+
+        self._populated = False
 
     @property
     def __dict__(self) -> dict:
@@ -143,13 +145,18 @@ class AbstractObject(object):
             if hasattr(self, key):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
+                val = {'id': value} if isinstance(value, str) else value
 
                 if tmp is None and hasattr(self, init_method):
                     tmp = getattr(self, init_method)
 
-                if hasattr(tmp, 'hydrate'):
-                    val = {'id': value} if isinstance(value, str) else value
+                if callable(tmp):
+                    if val is None:
+                        value = tmp()
+                    else:
+                        value = tmp(**val)
 
+                elif hasattr(tmp, 'hydrate'):
                     if val is not None:
                         tmp._populated = True  ## pylint: disable=protected-access
                         value = tmp.hydrate(**val)

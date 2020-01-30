@@ -102,6 +102,10 @@ class TestStubObject(TestHelper):
             'string1': self.random_string(10),
             'string2': None,
             'integer1': self.random_integer(10),
+            'card1': {
+                'id': self.random_string(29),
+                'number': '4242424242424242',
+            },
             'created': 1546867615,
         }
 
@@ -114,6 +118,9 @@ class TestStubObject(TestHelper):
         assert hydrated.string2 is None
         assert hydrated.integer1 == params['integer1']
 
+        assert isinstance(hydrated.card1, Card)
+        assert hydrated.card1.id == params['card1']['id']
+
         assert isinstance(hydrated.created, datetime)
         assert hydrated.created.timestamp() == params['created']
 
@@ -124,6 +131,9 @@ class TestStubObject(TestHelper):
         assert with_kwargs.string1 == params['string1']
         assert with_kwargs.string2 is None
         assert with_kwargs.integer1 == params['integer1']
+
+        assert isinstance(with_kwargs.card1, Card)
+        assert with_kwargs.card1.id == params['card1']['id']
 
         assert isinstance(with_kwargs.created, datetime)
         assert with_kwargs.created.timestamp() == params['created']
