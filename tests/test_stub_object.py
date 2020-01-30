@@ -91,6 +91,13 @@ class TestStubObject(TestHelper):
         assert empty.id is None
         assert empty.__dict__ == {}
 
+        uid = self.random_string(29)
+        with_id = StubObject(uid)
+
+        assert isinstance(with_id, StubObject)
+        assert with_id.id == uid
+        assert with_id.__dict__ == {'id': uid}
+
     @responses.activate
     def test_delete(self):
         obj = StubObject()
