@@ -84,6 +84,13 @@ class TestStubObject(TestHelper):
         assert isinstance(obj.created.tzinfo, tzinfo)
         assert obj.created.tzinfo.zone == zone
 
+    def test_instance(self):
+        empty = StubObject()
+
+        assert isinstance(empty, StubObject)
+        assert empty.id is None
+        assert empty.__dict__ == {}
+
     @responses.activate
     def test_delete(self):
         obj = StubObject()
