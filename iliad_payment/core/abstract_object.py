@@ -18,7 +18,7 @@ class AbstractObject(object):
     _ENDPOINT = None  # pylint: disable=invalid-name
     _allowed_attributes = []
 
-    def __init__(self, uid=None):
+    def __init__(self, uid: str = None, **kwargs):
         """
         Create or get an API object.
 
@@ -28,8 +28,11 @@ class AbstractObject(object):
         If you did not provide an id, the current object will be a new API
         object.
 
+        You may also pass keywords arguments, we will use them hydrate the object.
+
         Args:
             uid: Object identifier.
+            **kwargs: Arbitrary keyword arguments, used to hydrate the object.
 
         Returns:
             An instance of the current object.
@@ -39,6 +42,9 @@ class AbstractObject(object):
         self._data = {}
         self._modified = False
         self._populated = False
+
+        if kwargs:
+            self.hydrate(**kwargs)
 
     @property
     def __dict__(self) -> dict:

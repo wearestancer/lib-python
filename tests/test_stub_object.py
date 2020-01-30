@@ -115,6 +115,16 @@ class TestStubObject(TestHelper):
         assert isinstance(hydrated.created, datetime)
         assert hydrated.created.timestamp() == params['created']
 
+        with_kwargs = StubObject(**params)
+
+        assert isinstance(with_kwargs, StubObject)
+        assert with_kwargs.id is None
+        assert with_kwargs.string1 == params['string1']
+        assert with_kwargs.integer1 == params['integer1']
+
+        assert isinstance(with_kwargs.created, datetime)
+        assert with_kwargs.created.timestamp() == params['created']
+
     @responses.activate
     def test_delete(self):
         obj = StubObject()
