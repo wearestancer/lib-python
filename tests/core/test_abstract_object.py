@@ -19,6 +19,10 @@ class TestAbstractObject(TestHelper):
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
 
+        del obj.id
+
+        assert obj.id is None
+
     def test_uri(self):
         obj = AbstractObject()
         conf = Config()

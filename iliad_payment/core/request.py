@@ -60,7 +60,7 @@ class Request(object):
                 raise IliadHTTPError.factory(response)
 
             if response.ok and name == 'delete':
-                self._obj.hydrate(id=None)
+                del self._obj.id
 
             if response.text is not None:
                 try:

@@ -100,6 +100,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
+            'string2': None,
             'integer1': self.random_integer(10),
             'created': 1546867615,
         }
@@ -110,6 +111,7 @@ class TestStubObject(TestHelper):
         assert isinstance(hydrated, StubObject)
         assert hydrated.id is None
         assert hydrated.string1 == params['string1']
+        assert hydrated.string2 is None
         assert hydrated.integer1 == params['integer1']
 
         assert isinstance(hydrated.created, datetime)
@@ -120,6 +122,7 @@ class TestStubObject(TestHelper):
         assert isinstance(with_kwargs, StubObject)
         assert with_kwargs.id is None
         assert with_kwargs.string1 == params['string1']
+        assert with_kwargs.string2 is None
         assert with_kwargs.integer1 == params['integer1']
 
         assert isinstance(with_kwargs.created, datetime)

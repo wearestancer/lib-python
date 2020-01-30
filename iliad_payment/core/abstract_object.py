@@ -80,6 +80,10 @@ class AbstractObject(object):
         """
         return self._id
 
+    @id.deleter
+    def id(self):
+        self._id = None
+
     @property
     def created(self) -> datetime:
         """
@@ -133,6 +137,9 @@ class AbstractObject(object):
         config = Config()
 
         for key, value in list(params.items()):
+            if value is None:
+                continue
+
             if hasattr(self, key):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
