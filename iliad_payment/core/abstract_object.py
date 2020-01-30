@@ -225,7 +225,7 @@ class AbstractObject(object):
         Returns:
             Current instance.
         """
-        if not self._populated and self.id is not None:
+        if self.id is not None and not self._populated:
             self._populated = True
             self._modified = False
             Request(self).get  ## pylint: disable=expression-not-assigned
