@@ -5,6 +5,7 @@ from datetime import datetime, tzinfo
 import json
 import pytest
 from pytz import timezone
+from random import choice
 import requests
 import responses
 
@@ -25,9 +26,9 @@ class TestStubObject(TestHelper):
             'integer1': self.random_integer(10),
             'card1': {
                 'id': self.random_string(29),
-                'number': '4242424242424242',
+                'number': choice(self.card_number_provider()),
             },
-            'created': 1546867615,
+            'created': self.random_integer(1500000000, 1600000000),
         }
 
         obj.force_populated(True)
@@ -48,16 +49,12 @@ class TestStubObject(TestHelper):
         assert result['integer1'] == params['integer1']
 
         assert 'created' in result
-        assert result['created'] == '2019-01-07 14:26:55'
+        assert isinstance(result['created'], datetime)
+        assert result['created'].timestamp() == params['created']
 
         assert 'card1' in result
-        assert isinstance(result['card1'], dict)
-
-        assert 'id' in result['card1']
-        assert result['card1']['id'] == card.id
-
-        assert 'number' in result['card1']
-        assert result['card1']['number'] == card.number
+        assert isinstance(result['card1'], Card)
+        assert result['card1'] == card
 
     def test_created(self):
         obj = StubObject()
