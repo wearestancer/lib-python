@@ -217,7 +217,7 @@ class TestRequest(TestHelper):
             'id': self.random_string(29),
         }
 
-        obj.force_modified(False)
+        obj.reset_modified()
 
         responses.add(responses.POST, obj.uri, json=ret)
 
@@ -243,7 +243,7 @@ class TestRequest(TestHelper):
         assert 'Content-Type' in api_call.request.headers
         assert api_call.request.headers['Content-Type'] == 'application/json'
 
-        obj.force_modified(True)
+        obj.force_modified('id')
 
         responses.add(responses.PATCH, obj.uri)
 

@@ -223,7 +223,7 @@ class TestStubObject(TestHelper):
         assert not obj.is_modified
         assert obj.is_not_modified
 
-        obj.force_modified(True)
+        obj.force_modified('id')
 
         assert obj.is_modified
 
@@ -257,7 +257,7 @@ class TestStubObject(TestHelper):
 
         assert obj.is_not_populated
 
-        obj.force_modified(True)
+        obj.force_modified('id')
 
         assert obj.is_modified
 

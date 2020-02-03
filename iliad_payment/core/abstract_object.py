@@ -40,7 +40,7 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = False
+        self._modified = []
         self._populated = True
 
         if kwargs:
@@ -108,7 +108,9 @@ class AbstractObject(object):
         """
         Request(self).delete  ## pylint: disable=expression-not-assigned
 
-        self._modified = True
+        self._modified = [
+            'id', # Force modified to allow sending it again to the API
+        ]
 
         return self
 
@@ -247,7 +249,7 @@ class AbstractObject(object):
         """
         if self.id is not None and not self._populated:
             self._populated = True
-            self._modified = False
+            self._modified = []
             Request(self).get  ## pylint: disable=expression-not-assigned
 
         self._populated = True
@@ -269,7 +271,7 @@ class AbstractObject(object):
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified = False
+        self._modified = []
 
         return self
 

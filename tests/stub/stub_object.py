@@ -13,13 +13,18 @@ class StubObject(AbstractObject):
         'string2',
     ]
 
-    def force_modified(self, status):
-        self._modified = status
+    def force_modified(self, *args):
+        self._modified.append(*args)
 
         return self
 
     def force_populated(self, status):
         self._populated = status
+
+        return self
+
+    def reset_modified(self):
+        self._modified = []
 
         return self
 
@@ -35,7 +40,7 @@ class StubObject(AbstractObject):
 
     @string2.setter
     def string2(self, value):
-        self._modified = True
+        self._modified.append('string2')
         self._data['string2'] = value
 
     @property
