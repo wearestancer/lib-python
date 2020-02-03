@@ -389,11 +389,29 @@ class TestStubObject(TestHelper):
         assert result.find('"card1":{{"number":"{}"}}'.format(card.number)) > 0
         assert result.find('"created"') == -1
 
+        # Inner object may send their ID
         card.hydrate(id=self.random_string(29))
+        card._modified = [] # Do not do this at home
 
         result = obj.to_json()
 
         assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
+
+        # Only export modified properties
+        obj.reset_modified()
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result == '{}'
+
+        # Export modified inner object
+        card.cvc = str(self.random_integer(100, 999))
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"card1":{{"cvc":"{}"}}'.format(card.cvc)) > 0
 
         # An object with an ID will return only his ID into the json
         uid = self.random_string(29)
@@ -403,7 +421,7 @@ class TestStubObject(TestHelper):
 
         assert result == '{{"id":"{}"}}'.format(uid)
 
-        # unless it was modified
+        # Unless it was modified
         obj.string2 = self.random_string(20)
 
         result = obj.to_json()
@@ -412,30 +430,8 @@ class TestStubObject(TestHelper):
 
         result = json.loads(result)
 
-        assert 'string1' in result
-        assert result['string1'] == obj.string1
-
         assert 'string2' in result
         assert result['string2'] == obj.string2
 
-        assert 'integer1' in result
-        assert result['integer1'] == obj.integer1
-
-        assert 'card1' in result
-        assert 'id' in result['card1']
-        assert result['card1']['id'] == card.id
-
         assert 'id' not in result
         assert 'created' not in result
-
-        # None values are not exported
-        params = {
-            'string1': None,
-            'integer1': None,
-            'card1': None,
-        }
-
-        obj = StubObject()
-        obj.hydrate(**params)
-
-        assert obj.to_json() == '{}'
