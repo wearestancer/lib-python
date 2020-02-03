@@ -249,8 +249,8 @@ class AbstractObject(object):
         """
         if self.id is not None and not self._populated:
             self._populated = True
-            self._modified = []
             Request(self).get  ## pylint: disable=expression-not-assigned
+            self._modified = []
 
         self._populated = True
 
