@@ -8,12 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Allow `kwargs` at instance creation
-- `Object.hydrate()` use now `kwargs`
 - Default time zone configuration
+
+### Changed
+- `Object.hydrate()` use now `kwargs`
+- `Object.to_json()` will export only modified values
 - Better key management
-- Coverage regression test
 - Add exceptions raised to docstring
 - Remove typing from docstring
+
+### Fixed
+- Coverage regression test
+- `Object.to_json()` may export an incorrect `id` field
+
 
 ## [0.0.1] - 2019-06-29
 

@@ -24,9 +24,6 @@ from .exceptions import MissingPaymentMethodError
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
-CardInstance = TypeVar('CurrentInstance', bound='Card')
-CustomerInstance = TypeVar('CurrentInstance', bound='Customer')
-SepaInstance = TypeVar('CurrentInstance', bound='Sepa')
 
 
 class Payment(AbstractObject, AbstractAmount, AbstractCountry):
@@ -44,15 +41,15 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     ]
 
     @property
-    def _init_card(self) -> CardInstance:
+    def _init_card(self) -> Card:
         return Card
 
     @property
-    def _init_customer(self) -> CustomerInstance:
+    def _init_customer(self) -> Customer:
         return Customer
 
     @property
-    def _init_sepa(self) -> SepaInstance:
+    def _init_sepa(self) -> Sepa:
         return Sepa
 
     @property
@@ -77,12 +74,12 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @capture.setter
     @validate_type(bool, throws=InvalidPaymentCaptureError)
-    def capture(self, value) -> str:
+    def capture(self, value: bool):
         self._data['capture'] = value
 
     @property
     @populate_on_call
-    def card(self) -> CardInstance:
+    def card(self) -> Card:
         """
         Source card for the payment.
 
@@ -99,13 +96,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @card.setter
     @validate_type(Card, throws=InvalidCardError)
-    def card(self, value: CardInstance):
+    def card(self, value: Card):
         self._data['card'] = value
         self._data['method'] = 'card'
 
     @property
     @populate_on_call
-    def customer(self) -> CustomerInstance:
+    def customer(self) -> Customer:
         """
         Customer handling the payment.
 
@@ -122,7 +119,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: CustomerInstance):
+    def customer(self, value: Customer):
         self._data['customer'] = value
 
     def delete(self):
@@ -312,11 +309,11 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             message += ' Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
-        return super(Payment, self).save()
+        return super().save()
 
     @property
     @populate_on_call
-    def sepa(self) -> SepaInstance:
+    def sepa(self) -> Sepa:
         """
         Source SEPA account for the payment.
 
@@ -333,7 +330,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value: str):
+    def sepa(self, value: Sepa):
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
 

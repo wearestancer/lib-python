@@ -5,24 +5,6 @@ from functools import wraps
 
 # pylint: disable=too-many-branches, too-many-statements
 
-def populate_on_call(method):
-    """
-    Do a `populate` call before getting the value.
-
-    This permits to get fresh data only when you need it,
-    and reduce API calls.
-    """
-    @wraps(method)
-    def wrapper(self):
-        value = method(self)
-
-        if value is None and hasattr(self, 'populate'):
-            self.populate()
-
-        return method(self)
-    return wrapper
-
-
 def validate_type(type_expected, **options):
     """
     Validate type, length... before setting values.
@@ -149,7 +131,7 @@ def validate_type(type_expected, **options):
             res = method(self, value, *args, **kwargs)
 
             if hasattr(self, '_modified'):
-                self._modified = True  ## pylint: disable=protected-access
+                self._modified.append(method.__name__)  ## pylint: disable=protected-access
 
             return res
         return wrapper

@@ -40,7 +40,7 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = False
+        self._modified = []
         self._populated = True
 
         if kwargs:
@@ -108,7 +108,9 @@ class AbstractObject(object):
         """
         Request(self).delete  ## pylint: disable=expression-not-assigned
 
-        self._modified = True
+        self._modified = [
+            'id', # Force modified to allow sending it again to the API
+        ]
 
         return self
 
@@ -168,6 +170,7 @@ class AbstractObject(object):
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 self._data[key] = value
+                self._modified.append(key)
 
         return self
 
@@ -247,8 +250,8 @@ class AbstractObject(object):
         """
         if self.id is not None and not self._populated:
             self._populated = True
-            self._modified = False
             Request(self).get  ## pylint: disable=expression-not-assigned
+            self._modified = []
 
         self._populated = True
 
@@ -269,7 +272,7 @@ class AbstractObject(object):
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified = False
+        self._modified = []
 
         return self
 
@@ -285,35 +288,35 @@ class AbstractObject(object):
         Returns:
             A JSON representation of the current object.
         """
+        return json.dumps(self.to_json_repr(), separators=(',', ':'))
+
+    def to_json_repr(self) -> dict:
+        """
+        Return a dictionnary which will be used to make a JSON representation.
+
+        Returns:
+            A JSON still as a dictionnary.
+        """
         representation = {}
 
-        if self.id is not None and not self._modified:
-            representation['id'] = self.id
+        if self.id is not None and self.is_not_modified:
+            representation = self.id
         else:
             items = {
                 k: v
                 for k, v in self._data.items()
                 if k in self._get_allowed_attributes()
                 and v is not None
+                and (k in self._modified or (isinstance(v, AbstractObject) and v.is_modified))
             }
 
             for key, value in items.items():
-                if hasattr(value, '__dict__') and not isinstance(value, str):
-                    child = value.__dict__
-
-                    if 'id' in child and child['id'] is not None:
-                        representation[key] = {'id': child['id']}
-                    else:
-                        representation[key] = {
-                            k: v
-                            for k, v in child.items()
-                            if k in type(value)._get_allowed_attributes()  ## pylint: disable=protected-access
-                            and v is not None
-                        }
+                if isinstance(value, AbstractObject):
+                    representation[key] = value.to_json_repr()
                 else:
                     representation[key] = value
 
-        return json.dumps(representation, separators=(',', ':'))
+        return representation
 
     @property
     def uri(self) -> str:
