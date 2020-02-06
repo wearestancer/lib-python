@@ -395,7 +395,7 @@ class TestStubObject(TestHelper):
 
         result = obj.to_json()
 
-        assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
+        assert result.find('"card1":"{}"'.format(card.id)) > 0
 
         # Only export modified properties
         obj.reset_modified()
@@ -419,7 +419,7 @@ class TestStubObject(TestHelper):
 
         result = obj.to_json()
 
-        assert result == '{{"id":"{}"}}'.format(uid)
+        assert result == '"{}"'.format(uid)
 
         # Unless it was modified
         obj.string2 = self.random_string(20)
