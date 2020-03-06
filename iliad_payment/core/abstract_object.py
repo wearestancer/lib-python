@@ -11,6 +11,8 @@ from .request import Request
 
 CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
 
+# pylint: disable=too-many-branches
+
 
 class AbstractObject(object):
     """Manage common code between API object."""

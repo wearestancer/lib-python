@@ -9,10 +9,10 @@ def add_constant(*args):
     def wrapper(cls):
         class Constant(cls):
             def __getattr__(self, attr):
-                c = attr.lower()
+                cst = attr.lower()
 
-                if c in args:
-                    return c
+                if cst in args:
+                    return cst
 
                 if hasattr(super(), '__getattr__') and callable(getattr(super(), '__getattr__')):
                     return super().__getattr__(self, attr)
@@ -22,7 +22,8 @@ def add_constant(*args):
             def __setattr__(self, attr, value):
                 raise SyntaxError('You can not modify a constant ({})'.format(attr.upper()))
 
-        Constant.__doc__ = cls.__doc__ + '\n\nConstants available:' + '\n  - '.join([''] + [a.upper() for a in args])
+        tmp = [''] + [a.upper() for a in args]
+        Constant.__doc__ = cls.__doc__ + '\n\nConstants available:' + '\n  - '.join(tmp)
 
         return Constant
     return wrapper

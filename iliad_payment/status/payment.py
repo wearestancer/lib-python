@@ -17,4 +17,5 @@ from ..core.decorators import add_constant
 class _PaymentStatus(object):
     """List of payment status"""
 
+# pylint: disable=invalid-name
 PaymentStatus = _PaymentStatus()

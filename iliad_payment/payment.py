@@ -20,11 +20,9 @@ from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
-from .status.payment import PaymentStatus
 
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
-
 
 
 class Payment(AbstractObject, AbstractAmount, AbstractCountry):
@@ -248,7 +246,8 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             InvalidAmountError: When trying to refund more than paid.
             InvalidAmountError: When the amount is invalid.
         """
-        from .refund import Refund
+        # Prevent import loop
+        from .refund import Refund  # pylint: disable=import-outside-toplevel
 
         refund = Refund()
         params = {

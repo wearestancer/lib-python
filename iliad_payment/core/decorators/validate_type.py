@@ -3,7 +3,7 @@
 from functools import wraps
 
 
-# pylint: disable=too-many-branches, too-many-statements
+# pylint: disable=too-many-branches, too-many-statements, too-many-locals
 
 def validate_type(type_expected, **options):
     """
@@ -44,7 +44,7 @@ def validate_type(type_expected, **options):
 
     def wrapper(method):
         @wraps(method)
-        def wrapper(self, value=None, *args, **kwargs):
+        def wrapper(self, value=None, *args, **kwargs):  # pylint: disable=keyword-arg-before-vararg
             name = options.get('name', method.__name__.capitalize())
             message = None
             excep = ValueError

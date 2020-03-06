@@ -7,4 +7,5 @@ from ..core.decorators import add_constant
 class _RefundStatus(object):
     """List of refund status"""
 
+# pylint: disable=invalid-name
 RefundStatus = _RefundStatus()

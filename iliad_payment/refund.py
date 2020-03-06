@@ -8,8 +8,6 @@ from .core.decorators import populate_on_call
 from .config import Config
 from .payment import Payment
 
-from .status.refund import RefundStatus
-
 
 class Refund(AbstractObject, AbstractAmount):
     """Representation of a refund."""
@@ -20,10 +18,10 @@ class Refund(AbstractObject, AbstractAmount):
         'payment',
     ]
 
-    def _init_date_bank(self, timestamp) -> datetime:
+    def _init_date_bank(self, timestamp) -> datetime:  # pylint: disable=no-self-use
         return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
 
-    def _init_date_refund(self, timestamp) -> datetime:
+    def _init_date_refund(self, timestamp) -> datetime:  # pylint: disable=no-self-use
         return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
 
     @property
