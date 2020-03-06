@@ -5,18 +5,20 @@ import pytest
 from iliad_payment import Card
 from iliad_payment import Customer
 from iliad_payment import Payment
+from iliad_payment import PaymentStatus
 from iliad_payment import Refund
+from iliad_payment.exceptions import ConflictError
 from .TestHelper import TestHelper
 
 
 class TestFunctionalRefund(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_single_refund(self, currency):
-        amount = self.random_integer(50, 10000)
+        amount = self.random_integer(100, 10000)
         desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
 
         card = Card()
-        card.number = '4000005780000007'
+        card.number = self.get_card_number()
         card.exp_month = self.random_integer(1, 12)
         card.exp_year = self.random_year()
         card.cvc = str(self.random_integer(100, 999))
@@ -35,6 +37,15 @@ class TestFunctionalRefund(TestHelper):
 
         payment.save()
 
+        assert payment.status == PaymentStatus.TO_CAPTURE
+
+        with pytest.raises(ConflictError) as error:
+            payment.refund(amount - 1)
+
+        assert error.value.status_code == 409
+        assert error.value.reason == 'Conflict'
+        assert error.value.message['error'] == 'Payment cannot be partially refunded before it has been captured'
+
         assert payment.refund() == payment
 
         refunds = payment.refunds
@@ -45,6 +56,8 @@ class TestFunctionalRefund(TestHelper):
         assert refunds[0].amount == amount
         assert refunds[0].currency == currency
         assert refunds[0].payment == payment
+
+        assert payment.status == PaymentStatus.CANCELED
 
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_multiple_refund(self, currency):

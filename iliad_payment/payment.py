@@ -20,6 +20,7 @@ from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
+from .status.refund import RefundStatus
 
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
@@ -276,6 +277,10 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         refunds.append(refund)
 
         self._data['refunds'] = refunds
+
+        if refund.status != RefundStatus.TO_REFUND:
+            self._populated = False
+            self.populate()
 
         return self
 
