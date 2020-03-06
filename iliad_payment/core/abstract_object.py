@@ -315,7 +315,7 @@ class AbstractObject(object):
             }
 
             for key, value in items.items():
-                if isinstance(value, AbstractObject):
+                if hasattr(value, 'to_json_repr'):
                     representation[key] = value.to_json_repr()
                 else:
                     representation[key] = value
