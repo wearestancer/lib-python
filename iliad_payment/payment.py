@@ -270,7 +270,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
             params['amount'] = amount
 
-        refund.hydrate(**params)._modified = True
+        refund.hydrate(**params)
         refund.save()
 
         refunds = self._data.get('refunds', [])
