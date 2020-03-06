@@ -148,6 +148,9 @@ class AbstractObject(object):
                 if isinstance(tmp, datetime):
                     tmp = None
 
+                if tmp is None and isinstance(value, AbstractObject):
+                    (tmp, value) = (value, {})
+
                 if tmp is None and hasattr(self, init_method):
                     tmp = getattr(self, init_method)
 

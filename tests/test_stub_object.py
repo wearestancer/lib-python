@@ -214,6 +214,16 @@ class TestStubObject(TestHelper):
         assert obj.card1 != card
         assert obj.card1.id == params['card1']['id']
 
+        params = {
+            'card1': card,
+        }
+
+        obj = StubObject()
+        obj.hydrate(**params)
+
+        assert isinstance(obj.card1, Card)
+        assert obj.card1 == card
+
     def test_modified_status(self):
         obj = StubObject()
 
