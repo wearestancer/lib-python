@@ -3,7 +3,13 @@
 from ..core.decorators import add_constant
 
 
-@add_constant('not_honored', 'refund_sent', 'refunded', 'to_refund')
+@add_constant(
+    'not_honored',
+    'payment_canceled',
+    'refund_sent',
+    'refunded',
+    'to_refund',
+)
 class _RefundStatus(object):
     """List of refund status"""
 

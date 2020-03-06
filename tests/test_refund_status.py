@@ -18,6 +18,15 @@ class TestRefundStatus(TestHelper):
         ):
             RefundStatus.NOT_HONORED = self.random_string(10)
 
+    def test_payment_canceled(self):
+        assert RefundStatus.PAYMENT_CANCELED == 'payment_canceled'
+
+        with pytest.raises(
+            SyntaxError,
+            match = r'You can not modify a constant \(PAYMENT_CANCELED\)',
+        ):
+            RefundStatus.REFUND_SENT = self.random_string(10)
+
     def test_refund_sent(self):
         assert RefundStatus.REFUND_SENT == 'refund_sent'
 
