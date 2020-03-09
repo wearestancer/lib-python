@@ -68,7 +68,7 @@ class TestFunctionalRefund(TestHelper):
         desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
 
         card = Card()
-        card.number = '4000003720000005'
+        card.number = '4000000000000077'
         card.exp_month = self.random_integer(1, 12)
         card.exp_year = self.random_year()
         card.cvc = str(self.random_integer(100, 999))

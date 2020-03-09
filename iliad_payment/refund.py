@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from typing import TypeVar
 
 from .core import AbstractAmount
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .config import Config
 from .payment import Payment
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Refund')
 
 
 class Refund(AbstractObject, AbstractAmount):
@@ -60,6 +63,36 @@ class Refund(AbstractObject, AbstractAmount):
             Payment: Original payment.
         """
         return self._data.get('payment')
+
+    def save(self) -> CurrentInstance:
+        """
+        Save the current object.
+
+        Overrided to make sure that the payment instance and the modified flag will not change.
+
+        Returns:
+            Current instance.
+
+        Raises:
+            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
+        """
+        payment = self.payment
+        modified = []
+
+        # pylint: disable=protected-access
+
+        if isinstance(payment, Payment):
+            modified = payment._modified
+            payment._modified = set()
+
+        self._modified.add('amount')
+
+        super().save()
+
+        if modified and isinstance(payment, Payment):
+            payment._modified = modified
+
+        return self
 
     @property
     @populate_on_call
