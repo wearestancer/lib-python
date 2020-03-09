@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from ..core.decorators import add_constant
+# pylint: disable=invalid-name
 
 
-@add_constant(
-    'not_honored',
-    'payment_canceled',
-    'refund_sent',
-    'refunded',
-    'to_refund',
-)
-class _RefundStatus(object):
+class RefundStatus(object):
     """List of refund status"""
 
-# pylint: disable=invalid-name
-RefundStatus = _RefundStatus()
+    NOT_HONORED = 'not_honored'
+    PAYMENT_CANCELED = 'payment_canceled'
+    REFUND_SENT = 'refund_sent'
+    REFUNDED = 'refunded'
+    TO_REFUND = 'to_refund'

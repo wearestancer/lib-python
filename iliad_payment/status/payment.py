@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from ..core.decorators import add_constant
+# pylint: disable=invalid-name
 
 
-@add_constant(
-    'authorize',
-    'authorized',
-    'canceled',
-    'capture',
-    'captured',
-    'disputed',
-    'expired',
-    'failed',
-    'to_capture',
-)
-class _PaymentStatus(object):
+class PaymentStatus(object):
     """List of payment status"""
 
-# pylint: disable=invalid-name
-PaymentStatus = _PaymentStatus()
+    AUTHORIZE = 'authorize'
+    AUTHORIZED = 'authorized'
+    CANCELED = 'canceled'
+    CAPTURE = 'capture'
+    CAPTURED = 'captured'
+    DISPUTED = 'disputed'
+    EXPIRED = 'expired'
+    FAILED = 'failed'
+    TO_CAPTURE = 'to_capture'
