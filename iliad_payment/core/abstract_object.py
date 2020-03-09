@@ -42,7 +42,7 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = []
+        self._modified = set()
         self._populated = True
 
         if kwargs:
@@ -176,7 +176,7 @@ class AbstractObject(object):
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 self._data[key] = value
-                self._modified.append(key)
+                self._modified.add(key)
 
         return self
 
@@ -200,7 +200,7 @@ class AbstractObject(object):
         Returns
             Was it modified ?
         """
-        return self._modified
+        return len(self._modified) > 0
 
     @property
     def is_not_complete(self) -> bool:
@@ -257,7 +257,7 @@ class AbstractObject(object):
         if self.id is not None and not self._populated:
             self._populated = True
             Request(self).get  ## pylint: disable=expression-not-assigned
-            self._modified = []
+            self._modified.clear()
 
         self._populated = True
 
@@ -278,7 +278,7 @@ class AbstractObject(object):
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified = []
+        self._modified.clear()
 
         return self
 

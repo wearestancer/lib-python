@@ -398,7 +398,7 @@ class TestStubObject(TestHelper):
 
         # Inner object may send their ID
         card.hydrate(id=self.random_string(29))
-        card._modified = [] # Do not do this at home
+        card._modified = set() # Do not do this at home
 
         result = obj.to_json()
 
