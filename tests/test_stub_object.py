@@ -224,6 +224,57 @@ class TestStubObject(TestHelper):
         assert isinstance(obj.card1, Card)
         assert obj.card1 == card
 
+        uid = self.random_string(29)
+        name1 = self.random_string(10)
+        name2 = self.random_string(10)
+
+        params = {
+            'cards': [
+                card,
+                {
+                    'id': uid,
+                    'name': name1,
+                },
+            ],
+        }
+
+        obj = StubObject()
+        obj.hydrate(**params)
+
+        assert isinstance(obj.cards, list)
+        assert len(obj.cards) == 2
+
+        assert isinstance(obj.cards[0], Card)
+        assert obj.cards[0] == card
+
+        assert isinstance(obj.cards[1], Card)
+        assert obj.cards[1].id == uid
+        assert obj.cards[1].name == name1
+
+        card0 = obj.cards[0]
+        card1 = obj.cards[1]
+
+        params = {
+            'cards': [
+                {
+                    'id': uid,
+                    'name': name2,
+                },
+            ],
+        }
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.cards, list)
+        assert len(obj.cards) == 2
+
+        assert isinstance(obj.cards[0], Card)
+        assert obj.cards[0] == card0
+
+        assert isinstance(obj.cards[1], Card)
+        assert obj.cards[1] == card1
+        assert obj.cards[1].name == name2
+
     def test_modified_status(self):
         obj = StubObject()
 

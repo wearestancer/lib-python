@@ -126,6 +126,53 @@ class AbstractObject(object):
 
         return allowed
 
+    def _hydrate_list(self, key, value):
+        tmp = getattr(self, key)
+        init_method = '_init_' + key
+        new_values = []
+
+        for current_value in value:
+            missing = True
+            uid = None
+            val = current_value
+
+            if isinstance(current_value, str):
+                uid = current_value
+                val = {}
+            elif isinstance(current_value, AbstractObject):
+                uid = current_value.id
+            else:
+                uid = current_value.get('id')
+
+            for obj in tmp:
+                if obj.id == uid:
+                    missing = False
+
+                    if isinstance(val, AbstractObject):
+                        obj.hydrate(**val.__dict__)
+                    else:
+                        obj.hydrate(**val)
+
+                if not obj in new_values:
+                    new_values.append(obj)
+
+            if missing:
+                if not isinstance(val, AbstractObject):
+                    cls = getattr(self, init_method)
+
+                    obj = cls(uid)
+
+                    obj._populated = True   # pylint: disable=protected-access
+                    obj.hydrate(**val)
+                    obj._populated = False  # pylint: disable=protected-access
+
+                    val = obj
+
+                if val not in new_values:
+                    new_values.append(val)
+
+        return new_values
+
     def hydrate(self, **params) -> CurrentInstance:
         """
         Hydrate current object.
@@ -146,6 +193,9 @@ class AbstractObject(object):
             if hasattr(self, key):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
+
+                if isinstance(tmp, list) and isinstance(value, list) and hasattr(self, init_method):
+                    value = self._hydrate_list(key, value)
 
                 if isinstance(tmp, datetime):
                     tmp = None

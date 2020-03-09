@@ -8,6 +8,7 @@ from iliad_payment.core.decorators import populate_on_call
 class StubObject(AbstractObject):
     _allowed_attributes = [
         'card1',
+        'cards',
         'integer1',
         'string1',
         'string2',
@@ -54,4 +55,13 @@ class StubObject(AbstractObject):
 
     @property
     def _init_card1(self) -> Card:
+        return Card
+
+    @property
+    @populate_on_call
+    def cards(self):
+        return self._data.get('cards', [])
+
+    @property
+    def _init_cards(self) -> Card:
         return Card
