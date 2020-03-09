@@ -49,6 +49,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         return Customer
 
     @property
+    def _init_refunds(self):
+        # Prevent import loop
+        from .refund import Refund  # pylint: disable=import-outside-toplevel
+
+        return Refund
+
+    @property
     def _init_sepa(self) -> Sepa:
         return Sepa
 

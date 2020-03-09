@@ -23,6 +23,7 @@ from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidSepaError
 from iliad_payment.exceptions import MissingPaymentMethodError
+from iliad_payment.status import RefundStatus
 from .TestHelper import TestHelper
 
 
@@ -301,6 +302,28 @@ class TestPayment(TestHelper):
         assert isinstance(obj.sepa, Sepa)
         assert obj.sepa == sepa
         assert obj.sepa.id == params['sepa']
+
+        params = {
+            'refunds': [
+                {
+                    'amount': self.random_integer(100, 10000),
+                    'currency': 'eur',
+                    'status': RefundStatus.TO_REFUND,
+                },
+            ],
+        }
+
+        assert obj.hydrate(**params) == obj
+
+        assert isinstance(obj.refunds, list)
+        assert len(obj.refunds) == 1
+
+        refund = obj.refunds[0]
+
+        assert isinstance(refund, Refund)
+        assert refund.amount == params['refunds'][0]['amount']
+        assert refund.currency == params['refunds'][0]['currency']
+        assert refund.status == params['refunds'][0]['status']
 
     def test_is_success(self):
         obj = Payment()
