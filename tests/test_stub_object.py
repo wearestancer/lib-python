@@ -23,7 +23,7 @@ class TestStubObject(TestHelper):
         params = {
             'id': self.random_string(29),
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'id': self.random_string(29),
                 'number': choice(self.card_number_provider()),
@@ -98,7 +98,7 @@ class TestStubObject(TestHelper):
         params = {
             'string1': self.random_string(10),
             'string2': None,
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'id': self.random_string(29),
                 'number': '4242424242424242',
@@ -173,7 +173,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {},
             'created': 1546867615,
         }
@@ -191,17 +191,16 @@ class TestStubObject(TestHelper):
         assert obj.created.minute == 26
         assert obj.created.second == 55
 
-        assert isinstance(obj.card1, Card)
-        assert obj.card1.id is None
+        assert obj.card1 is None
 
         assert obj.is_modified
 
-        card = obj.card1
-
         assert obj.hydrate(card1=uid) == obj
 
-        assert obj.card1 == card
-        assert card.id == uid
+        assert isinstance(obj.card1, Card)
+        assert obj.card1.id == uid
+
+        card = obj.card1
 
         params = {
             'card1': {
@@ -323,7 +322,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'created': 1546867615,
         }
 
@@ -391,7 +390,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'number': '4242424242424242',
                 'brand': self.random_string(10),
@@ -444,7 +443,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'number': '4242424242424242',
                 'brand': self.random_string(10),
@@ -466,6 +465,8 @@ class TestStubObject(TestHelper):
         # Inner object may send their ID
         card.hydrate(id=self.random_string(29))
         card._modified = set() # Do not do this at home
+
+        obj.force_modified('card1')
 
         result = obj.to_json()
 
@@ -490,6 +491,8 @@ class TestStubObject(TestHelper):
         # An object with an ID will return only his ID into the json
         uid = self.random_string(29)
         obj.hydrate(id=uid)
+
+        card._modified = set() # Do not do this at home
 
         result = obj.to_json()
 

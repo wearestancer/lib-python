@@ -271,17 +271,9 @@ class TestPayment(TestHelper):
 
         assert obj.hydrate(**params) == obj
 
-        assert isinstance(obj.card, Card)
-        assert obj.card.id is None
-        card = obj.card
-
-        assert isinstance(obj.customer, Customer)
-        assert obj.customer.id is None
-        customer = obj.customer
-
-        assert isinstance(obj.sepa, Sepa)
-        assert obj.sepa.id is None
-        sepa = obj.sepa
+        assert obj.card is None
+        assert obj.customer is None
+        assert obj.sepa is None
 
         params = {
             'card': self.random_string(29),
@@ -292,15 +284,12 @@ class TestPayment(TestHelper):
         assert obj.hydrate(**params) == obj
 
         assert isinstance(obj.card, Card)
-        assert obj.card == card
         assert obj.card.id == params['card']
 
         assert isinstance(obj.customer, Customer)
-        assert obj.customer == customer
         assert obj.customer.id == params['customer']
 
         assert isinstance(obj.sepa, Sepa)
-        assert obj.sepa == sepa
         assert obj.sepa.id == params['sepa']
 
         params = {
