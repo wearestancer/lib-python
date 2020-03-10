@@ -21,6 +21,28 @@ class Refund(AbstractObject, AbstractAmount):
         'payment',
     ]
 
+    def __init__(self, uid: str = None, **kwargs):
+        """
+        Create or get a Refund object.
+
+        You can optionaly pass an id uppon instanciation, it will be used to
+        get current object data on the API.
+
+        If you did not provide an id, the current object will be a new API
+        object.
+
+        You may also pass keywords arguments, we will use them hydrate the object.
+
+        Args:
+            uid: Object identifier.
+            **kwargs: Arbitrary keyword arguments, used to hydrate the object.
+
+        Returns:
+            An instance of the current object.
+        """
+        super().__init__(uid, **kwargs)
+        self._modified.add('payment')
+
     def _init_date_bank(self, timestamp) -> datetime:  # pylint: disable=no-self-use
         return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
 
@@ -64,36 +86,6 @@ class Refund(AbstractObject, AbstractAmount):
         """
         return self._data.get('payment')
 
-    def save(self) -> CurrentInstance:
-        """
-        Save the current object.
-
-        Overrided to make sure that the payment instance and the modified flag will not change.
-
-        Returns:
-            Current instance.
-
-        Raises:
-            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
-        """
-        payment = self.payment
-        modified = []
-
-        # pylint: disable=protected-access
-
-        if isinstance(payment, Payment):
-            modified = payment._modified
-            payment._modified = set()
-
-        self._modified.add('amount')
-
-        super().save()
-
-        if modified and isinstance(payment, Payment):
-            payment._modified = modified
-
-        return self
-
     @property
     @populate_on_call
     def status(self) -> str:
@@ -104,3 +96,17 @@ class Refund(AbstractObject, AbstractAmount):
             str: Current status.
         """
         return self._data.get('status')
+
+    def to_json_repr(self) -> dict:
+        """
+        Return a dictionnary which will be used to make a JSON representation.
+
+        Returns:
+            A JSON still as a dictionnary.
+        """
+        representation = super().to_json_repr()
+
+        if isinstance(self.payment, Payment):
+            representation['payment'] = self.payment.id
+
+        return representation

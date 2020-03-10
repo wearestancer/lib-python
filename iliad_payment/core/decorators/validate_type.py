@@ -12,6 +12,9 @@ def validate_type(type_expected, **options):
     This also add modified flag after modification.
     """
 
+    if 'silent' not in options:
+        options['silent'] = False
+
     def get_min_max(options):
         minimum = None
         maximum = None
@@ -131,7 +134,7 @@ def validate_type(type_expected, **options):
 
             res = method(self, value, *args, **kwargs)
 
-            if hasattr(self, '_modified'):
+            if hasattr(self, '_modified') and not options['silent']:
                 self._modified.add(method.__name__)  ## pylint: disable=protected-access
 
             return res

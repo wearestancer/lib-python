@@ -403,7 +403,7 @@ class TestPayment(TestHelper):
 
     @responses.activate
     def test_refund(self):
-        with open('./tests/fixtures/payment/read.json') as opened_file:
+        with open('./tests/fixtures/payment/read-no-card.json') as opened_file:
             payment_content = json.load(opened_file)
 
         with open('./tests/fixtures/refund/read.json') as opened_file:
@@ -458,6 +458,8 @@ class TestPayment(TestHelper):
         assert obj.refunds[0].amount == refund1_amount
         assert obj.refunds[1].id == refund2_content['id']
         assert obj.refunds[1].amount == refund2_amount
+
+        assert obj.is_not_modified
 
     @responses.activate
     def test_refundable_amount(self):
