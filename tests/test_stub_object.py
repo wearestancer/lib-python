@@ -194,6 +194,8 @@ class TestStubObject(TestHelper):
         assert isinstance(obj.card1, Card)
         assert obj.card1.id is None
 
+        assert obj.is_modified
+
         card = obj.card1
 
         assert obj.hydrate(card1=uid) == obj
@@ -214,6 +216,9 @@ class TestStubObject(TestHelper):
         assert obj.card1 != card
         assert obj.card1.id == params['card1']['id']
 
+        assert obj.is_not_modified
+        assert card.is_not_modified
+
         params = {
             'card1': card,
         }
@@ -223,6 +228,9 @@ class TestStubObject(TestHelper):
 
         assert isinstance(obj.card1, Card)
         assert obj.card1 == card
+
+        assert obj.is_not_modified
+        assert card.is_not_modified
 
         uid = self.random_string(29)
         name1 = self.random_string(10)
@@ -251,6 +259,10 @@ class TestStubObject(TestHelper):
         assert obj.cards[1].id == uid
         assert obj.cards[1].name == name1
 
+        assert obj.is_modified
+        assert obj.cards[0].is_not_modified
+        assert obj.cards[1].is_modified
+
         card0 = obj.cards[0]
         card1 = obj.cards[1]
 
@@ -274,6 +286,10 @@ class TestStubObject(TestHelper):
         assert isinstance(obj.cards[1], Card)
         assert obj.cards[1] == card1
         assert obj.cards[1].name == name2
+
+        assert obj.is_modified
+        assert obj.cards[0].is_not_modified
+        assert obj.cards[1].is_modified
 
     def test_modified_status(self):
         obj = StubObject()

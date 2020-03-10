@@ -187,8 +187,10 @@ class AbstractObject(object):
         config = Config()
 
         for key, value in list(params.items()):
-            if value is None:
+            if value is not False and not value:
                 continue
+
+            modify = True
 
             if hasattr(self, key):
                 tmp = getattr(self, key)
@@ -196,6 +198,7 @@ class AbstractObject(object):
 
                 if isinstance(tmp, list) and isinstance(value, list) and hasattr(self, init_method):
                     value = self._hydrate_list(key, value)
+                    modify = not all(isinstance(val, AbstractObject) for val in value)
 
                 if isinstance(tmp, datetime):
                     tmp = None
@@ -207,6 +210,8 @@ class AbstractObject(object):
                     tmp = getattr(self, init_method)
 
                 if callable(tmp):
+                    modify = False
+
                     if isinstance(value, dict):
                         value = tmp(**value)
                     else:
@@ -214,6 +219,7 @@ class AbstractObject(object):
 
                 elif hasattr(tmp, 'hydrate'):
                     val = {'id': value} if isinstance(value, str) else value
+                    modify = False
 
                     if val is not None:
                         tmp._populated = True  ## pylint: disable=protected-access
@@ -226,7 +232,9 @@ class AbstractObject(object):
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 self._data[key] = value
-                self._modified.add(key)
+
+                if modify:
+                    self._modified.add(key)
 
         return self
 
