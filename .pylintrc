@@ -14,6 +14,7 @@ output-format = colorized
 
 enable = all
 disable = consider-using-get,
+    cyclic-import,
     locally-disabled,
     missing-docstring,
     missing-module-docstring,

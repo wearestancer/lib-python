@@ -11,6 +11,8 @@ from .request import Request
 
 CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
 
+# pylint: disable=too-many-branches
+
 
 class AbstractObject(object):
     """Manage common code between API object."""
@@ -40,7 +42,7 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = []
+        self._modified = set()
         self._populated = True
 
         if kwargs:
@@ -62,13 +64,10 @@ class AbstractObject(object):
             representation['id'] = self.id
 
         if self.created is not None:
-            representation['created'] = str(self.created)
+            representation['created'] = self.created
 
         for key, value in self._data.items():
-            if hasattr(value, '__dict__') and not isinstance(value, str):
-                representation[key] = value.__dict__
-            else:
-                representation[key] = value
+            representation[key] = value
 
         return representation
 
@@ -127,6 +126,53 @@ class AbstractObject(object):
 
         return allowed
 
+    def _hydrate_list(self, key, value):
+        tmp = getattr(self, key)
+        init_method = '_init_' + key
+        new_values = []
+
+        for current_value in value:
+            missing = True
+            uid = None
+            val = current_value
+
+            if isinstance(current_value, str):
+                uid = current_value
+                val = {}
+            elif isinstance(current_value, AbstractObject):
+                uid = current_value.id
+            else:
+                uid = current_value.get('id')
+
+            for obj in tmp:
+                if obj.id == uid:
+                    missing = False
+
+                    if isinstance(val, AbstractObject):
+                        obj.hydrate(**val.__dict__)
+                    else:
+                        obj.hydrate(**val)
+
+                if not obj in new_values:
+                    new_values.append(obj)
+
+            if missing:
+                if not isinstance(val, AbstractObject):
+                    cls = getattr(self, init_method)
+
+                    obj = cls(uid)
+
+                    obj._populated = True   # pylint: disable=protected-access
+                    obj.hydrate(**val)
+                    obj._populated = False  # pylint: disable=protected-access
+
+                    val = obj
+
+                if val not in new_values:
+                    new_values.append(val)
+
+        return new_values
+
     def hydrate(self, **params) -> CurrentInstance:
         """
         Hydrate current object.
@@ -141,24 +187,40 @@ class AbstractObject(object):
         config = Config()
 
         for key, value in list(params.items()):
-            if value is None:
+            if value is not False and not value:
                 continue
+
+            modify = True
 
             if hasattr(self, key):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
-                val = {'id': value} if isinstance(value, str) else value
+
+                if isinstance(tmp, list) and isinstance(value, list) and hasattr(self, init_method):
+                    value = self._hydrate_list(key, value)
+                    modify = not all(isinstance(val, AbstractObject) for val in value)
+
+                if isinstance(tmp, datetime):
+                    tmp = None
+
+                if tmp is None and isinstance(value, AbstractObject):
+                    (tmp, value) = (value, {})
 
                 if tmp is None and hasattr(self, init_method):
                     tmp = getattr(self, init_method)
 
                 if callable(tmp):
-                    if val is None:
-                        value = tmp()
+                    modify = False
+
+                    if isinstance(value, dict):
+                        value = tmp(**value)
                     else:
-                        value = tmp(**val)
+                        value = tmp(value)
 
                 elif hasattr(tmp, 'hydrate'):
+                    val = {'id': value} if isinstance(value, str) else value
+                    modify = False
+
                     if val is not None:
                         tmp._populated = True  ## pylint: disable=protected-access
                         value = tmp.hydrate(**val)
@@ -170,7 +232,9 @@ class AbstractObject(object):
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 self._data[key] = value
-                self._modified.append(key)
+
+                if modify:
+                    self._modified.add(key)
 
         return self
 
@@ -194,7 +258,22 @@ class AbstractObject(object):
         Returns
             Was it modified ?
         """
-        return self._modified
+        if len(self._modified) > 0:
+            return True
+
+        for key, value in self._data.items():
+            if key not in self._get_allowed_attributes():
+                continue
+
+            if isinstance(value, AbstractObject) and value.is_modified:
+                return True
+
+            if isinstance(value, list):
+                for val in value:
+                    if isinstance(val, AbstractObject) and val.is_modified:
+                        return True
+
+        return False
 
     @property
     def is_not_complete(self) -> bool:
@@ -251,7 +330,7 @@ class AbstractObject(object):
         if self.id is not None and not self._populated:
             self._populated = True
             Request(self).get  ## pylint: disable=expression-not-assigned
-            self._modified = []
+            self._modified.clear()
 
         self._populated = True
 
@@ -272,7 +351,7 @@ class AbstractObject(object):
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified = []
+        self._modified.clear()
 
         return self
 
@@ -311,7 +390,7 @@ class AbstractObject(object):
             }
 
             for key, value in items.items():
-                if isinstance(value, AbstractObject):
+                if hasattr(value, 'to_json_repr'):
                     representation[key] = value.to_json_repr()
                 else:
                     representation[key] = value

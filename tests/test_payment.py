@@ -1,12 +1,14 @@
 """Test payment object"""
 
 from datetime import date
+import json
 import pytest
 import responses
 
 from iliad_payment import Card
 from iliad_payment import Customer
 from iliad_payment import Payment
+from iliad_payment import Refund
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractCountry
@@ -21,6 +23,7 @@ from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidSepaError
 from iliad_payment.exceptions import MissingPaymentMethodError
+from iliad_payment.status import RefundStatus
 from .TestHelper import TestHelper
 
 
@@ -268,17 +271,9 @@ class TestPayment(TestHelper):
 
         assert obj.hydrate(**params) == obj
 
-        assert isinstance(obj.card, Card)
-        assert obj.card.id is None
-        card = obj.card
-
-        assert isinstance(obj.customer, Customer)
-        assert obj.customer.id is None
-        customer = obj.customer
-
-        assert isinstance(obj.sepa, Sepa)
-        assert obj.sepa.id is None
-        sepa = obj.sepa
+        assert obj.card is None
+        assert obj.customer is None
+        assert obj.sepa is None
 
         params = {
             'card': self.random_string(29),
@@ -289,16 +284,35 @@ class TestPayment(TestHelper):
         assert obj.hydrate(**params) == obj
 
         assert isinstance(obj.card, Card)
-        assert obj.card == card
         assert obj.card.id == params['card']
 
         assert isinstance(obj.customer, Customer)
-        assert obj.customer == customer
         assert obj.customer.id == params['customer']
 
         assert isinstance(obj.sepa, Sepa)
-        assert obj.sepa == sepa
         assert obj.sepa.id == params['sepa']
+
+        params = {
+            'refunds': [
+                {
+                    'amount': self.random_integer(100, 10000),
+                    'currency': 'eur',
+                    'status': RefundStatus.TO_REFUND,
+                },
+            ],
+        }
+
+        assert obj.hydrate(**params) == obj
+
+        assert isinstance(obj.refunds, list)
+        assert len(obj.refunds) == 1
+
+        refund = obj.refunds[0]
+
+        assert isinstance(refund, Refund)
+        assert refund.amount == params['refunds'][0]['amount']
+        assert refund.currency == params['refunds'][0]['currency']
+        assert refund.status == params['refunds'][0]['status']
 
     def test_is_success(self):
         obj = Payment()
@@ -386,6 +400,118 @@ class TestPayment(TestHelper):
         assert obj.order_id == params['order_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_refund(self):
+        with open('./tests/fixtures/payment/read-no-card.json') as opened_file:
+            payment_content = json.load(opened_file)
+
+        with open('./tests/fixtures/refund/read.json') as opened_file:
+            refund1_content = json.load(opened_file)
+
+        with open('./tests/fixtures/refund/read.json') as opened_file:
+            refund2_content = json.load(opened_file)
+
+        obj = Payment(payment_content['id'])
+
+        paid = payment_content['amount']
+
+        refund1_amount = self.random_integer(50, paid - 50)
+        refund1_content['amount'] = refund1_amount
+        ref = Refund()
+
+        refund2_amount = paid - refund1_amount
+        refund2_content['amount'] = refund2_amount
+        refund2_content['id'] = 'refd_' + self.random_string(24)
+
+        responses.reset()
+        responses.add(responses.GET, obj.uri, json=payment_content)
+        responses.add(responses.POST, ref.uri, json=refund1_content)
+        responses.add(responses.POST, ref.uri, json=refund2_content)
+
+        assert isinstance(obj.refunds, list)
+        assert len(obj.refunds) == 0
+        assert len(responses.calls) == 1
+
+        assert obj.refund(refund1_amount) == obj
+        assert len(responses.calls) == 2
+
+        assert isinstance(obj.refunds, list)
+        assert len(obj.refunds) == 1
+        assert obj.refunds[0].id == refund1_content['id']
+        assert obj.refunds[0].amount == refund1_amount
+
+        with pytest.raises(InvalidAmountError) as err:
+            obj.refund(paid)
+
+        assert str(err.value) == (
+            'You are trying to refund ({0:.2f} {2}) '
+            'more than possible ({1:.2f} {2}).'
+        ).format(paid / 100, refund2_amount / 100, obj.currency.upper())
+
+        assert obj.refund() == obj
+        assert len(responses.calls) == 3
+
+        assert isinstance(obj.refunds, list)
+        assert len(obj.refunds) == 2
+        assert obj.refunds[0].id == refund1_content['id']
+        assert obj.refunds[0].amount == refund1_amount
+        assert obj.refunds[1].id == refund2_content['id']
+        assert obj.refunds[1].amount == refund2_amount
+
+        assert obj.is_not_modified
+
+    @responses.activate
+    def test_refundable_amount(self):
+        with open('./tests/fixtures/payment/read.json') as opened_file:
+            payment_content = json.load(opened_file)
+
+        with open('./tests/fixtures/refund/read.json') as opened_file:
+            refund_content = json.load(opened_file)
+
+        obj = Payment(payment_content['id'])
+
+        paid = payment_content['amount']
+
+        refund_amount = self.random_integer(50, paid - 50)
+        refund_content['amount'] = refund_amount
+        ref = Refund()
+
+        responses.reset()
+        responses.add(responses.GET, obj.uri, json=payment_content)
+        responses.add(responses.POST, ref.uri, json=refund_content)
+
+        assert obj.refundable_amount == obj.amount
+
+        obj.refund(refund_amount)
+
+        assert obj.refundable_amount == paid - refund_amount
+
+    @responses.activate
+    def test_refunded_amount(self):
+        with open('./tests/fixtures/payment/read.json') as opened_file:
+            payment_content = json.load(opened_file)
+
+        with open('./tests/fixtures/refund/read.json') as opened_file:
+            refund_content = json.load(opened_file)
+
+        obj = Payment(payment_content['id'])
+
+        paid = payment_content['amount']
+
+        refund_amount = self.random_integer(50, paid - 50)
+        refund_content['amount'] = refund_amount
+        ref = Refund()
+
+        responses.reset()
+        responses.add(responses.GET, obj.uri, json=payment_content)
+        responses.add(responses.POST, ref.uri, json=refund_content)
+
+        assert obj.refunded_amount == 0
+
+        obj.refund(refund_amount)
+
+        assert obj.refunded_amount == refund_amount
 
     @responses.activate
     def test_response_code(self):

@@ -1,31 +1,13 @@
 """Functional tests for customer object"""
 
-import os
 import pytest
 
-from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment.exceptions import NotFoundError
-from ..TestHelper import TestHelper
+from .TestHelper import TestHelper
 
 
-@pytest.mark.skipif(
-    os.getenv('API_KEY') is None,
-    reason='Require an API key',
-)
-@pytest.mark.skipif(
-    os.getenv('API_HOST') is None,
-    reason='Require an API host',
-)
 class TestFunctionalCustomer(TestHelper):
-    def setup_method(self, method):
-        conf = Config()
-
-        del conf.keys
-        conf.keys = str(os.getenv('API_KEY'))
-        conf.host = str(os.getenv('API_HOST'))
-        conf.timeout = 1
-
     def test_get(self):
         with pytest.raises(NotFoundError) as error:
             obj = Customer(self.random_string(29))

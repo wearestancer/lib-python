@@ -4,7 +4,7 @@
 # pylint: enable=missing-docstring
 from datetime import date
 import pytest
-from random import randint, choice
+from random import choice, randint
 import string
 
 from iliad_payment import Config
@@ -53,6 +53,17 @@ class TestHelper(object):
             mobile += str(self.random_integer(0, 99)).zfill(2)
 
         return mobile
+
+    def random_timezone(self):
+        zones = [
+            'UTC',
+            'America/Phoenix',
+            'Atlantic/Bermuda',
+            'Australia/Melbourne',
+            'Europe/Paris',
+        ]
+
+        return choice(zones)
 
     def random_year(self):
         return self.random_integer(1, 20) + self.current_year

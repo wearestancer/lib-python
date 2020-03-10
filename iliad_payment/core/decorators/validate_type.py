@@ -3,7 +3,7 @@
 from functools import wraps
 
 
-# pylint: disable=too-many-branches, too-many-statements
+# pylint: disable=too-many-branches, too-many-statements, too-many-locals
 
 def validate_type(type_expected, **options):
     """
@@ -11,6 +11,9 @@ def validate_type(type_expected, **options):
 
     This also add modified flag after modification.
     """
+
+    if 'silent' not in options:
+        options['silent'] = False
 
     def get_min_max(options):
         minimum = None
@@ -44,10 +47,11 @@ def validate_type(type_expected, **options):
 
     def wrapper(method):
         @wraps(method)
-        def wrapper(self, value, *args, **kwargs):
+        def wrapper(self, value=None, *args, **kwargs):  # pylint: disable=keyword-arg-before-vararg
             name = options.get('name', method.__name__.capitalize())
             message = None
             excep = ValueError
+            is_optional = value is None and options.get('optional', False)
 
             (std_type, type_name) = is_std_type()
 
@@ -122,7 +126,7 @@ def validate_type(type_expected, **options):
 
                 value = tmp_value
 
-            if message is not None:
+            if message is not None and not is_optional:
                 if 'throws' in options:
                     excep = options['throws']
 
@@ -130,8 +134,8 @@ def validate_type(type_expected, **options):
 
             res = method(self, value, *args, **kwargs)
 
-            if hasattr(self, '_modified'):
-                self._modified.append(method.__name__)  ## pylint: disable=protected-access
+            if hasattr(self, '_modified') and not options['silent']:
+                self._modified.add(method.__name__)  ## pylint: disable=protected-access
 
             return res
         return wrapper
