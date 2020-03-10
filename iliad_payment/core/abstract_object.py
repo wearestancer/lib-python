@@ -258,7 +258,22 @@ class AbstractObject(object):
         Returns
             Was it modified ?
         """
-        return len(self._modified) > 0
+        if len(self._modified) > 0:
+            return True
+
+        for key, value in self._data.items():
+            if key not in self._get_allowed_attributes():
+                continue
+
+            if isinstance(value, AbstractObject) and value.is_modified:
+                return True
+
+            if isinstance(value, list):
+                for val in value:
+                    if isinstance(val, AbstractObject) and val.is_modified:
+                        return True
+
+        return False
 
     @property
     def is_not_complete(self) -> bool:
