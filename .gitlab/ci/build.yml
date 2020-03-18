@@ -8,6 +8,9 @@ build:
   script:
     - python setup.py sdist
 
+  after_script:
+    - .gitlab/ci/message.pl
+
   variables:
     PYTHON_VERSION: py37
 
