@@ -17,6 +17,3 @@ build:
   artifacts:
     paths:
       - "*.tar.gz"
-
-  only:
-    - tags
