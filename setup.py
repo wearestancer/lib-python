@@ -1,5 +1,5 @@
 
-from setuptools import setup
+from setuptools import find_namespace_packages, setup
 
 
 # Import version
@@ -11,7 +11,7 @@ setup(
     version=__version__,
     description='Iliad payment solution',
     license='MIT',
-    packages=['iliad_payment'],
+    packages=find_namespace_packages(include=['iliad_payment.*']),
     author='Joel Da Silva',
     author_email='jdasilva@corp.free.fr',
     keywords=[
