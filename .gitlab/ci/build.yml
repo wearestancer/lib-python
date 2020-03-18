@@ -16,4 +16,4 @@ build:
 
   artifacts:
     paths:
-      - "*.tar.gz"
+      - "dist/*.tar.gz"
