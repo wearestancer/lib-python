@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=missing-docstring
 
-from __future__ import unicode_literals
-
+# pylint: enable=missing-docstring
 from datetime import date
 import pytest
-from random import randint, choice
+from random import choice, randint
 import string
 
 from iliad_payment import Config
@@ -54,8 +54,19 @@ class TestHelper(object):
 
         return mobile
 
+    def random_timezone(self):
+        zones = [
+            'UTC',
+            'America/Phoenix',
+            'Atlantic/Bermuda',
+            'Australia/Melbourne',
+            'Europe/Paris',
+        ]
+
+        return choice(zones)
+
     def random_year(self):
-        return self.random_integer(0, 20) + self.current_year
+        return self.random_integer(1, 20) + self.current_year
 
     @property
     def current_year(self):
@@ -65,10 +76,23 @@ class TestHelper(object):
     def api_key_provider(cls):
         obj = TestHelper()
 
+        return obj.public_api_key_provider() + obj.secret_api_key_provider()
+
+    @classmethod
+    def public_api_key_provider(cls):
+        obj = TestHelper()
+
         return [
             ('pprod_' + obj.random_string(24), Config.LIVE_MODE, 'pprod'),
-            ('sprod_' + obj.random_string(24), Config.LIVE_MODE, 'sprod'),
             ('ptest_' + obj.random_string(24), Config.TEST_MODE, 'ptest'),
+        ]
+
+    @classmethod
+    def secret_api_key_provider(cls):
+        obj = TestHelper()
+
+        return [
+            ('sprod_' + obj.random_string(24), Config.LIVE_MODE, 'sprod'),
             ('stest_' + obj.random_string(24), Config.TEST_MODE, 'stest'),
         ]
 

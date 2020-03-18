@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
-
-# pylint: enable=missing-docstring
-from builtins import str
 
 import re
 
@@ -25,7 +21,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def bic(self):
+    def bic(self) -> str:
         """
         Bank Identifier Code.
 
@@ -41,7 +37,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @bic.setter
     @validate_type(str, name='BIC', throws=InvalidBicError)
-    def bic(self, value):
+    def bic(self, value: str):
         if len(value) != 8 and len(value) != 11:
             # Poorly test but I have nothing more to test
             raise InvalidBicError('"{}" is not a valid BIC.'.format(value))
@@ -49,11 +45,11 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         self._data['bic'] = value
 
     @property
-    def formatted_iban(self):
+    def formatted_iban(self) -> str:
         """
         IBAN in readeable format.
 
-        Aka AAAA BBBB CCCC ...
+        Aka "FRAA BBBB CCCC DDDD EEEE FFFF GGG" for a french account.
 
         Returns:
             str: Formatted IBAN.
@@ -67,7 +63,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def iban(self):
+    def iban(self) -> str:
         """
         International Bank Account Number.
 
@@ -85,7 +81,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @iban.setter
     @validate_type(str, name='IBAN', throws=InvalidIbanError)
-    def iban(self, value):
+    def iban(self, value: str):
         iban = re.sub(r'\s', '', value).upper()
         code = ''
 
@@ -103,12 +99,12 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         self._data['country'] = iban[0:2].lower()
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory data are provided.
 
         Returns:
-            bool: Is the SEPA account complete ?
+            Is the SEPA account complete ?
         """
         if self.bic is None:
             return False
@@ -119,22 +115,10 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         return True
 
     @property
-    def is_not_complete(self):
-        """
-        Indicate if all mandatory data are NOT provided.
-
-        It's simply a `not self.is_complete`.
-
-        Returns:
-            bool: Is the SEPA account not complete ?
-        """
-        return not self.is_complete
-
-    @property
     @populate_on_call
-    def last4(self):
+    def last4(self) -> str:
         """
-        IBAN's last 4 digits.
+        Return IBAN's last 4 digits.
 
         Returns:
             str: IBAN's last 4 digits.

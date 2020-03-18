@@ -1,0 +1,16 @@
+
+.lint:
+  extends:
+    - .versions
+
+  stage: lint
+
+  script:
+    - tox -e $PYTHON_VERSION-lint
+
+  artifacts:
+    reports:
+      junit: reports/$PYTHON_VERSION-lint.xml
+
+  tags:
+    - python

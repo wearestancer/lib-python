@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
-
-# pylint: enable=missing-docstring
-from __future__ import unicode_literals
-from builtins import str
 
 from datetime import datetime
 import json
-import requests
+from typing import List
+from typing import TypeVar
 
 from ..config import Config
 from .request import Request
 
 
+CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
+
+# pylint: disable=too-many-branches
+
+
 class AbstractObject(object):
     """Manage common code between API object."""
 
-    _ENDPOINT = None
+    _ENDPOINT = None  # pylint: disable=invalid-name
+    _allowed_attributes = []
 
-    def __init__(self, uid=None):
+    def __init__(self, uid: str = None, **kwargs):
         """
         Create or get an API object.
 
@@ -28,25 +30,33 @@ class AbstractObject(object):
         If you did not provide an id, the current object will be a new API
         object.
 
+        You may also pass keywords arguments, we will use them hydrate the object.
+
         Args:
-            uid (str): Object identifier.
+            uid: Object identifier.
+            **kwargs: Arbitrary keyword arguments, used to hydrate the object.
 
         Returns:
-            self: An instance of the current object.
+            An instance of the current object.
         """
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = False
+        self._modified = set()
+        self._populated = True
+
+        if kwargs:
+            self.hydrate(**kwargs)
+
         self._populated = False
 
     @property
-    def __dict__(self):
+    def __dict__(self) -> dict:
         """
         Dictionary for instance variables.
 
         Returns:
-            dict: A simple representation of the current object.
+            A simple representation of the current object.
         """
         representation = {}
 
@@ -54,52 +64,57 @@ class AbstractObject(object):
             representation['id'] = self.id
 
         if self.created is not None:
-            representation['created'] = str(self.created)
+            representation['created'] = self.created
 
         for key, value in self._data.items():
-            if hasattr(value, '__dict__') and not isinstance(value, str):
-                representation[key] = value.__dict__
-            else:
-                representation[key] = value
+            representation[key] = value
 
         return representation
 
     @property
-    def id(self):  # pylint: disable=C0103
+    def id(self) -> str:  # pylint: disable=invalid-name
         """
         Return current object ID.
 
         Returns:
-            str: Current ID.
+            Current ID.
         """
         return self._id
 
+    @id.deleter
+    def id(self):  # pylint: disable=invalid-name
+        self._id = None
+
     @property
-    def created(self):
+    def created(self) -> datetime:
         """
         Return the creation date and time of the current object.
 
         Returns:
-            datetime: Creation date and time (into the API)
-                during server side creation.
+            Creation date and time (into the API) during server side creation.
         """
         return self._created
 
-    def delete(self):
+    def delete(self) -> CurrentInstance:
         """
         Delete the current object.
 
         Returns:
-            self: Current instance.
-        """
-        Request(self).delete
+            Current instance.
 
-        self._modified = True
+        Raises:
+            IliadHTTPError: On error during with the API.
+        """
+        Request(self).delete  ## pylint: disable=expression-not-assigned
+
+        self._modified = [
+            'id', # Force modified to allow sending it again to the API
+        ]
 
         return self
 
     @classmethod
-    def _get_allowed_attributes(cls):
+    def _get_allowed_attributes(cls) -> List[str]:
         allowed = []
 
         if hasattr(cls, '_allowed_attributes'):
@@ -107,88 +122,202 @@ class AbstractObject(object):
 
         for parent in cls.mro():
             if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes
+                allowed += parent._allowed_attributes  ## pylint: disable=protected-access
 
         return allowed
 
-    def hydrate(self, params):
+    def _hydrate_list(self, key, value):
+        tmp = getattr(self, key)
+        init_method = '_init_' + key
+        new_values = []
+
+        for current_value in value:
+            missing = True
+            uid = None
+            val = current_value
+
+            if isinstance(current_value, str):
+                uid = current_value
+                val = {}
+            elif isinstance(current_value, AbstractObject):
+                uid = current_value.id
+            else:
+                uid = current_value.get('id')
+
+            for obj in tmp:
+                if obj.id == uid:
+                    missing = False
+
+                    if isinstance(val, AbstractObject):
+                        obj.hydrate(**val.__dict__)
+                    else:
+                        obj.hydrate(**val)
+
+                if not obj in new_values:
+                    new_values.append(obj)
+
+            if missing:
+                if not isinstance(val, AbstractObject):
+                    cls = getattr(self, init_method)
+
+                    obj = cls(uid)
+
+                    obj._populated = True   # pylint: disable=protected-access
+                    obj.hydrate(**val)
+                    obj._populated = False  # pylint: disable=protected-access
+
+                    val = obj
+
+                if val not in new_values:
+                    new_values.append(val)
+
+        return new_values
+
+    def hydrate(self, **params) -> CurrentInstance:
         """
         Hydrate current object.
 
         Args:
-            params (dict): Elements used to hydrate the object.
+            **params: Elements used to hydrate the object.
                 Every key matching an object property will be used.
 
         Returns:
-            self: Current instance.
+            Current instance.
         """
+        config = Config()
 
         for key, value in list(params.items()):
+            if value is not False and not value:
+                continue
+
+            modify = True
+
             if hasattr(self, key):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
 
+                if isinstance(tmp, list) and isinstance(value, list) and hasattr(self, init_method):
+                    value = self._hydrate_list(key, value)
+                    modify = not all(isinstance(val, AbstractObject) for val in value)
+
+                if isinstance(tmp, datetime):
+                    tmp = None
+
+                if tmp is None and isinstance(value, AbstractObject):
+                    (tmp, value) = (value, {})
+
                 if tmp is None and hasattr(self, init_method):
                     tmp = getattr(self, init_method)
 
-                if hasattr(tmp, 'hydrate'):
+                if callable(tmp):
+                    modify = False
+
+                    if isinstance(value, dict):
+                        value = tmp(**value)
+                    else:
+                        value = tmp(value)
+
+                elif hasattr(tmp, 'hydrate'):
                     val = {'id': value} if isinstance(value, str) else value
+                    modify = False
 
                     if val is not None:
-                        tmp._populated = True
-                        value = tmp.hydrate(val)
-                        value._populated = self._populated
+                        tmp._populated = True  ## pylint: disable=protected-access
+                        value = tmp.hydrate(**val)
+                        value._populated = self._populated  ## pylint: disable=protected-access
 
             if key == 'id':
                 self._id = value
             elif key == 'created':
-                self._created = datetime.fromtimestamp(value)
+                self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 self._data[key] = value
+
+                if modify:
+                    self._modified.add(key)
 
         return self
 
     @property
-    def is_modified(self):
+    def is_complete(self) -> bool:
+        """
+        Indicate if all mandatory data are provided.
+
+        Should be modified in other sub classes.
+
+        Returns:
+            Is the object complete ?
+        """
+        return True
+
+    @property
+    def is_modified(self) -> bool:
         """
         Indicate if the object was modified.
 
         Returns
-            bool: Was it modified ?
+            Was it modified ?
         """
-        return self._modified
+        if len(self._modified) > 0:
+            return True
+
+        for key, value in self._data.items():
+            if key not in self._get_allowed_attributes():
+                continue
+
+            if isinstance(value, AbstractObject) and value.is_modified:
+                return True
+
+            if isinstance(value, list):
+                for val in value:
+                    if isinstance(val, AbstractObject) and val.is_modified:
+                        return True
+
+        return False
 
     @property
-    def is_not_modified(self):
+    def is_not_complete(self) -> bool:
+        """
+        Indicate if all mandatory data are NOT provided.
+
+        It's simply a `not self.is_complete`.
+
+        Returns:
+            Is the object not complete ?
+        """
+        return not self.is_complete
+
+    @property
+    def is_not_modified(self) -> bool:
         """
         Indicate if the object was not modified.
 
         Returns
-            bool: Was it not modified ?
+            Was it not modified ?
         """
         return not self.is_modified
 
     @property
-    def is_not_populated(self):
+    def is_not_populated(self) -> bool:
         """
         Indicate if the object was not populated.
 
         Returns
-            bool: Was it not populated ?
+            Was it not populated ?
         """
         return not self.is_populated
 
     @property
-    def is_populated(self):
+    def is_populated(self) -> bool:
         """
         Indicate if the object was populated.
 
         Returns
-            bool: Was it populated ?
+            Was it populated ?
         """
         return self._populated
 
-    def populate(self):
+    def populate(self) -> CurrentInstance:
         """
         Populate the current object.
 
@@ -196,34 +325,37 @@ class AbstractObject(object):
         This need an ID.
 
         Returns:
-            self: Current instance.
+            Current instance.
         """
-        if not self._populated and self.id is not None:
+        if self.id is not None and not self._populated:
             self._populated = True
-            self._modified = False
-            Request(self).get
+            Request(self).get  ## pylint: disable=expression-not-assigned
+            self._modified.clear()
 
         self._populated = True
 
         return self
 
-    def save(self):
+    def save(self) -> CurrentInstance:
         """
         Save the current object.
 
         This will create or update the current object.
 
         Returns:
-            self: Current instance.
+            Current instance.
+
+        Raises:
+            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
         """
         if self._modified:
-            Request(self).post
+            Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified = False
+        self._modified.clear()
 
         return self
 
-    def to_json(self):
+    def to_json(self) -> str:
         """
         Return a JSON representation of the current object.
 
@@ -233,40 +365,40 @@ class AbstractObject(object):
         Unless that, it will return a JSON with only the `id` key.
 
         Returns:
-            str: A JSON representation of the current object.
+            A JSON representation of the current object.
+        """
+        return json.dumps(self.to_json_repr(), separators=(',', ':'))
+
+    def to_json_repr(self) -> dict:
+        """
+        Return a dictionnary which will be used to make a JSON representation.
+
+        Returns:
+            A JSON still as a dictionnary.
         """
         representation = {}
 
-        if self.id is not None and not self._modified:
-            representation['id'] = self.id
+        if self.id is not None and self.is_not_modified:
+            representation = self.id
         else:
             items = {
                 k: v
                 for k, v in self._data.items()
                 if k in self._get_allowed_attributes()
                 and v is not None
+                and (k in self._modified or (isinstance(v, AbstractObject) and v.is_modified))
             }
 
             for key, value in items.items():
-                if hasattr(value, '__dict__') and not isinstance(value, str):
-                    child = value.__dict__
-
-                    if 'id' in child and child['id'] is not None:
-                        representation[key] = {'id': child['id']}
-                    else:
-                        representation[key] = {
-                            k: v
-                            for k, v in child.items()
-                            if k in type(value)._get_allowed_attributes()
-                            and v is not None
-                        }
+                if hasattr(value, 'to_json_repr'):
+                    representation[key] = value.to_json_repr()
                 else:
                     representation[key] = value
 
-        return json.dumps(representation, separators=(',', ':'))
+        return representation
 
     @property
-    def uri(self):
+    def uri(self) -> str:
         """
         Return a complete location for the current object.
 
@@ -277,7 +409,7 @@ class AbstractObject(object):
         this entity.
 
         Returns:
-            str: Uniform Resource Identifier.
+            Uniform Resource Identifier.
         """
         conf = Config()
 

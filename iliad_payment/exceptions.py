@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from builtins import super
+from typing import TypeVar
+from requests import HTTPError, Response
 
-from requests import HTTPError
+CurrentInstance = TypeVar('CurrentInstance', bound='IliadHTTPError')
 
 
 class IliadException(Exception):
@@ -16,17 +15,11 @@ class IliadNotImplementedError(IliadException, NotImplementedError):
 
 
 class IliadTypeError(IliadException, TypeError):
-    """
-    Raised when an operation or function is applied to an object
-    of inappropriate type.
-    """
+    """Raised when an operation or function is applied with an inappropriate type."""
 
 
 class IliadValueError(IliadException, ValueError):
-    """
-    Raised when an operation or function receives an argument
-    that has the right type but an inappropriate value.
-    """
+    """Raised when an operation or function receives an inappropriate value."""
 
 
 class IliadWarning(IliadException, Warning):
@@ -122,7 +115,7 @@ class IliadHTTPError(IliadException, HTTPError):
     They also inherit from `requests.HTTPError`.
     """
 
-    def __init__(self, response, *args, **kwargs):
+    def __init__(self, response: Response, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.response = response
@@ -149,7 +142,18 @@ class IliadHTTPError(IliadException, HTTPError):
             pass
 
     @classmethod
-    def factory(cls, response, *args, **kwargs):
+    def factory(cls, response: Response, *args, **kwargs) -> CurrentInstance:
+        """
+        Return correct error instance form HTTP status.
+
+        Args:
+            response: HTTP Response that produced the exception
+            *args: Variable lenght argument list, will passed to the new instance.
+            **kwargs: Arbitrary keywors arguments, will passed to the new instance.
+
+        Returns:
+            An child instance of IliadHTTPError.
+        """
         if response.status_code >= 500:
             for tmp in IliadHTTPServerError.__subclasses__():
                 if tmp.status_code == response.status_code:
@@ -163,6 +167,8 @@ class IliadHTTPError(IliadException, HTTPError):
                     return tmp(response, *args, **kwargs)
 
             return IliadHTTPClientError(response, *args, **kwargs)
+
+        return IliadHTTPError(response, *args, **kwargs)
 
 
 class IliadHTTPClientError(IliadHTTPError):

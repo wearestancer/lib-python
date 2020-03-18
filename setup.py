@@ -1,18 +1,30 @@
-from setuptools import setup
+
+from setuptools import find_packages, setup
+
+
+# Import version
+exec(open('iliad_payment/version.py').read())
+
 
 setup(
     name='iliad-payment',
-    version='0.0.1',
+    version=__version__,
     description='Iliad payment solution',
     license='MIT',
-    packages=['iliad_payment'],
+    packages=find_packages(),
     author='Joel Da Silva',
     author_email='jdasilva@corp.free.fr',
-    keywords=['payments', 'payment solution'],
+    keywords=[
+        'payments',
+        'payment solution',
+        'payment gateway',
+        'credit cards',
+        'sepa',
+    ],
     install_requires=[
-        'future',
         'requests',
     ],
+    python_requires=">=3.5",
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Plugins',
@@ -20,12 +32,11 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )

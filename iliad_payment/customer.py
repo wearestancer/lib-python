@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
-
-# pylint: enable=missing-docstring
-from builtins import str
 
 from .core import AbstractCountry
 from .core import AbstractName
@@ -25,7 +21,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def email(self):
+    def email(self) -> str:
         """
         Customer's email.
 
@@ -34,21 +30,24 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
         Returns:
             str: Customer's email.
+
+        Raises:
+            InvalidCustomerEmailError: When email is invalid.
         """
         return self._data.get('email')
 
     @email.setter
     @validate_type(str, min=5, max=64, throws=InvalidCustomerEmailError)
-    def email(self, value):
+    def email(self, value: str):
         self._data['email'] = value
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory customer data are provided.
 
         Returns:
-            bool: Is the customer complete ?
+            Is the customer complete ?
         """
         if self.email is None and self.mobile is None:
             return False
@@ -56,20 +55,8 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         return True
 
     @property
-    def is_not_complete(self):
-        """
-        Indicate if all mandatory customer data are NOT provided.
-
-        It's simply a `not self.is_complete`.
-
-        Returns:
-            bool: Is the customer not complete ?
-        """
-        return not self.is_complete
-
-    @property
     @populate_on_call
-    def mobile(self):
+    def mobile(self) -> str:
         """
         Customer's mobile phone number.
 
@@ -78,6 +65,9 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
         Returns:
             str: Customer's mobile phone number.
+
+        Raises:
+            InvalidCustomerMobileError: When mobile phone number is invalid.
         """
         return self._data.get('mobile')
 
@@ -89,5 +79,5 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         name='Mobile phone',
         throws=InvalidCustomerMobileError,
     )
-    def mobile(self, value):
+    def mobile(self, value: str):
         self._data['mobile'] = value

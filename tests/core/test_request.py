@@ -22,7 +22,10 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 0
 
     @responses.activate
-    @pytest.mark.parametrize('key, mode, prefix', TestHelper.api_key_provider())
+    @pytest.mark.parametrize(
+        'key, mode, prefix',
+        TestHelper.secret_api_key_provider(),
+    )
     def test_api_key_validation(self, key, mode, prefix):
         obj = StubObject(self.random_string(29))
         req = Request(obj)
@@ -71,7 +74,46 @@ class TestRequest(TestHelper):
         conf.keys = previous_keys
 
     @responses.activate
-    @pytest.mark.parametrize('status_code, cls', TestHelper.http_code_provider())
+    @pytest.mark.parametrize(
+        'key, mode, prefix',
+        TestHelper.public_api_key_provider(),
+    )
+    def test_api_public_key_error(self, key, mode, prefix):
+        obj = StubObject(self.random_string(29))
+        req = Request(obj)
+        conf = Config()
+
+        previous_keys = conf.keys
+        del conf.keys
+
+        with pytest.raises(
+            AttributeError,
+            match='No API key found.',
+        ):
+            req.get
+
+        assert len(responses.calls) == 0
+
+        conf.mode = mode
+        conf.keys = key
+
+        with pytest.raises(
+            AttributeError,
+            match='No API key found.',
+        ):
+            req.get
+
+        assert len(responses.calls) == 0
+
+        del conf.mode
+        del conf.keys
+        conf.keys = previous_keys
+
+    @responses.activate
+    @pytest.mark.parametrize(
+        'status_code, cls',
+        TestHelper.http_code_provider(),
+    )
     def test_exceptions(self, status_code, cls):
         obj = StubObject(self.random_string(29))
         req = Request(obj)
@@ -169,16 +211,13 @@ class TestRequest(TestHelper):
         conf = Config()
         conf.mode = Config.TEST_MODE
 
-        obj.hydrate({
-            'string1': self.random_string(10, 20),
-            'integer1': self.random_integer(10, 999999),
-        })
+        obj.hydrate(string1=self.random_string(10, 20), integer1=self.random_integer(10, 999999))
 
         ret = {
             'id': self.random_string(29),
         }
 
-        obj.force_modified(False)
+        obj.reset_modified()
 
         responses.add(responses.POST, obj.uri, json=ret)
 
@@ -204,7 +243,7 @@ class TestRequest(TestHelper):
         assert 'Content-Type' in api_call.request.headers
         assert api_call.request.headers['Content-Type'] == 'application/json'
 
-        obj.force_modified(True)
+        obj.force_modified('id')
 
         responses.add(responses.PATCH, obj.uri)
 

@@ -1,9 +1,5 @@
 """Test card object"""
 
-from __future__ import unicode_literals
-from builtins import int
-from builtins import str
-
 import pytest
 import responses
 
@@ -405,7 +401,7 @@ class TestCard(TestHelper):
             'created': 1546867615,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         result = obj.to_json()
 

@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from builtins import str
-from builtins import super
+from typing import TypeVar
 
 from .card import Card
 from .customer import Customer
@@ -23,6 +20,10 @@ from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
+from .status.refund import RefundStatus
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
 
 class Payment(AbstractObject, AbstractAmount, AbstractCountry):
@@ -40,26 +41,27 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     ]
 
     @property
-    def _init_card(self):
-        self.card = Card()
-
-        return self.card
+    def _init_card(self) -> Card:
+        return Card
 
     @property
-    def _init_customer(self):
-        self.customer = Customer()
-
-        return self.customer
+    def _init_customer(self) -> Customer:
+        return Customer
 
     @property
-    def _init_sepa(self):
-        self.sepa = Sepa()
+    def _init_refunds(self):
+        # Prevent import loop
+        from .refund import Refund  # pylint: disable=import-outside-toplevel
 
-        return self.sepa
+        return Refund
+
+    @property
+    def _init_sepa(self) -> Sepa:
+        return Sepa
 
     @property
     @populate_on_call
-    def capture(self):
+    def capture(self) -> bool:
         """
         Do we need to capture the payment ?
 
@@ -67,21 +69,24 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         capture later.
 
         Args:
-            value (bool): New status for capture.
+            value: New status for capture.
 
         Returns:
-            bool: Current capture status.
+            Current capture status.
+
+        Raises:
+            InvalidPaymentCaptureError: When capture flag is invalid.
         """
         return self._data.get('capture')
 
     @capture.setter
     @validate_type(bool, throws=InvalidPaymentCaptureError)
-    def capture(self, value):
+    def capture(self, value: bool):
         self._data['capture'] = value
 
     @property
     @populate_on_call
-    def card(self):
+    def card(self) -> Card:
         """
         Source card for the payment.
 
@@ -90,18 +95,21 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             Card: Card used for the payment.
+
+        Raises:
+            InvalidCardError: When card is invalid.
         """
         return self._data.get('card')
 
     @card.setter
     @validate_type(Card, throws=InvalidCardError)
-    def card(self, value):
+    def card(self, value: Card):
         self._data['card'] = value
         self._data['method'] = 'card'
 
     @property
     @populate_on_call
-    def customer(self):
+    def customer(self) -> Customer:
         """
         Customer handling the payment.
 
@@ -110,15 +118,25 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             Customer: Customer handling the payment.
+
+        Raises:
+            InvalidCustomerError: When customer is invalid.
         """
         return self._data.get('customer')
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value):
+    def customer(self, value: Customer):
         self._data['customer'] = value
 
     def delete(self):
+        """
+        Delete the current object.
+
+        Raises:
+            IliadNotImplementedError: In every case, payments can not be
+                delete, refund it.
+        """
         message = (
             'You are not allowed to delete a payment, '
             'you need to refund it instead.'
@@ -128,7 +146,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def description(self):
+    def description(self) -> str:
         """
         Open description for your uses.
 
@@ -137,51 +155,54 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             str: Payment description.
+
+        Raises:
+            InvalidPaymentDescriptionError: When description is invalid.
         """
         return self._data.get('description')
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
-    def description(self, value):
+    def description(self, value: str):
         self._data['description'] = value
 
     @property
     @populate_on_call
-    def is_success(self):
+    def is_success(self) -> bool:
         """
         Is the operation a success ?
 
         Returns:
-            bool: Is the operation a success ?
+            Is the operation a success ?
         """
         return self.response_code == '00'
 
     @property
-    def is_error(self):
+    def is_error(self) -> bool:
         """
         Is the operation an error ?
 
         Returns:
-            bool: Is the operation an error ?
+            Is the operation an error ?
         """
         return not self.is_success
 
     @property
     @populate_on_call
-    def live_mode(self):
+    def live_mode(self) -> bool:
         """
         Indicate if we are in live or test mode.
 
         True => live / False => test
 
         Returns:
-            bool: Are we in live mode ?
+            Are we in live mode ?
         """
         return self._data.get('live_mode')
 
     @property
     @populate_on_call
-    def method(self):
+    def method(self) -> str:
         """
         Payment method used.
 
@@ -192,7 +213,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def order_id(self):
+    def order_id(self) -> str:
         """
         External order id.
 
@@ -204,6 +225,9 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             str: External order ID.
+
+        Raises:
+            InvalidPaymentOrderIdError: When order id is invalid.
         """
         return self._data.get('order_id')
 
@@ -214,12 +238,93 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
-    def order_id(self, value):
+    def order_id(self, value: str):
         self._data['order_id'] = value
+
+    @validate_type(int, min=50, throws=InvalidAmountError, optional=True, silent=True)
+    def refund(self, amount: int = 0) -> CurrentInstance:
+        """
+        Refund a payment, or part of it.
+
+        Args:
+            amount (int): Amount to refund,
+                if not present all paid amount will be refund.
+
+        Raises:
+            InvalidAmountError: When trying to refund more than paid.
+            InvalidAmountError: When the amount is invalid.
+        """
+        # Prevent import loop
+        from .refund import Refund  # pylint: disable=import-outside-toplevel
+
+        refund = Refund()
+        params = {
+            'payment': self,
+        }
+
+        if amount:
+            if amount > self.refundable_amount:
+                message = (
+                    'You are trying to refund ({amount:.2f} {currency}) '
+                    'more than possible ({max:.2f} {currency}).'
+                ).format(
+                    amount=amount / 100,
+                    currency=self.currency.upper(),
+                    max=self.refundable_amount / 100,
+                )
+
+                raise InvalidAmountError(message)
+
+            params['amount'] = amount
+
+        refund.hydrate(**params)
+        refund.save()
+
+        refunds = self._data.get('refunds', [])
+        refunds.append(refund)
+
+        self._data['refunds'] = refunds
+
+        if refund.status != RefundStatus.TO_REFUND:
+            self._populated = False
+            self.populate()
+
+        return self
+
+    @property
+    def refunded_amount(self) -> int:
+        """
+        Amount already refunded.
+
+        Returns:
+            int: Amount already refund.
+        """
+        return sum(map(lambda refund: refund.amount, self.refunds))
+
+    @property
+    def refundable_amount(self) -> int:
+        """
+        Amount not already refunded.
+
+        Returns:
+            int: Amount left to refund.
+        """
+        return self.amount - self.refunded_amount
 
     @property
     @populate_on_call
-    def response_code(self):
+    def refunds(self):
+        """
+        Returns refund's list.
+
+        Returns:
+            Refund[]: Refund's list
+        """
+        return self._data.get('refunds', [])
+
+    @property
+    @populate_on_call
+    def response_code(self) -> str:
         """
         API response code.
 
@@ -233,7 +338,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def response_message(self):
+    def response_message(self) -> str:
         """
         API response message.
 
@@ -253,7 +358,21 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         return responses.get(response_code)
 
-    def save(self):
+    def save(self) -> CurrentInstance:
+        """
+        Create or update the payment.
+
+        Returns:
+            Current instance.
+
+        Raises:
+            InvalidAmountError: When called without any amount setted.
+            InvalidCurrencyError: When called without any currency.
+            IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
+            MissingPaymentMethodError: When called without any payment method
+                or if this method is uncomplete
+                (you may have forgotten the card number).
+        """
         if self.amount is None:
             message = 'You must provide an amount before sending a payment.'
             raise InvalidAmountError(message)
@@ -282,7 +401,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def sepa(self):
+    def sepa(self) -> Sepa:
         """
         Source SEPA account for the payment.
 
@@ -291,18 +410,21 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         Returns:
             Sepa: SEPA used for the payment.
+
+        Raises:
+            InvalidSepaError: When sepa is invalid.
         """
         return self._data.get('sepa')
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value):
+    def sepa(self, value: Sepa):
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
 
     @property
     @populate_on_call
-    def status(self):
+    def status(self) -> str:
         """
         Payment status.
 

@@ -19,6 +19,10 @@ class TestAbstractObject(TestHelper):
         with pytest.raises(AttributeError):
             obj.id = self.random_string(29)
 
+        del obj.id
+
+        assert obj.id is None
+
     def test_uri(self):
         obj = AbstractObject()
         conf = Config()
@@ -26,7 +30,7 @@ class TestAbstractObject(TestHelper):
 
         assert obj.uri == 'https://api.iliad78.net/v1'
 
-        obj.hydrate({'id': uid})
+        obj.hydrate(id=uid)
 
         assert obj.uri == 'https://api.iliad78.net/v1/' + uid
 

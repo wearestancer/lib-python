@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from __future__ import unicode_literals
-from builtins import str
+from datetime import tzinfo
+from typing import List
+from typing import TypeVar
+from typing import Union
 
-from .core.decorators import validate_type
 from .core.singleton import Singleton
 from .exceptions import IliadValueError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Config')
 
 
 class Config(Singleton):
@@ -19,39 +21,66 @@ class Config(Singleton):
     it will be directly applying into the module.
 
     Constants:
-        LIVE_MODE: Used with `Config.mode()` to set or test API mode.
-
-        TEST_MODE: Used with `Config.mode()` to set or test API mode.
+        LIVE_MODE: Used with `Config.mode()` to set live or test API mode.
+        TEST_MODE: Used with `Config.mode()` to set live or test API mode.
     """
 
-    LIVE_MODE = 'live'
-    TEST_MODE = 'test'
+    LIVE_MODE = 'live'  # pylint: disable=invalid-name
+    TEST_MODE = 'test'  # pylint: disable=invalid-name
 
     def __init__(self):
         """Initialize configuration instance."""
-        del self.mode
+        self._default_timezone = None
+        self._host = None
+        self._keys = []
+        self._mode = None
+        self._port = None
+        self._timeout = 0
+        self._version = None
+
         del self.host
+        del self.keys
+        del self.mode
         del self.port
         del self.timeout
         del self.version
-        del self.keys
 
     @property
-    def host(self):
+    def default_timezone(self) -> tzinfo:
+        """
+        Will be used as default time zone for every datetime object created by the API.
+
+        Args:
+            tz: New time zone.
+
+        Returns:
+            str: Default time zone
+        """
+        return self._default_timezone
+
+    @default_timezone.setter
+    def default_timezone(self, zone: tzinfo):
+        self._default_timezone = zone
+
+    @default_timezone.deleter
+    def default_timezone(self):
+        self._default_timezone = None
+
+    @property
+    def host(self) -> str:
         """
         API host.
 
         Args:
-            value (str): New host, default "api.iliad78.net".
+            value: New host, default "api.iliad78.net".
 
         Returns:
-            str: API host.
+            API host.
         """
         return self._host
 
     @host.setter
-    @validate_type(str)
-    def host(self, value):
+    def host(self, value: str):
         self._host = value
 
     @host.deleter
@@ -59,7 +88,7 @@ class Config(Singleton):
         self._host = 'api.iliad78.net'
 
     @property
-    def keys(self):
+    def keys(self) -> dict:
         """
         API keychain.
 
@@ -72,19 +101,22 @@ class Config(Singleton):
         This way, you only have to chance the mode to be development mode.
 
         Args:
-            value (str|(str,)): One or more keys.
+            value: One or more keys.
                 This method allows a simple string, but using tuple of strings
                 is butter (as you can pass every keys in one call).
                 Every keys will be tested to find public/secret and
                 production/development keys.
 
         Returns:
-            dict: Will contain "pprod", "sprod", "ptest" and "stest" keys.
+            Will contain "pprod", "sprod", "ptest" and "stest" keys.
+
+        Raises:
+            IliadValueError: When a key is not valid.
         """
         return self._keys
 
     @keys.setter
-    def keys(self, value):
+    def keys(self, value: Union[List[str], str]):
         keychain = value
 
         if isinstance(value, str):
@@ -114,22 +146,24 @@ class Config(Singleton):
         }
 
     @property
-    def mode(self):
+    def mode(self) -> str:
         """
         API mode.
 
         Args:
-            value (str): New mode, please use class constant.
+            value: New mode, please use class constant.
 
         Returns:
-            str: Actual mode.
+            Actual mode.
+
+        Raises:
+            IliadValueError: If ``mode`` is not one of class contant.
         """
         return self._mode
 
     @mode.setter
-    @validate_type(str)
-    def mode(self, value):
-        if value != self.LIVE_MODE and value != self.TEST_MODE:
+    def mode(self, value: str):
+        if value not in (self.LIVE_MODE, self.TEST_MODE):
             message = (
                 'Unknonw mode "{}". '
                 'Please use class constant '
@@ -145,85 +179,109 @@ class Config(Singleton):
         self._mode = self.TEST_MODE
 
     @property
-    def pprod(self):
+    def pprod(self) -> str:
         """
         Public production API key.
 
         Returns:
-            str: Public production key avalaible in keychain.
+            Public production key available in keychain.
         """
         return self.keys['pprod']
 
     @property
-    def port(self):
+    def port(self) -> int:
         """
         API port.
 
         You may not need this, but maybe you have a weird network.
 
         Args:
-            value (int): New port, no default (you let the http client decide).
+            value: New port, no default (you let the http client decide).
 
         Returns:
-            int: API port.
+            API port.
         """
         return self._port
 
     @port.setter
-    @validate_type(int)
-    def port(self, value):
+    def port(self, value: int):
         self._port = value
 
     @port.deleter
-    def port(self):
+    def port(self) -> str:
         self._port = None
 
     @property
-    def ptest(self):
+    def ptest(self) -> str:
         """
         Public development API key.
 
         Returns:
-            str: Public development key avalaible in keychain.
+            Public development key available in keychain.
         """
         return self.keys['ptest']
 
     @property
-    def sprod(self):
+    def public_key(self) -> str:
+        """
+        Public API key.
+
+        Returns:
+            Public key available in keychain.
+        """
+        if self.mode == self.LIVE_MODE:
+            return self.pprod
+
+        return self.ptest
+
+    @property
+    def secret_key(self) -> str:
+        """
+        Secret API key.
+
+        Returns:
+            Secret key available in keychain.
+        """
+        if self.mode == self.LIVE_MODE:
+            return self.sprod
+
+        return self.stest
+
+    @property
+    def sprod(self) -> str:
         """
         Secret production API key.
 
         Returns:
-            str: Secret production key avalaible in keychain.
+            Secret production key available in keychain.
         """
         return self.keys['sprod']
 
     @property
-    def stest(self):
+    def stest(self) -> str:
         """
         Secret development API key.
 
         Returns:
-            str: Secret development key avalaible in keychain.
+            Secret development key available in keychain.
         """
         return self.keys['stest']
 
     @property
-    def timeout(self):
+    def timeout(self) -> int:
         """
         API timeout.
 
         Args:
-            value (int): New timeout, default 5 seconds.
+            value: New timeout, default 5 seconds.
 
         Returns:
-            int: Timeout.
+            Timeout.
         """
         return self._timeout
 
     @timeout.setter
-    @validate_type(int)
-    def timeout(self, value):
+    def timeout(self, value: int):
         self._timeout = value
 
     @timeout.deleter
@@ -231,23 +289,22 @@ class Config(Singleton):
         self._timeout = 5
 
     @property
-    def version(self):
+    def version(self) -> int:
         """
         API version.
 
         Not really used for now, it's just in case we need it.
 
         Args:
-            value (int): New target API version.
+            value: New target API version.
 
         Returns:
-            int: Target API version.
+            Target API version.
         """
         return self._version
 
     @version.setter
-    @validate_type(int)
-    def version(self, value):
+    def version(self, value: int):
         self._version = value
 
     @version.deleter

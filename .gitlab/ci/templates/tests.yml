@@ -1,0 +1,18 @@
+
+.tests:
+  extends:
+    - .versions
+
+  stage: test
+
+  script:
+    - tox -e $PYTHON_VERSION-unit
+
+  coverage: '/TOTAL \s+[\d+\s+]* (\d+%)/'
+
+  artifacts:
+    reports:
+      junit: reports/$PYTHON_VERSION-unit.xml
+
+  tags:
+    - python

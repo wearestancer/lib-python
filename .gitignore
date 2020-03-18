@@ -4,6 +4,7 @@
 ._*
 
 # Generated files
+dist/
 .eggs/
 .pytest_cache/
 *.egg-info/

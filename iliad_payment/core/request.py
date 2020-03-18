@@ -1,43 +1,37 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from ..exceptions import IliadHTTPError
-from ..exceptions import IliadValueError
-import json
+from typing import TypeVar
+
 import requests
 
 from ..config import Config
+from ..exceptions import IliadHTTPError
+from ..exceptions import IliadValueError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Request')
 
 
 class Request(object):
     """API request manager."""
 
     def __init__(self, obj):
+        """Initialize"""
         self._obj = obj
         self._conf = Config()
 
-    def __getattr__(self, name):
-        if name in ['delete', 'get', 'post']:
-            mode = self._conf.mode
-            username = None
+    def __getattr__(self, name: str) -> CurrentInstance:
+        """Handle automaticaly "get", "post" and "delete" method."""
 
-            if self._obj.id is None and (name == 'get' or name == 'delete'):
+        if name in ['delete', 'get', 'post']:
+            if self._obj.id is None and name in ('get', 'delete'):
                 message = (
                     'You can not {} an object without an ID.'
                 ).format(name)
 
                 raise IliadValueError(message)
 
-
-            if self._conf.mode == Config.LIVE_MODE:
-                mode = 'prod'
-
-            for prefix in ['p', 's']:
-                tmp = getattr(self._conf, prefix + mode)
-
-                if tmp is not None:
-                    username = tmp
+            username = self._conf.secret_key
 
             if username is None:
                 raise AttributeError('No API key found.')
@@ -49,7 +43,7 @@ class Request(object):
 
             body = None
 
-            if name != 'get' and name != 'delete':
+            if name not in ('get', 'delete'):
                 body = self._obj.to_json()
 
             response = method(
@@ -66,11 +60,11 @@ class Request(object):
                 raise IliadHTTPError.factory(response)
 
             if response.ok and name == 'delete':
-                self._obj.hydrate({'id': None})
+                del self._obj.id
 
             if response.text is not None:
                 try:
-                    self._obj.hydrate(response.json())
+                    self._obj.hydrate(**response.json())
                 except ValueError:
                     # Bypass in case of decoding error
                     #  (if the body is HTML or whatever)

@@ -1,11 +1,11 @@
 """Test abstract object"""
 
-from builtins import str
-
 import base64
-from datetime import datetime
+from datetime import datetime, tzinfo
 import json
 import pytest
+from pytz import timezone
+from random import choice
 import requests
 import responses
 
@@ -23,16 +23,16 @@ class TestStubObject(TestHelper):
         params = {
             'id': self.random_string(29),
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'id': self.random_string(29),
-                'number': '4242424242424242',
+                'number': choice(self.card_number_provider()),
             },
-            'created': 1546867615,
+            'created': self.random_integer(1500000000, 1600000000),
         }
 
         obj.force_populated(True)
-        obj.hydrate(params)
+        obj.hydrate(**params)
         card = obj.card1
 
         result = obj.__dict__
@@ -49,16 +49,91 @@ class TestStubObject(TestHelper):
         assert result['integer1'] == params['integer1']
 
         assert 'created' in result
-        assert result['created'] == '2019-01-07 14:26:55'
+        assert isinstance(result['created'], datetime)
+        assert result['created'].timestamp() == params['created']
 
         assert 'card1' in result
-        assert isinstance(result['card1'], dict)
+        assert isinstance(result['card1'], Card)
+        assert result['card1'] == card
 
-        assert 'id' in result['card1']
-        assert result['card1']['id'] == card.id
+    def test_created(self):
+        obj = StubObject()
+        config = Config()
+        zone = 'Europe/Paris'
+        date = self.random_integer(1500000000, 1600000000)
 
-        assert 'number' in result['card1']
-        assert result['card1']['number'] == card.number
+        params = {
+            'created': date,
+        }
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.created, datetime)
+        assert obj.created.timestamp() == date
+        assert obj.created.tzinfo is None
+
+        config.default_timezone = timezone(zone)
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.created, datetime)
+        assert obj.created.timestamp() == date
+        assert isinstance(obj.created.tzinfo, tzinfo)
+        assert obj.created.tzinfo.zone == zone
+
+    def test_instance(self):
+        empty = StubObject()
+
+        assert isinstance(empty, StubObject)
+        assert empty.id is None
+        assert empty.__dict__ == {}
+
+        uid = self.random_string(29)
+        with_id = StubObject(uid)
+
+        assert isinstance(with_id, StubObject)
+        assert with_id.id == uid
+        assert with_id.__dict__ == {'id': uid}
+
+        params = {
+            'string1': self.random_string(10),
+            'string2': None,
+            'integer1': self.random_integer(10, 100),
+            'card1': {
+                'id': self.random_string(29),
+                'number': '4242424242424242',
+            },
+            'created': 1546867615,
+        }
+
+        hydrated = StubObject()
+        hydrated.hydrate(**params)
+
+        assert isinstance(hydrated, StubObject)
+        assert hydrated.id is None
+        assert hydrated.string1 == params['string1']
+        assert hydrated.string2 is None
+        assert hydrated.integer1 == params['integer1']
+
+        assert isinstance(hydrated.card1, Card)
+        assert hydrated.card1.id == params['card1']['id']
+
+        assert isinstance(hydrated.created, datetime)
+        assert hydrated.created.timestamp() == params['created']
+
+        with_kwargs = StubObject(**params)
+
+        assert isinstance(with_kwargs, StubObject)
+        assert with_kwargs.id is None
+        assert with_kwargs.string1 == params['string1']
+        assert with_kwargs.string2 is None
+        assert with_kwargs.integer1 == params['integer1']
+
+        assert isinstance(with_kwargs.card1, Card)
+        assert with_kwargs.card1.id == params['card1']['id']
+
+        assert isinstance(with_kwargs.created, datetime)
+        assert with_kwargs.created.timestamp() == params['created']
 
     @responses.activate
     def test_delete(self):
@@ -98,12 +173,12 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {},
             'created': 1546867615,
         }
 
-        assert obj.hydrate(params) == obj
+        assert obj.hydrate(**params) == obj
 
         assert obj.string1 == params['string1']
         assert obj.integer1 == params['integer1']
@@ -116,15 +191,16 @@ class TestStubObject(TestHelper):
         assert obj.created.minute == 26
         assert obj.created.second == 55
 
+        assert obj.card1 is None
+
+        assert obj.is_modified
+
+        assert obj.hydrate(card1=uid) == obj
+
         assert isinstance(obj.card1, Card)
-        assert obj.card1.id is None
+        assert obj.card1.id == uid
 
         card = obj.card1
-
-        assert obj.hydrate({'card1': uid}) == obj
-
-        assert obj.card1 == card
-        assert card.id == uid
 
         params = {
             'card1': {
@@ -133,11 +209,86 @@ class TestStubObject(TestHelper):
         }
 
         obj = StubObject()
-        obj.hydrate(params)
+        obj.hydrate(**params)
 
         assert isinstance(obj.card1, Card)
         assert obj.card1 != card
         assert obj.card1.id == params['card1']['id']
+
+        assert obj.is_not_modified
+        assert card.is_not_modified
+
+        params = {
+            'card1': card,
+        }
+
+        obj = StubObject()
+        obj.hydrate(**params)
+
+        assert isinstance(obj.card1, Card)
+        assert obj.card1 == card
+
+        assert obj.is_not_modified
+        assert card.is_not_modified
+
+        uid = self.random_string(29)
+        name1 = self.random_string(10)
+        name2 = self.random_string(10)
+
+        params = {
+            'cards': [
+                card,
+                {
+                    'id': uid,
+                    'name': name1,
+                },
+            ],
+        }
+
+        obj = StubObject()
+        obj.hydrate(**params)
+
+        assert isinstance(obj.cards, list)
+        assert len(obj.cards) == 2
+
+        assert isinstance(obj.cards[0], Card)
+        assert obj.cards[0] == card
+
+        assert isinstance(obj.cards[1], Card)
+        assert obj.cards[1].id == uid
+        assert obj.cards[1].name == name1
+
+        assert obj.is_modified
+        assert obj.cards[0].is_not_modified
+        assert obj.cards[1].is_modified
+
+        card0 = obj.cards[0]
+        card1 = obj.cards[1]
+
+        params = {
+            'cards': [
+                {
+                    'id': uid,
+                    'name': name2,
+                },
+            ],
+        }
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.cards, list)
+        assert len(obj.cards) == 2
+
+        assert isinstance(obj.cards[0], Card)
+        assert obj.cards[0] == card0
+
+        assert isinstance(obj.cards[1], Card)
+        assert obj.cards[1] == card1
+        assert obj.cards[1].name == name2
+
+        assert obj.is_modified
+        assert obj.cards[0].is_not_modified
+        assert obj.cards[1].is_modified
 
     def test_modified_status(self):
         obj = StubObject()
@@ -145,7 +296,7 @@ class TestStubObject(TestHelper):
         assert not obj.is_modified
         assert obj.is_not_modified
 
-        obj.force_modified(True)
+        obj.force_modified('id')
 
         assert obj.is_modified
 
@@ -171,7 +322,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'created': 1546867615,
         }
 
@@ -179,7 +330,7 @@ class TestStubObject(TestHelper):
 
         assert obj.is_not_populated
 
-        obj.force_modified(True)
+        obj.force_modified('id')
 
         assert obj.is_modified
 
@@ -239,7 +390,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'number': '4242424242424242',
                 'brand': self.random_string(10),
@@ -247,7 +398,7 @@ class TestStubObject(TestHelper):
             'created': 1546867615,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
         obj.string2 = self.random_string(20)
         card = obj.card1
 
@@ -292,7 +443,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'card1': {
                 'number': '4242424242424242',
                 'brand': self.random_string(10),
@@ -300,7 +451,7 @@ class TestStubObject(TestHelper):
             'created': 1546867615,
         }
 
-        obj.hydrate(params)
+        obj.hydrate(**params)
         card = obj.card1
 
         result = obj.to_json()
@@ -311,21 +462,43 @@ class TestStubObject(TestHelper):
         assert result.find('"card1":{{"number":"{}"}}'.format(card.number)) > 0
         assert result.find('"created"') == -1
 
-        card.hydrate({'id': self.random_string(29)})
+        # Inner object may send their ID
+        card.hydrate(id=self.random_string(29))
+        card._modified = set() # Do not do this at home
+
+        obj.force_modified('card1')
 
         result = obj.to_json()
 
-        assert result.find('"card1":{{"id":"{}"}}'.format(card.id)) > 0
+        assert result.find('"card1":"{}"'.format(card.id)) > 0
+
+        # Only export modified properties
+        obj.reset_modified()
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result == '{}'
+
+        # Export modified inner object
+        card.cvc = str(self.random_integer(100, 999))
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"card1":{{"cvc":"{}"}}'.format(card.cvc)) > 0
 
         # An object with an ID will return only his ID into the json
         uid = self.random_string(29)
-        obj.hydrate({'id': uid})
+        obj.hydrate(id=uid)
+
+        card._modified = set() # Do not do this at home
 
         result = obj.to_json()
 
-        assert result == '{{"id":"{}"}}'.format(uid)
+        assert result == '"{}"'.format(uid)
 
-        # unless it was modified
+        # Unless it was modified
         obj.string2 = self.random_string(20)
 
         result = obj.to_json()
@@ -334,30 +507,10 @@ class TestStubObject(TestHelper):
 
         result = json.loads(result)
 
-        assert 'string1' in result
-        assert result['string1'] == obj.string1
-
         assert 'string2' in result
         assert result['string2'] == obj.string2
 
-        assert 'integer1' in result
-        assert result['integer1'] == obj.integer1
-
-        assert 'card1' in result
-        assert 'id' in result['card1']
-        assert result['card1']['id'] == card.id
+        assert 'integer1' not in result
 
         assert 'id' not in result
         assert 'created' not in result
-
-        # None values are not exported
-        params = {
-            'string1': None,
-            'integer1': None,
-            'card1': None,
-        }
-
-        obj = StubObject()
-        obj.hydrate(params)
-
-        assert obj.to_json() == '{}'

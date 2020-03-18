@@ -1,34 +1,13 @@
 """Functional tests for customer object"""
 
-from __future__ import unicode_literals
-from builtins import str
-
-import os
 import pytest
 
-from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment.exceptions import NotFoundError
-from ..TestHelper import TestHelper
+from .TestHelper import TestHelper
 
 
-@pytest.mark.skipif(
-    os.getenv('API_KEY') is None,
-    reason='Require an API key',
-)
-@pytest.mark.skipif(
-    os.getenv('API_HOST') is None,
-    reason='Require an API host',
-)
 class TestFunctionalCustomer(TestHelper):
-    def setup_method(self, method):
-        conf = Config()
-
-        del conf.keys
-        conf.keys = str(os.getenv('API_KEY'))
-        conf.host = str(os.getenv('API_HOST'))
-        conf.timeout = 1
-
     def test_get(self):
         with pytest.raises(NotFoundError) as error:
             obj = Customer(self.random_string(29))
@@ -41,7 +20,7 @@ class TestFunctionalCustomer(TestHelper):
         message = 'No such customer {}'.format(obj.id)
         assert error.value.message['id'] == message
 
-        obj = Customer('cust_aEBF8w2szNdhreJ0uEmrplen')
+        obj = Customer('cust_9y1U3mHPd1yPvbx07VBRqd9C')
 
         assert obj.name == 'John Doe'
         assert obj.email == 'john.doe@example.com'

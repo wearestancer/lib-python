@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=missing-docstring
-
-# pylint: enable=missing-docstring
-from builtins import int
-from builtins import str
 
 from datetime import date
 import re
+from typing import TypeVar
 
 from .core import AbstractCountry
 from .core import AbstractName
@@ -19,6 +15,9 @@ from .exceptions import InvalidCardExpirationYearError
 from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
 from .exceptions import InvalidZipCodeError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Card')
 
 
 class Card(AbstractObject, AbstractName, AbstractCountry):
@@ -35,17 +34,17 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def brand(self):
+    def brand(self) -> str:
         """
         Card brand.
 
         Returns:
-            str: Brand code as viewed by the API.
+            Brand code as viewed by the API.
         """
         return self._data.get('brand')
 
     @property
-    def brandname(self):
+    def brandname(self) -> str:
         """
         Return real brand name.
 
@@ -54,7 +53,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         and real brand name, like "American Express".
 
         Returns:
-            str: Brand name if known or brand code returned by `Card.brand`.
+            Brand name if known or brand code returned by `Card.brand`.
         """
         brand = self.brand
 
@@ -75,17 +74,20 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def cvc(self):
+    def cvc(self) -> str:
         """
         Card Verification Code.
 
         We use string for CVC to prevent errors with leading zeros.
 
         Args:
-            value (str): New value for CVC.
+            value: New value for CVC.
 
         Returns:
-            str: Card Verification code.
+            Card Verification code.
+
+        Raises:
+            InvalidCardVerificationCodeError: When the CVC is invalid.
         """
         return self._data.get('cvc')
 
@@ -96,20 +98,23 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='CVC',
         throws=InvalidCardVerificationCodeError,
     )
-    def cvc(self, value):
+    def cvc(self, value: str):
         self._data['cvc'] = value
 
     @property
     @populate_on_call
-    def exp_month(self):
+    def exp_month(self) -> int:
         """
         Expiration month.
 
         Args:
-            value (int): Must be an integer (between 1 and 12).
+            value: Must be an integer (between 1 and 12).
 
         Returns:
-            int: Card expiration month.
+            Card expiration month.
+
+        Raises:
+            InvalidCardExpirationMonthError: When the expiration month is invalid.
         """
         return self._data.get('exp_month')
 
@@ -121,20 +126,23 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='Expiration month',
         throws=InvalidCardExpirationMonthError,
     )
-    def exp_month(self, value):
+    def exp_month(self, value: int):
         self._data['exp_month'] = value
 
     @property
     @populate_on_call
-    def exp_year(self):
+    def exp_year(self) -> int:
         """
         Expiration year.
 
         Args:
-            value (int): Must be at least equal to the current year.
+            value: Must be at least equal to the current year.
 
         Returns:
-            int: Card expiration year.
+            Card expiration year.
+
+        Raises:
+            InvalidCardExpirationYearError: When the expiration year is invalid.
         """
         return self._data.get('exp_year')
 
@@ -145,16 +153,16 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='Expiration year',
         throws=InvalidCardExpirationYearError,
     )
-    def exp_year(self, value):
+    def exp_year(self, value: int):
         self._data['exp_year'] = value
 
     @property
-    def is_complete(self):
+    def is_complete(self) -> bool:
         """
         Indicate if all mandatory card data are provided.
 
         Returns:
-            bool: Is the card complete ?
+            Is the card complete ?
         """
         if self.cvc is None:
             return False
@@ -171,45 +179,36 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         return True
 
     @property
-    def is_not_complete(self):
-        """
-        Indicate if all mandatory card data are NOT provided.
-
-        It's simply a `not self.is_complete`.
-
-        Returns:
-            bool: Is the card not complete ?
-        """
-        return not self.is_complete
-
-    @property
     @populate_on_call
-    def last4(self):
+    def last4(self) -> str:
         """
         Card number's last 4 digits.
 
         Returns:
-            str: Card's last 4 digits.
+            Card's last 4 digits.
         """
         return self._data.get('last4')
 
     @property
     @populate_on_call
-    def number(self):
+    def number(self) -> str:
         """
         Card number.
 
         Args:
-            value (str): New card number.
+            value: New card number.
 
         Returns:
-            str: Card number.
+            Card number.
+
+        Raises:
+            InvalidCardNumberError: When the card number is invalid.
         """
         return self._data.get('number')
 
     @number.setter
     @validate_type(str, throws=InvalidCardNumberError)
-    def number(self, value):
+    def number(self, value: str):
         number = re.sub(r'\D', '', value)
         parts = list(map(int, number))
         calc = [
@@ -238,34 +237,40 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def tokenize(self):
+    def tokenize(self) -> CurrentInstance:
         """
         Indicate if the card can be reuse later.
 
         Args:
-            value (bool): `True` allow reuse, `False` won't.
+            value: `True` allow reuse, `False` won't.
 
         Returns:
-            bool: Tokenize status.
+            Tokenize status.
+
+        Raises:
+            InvalidCardTokenizeError: When the token is invalid (should never occur).
         """
         return self._data.get('tokenize')
 
     @tokenize.setter
     @validate_type(bool, throws=InvalidCardTokenizeError)
-    def tokenize(self, value):
+    def tokenize(self, value: bool):
         self._data['tokenize'] = value
 
     @property
     @populate_on_call
-    def zip_code(self):
+    def zip_code(self) -> str:
         """
         City zip code.
 
         Args:
-            value (str): New zip code, must be between 2 and 8 characters.
+            value: New zip code, must be between 2 and 8 characters.
 
         Returns:
-            str: City zip code.
+            City zip code.
+
+        Raises:
+            InvalidZipCodeError: When the zip code is invalid.
         """
         return self._data.get('zip_code')
 
@@ -277,5 +282,5 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         name='Zip code',
         throws=InvalidZipCodeError,
     )
-    def zip_code(self, value):
+    def zip_code(self, value: str):
         self._data['zip_code'] = value

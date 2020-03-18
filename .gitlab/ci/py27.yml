@@ -1,0 +1,27 @@
+
+.py27:
+  variables:
+    PYTHON_VERSION: py27
+
+py27:lint:
+  extends:
+    - .py27
+    - .lint
+
+py27:tests:
+  extends:
+    - .py27
+    - .tests
+
+  needs:
+    - py27:lint
+
+py27:coverage-check:
+  extends:
+    - .py27
+    - .coverage-check
+
+py27:update-coverage:
+  extends:
+    - .py27
+    - .update-coverage
