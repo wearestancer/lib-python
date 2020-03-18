@@ -3,9 +3,11 @@ stages:
   - lint
   - test
   - coverage
+  - build
 
 include:
   - local: .gitlab/ci/templates.yml
+  - local: .gitlab/ci/build.yml
   - local: .gitlab/ci/py35.yml
   - local: .gitlab/ci/py36.yml
   - local: .gitlab/ci/py37.yml
