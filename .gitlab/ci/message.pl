@@ -97,7 +97,6 @@ for my $channel (@channels) {
   my %form = (
     Content_Type => 'form-data',
     Content => [
-      files => [$path],
       channel_id => $channel,
     ],
   );
