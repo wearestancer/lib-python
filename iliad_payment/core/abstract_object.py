@@ -336,7 +336,7 @@ class AbstractObject(object):
 
         return self
 
-    def save(self) -> CurrentInstance:
+    def send(self) -> CurrentInstance:
         """
         Save the current object.
 
@@ -359,7 +359,7 @@ class AbstractObject(object):
         """
         Return a JSON representation of the current object.
 
-        Be carefull, this is mainly used in `Object.save()` method.
+        Be carefull, this is mainly used in `Object.send()` method.
         It will return all object data if no ID is present or
         if the current object is tagged as `modified`.
         Unless that, it will return a JSON with only the `id` key.

@@ -554,7 +554,7 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_save_with_card(self):
+    def test_send_with_card(self):
         obj = Payment()
 
         card = Card()
@@ -574,7 +574,7 @@ class TestPayment(TestHelper):
             InvalidAmountError,
             match='You must provide an amount before sending a payment.',
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -584,7 +584,7 @@ class TestPayment(TestHelper):
             InvalidCurrencyError,
             match='You must provide a currency before sending a payment.',
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -597,7 +597,7 @@ class TestPayment(TestHelper):
                 'or SEPA account before sending a payment.'
             ),
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -612,7 +612,7 @@ class TestPayment(TestHelper):
                 'Your card is incomplete.'
             ),
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -621,7 +621,7 @@ class TestPayment(TestHelper):
         card.exp_year = self.random_year()
         card.number = '4111111111111111'
 
-        assert obj.save() == obj
+        assert obj.send() == obj
         assert len(responses.calls) == 1
 
         # Data from fixture
@@ -645,14 +645,14 @@ class TestPayment(TestHelper):
         assert card.exp_year == 2020
         assert card.last4 == '4444'
         assert card.name is None
-        # Number is unchanged in save process
+        # Number is unchanged in send process
         assert card.number == '4111111111111111'
         assert card.zip_code is None
 
         assert customer.id == 'cust_9Cle7TXKkjhwqcWx4Kl5cQYk'
 
     @responses.activate
-    def test_save_with_sepa(self):
+    def test_send_with_sepa(self):
         obj = Payment()
 
         sepa = Sepa()
@@ -672,7 +672,7 @@ class TestPayment(TestHelper):
             InvalidAmountError,
             match='You must provide an amount before sending a payment.',
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -682,7 +682,7 @@ class TestPayment(TestHelper):
             InvalidCurrencyError,
             match='You must provide a currency before sending a payment.',
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -695,7 +695,7 @@ class TestPayment(TestHelper):
                 'or SEPA account before sending a payment.'
             ),
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
@@ -710,14 +710,14 @@ class TestPayment(TestHelper):
                 'Your SEPA account is incomplete.'
             ),
         ):
-            obj.save()
+            obj.send()
 
         assert len(responses.calls) == 0
 
         sepa.bic = 'DEUTDEFF'  # Thx Wikipedia
         sepa.iban = 'DE91 1000 0000 0123 4567 89'  # Thx Wikipedia
 
-        assert obj.save() == obj
+        assert obj.send() == obj
         assert len(responses.calls) == 1
 
         # Data from fixture
@@ -736,7 +736,7 @@ class TestPayment(TestHelper):
 
         assert sepa.id == 'sepa_oazGliEo6BuqUlyCzE42hcNp'
         assert sepa.bic == 'ILADFRPP'
-        # Iban is unchanged in save process
+        # Iban is unchanged in send process
         assert sepa.iban == 'DE91100000000123456789'
         assert sepa.last4 == '2606'
         assert sepa.name == 'David Coaster'

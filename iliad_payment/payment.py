@@ -284,7 +284,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             params['amount'] = amount
 
         refund.hydrate(**params)
-        refund.save()
+        refund.send()
 
         refunds = self._data.get('refunds', [])
         refunds.append(refund)
@@ -364,7 +364,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         return responses.get(response_code)
 
-    def save(self) -> CurrentInstance:
+    def send(self) -> CurrentInstance:
         """
         Create or update the payment.
 
@@ -403,7 +403,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             message += ' Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
-        return super().save()
+        return super().send()
 
     @property
     @populate_on_call

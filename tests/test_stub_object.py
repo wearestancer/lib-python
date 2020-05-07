@@ -373,7 +373,7 @@ class TestStubObject(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_save(self):
+    def test_send(self):
         obj = StubObject()
         conf = Config()
 
@@ -409,7 +409,7 @@ class TestStubObject(TestHelper):
 
         responses.add(responses.POST, location, json={'id': uid})
 
-        assert obj.save() == obj
+        assert obj.send() == obj
         assert obj.id == uid
 
         assert len(responses.calls) == 1
@@ -417,8 +417,8 @@ class TestStubObject(TestHelper):
         assert responses.calls[0].request.headers['Authorization'] == theader
         assert responses.calls[0].request.body == obj_repr
 
-        # Multiple save will not trigger multiple call
-        obj.save()
+        # Multiple send will not trigger multiple call
+        obj.send()
 
         assert len(responses.calls) == 1
 
@@ -430,7 +430,7 @@ class TestStubObject(TestHelper):
         obj.string2 = self.random_string(20)
         obj_repr = obj.to_json()
 
-        obj.save()
+        obj.send()
 
         assert len(responses.calls) == 2
         assert responses.calls[1].request.body == obj_repr
