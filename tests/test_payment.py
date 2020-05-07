@@ -644,28 +644,12 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 0
 
         obj.currency = 'eur'
-
-        with pytest.raises(
-            MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment.'
-            ),
-        ):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
         obj.card = card
         obj.customer = customer
 
         with pytest.raises(
             MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment. '
-                'Your card is incomplete.'
-            ),
+            match='Your card is incomplete.',
         ):
             obj.send()
 
@@ -742,28 +726,12 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 0
 
         obj.currency = 'eur'
-
-        with pytest.raises(
-            MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment.'
-            ),
-        ):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
         obj.sepa = sepa
         obj.customer = customer
 
         with pytest.raises(
             MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment. '
-                'Your SEPA account is incomplete.'
-            ),
+            match='Your SEPA account is incomplete.',
         ):
             obj.send()
 
@@ -1155,6 +1123,88 @@ class TestPayment(TestHelper):
         assert obj.device.languages is None
         assert obj.device.port == 1337
         assert obj.device.user_agent is None
+
+    @responses.activate
+    def test_send_without_method(self):
+        obj = Payment()
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+        email = self.random_string(15) + '@example.org'
+        mobile = self.random_mobile()
+        name = self.random_string(15)
+
+        customer = Customer()
+        customer.name = name
+        customer.email = email
+        customer.mobile = mobile
+
+        obj.customer = customer
+
+        with open('./tests/fixtures/payment/create-no-method.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            InvalidAmountError,
+            match='You must provide an amount before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.amount = amount
+
+        with pytest.raises(
+            InvalidCurrencyError,
+            match='You must provide a currency before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.currency = currency
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'card' not in body
+        assert 'sepa' not in body
+
+        assert 'customer' in body
+        assert isinstance(body.get('customer'), dict)
+        assert 'email' in body.get('customer')
+        assert body.get('customer').get('email') == email
+        assert 'mobile' in body.get('customer')
+        assert body.get('customer').get('mobile') == mobile
+        assert 'name' in body.get('customer')
+        assert body.get('customer').get('name') == name
+
+        # Data from fixture
+        assert obj.id == 'paym_pia9ossoqujuFFbX0HdS3FLi'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1562085759
+        assert obj.amount == 10000
+        assert obj.card is None
+        assert obj.currency == 'eur'
+        assert obj.customer == customer
+        assert obj.description == 'Test payment without any card or sepa account'
+        assert obj.live_mode is False
+        assert obj.method is None
+        assert obj.order_id is None
+        assert obj.sepa is None
+
+        assert customer.id == 'cust_IYsHodYTugeBndSIOdm6rnBA'
 
     @responses.activate
     def test_send_autocreate_device(self, monkeypatch):
