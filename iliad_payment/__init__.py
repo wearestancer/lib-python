@@ -8,6 +8,7 @@ from .customer import Customer
 from .payment import Payment
 from .refund import Refund
 from .sepa import Sepa
+from .status.auth import AuthStatus
 from .status.payment import PaymentStatus
 from .status.refund import RefundStatus
 
