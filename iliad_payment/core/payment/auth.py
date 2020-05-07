@@ -10,9 +10,14 @@ from ...exceptions import InvalidAuthError
 from ...exceptions import InvalidDeviceError
 
 
-def _coerce_auth(value: Union[Auth, str]) -> Auth:
+def _coerce_auth(value: Union[Auth, str, bool]) -> Auth:
     if isinstance(value, str):
         return Auth(return_url=value)
+
+    if isinstance(value, bool):
+        if value:
+            return Auth()
+        return None
 
     return value
 

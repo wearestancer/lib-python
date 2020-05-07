@@ -103,6 +103,19 @@ class TestPayment(TestHelper):
 
         assert isinstance(obj.auth, Auth)
         assert obj.auth.return_url == return_url
+        assert obj.auth.status == AuthStatus.REQUEST
+
+        obj.auth = True
+
+        assert isinstance(obj.auth, Auth)
+        assert obj.auth.return_url is None
+        assert obj.auth.status == AuthStatus.REQUEST
+
+        obj.auth = False
+
+        assert isinstance(obj.auth, Auth)
+        assert obj.auth.return_url is None
+        assert obj.auth.status == AuthStatus.REQUEST
 
     @responses.activate
     def test_capture(self):
@@ -1415,6 +1428,80 @@ class TestPayment(TestHelper):
         assert obj.device.languages is None
         assert obj.device.port == 1337
         assert obj.device.user_agent is None
+
+    @responses.activate
+    def test_send_with_auth_for_payment_page(self, monkeypatch):
+        obj = Payment()
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        port = self.random_integer(1, 65535)
+
+        obj.auth = True
+
+        monkeypatch.setenv('SERVER_ADDR', ip)
+        monkeypatch.setenv('SERVER_PORT', str(port))
+
+        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            InvalidAmountError,
+            match='You must provide an amount before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.amount = amount
+
+        with pytest.raises(
+            InvalidCurrencyError,
+            match='You must provide a currency before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.currency = currency
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'auth' in body
+        assert isinstance(body.get('auth'), dict)
+        assert 'return_url' not in body.get('auth')
+        assert 'status' in body.get('auth')
+        assert body.get('auth').get('status') == AuthStatus.REQUEST
+
+        assert 'card' not in body
+        assert 'sepa' not in body
+        assert 'device' not in body
+
+        # Data from fixture
+        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.amount == 1337
+        assert obj.card is None
+        assert obj.currency == 'eur'
+        assert obj.description == 'Auth test'
+        assert obj.live_mode is False
+        assert obj.method is None
+        assert obj.order_id is None
+        assert obj.sepa is None
 
     @responses.activate
     def test_sepa(self):
