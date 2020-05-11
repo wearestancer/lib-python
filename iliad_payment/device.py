@@ -11,6 +11,7 @@ class Device(AbstractObject):
     _allowed_attributes = [
         'city',
         'country',
+        'http_accept',
     ]
 
     @property
@@ -50,3 +51,22 @@ class Device(AbstractObject):
     @validate_type(str)
     def country(self, value: str):
         self._data['country'] = value
+
+    @property
+    @populate_on_call
+    def http_accept(self) -> str:
+        """
+        Customer's browser acceptance.
+
+        Args:
+            value: New acceptance.
+
+        Returns:
+            Customer's browser acceptance.
+        """
+        return self._data.get('http_accept')
+
+    @http_accept.setter
+    @validate_type(str)
+    def http_accept(self, value: str):
+        self._data['http_accept'] = value

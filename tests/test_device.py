@@ -32,3 +32,14 @@ class TestDevice(TestHelper):
 
         assert obj.country == country
         assert obj.to_json().find('"country":"{}"'.format(country)) > 0
+
+    def test_http_accept(self):
+        obj = Device()
+        http_accept = self.random_string(10)
+
+        assert obj.http_accept is None
+
+        obj.http_accept = http_accept
+
+        assert obj.http_accept == http_accept
+        assert obj.to_json().find('"http_accept":"{}"'.format(http_accept)) > 0
