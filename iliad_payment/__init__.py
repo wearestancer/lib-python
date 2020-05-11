@@ -6,6 +6,7 @@ from .auth import Auth
 from .card import Card
 from .config import Config
 from .customer import Customer
+from .device import Device
 from .payment import Payment
 from .refund import Refund
 from .sepa import Sepa
