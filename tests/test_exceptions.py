@@ -30,6 +30,9 @@ class TestExceptions(TestHelper):
     def test_invalid_amount_error(self):
         assert issubclass(InvalidAmountError, IliadValueError)
 
+    def test_invalid_auth_error(self):
+        assert issubclass(InvalidAuthError, IliadValueError)
+
     def test_invalid_bic_error(self):
         assert issubclass(InvalidBicError, IliadValueError)
 

@@ -30,6 +30,10 @@ class InvalidAmountError(IliadValueError):
     """Raised when an invalid amount is used."""
 
 
+class InvalidAuthError(IliadValueError):
+    """Raised when an invalid auth object is used."""
+
+
 class InvalidBicError(IliadValueError):
     """Raised when an invalid BIC is used."""
 

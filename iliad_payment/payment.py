@@ -2,6 +2,7 @@
 
 from typing import TypeVar
 
+from .auth import Auth
 from .card import Card
 from .customer import Customer
 from .device import Device
@@ -13,6 +14,7 @@ from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import IliadNotImplementedError
 from .exceptions import InvalidAmountError
+from .exceptions import InvalidAuthError
 from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
 from .exceptions import InvalidCustomerError
@@ -60,6 +62,28 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     @property
     def _init_sepa(self) -> Sepa:
         return Sepa
+
+    @property
+    @populate_on_call
+    def auth(self) -> Auth:
+        """
+        Authentication request.
+
+        Args:
+            value (Auth): A valid `Auth` object.
+
+        Returns:
+            Auth: Authentication request object.
+
+        Raises:
+            InvalidAuthError: When auth is invalid.
+        """
+        return self._data.get('auth')
+
+    @auth.setter
+    @validate_type(Auth, throws=InvalidAuthError)
+    def auth(self, value: Auth):
+        self._data['auth'] = value
 
     @property
     @populate_on_call

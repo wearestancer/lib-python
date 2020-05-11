@@ -5,6 +5,7 @@ import json
 import pytest
 import responses
 
+from iliad_payment import Auth
 from iliad_payment import Card
 from iliad_payment import Customer
 from iliad_payment import Device
@@ -16,6 +17,7 @@ from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject
 from iliad_payment.exceptions import IliadNotImplementedError
 from iliad_payment.exceptions import InvalidAmountError
+from iliad_payment.exceptions import InvalidAuthError
 from iliad_payment.exceptions import InvalidCardError
 from iliad_payment.exceptions import InvalidCurrencyError
 from iliad_payment.exceptions import InvalidCustomerError
@@ -72,6 +74,28 @@ class TestPayment(TestHelper):
         assert obj.amount == params['amount']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    def test_auth(self):
+        obj = Payment()
+        auth = Auth()
+
+        assert obj.auth is None
+
+        obj.auth = auth
+
+        assert obj.auth == auth
+
+        with pytest.raises(
+            InvalidAuthError,
+            match='You must provide a valid instance of Auth',
+        ):
+            obj.auth = self.random_integer(2)
+
+        with pytest.raises(
+            InvalidAuthError,
+            match='You must provide a valid instance of Auth',
+        ):
+            obj.auth = self.random_string(2)
 
     @responses.activate
     def test_capture(self):
