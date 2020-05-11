@@ -19,6 +19,7 @@ class AbstractObject(object):
 
     _ENDPOINT = None  # pylint: disable=invalid-name
     _allowed_attributes = []
+    _default_values = {}
 
     def __init__(self, uid: str = None, **kwargs):
         """
@@ -44,6 +45,8 @@ class AbstractObject(object):
         self._data = {}
         self._modified = set()
         self._populated = True
+
+        self.hydrate(**self._default_values)
 
         if kwargs:
             self.hydrate(**kwargs)
