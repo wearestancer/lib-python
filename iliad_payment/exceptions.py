@@ -98,6 +98,10 @@ class InvalidPaymentOrderIdError(IliadValueError):
     """Raised when an invalid order ID is used."""
 
 
+class InvalidPortError(IliadValueError):
+    """Raised when an invalid port is used."""
+
+
 class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
 

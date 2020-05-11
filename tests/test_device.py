@@ -5,6 +5,7 @@ import pytest
 from iliad_payment import Device
 from iliad_payment.core import AbstractObject
 from iliad_payment.exceptions import InvalidIpAddressError
+from iliad_payment.exceptions import InvalidPortError
 from .TestHelper import TestHelper
 
 
@@ -69,3 +70,17 @@ class TestDevice(TestHelper):
 
         assert obj.languages == languages
         assert obj.to_json().find('"languages":"{}"'.format(languages)) > 0
+
+    def test_port(self):
+        obj = Device()
+        port = self.random_integer(1, 65534)
+
+        assert obj.port is None
+
+        obj.port = port
+
+        assert obj.port == port
+        assert obj.to_json().find('"port":{}'.format(port)) > 0
+
+        with pytest.raises(InvalidPortError):
+            obj.port = self.random_integer(65536, 70000)

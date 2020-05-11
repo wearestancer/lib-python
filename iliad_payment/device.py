@@ -6,6 +6,7 @@ from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidIpAddressError
+from .exceptions import InvalidPortError
 
 
 def ip_validation(value):
@@ -32,6 +33,7 @@ class Device(AbstractObject):
         'http_accept',
         'ip',
         'languages',
+        'port',
     ]
 
     @property
@@ -134,3 +136,26 @@ class Device(AbstractObject):
     @validate_type(str)
     def languages(self, value: str):
         self._data['languages'] = value
+
+    @property
+    @populate_on_call
+    def port(self) -> int:
+        """
+        Customer's port.
+
+        Args:
+            value: New port.
+
+        Returns:
+            Customer's port.
+        """
+        return self._data.get('port')
+
+    @port.setter
+    @validate_type(
+        int,
+        max=65535,
+        throws=InvalidPortError,
+    )
+    def port(self, value: int):
+        self._data['port'] = value
