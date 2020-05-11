@@ -31,6 +31,7 @@ class Device(AbstractObject):
         'country',
         'http_accept',
         'ip',
+        'languages',
     ]
 
     @property
@@ -114,3 +115,22 @@ class Device(AbstractObject):
     )
     def ip(self, value: str):
         self._data['ip'] = value
+
+    @property
+    @populate_on_call
+    def languages(self) -> str:
+        """
+        Customer's browser accepted languages.
+
+        Args:
+            value: New languages.
+
+        Returns:
+            Customer's browser accepted languages.
+        """
+        return self._data.get('languages')
+
+    @languages.setter
+    @validate_type(str)
+    def languages(self, value: str):
+        self._data['languages'] = value

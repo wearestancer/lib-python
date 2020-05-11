@@ -58,3 +58,14 @@ class TestDevice(TestHelper):
 
             assert obj.ip == ip
             assert obj.to_json().find('"ip":"{}"'.format(ip)) > 0
+
+    def test_languages(self):
+        obj = Device()
+        languages = self.random_string(10)
+
+        assert obj.languages is None
+
+        obj.languages = languages
+
+        assert obj.languages == languages
+        assert obj.to_json().find('"languages":"{}"'.format(languages)) > 0
