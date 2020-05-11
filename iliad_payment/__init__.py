@@ -2,6 +2,7 @@
 
 """Iliad payment solution."""
 
+from .auth import Auth
 from .card import Card
 from .config import Config
 from .customer import Customer
