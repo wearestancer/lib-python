@@ -78,6 +78,10 @@ class InvalidIbanError(IliadValueError):
     """Raised when an invalid IBAN is used."""
 
 
+class InvalidIpAddressError(IliadValueError):
+    """Raised when an invalid IP address is used."""
+
+
 class InvalidNameError(IliadValueError):
     """Raised when an invalid name is used."""
 

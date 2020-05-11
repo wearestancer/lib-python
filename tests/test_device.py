@@ -4,6 +4,7 @@ import pytest
 
 from iliad_payment import Device
 from iliad_payment.core import AbstractObject
+from iliad_payment.exceptions import InvalidIpAddressError
 from .TestHelper import TestHelper
 
 
@@ -43,3 +44,17 @@ class TestDevice(TestHelper):
 
         assert obj.http_accept == http_accept
         assert obj.to_json().find('"http_accept":"{}"'.format(http_accept)) > 0
+
+    def test_ip(self):
+        obj = Device()
+
+        assert obj.ip is None
+
+        with pytest.raises(InvalidIpAddressError):
+            obj.ip = self.random_string(10)
+
+        for ip in self.ip_provider():
+            obj.ip = ip
+
+            assert obj.ip == ip
+            assert obj.to_json().find('"ip":"{}"'.format(ip)) > 0

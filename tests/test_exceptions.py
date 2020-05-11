@@ -66,6 +66,9 @@ class TestExceptions(TestHelper):
     def test_invalid_Iban_error(self):
         assert issubclass(InvalidIbanError, IliadValueError)
 
+    def test_invalid_ip_address_error(self):
+        assert issubclass(InvalidIpAddressError, IliadValueError)
+
     def test_invalid_name_error(self):
         assert issubclass(InvalidNameError, IliadValueError)
 

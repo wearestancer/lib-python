@@ -1,8 +1,26 @@
 # -*- coding: utf-8 -*-
 
+from ipaddress import ip_address
+
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .exceptions import InvalidIpAddressError
+
+
+def ip_validation(value):
+    """
+    IP address validation helper.
+
+    Not supposed to be used directly.
+    """
+
+    try:
+        ip_address(value)
+    except ValueError:
+        return 'This IP address seems invalid (%s).'.format(value)
+
+    return None
 
 
 class Device(AbstractObject):
@@ -12,6 +30,7 @@ class Device(AbstractObject):
         'city',
         'country',
         'http_accept',
+        'ip',
     ]
 
     @property
@@ -70,3 +89,28 @@ class Device(AbstractObject):
     @validate_type(str)
     def http_accept(self, value: str):
         self._data['http_accept'] = value
+
+    @property
+    @populate_on_call
+    def ip(self) -> str:
+        """
+        Customer's IP address.
+
+        May be an IPv4 (aka 212.27.48.10) or an IPv6 (2a01:e0c:1::1).
+
+        Args:
+            value: New IP address.
+
+        Returns:
+            Customer's IP address.
+        """
+        return self._data.get('ip')
+
+    @ip.setter
+    @validate_type(
+        str,
+        validation=ip_validation,
+        throws=InvalidIpAddressError,
+    )
+    def ip(self, value: str):
+        self._data['ip'] = value
