@@ -10,6 +10,7 @@ class Device(AbstractObject):
 
     _allowed_attributes = [
         'city',
+        'country',
     ]
 
     @property
@@ -30,3 +31,22 @@ class Device(AbstractObject):
     @validate_type(str)
     def city(self, value: str):
         self._data['city'] = value
+
+    @property
+    @populate_on_call
+    def country(self) -> str:
+        """
+        Customer's country.
+
+        Args:
+            value: New country.
+
+        Returns:
+            Customer's country.
+        """
+        return self._data.get('country')
+
+    @country.setter
+    @validate_type(str)
+    def country(self, value: str):
+        self._data['country'] = value

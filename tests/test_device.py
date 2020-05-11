@@ -21,3 +21,14 @@ class TestDevice(TestHelper):
 
         assert obj.city == city
         assert obj.to_json().find('"city":"{}"'.format(city)) > 0
+
+    def test_country(self):
+        obj = Device()
+        country = self.random_string(10)
+
+        assert obj.country is None
+
+        obj.country = country
+
+        assert obj.country == country
+        assert obj.to_json().find('"country":"{}"'.format(country)) > 0
