@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
 from ipaddress import ip_address
+import os
+from typing import TypeVar
 
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidIpAddressError
 from .exceptions import InvalidPortError
+
+
+CurrentInstance = TypeVar('CurrentInstance', bound='Device')
 
 
 def ip_validation(value):
@@ -93,6 +98,43 @@ class Device(AbstractObject):
     @validate_type(str)
     def http_accept(self, value: str):
         self._data['http_accept'] = value
+
+    def hydrate_from_env(self) -> CurrentInstance:
+        """
+        Hydrate the object using environment variables.
+
+        You should not use this method, it's only internal plumbing.
+
+        Returns:
+            Current instance.
+
+        Throws:
+            InvalidIpAddressError: If IP address is not present.
+            InvalidPortError: If port is not present.
+        """
+
+        if self.ip is None and os.getenv('SERVER_ADDR') is not None:
+            self.ip = os.getenv('SERVER_ADDR')
+
+        if self.port is None and os.getenv('SERVER_PORT') is not None:
+            self.port = int(os.getenv('SERVER_PORT'))
+
+        if self.http_accept is None:
+            self.http_accept = os.getenv('HTTP_ACCEPT')
+
+        if self.languages is None:
+            self.languages = os.getenv('HTTP_ACCEPT_LANGUAGE')
+
+        if self.user_agent is None:
+            self.user_agent = os.getenv('HTTP_USER_AGENT')
+
+        if self.ip is None:
+            raise InvalidIpAddressError()
+
+        if self.port is None:
+            raise InvalidPortError()
+
+        return self
 
     @property
     @populate_on_call
