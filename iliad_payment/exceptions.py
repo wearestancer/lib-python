@@ -98,6 +98,10 @@ class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
 
 
+class InvalidUrlError(IliadValueError):
+    """Raised when an invalid URL is used."""
+
+
 class InvalidZipCodeError(IliadValueError):
     """Raised when an invalid zip code is used."""
 

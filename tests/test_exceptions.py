@@ -81,6 +81,9 @@ class TestExceptions(TestHelper):
     def test_invalid_sepa_error(self):
         assert issubclass(InvalidSepaError, IliadValueError)
 
+    def test_invalid_url_error(self):
+        assert issubclass(InvalidUrlError, IliadValueError)
+
     def test_invalid_zip_code_error(self):
         assert issubclass(InvalidZipCodeError, IliadValueError)
 

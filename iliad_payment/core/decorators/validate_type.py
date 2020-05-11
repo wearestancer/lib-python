@@ -126,6 +126,9 @@ def validate_type(type_expected, **options):
 
                 value = tmp_value
 
+            if 'validation' in options and message is None:
+                message = options['validation'](value)
+
             if message is not None and not is_optional:
                 if 'throws' in options:
                     excep = options['throws']

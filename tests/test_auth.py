@@ -5,6 +5,7 @@ import responses
 
 from iliad_payment import Auth
 from iliad_payment.core import AbstractObject
+from iliad_payment.exceptions import InvalidUrlError
 from .TestHelper import TestHelper
 
 
@@ -15,6 +16,7 @@ class TestAuth(TestHelper):
         attrs = Auth._get_allowed_attributes()
 
         assert isinstance(attrs, list)
+        assert 'return_url' in attrs
 
     @responses.activate
     def test_redirect_url(self):
@@ -33,5 +35,36 @@ class TestAuth(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.redirect_url == params['redirect_url']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_return_url(self):
+        obj = Auth()
+        bad_url = 'http://' + self.random_string(50)
+        return_url = 'https://' + self.random_string(50)
+
+        assert obj.return_url is None
+
+        obj.return_url = return_url
+
+        assert obj.return_url == return_url
+
+        exported = obj.to_json()
+
+        assert isinstance(exported, str)
+        assert exported.find('"return_url":"{}"'.format(return_url)) > 0
+
+        with pytest.raises(InvalidUrlError):
+            obj.return_url = bad_url
+
+        obj = Auth(self.random_string(29))
+        params = {
+            'return_url': 'https://' + self.random_string(50),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.return_url == params['return_url']
         assert obj.is_populated
         assert len(responses.calls) == 1
