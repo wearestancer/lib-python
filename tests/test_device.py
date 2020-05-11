@@ -84,3 +84,14 @@ class TestDevice(TestHelper):
 
         with pytest.raises(InvalidPortError):
             obj.port = self.random_integer(65536, 70000)
+
+    def test_user_agent(self):
+        obj = Device()
+        user_agent = self.random_string(10)
+
+        assert obj.user_agent is None
+
+        obj.user_agent = user_agent
+
+        assert obj.user_agent == user_agent
+        assert obj.to_json().find('"user_agent":"{}"'.format(user_agent)) > 0

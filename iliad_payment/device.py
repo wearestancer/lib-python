@@ -34,6 +34,7 @@ class Device(AbstractObject):
         'ip',
         'languages',
         'port',
+        'user_agent',
     ]
 
     @property
@@ -159,3 +160,22 @@ class Device(AbstractObject):
     )
     def port(self, value: int):
         self._data['port'] = value
+
+    @property
+    @populate_on_call
+    def user_agent(self) -> str:
+        """
+        Customer's browser user agent.
+
+        Args:
+            value: New user agent.
+
+        Returns:
+            Customer's browser user agent.
+        """
+        return self._data.get('user_agent')
+
+    @user_agent.setter
+    @validate_type(str)
+    def user_agent(self, value: str):
+        self._data['user_agent'] = value
