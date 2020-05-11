@@ -4,6 +4,7 @@ from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidUrlError
+from .status import AuthStatus
 
 
 class Auth(AbstractObject):
@@ -11,7 +12,11 @@ class Auth(AbstractObject):
 
     _allowed_attributes = [
         'return_url',
+        'status',
     ]
+    _default_values = {
+        'status': AuthStatus.REQUEST,
+    }
 
     @property
     @populate_on_call
@@ -47,3 +52,16 @@ class Auth(AbstractObject):
     def return_url(self, value: str):
         self._data['return_url'] = value
 
+    @property
+    @populate_on_call
+    def status(self) -> str:
+        """
+        Current status.
+
+        Args:
+            value: New status, you should use `AuthStatus`.
+
+        Returns:
+            Authentication status.
+        """
+        return self._data.get('status')

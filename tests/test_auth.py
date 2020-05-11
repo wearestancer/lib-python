@@ -4,6 +4,7 @@ import pytest
 import responses
 
 from iliad_payment import Auth
+from iliad_payment import AuthStatus
 from iliad_payment.core import AbstractObject
 from iliad_payment.exceptions import InvalidUrlError
 from .TestHelper import TestHelper
@@ -17,6 +18,7 @@ class TestAuth(TestHelper):
 
         assert isinstance(attrs, list)
         assert 'return_url' in attrs
+        assert 'status' in attrs
 
     @responses.activate
     def test_redirect_url(self):
@@ -68,3 +70,17 @@ class TestAuth(TestHelper):
         assert obj.return_url == params['return_url']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_status(self):
+        obj = Auth()
+
+        assert obj.status == AuthStatus.REQUEST
+
+        exported = obj.to_json()
+
+        assert isinstance(exported, str)
+        assert exported.find('"status":"{}"'.format(AuthStatus.REQUEST)) > 0
+
+        with pytest.raises(AttributeError):
+            obj.status = self.random_string(10)
