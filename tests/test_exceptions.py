@@ -63,6 +63,9 @@ class TestExceptions(TestHelper):
     def test_invalid_customer_mobile_error(self):
         assert issubclass(InvalidCustomerMobileError, IliadValueError)
 
+    def test_invalid_device_error(self):
+        assert issubclass(InvalidDeviceError, IliadValueError)
+
     def test_invalid_Iban_error(self):
         assert issubclass(InvalidIbanError, IliadValueError)
 

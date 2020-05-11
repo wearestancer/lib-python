@@ -7,6 +7,7 @@ import responses
 
 from iliad_payment import Card
 from iliad_payment import Customer
+from iliad_payment import Device
 from iliad_payment import Payment
 from iliad_payment import Refund
 from iliad_payment import Sepa
@@ -18,6 +19,7 @@ from iliad_payment.exceptions import InvalidAmountError
 from iliad_payment.exceptions import InvalidCardError
 from iliad_payment.exceptions import InvalidCurrencyError
 from iliad_payment.exceptions import InvalidCustomerError
+from iliad_payment.exceptions import InvalidDeviceError
 from iliad_payment.exceptions import InvalidPaymentCaptureError
 from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
@@ -259,6 +261,28 @@ class TestPayment(TestHelper):
             ),
         ):
             obj.delete()
+
+    def test_device(self):
+        obj = Payment()
+        device = Device()
+
+        assert obj.device is None
+
+        obj.device = device
+
+        assert obj.device == device
+
+        with pytest.raises(
+            InvalidDeviceError,
+            match='You must provide a valid instance of Device',
+        ):
+            obj.device = self.random_integer(2)
+
+        with pytest.raises(
+            InvalidDeviceError,
+            match='You must provide a valid instance of Device',
+        ):
+            obj.device = self.random_string(2)
 
     def test_hydrate(self):
         obj = Payment()

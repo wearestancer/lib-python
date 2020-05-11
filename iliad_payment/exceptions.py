@@ -74,6 +74,10 @@ class InvalidCustomerMobileError(IliadValueError):
     """Raised when an invalid mobile phone number is used."""
 
 
+class InvalidDeviceError(IliadValueError):
+    """Raised when an invalid device is used."""
+
+
 class InvalidIbanError(IliadValueError):
     """Raised when an invalid IBAN is used."""
 

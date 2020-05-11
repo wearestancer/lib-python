@@ -4,6 +4,7 @@ from typing import TypeVar
 
 from .card import Card
 from .customer import Customer
+from .device import Device
 from .sepa import Sepa
 from .core import AbstractAmount
 from .core import AbstractCountry
@@ -15,6 +16,7 @@ from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
 from .exceptions import InvalidCustomerError
+from .exceptions import InvalidDeviceError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
@@ -165,6 +167,28 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
     def description(self, value: str):
         self._data['description'] = value
+
+    @property
+    @populate_on_call
+    def device(self) -> Device:
+        """
+        Device handling the payment.
+
+        Args:
+            value (Device): A valid `Device` object.
+
+        Returns:
+            Device: Device handling the payment.
+
+        Raises:
+            InvalidDeviceError: When device is invalid.
+        """
+        return self._data.get('device')
+
+    @device.setter
+    @validate_type(Device, throws=InvalidDeviceError)
+    def device(self, value: Device):
+        self._data['device'] = value
 
     @property
     @populate_on_call
