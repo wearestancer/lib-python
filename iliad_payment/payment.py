@@ -404,6 +404,8 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth):
             message += ' Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
+        self._create_device()
+
         return super().send()
 
     @property

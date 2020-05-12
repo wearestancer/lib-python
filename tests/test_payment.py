@@ -1157,6 +1157,96 @@ class TestPayment(TestHelper):
         assert obj.device.user_agent is None
 
     @responses.activate
+    def test_send_autocreate_device(self, monkeypatch):
+        obj = Payment()
+        card = Card()
+
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        port = self.random_integer(1, 65535)
+
+        monkeypatch.setenv('SERVER_ADDR', ip)
+        monkeypatch.setenv('SERVER_PORT', str(port))
+
+        with open('./tests/fixtures/payment/create-card.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+
+        cvc = self.random_string(3)
+        exp_month = self.random_integer(1, 12)
+        exp_year = self.random_year()
+        number = '4111111111111111'
+
+        obj.amount = amount
+        obj.currency = currency
+        obj.card = card
+
+        card.cvc = cvc
+        card.exp_month = exp_month
+        card.exp_year = exp_year
+        card.number = number
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
+
+        assert 'device' in body
+        assert isinstance(body.get('device'), dict)
+        assert 'ip' in body.get('device')
+        assert body.get('device').get('ip') == ip
+        assert 'port' in body.get('device')
+        assert body.get('device').get('port') == port
+
+        # Data from fixture
+        assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1538564253
+        assert obj.amount == 100
+        assert obj.capture is True
+        assert obj.card == card
+        assert obj.currency == 'eur'
+        assert obj.description == 'le test restfull v1'
+        assert obj.method == 'card'
+        assert obj.order_id is None
+        assert obj.sepa is None
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
+        assert card.exp_month == 2
+        assert card.exp_year == 2020
+        assert card.last4 == '4444'
+        assert card.name is None
+        # Number is unchanged in send process
+        assert card.number == '4111111111111111'
+        assert card.zip_code is None
+
+        assert isinstance(obj.device, Device)
+        assert obj.device.ip == ip
+        assert obj.device.port == port
+
+    @responses.activate
     def test_sepa(self):
         obj = Payment()
         sepa = Sepa()
