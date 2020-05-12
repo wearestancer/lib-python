@@ -241,7 +241,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     def order_id(self, value: str):
         self._data['order_id'] = value
 
-    @validate_type(int, min=50, throws=InvalidAmountError, optional=True, silent=True)
+    @validate_type(
+        int,
+        min=50,
+        throws=InvalidAmountError,
+        optional=True,
+        silent=True,
+    )
     def refund(self, amount: int = 0) -> CurrentInstance:
         """
         Refund a payment, or part of it.
