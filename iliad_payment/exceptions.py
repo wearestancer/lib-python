@@ -122,8 +122,20 @@ class InvalidZipCodeError(IliadValueError):
     """Raised when an invalid zip code is used."""
 
 
+class MissingApiKeyError(IliadValueError):
+    """Raised when an action needs an API key and no one was found in keychain."""
+
+
+class MissingPaymentIdError(IliadValueError):
+    """Raised when an action needs a payment ID and no one was provided."""
+
+
 class MissingPaymentMethodError(IliadValueError):
     """Raised when no card or SEPA account is provided."""
+
+
+class MissingReturnUrlError(IliadValueError):
+    """Raised when an action needs a return URL and no one was provided."""
 
 
 # HTTP Errors

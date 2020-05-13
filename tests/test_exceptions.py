@@ -102,6 +102,15 @@ class TestExceptions(TestHelper):
     def test_missing_payment_method_error(self):
         assert issubclass(MissingPaymentMethodError, IliadValueError)
 
+    def test_missing_api_key_error(self):
+        assert issubclass(MissingApiKeyError, IliadValueError)
+
+    def test_missing_payment_id_error(self):
+        assert issubclass(MissingPaymentIdError, IliadValueError)
+
+    def test_missing_return_url_error(self):
+        assert issubclass(MissingReturnUrlError, IliadValueError)
+
     def test_iliad_http_error(self):
         assert issubclass(IliadHTTPError, IliadException)
         assert issubclass(IliadHTTPError, HTTPError)

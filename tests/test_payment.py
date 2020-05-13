@@ -8,6 +8,7 @@ import responses
 from iliad_payment import Auth
 from iliad_payment import AuthStatus
 from iliad_payment import Card
+from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
@@ -30,7 +31,10 @@ from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidPortError
 from iliad_payment.exceptions import InvalidSepaError
 from iliad_payment.exceptions import InvalidUrlError
+from iliad_payment.exceptions import MissingApiKeyError
+from iliad_payment.exceptions import MissingPaymentIdError
 from iliad_payment.exceptions import MissingPaymentMethodError
+from iliad_payment.exceptions import MissingReturnUrlError
 from iliad_payment.status import RefundStatus
 from .TestHelper import TestHelper
 
@@ -468,6 +472,79 @@ class TestPayment(TestHelper):
         assert obj.order_id == params['order_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_payment_page_url(self):
+        obj = Payment(amount=self.random_integer(50, 99999), currency=self.currency_provider(True))
+
+        return_url = 'https://www.example.org/?' + self.random_string(10)
+
+        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            MissingReturnUrlError,
+            match='You must provide a return URL before going to the payment page.',
+        ):
+            obj.payment_page_url()
+
+        obj.return_url = return_url
+
+        with pytest.raises(
+            MissingPaymentIdError,
+            match='A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.',
+        ):
+            obj.payment_page_url()
+
+        obj.send()
+
+        with pytest.raises(
+            MissingApiKeyError,
+            match='A public API key is needed to obtain a payment page URL.',
+        ):
+            obj.payment_page_url()
+
+        config = Config()
+        keys = config.keys
+        config.keys = 'ptest_' + self.random_string(24)
+
+        host = config.host.replace('api', 'payment')
+
+        url = 'https://{}/{}/{}'.format(host, config.ptest, obj.id)
+
+        assert obj.payment_page_url() == url
+
+        # With lang parameter
+        lang = self.random_string(10)
+        url = 'https://{}/{}/{}?lang={}'.format(host, config.ptest, obj.id, lang)
+
+        assert obj.payment_page_url(lang=lang) == url
+
+        # With bad parameter (ignored)
+        url = 'https://{}/{}/{}'.format(host, config.ptest, obj.id)
+
+        assert obj.payment_page_url(unknown=lang) == url
+
+        # With a port
+        config.port = self.random_integer(1000, 65535)
+        url = 'https://{}:{}/{}/{}'.format(host, config.port, config.ptest, obj.id)
+
+        assert obj.payment_page_url() == url
+
+        # With non ascii chars
+        input = self.random_string(2) + ' ' + self.random_string(2)
+        encoded = input.replace(' ', '+')
+        url = 'https://{}:{}/{}/{}?lang={}'.format(host, config.port, config.ptest, obj.id, encoded)
+
+        assert obj.payment_page_url(lang=input) == url
+
+        del config.keys
+        del config.port
+
+        config.keys = keys
 
     @responses.activate
     def test_refund(self):

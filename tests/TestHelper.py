@@ -177,12 +177,17 @@ class TestHelper(object):
         )
 
     @classmethod
-    def currency_provider(cls):
-        return (
+    def currency_provider(cls, one=False):
+        currencies = (
             'eur',
             'gbp',
             'usd',
         )
+
+        if one:
+            return choice(currencies)
+
+        return currencies
 
     @classmethod
     def http_code_provider(cls):
