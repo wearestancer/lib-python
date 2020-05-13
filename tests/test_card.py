@@ -174,7 +174,7 @@ class TestCard(TestHelper):
 
         obj = Card(self.random_string(29))
         params = {
-            'exp_month': self.random_string(1, 12),
+            'exp_month': self.random_integer(1, 12),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
@@ -450,7 +450,7 @@ class TestCard(TestHelper):
 
         obj = Card(self.random_string(2, 8))
         params = {
-            'zip_code': True,
+            'zip_code': self.random_string(2, 8),
         }
 
         responses.add(responses.GET, obj.uri, json=params)

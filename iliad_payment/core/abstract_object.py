@@ -234,10 +234,15 @@ class AbstractObject(object):
             elif key == 'created':
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
-                self._data[key] = value
+                prop = self.__class__.__dict__.get(key)
 
-                if modify:
-                    self._modified.add(key)
+                if prop is not None and prop.fset is not None:
+                    prop.fset(self, value)
+                else:
+                    self._data[key] = value
+
+                    if modify:
+                        self._modified.add(key)
 
         return self
 
