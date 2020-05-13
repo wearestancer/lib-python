@@ -11,9 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Device` object
 - `Payment.auth` property
 - `Payment.device` property
+- `Payment.return_url` property
+- `Payment.payment_page_url()` method
 
 ### Changed
 - `Object.save()` is renamed `Object.send()`
+- `Object.send()` can be use without method
 - `Object.hydrate()` will use setter when possible
 
 
