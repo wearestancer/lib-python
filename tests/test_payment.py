@@ -622,6 +622,40 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
+    def test_return_url(self):
+        obj = Payment()
+        return_url = 'https://www.example.org/?' + self.random_string(20)
+
+        assert obj.return_url is None
+
+        obj.return_url = return_url
+
+        assert obj.return_url == return_url
+
+        with pytest.raises(
+            InvalidUrlError,
+            match='Return URL must be a string.',
+        ):
+            obj.return_url = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidUrlError,
+            match='Return URL must use HTTPS protocol.',
+        ):
+            obj.return_url = 'http://www.example.org/?' + self.random_string(20)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'return_url': 'https://www.example.org/?' + self.random_string(20),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.return_url == params['return_url']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_send_with_card(self):
         obj = Payment()
 
