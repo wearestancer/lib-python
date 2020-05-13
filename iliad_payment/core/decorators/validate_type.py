@@ -55,6 +55,9 @@ def validate_type(type_expected, **options):
 
             (std_type, type_name) = is_std_type()
 
+            if 'coerce' in options:
+                value = options['coerce'](value)
+
             try:
                 length = len(value)
             except TypeError:
