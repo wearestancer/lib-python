@@ -3,6 +3,7 @@
 from datetime import datetime
 import json
 from typing import List
+from typing import Set
 from typing import TypeVar
 
 from ..config import Config
@@ -43,8 +44,9 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = set()
         self._populated = True
+
+        del self._modified  # init modified flags
 
         self.hydrate(**self._default_values)
 
@@ -73,6 +75,34 @@ class AbstractObject(object):
             representation[key] = value
 
         return representation
+
+    @property
+    def _modified(self) -> Set[str]:
+        return self.__modified
+
+    @_modified.setter
+    def _modified(self, value: str):
+        self.__modified.add(value)
+
+    @_modified.deleter
+    def _modified(self):
+        self.__modified = set()
+
+        for key, obj in self._data.items():
+            if isinstance(obj, AbstractObject):
+                del obj._modified
+
+    @property
+    def _populated(self) -> bool:
+        return self.__populated
+
+    @_populated.setter
+    def _populated(self, value: bool):
+        self.__populated = value
+
+        for key, obj in self._data.items():
+            if isinstance(obj, AbstractObject):
+                obj._populated = value
 
     @property
     def id(self) -> str:  # pylint: disable=invalid-name
@@ -108,11 +138,10 @@ class AbstractObject(object):
         Raises:
             IliadHTTPError: On error during with the API.
         """
-        Request(self).delete  ## pylint: disable=expression-not-assigned
+        Request(self).delete  # pylint: disable=expression-not-assigned
 
-        self._modified = [
-            'id', # Force modified to allow sending it again to the API
-        ]
+        # Force modified to allow sending it again to the API
+        self._modified = 'id'
 
         return self
 
@@ -242,7 +271,7 @@ class AbstractObject(object):
                     self._data[key] = value
 
                     if modify:
-                        self._modified.add(key)
+                        self._modified = key
 
         return self
 
@@ -338,7 +367,8 @@ class AbstractObject(object):
         if self.id is not None and not self._populated:
             self._populated = True
             Request(self).get  ## pylint: disable=expression-not-assigned
-            self._modified.clear()
+
+            del self._modified
 
         self._populated = True
 
@@ -359,7 +389,7 @@ class AbstractObject(object):
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified.clear()
+        del self._modified
 
         return self
 

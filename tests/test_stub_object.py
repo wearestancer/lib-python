@@ -323,6 +323,9 @@ class TestStubObject(TestHelper):
         params = {
             'string1': self.random_string(10),
             'integer1': self.random_integer(10, 100),
+            'card1': {
+                'number': '4242424242424242',
+            },
             'created': 1546867615,
         }
 
@@ -341,6 +344,7 @@ class TestStubObject(TestHelper):
 
         assert len(responses.calls) == 1
         assert obj.is_populated
+        assert obj.card1.is_populated  # Inner object are populated too
         assert obj.is_not_modified
 
         # Multiple populate will not trigger multiple call
@@ -473,8 +477,8 @@ class TestStubObject(TestHelper):
 
         # Only export modified properties
         obj.reset_modified()
-        card1._modified = set()  # Do not do this at home
-        card2._modified = set()  # Do not do this at home
+        del card1._modified  # Do not do this at home
+        del card2._modified  # Do not do this at home
 
         result = obj.to_json()
 

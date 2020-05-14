@@ -26,7 +26,7 @@ class StubObject(AbstractObject):
         return self
 
     def reset_modified(self):
-        self._modified.clear()
+        del self._modified
 
         return self
 

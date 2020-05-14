@@ -41,7 +41,7 @@ class Refund(AbstractObject, AbstractAmount):
             An instance of the current object.
         """
         super().__init__(uid, **kwargs)
-        self._modified.add('payment')
+        self._modified = 'payment'
 
     def _init_date_bank(self, timestamp) -> datetime:  # pylint: disable=no-self-use
         return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
