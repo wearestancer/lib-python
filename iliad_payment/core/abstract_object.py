@@ -399,7 +399,10 @@ class AbstractObject(object):
 
             for key, value in items.items():
                 if hasattr(value, 'to_json_repr'):
-                    representation[key] = value.to_json_repr()
+                    val = value.to_json_repr()
+
+                    if val:
+                        representation[key] = val
                 else:
                     representation[key] = value
 
