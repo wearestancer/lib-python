@@ -12,6 +12,7 @@ from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
+from iliad_payment import PaymentStatus
 from iliad_payment import Refund
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractAmount
@@ -1614,6 +1615,78 @@ class TestPayment(TestHelper):
         assert obj.method is None
         assert obj.order_id is None
         assert obj.sepa is None
+
+    @responses.activate
+    def test_send_delayed_capture(self):
+        obj = Payment()
+
+        # Prepare responses
+        with open('./tests/fixtures/payment/create-card-status-null-no-method.json') as opened:
+            responses.add(responses.POST, obj.uri, body=opened.read())
+
+        uri = obj.uri + '/paym_a9LJ0xrGhhuT0M4crx0NEmXJ'  # Based on fixture
+
+        with open('./tests/fixtures/payment/create-card-status-null-with-card.json') as opened:
+            responses.add(responses.PATCH, uri, body=opened.read())
+
+        with open('./tests/fixtures/payment/create-card-status-to-capture.json') as opened:
+            responses.add(responses.PATCH, uri, body=opened.read())
+
+        obj.amount = self.random_integer(50, 999999)
+        obj.currency = 'eur'
+
+        # Payment creation
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        assert obj.card is None
+        assert obj.status is None
+
+        # Add card
+
+        cvc = self.random_string(3)
+        exp_month = self.random_integer(1, 12)
+        exp_year = self.random_year()
+        number = '4242424242424242'
+
+        obj.card = Card()
+        obj.card.cvc = cvc
+        obj.card.exp_month = exp_month
+        obj.card.exp_year = exp_year
+        obj.card.number = number
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 2
+
+        body = json.loads(responses.calls[1].request.body)
+
+        assert len(body.keys()) == 1
+
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
+
+        # Change status
+
+        obj.status = PaymentStatus.CAPTURE
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 3
+
+        body = json.loads(responses.calls[2].request.body)
+
+        assert len(body.keys()) == 1
+
+        assert 'status' in body
+        assert body.get('status') == PaymentStatus.CAPTURE
 
     @responses.activate
     def test_sepa(self):
