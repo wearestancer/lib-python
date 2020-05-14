@@ -114,6 +114,10 @@ class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
 
 
+class InvalidStatusError(IliadValueError):
+    """Raised when an invalid status is used."""
+
+
 class InvalidUrlError(IliadValueError):
     """Raised when an invalid URL is used."""
 

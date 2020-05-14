@@ -30,6 +30,7 @@ from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidPortError
 from iliad_payment.exceptions import InvalidSepaError
+from iliad_payment.exceptions import InvalidStatusError
 from iliad_payment.exceptions import InvalidUrlError
 from iliad_payment.exceptions import MissingApiKeyError
 from iliad_payment.exceptions import MissingPaymentIdError
@@ -1657,11 +1658,20 @@ class TestPayment(TestHelper):
     @responses.activate
     def test_status(self):
         obj = Payment()
+        status = self.random_string(10)
 
         assert obj.status is None
 
-        with pytest.raises(AttributeError):
-            obj.status = self.random_string(29)
+        obj.status = status
+
+        assert obj.status == status
+        assert obj.to_json().find('"status":"{}"'.format(status)) > 0
+
+        with pytest.raises(
+            InvalidStatusError,
+            match='Status must be a string.',
+        ):
+            obj.status = self.random_integer(20)
 
         obj = Payment(self.random_string(29))
         params = {

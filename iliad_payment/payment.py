@@ -20,6 +20,7 @@ from .exceptions import InvalidCustomerError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
+from .exceptions import InvalidStatusError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
 from .status.refund import RefundStatus
@@ -40,6 +41,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
         'description',
         'order_id',
         'sepa',
+        'status',
     ]
 
     @property
@@ -434,3 +436,8 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
             str: Current status.
         """
         return self._data.get('status')
+
+    @status.setter
+    @validate_type(str, throws=InvalidStatusError)
+    def status(self, value: str):
+        self._data['status'] = value
