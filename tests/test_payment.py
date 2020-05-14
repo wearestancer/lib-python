@@ -391,15 +391,71 @@ class TestPayment(TestHelper):
     def test_is_success(self):
         obj = Payment()
 
-        obj.hydrate(response_code='00')
+        # Both false if undefined
+
+        assert obj.is_success is False
+        assert obj.is_error is False
+
+        assert obj.is_not_success is True
+        assert obj.is_not_error is True
+
+        # Captured payments are success
+
+        obj.hydrate(status=PaymentStatus.CAPTURED)
 
         assert obj.is_success is True
         assert obj.is_error is False
 
-        obj.hydrate(response_code=self.random_string(2))
+        assert obj.is_not_success is False
+        assert obj.is_not_error is True
+
+        # Awaiting for capture payments are success
+
+        obj.hydrate(status=PaymentStatus.TO_CAPTURE)
+
+        assert obj.is_success is True
+        assert obj.is_error is False
+
+        assert obj.is_not_success is False
+        assert obj.is_not_error is True
+
+        # Authorized payments not asked for capture are success
+
+        obj.hydrate(capture=False, status=PaymentStatus.AUTHORIZED)
+
+        assert obj.is_success is True
+        assert obj.is_error is False
+
+        assert obj.is_not_success is False
+        assert obj.is_not_error is True
+
+        # Authorized payments asked for capture are error
+
+        obj.hydrate(capture=True, status=PaymentStatus.AUTHORIZED)
 
         assert obj.is_success is False
         assert obj.is_error is True
+
+        assert obj.is_not_success is True
+        assert obj.is_not_error is False
+
+        # Others are all errors
+
+        statuses = [
+            PaymentStatus.CANCELED,
+            PaymentStatus.DISPUTED,
+            PaymentStatus.EXPIRED,
+            PaymentStatus.FAILED,
+        ]
+
+        for status in statuses:
+            obj.hydrate(status=status)
+
+            assert obj.is_success is False
+            assert obj.is_error is True
+
+            assert obj.is_not_success is True
+            assert obj.is_not_error is False
 
     @responses.activate
     def test_live_mode(self):

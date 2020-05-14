@@ -23,6 +23,7 @@ from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidStatusError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
+from .status.payment import PaymentStatus
 from .status.refund import RefundStatus
 
 
@@ -171,6 +172,45 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
         self._data['description'] = value
 
     @property
+    def is_error(self) -> bool:
+        """
+        Is the operation an error ?
+
+        Returns:
+            Is the operation an error ?
+        """
+        if self.status is None:
+            return False
+
+        return not self.is_success
+
+    @property
+    @populate_on_call
+    def is_not_error(self) -> bool:
+        """
+        Is the operation not an error ?
+
+        Basicaly, it's just a `not self.is_error`.
+
+        Returns:
+            Is the operation not an error ?
+        """
+        return not self.is_error
+
+    @property
+    @populate_on_call
+    def is_not_success(self) -> bool:
+        """
+        Is the operation not a success ?
+
+        Basicaly, it's just a `not self.is_success`.
+
+        Returns:
+            Is the operation not a success ?
+        """
+        return not self.is_success
+
+    @property
     @populate_on_call
     def is_success(self) -> bool:
         """
@@ -179,17 +219,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
         Returns:
             Is the operation a success ?
         """
-        return self.response_code == '00'
+        if self.status is None:
+            return False
 
-    @property
-    def is_error(self) -> bool:
-        """
-        Is the operation an error ?
+        if self.status == PaymentStatus.AUTHORIZED:
+            return not self.capture
 
-        Returns:
-            Is the operation an error ?
-        """
-        return not self.is_success
+        return self.status in (PaymentStatus.CAPTURED, PaymentStatus.TO_CAPTURE)
 
     @property
     @populate_on_call
