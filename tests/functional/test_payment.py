@@ -3,8 +3,11 @@
 import platform
 import pytest
 
+from iliad_payment import Auth
+from iliad_payment import AuthStatus
 from iliad_payment import Card
 from iliad_payment import Customer
+from iliad_payment import Device
 from iliad_payment import Payment
 from iliad_payment.exceptions import NotFoundError
 from .TestHelper import TestHelper
@@ -82,3 +85,39 @@ class TestFunctionalPayment(TestHelper):
 
         assert obj.card.id == card_uid
         assert obj.customer.id == customer_uid
+
+    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
+    def test_send_with_authentification(self, currency):
+        amount = self.random_integer(50, 99999)
+        description = 'Automatic auth test for Python, {:.2f} {}'.format(amount / 100, currency)
+        return_url = 'https://www.example.org/?' + self.random_string(30)
+
+        ip = self.ip_provider(True)
+        port = self.random_integer(1, 65534)
+
+        device = Device(ip=ip, port=port)
+
+        card = Card()
+        card.cvc = str(self.random_integer(100, 999))
+        card.exp_month = self.random_integer(1, 12)
+        card.exp_year = self.random_year()
+        card.number = self.get_card_number()
+
+        payment = Payment()
+        payment.amount = amount
+        payment.auth = return_url
+        payment.card = card
+        payment.currency = currency
+        payment.description = description
+        payment.device = device
+
+        assert payment.send() == payment
+        assert payment.id is not None
+        assert payment.id.startswith('paym_')
+        assert payment.status is None
+
+        assert isinstance(payment.auth, Auth)
+        assert payment.auth.return_url == return_url
+        assert payment.auth.status == AuthStatus.AVAILABLE
+        assert payment.auth.redirect_url is not None
+        assert payment.auth.redirect_url.startswith('https://3ds.')

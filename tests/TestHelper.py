@@ -225,8 +225,13 @@ class TestHelper(object):
         )
 
     @classmethod
-    def ip_provider(cls):
-        return cls.ipv4_provider() + cls.ipv6_provider()
+    def ip_provider(cls, one=False):
+        ips = cls.ipv4_provider() + cls.ipv6_provider()
+
+        if one:
+            return choice(ips)
+
+        return ips
 
     @classmethod
     def ipv4_provider(cls):  # 7 addresses
