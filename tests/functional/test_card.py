@@ -61,10 +61,7 @@ class TestFunctionalCard(TestHelper):
 
         card = Card(cvc=cvc, exp_month=month, exp_year=year, number=number)
 
-        with pytest.raises(
-            ConflictError,
-            match='Card already exists, you may want to update it instead creating a new one ({})'.format(card_id),
-        ):
+        with pytest.raises(ConflictError):
             card.send()
 
         # Update
