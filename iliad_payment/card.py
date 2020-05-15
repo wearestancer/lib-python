@@ -23,6 +23,8 @@ CurrentInstance = TypeVar('CurrentInstance', bound='Card')
 class Card(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a card."""
 
+    _ENDPOINT = 'cards'
+
     _allowed_attributes = [
         'cvc',
         'exp_month',
