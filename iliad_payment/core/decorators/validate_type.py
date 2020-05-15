@@ -58,6 +58,9 @@ def validate_type(type_expected, **options):
             if 'coerce' in options:
                 value = options['coerce'](value)
 
+                if value is None:
+                    return None
+
             try:
                 length = len(value)
             except TypeError:

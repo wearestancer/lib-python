@@ -8,6 +8,7 @@ import responses
 from iliad_payment import Auth
 from iliad_payment import AuthStatus
 from iliad_payment import Card
+from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
@@ -30,7 +31,10 @@ from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidPortError
 from iliad_payment.exceptions import InvalidSepaError
 from iliad_payment.exceptions import InvalidUrlError
+from iliad_payment.exceptions import MissingApiKeyError
+from iliad_payment.exceptions import MissingPaymentIdError
 from iliad_payment.exceptions import MissingPaymentMethodError
+from iliad_payment.exceptions import MissingReturnUrlError
 from iliad_payment.status import RefundStatus
 from .TestHelper import TestHelper
 
@@ -103,6 +107,19 @@ class TestPayment(TestHelper):
 
         assert isinstance(obj.auth, Auth)
         assert obj.auth.return_url == return_url
+        assert obj.auth.status == AuthStatus.REQUEST
+
+        obj.auth = True
+
+        assert isinstance(obj.auth, Auth)
+        assert obj.auth.return_url is None
+        assert obj.auth.status == AuthStatus.REQUEST
+
+        obj.auth = False
+
+        assert isinstance(obj.auth, Auth)
+        assert obj.auth.return_url is None
+        assert obj.auth.status == AuthStatus.REQUEST
 
     @responses.activate
     def test_capture(self):
@@ -457,6 +474,79 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
+    def test_payment_page_url(self):
+        obj = Payment(amount=self.random_integer(50, 99999), currency=self.currency_provider(True))
+
+        return_url = 'https://www.example.org/?' + self.random_string(10)
+
+        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            MissingReturnUrlError,
+            match='You must provide a return URL before going to the payment page.',
+        ):
+            obj.payment_page_url()
+
+        obj.return_url = return_url
+
+        with pytest.raises(
+            MissingPaymentIdError,
+            match='A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.',
+        ):
+            obj.payment_page_url()
+
+        obj.send()
+
+        with pytest.raises(
+            MissingApiKeyError,
+            match='A public API key is needed to obtain a payment page URL.',
+        ):
+            obj.payment_page_url()
+
+        config = Config()
+        keys = config.keys
+        config.keys = 'ptest_' + self.random_string(24)
+
+        host = config.host.replace('api', 'payment')
+
+        url = 'https://{}/{}/{}'.format(host, config.ptest, obj.id)
+
+        assert obj.payment_page_url() == url
+
+        # With lang parameter
+        lang = self.random_string(10)
+        url = 'https://{}/{}/{}?lang={}'.format(host, config.ptest, obj.id, lang)
+
+        assert obj.payment_page_url(lang=lang) == url
+
+        # With bad parameter (ignored)
+        url = 'https://{}/{}/{}'.format(host, config.ptest, obj.id)
+
+        assert obj.payment_page_url(unknown=lang) == url
+
+        # With a port
+        config.port = self.random_integer(1000, 65535)
+        url = 'https://{}:{}/{}/{}'.format(host, config.port, config.ptest, obj.id)
+
+        assert obj.payment_page_url() == url
+
+        # With non ascii chars
+        input = self.random_string(2) + ' ' + self.random_string(2)
+        encoded = input.replace(' ', '+')
+        url = 'https://{}:{}/{}/{}?lang={}'.format(host, config.port, config.ptest, obj.id, encoded)
+
+        assert obj.payment_page_url(lang=input) == url
+
+        del config.keys
+        del config.port
+
+        config.keys = keys
+
+    @responses.activate
     def test_refund(self):
         with open('./tests/fixtures/payment/read-no-card.json') as opened_file:
             payment_content = json.load(opened_file)
@@ -609,6 +699,40 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
+    def test_return_url(self):
+        obj = Payment()
+        return_url = 'https://www.example.org/?' + self.random_string(20)
+
+        assert obj.return_url is None
+
+        obj.return_url = return_url
+
+        assert obj.return_url == return_url
+
+        with pytest.raises(
+            InvalidUrlError,
+            match='Return URL must be a string.',
+        ):
+            obj.return_url = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidUrlError,
+            match='Return URL must use HTTPS protocol.',
+        ):
+            obj.return_url = 'http://www.example.org/?' + self.random_string(20)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'return_url': 'https://www.example.org/?' + self.random_string(20),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.return_url == params['return_url']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_send_with_card(self):
         obj = Payment()
 
@@ -644,28 +768,12 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 0
 
         obj.currency = 'eur'
-
-        with pytest.raises(
-            MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment.'
-            ),
-        ):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
         obj.card = card
         obj.customer = customer
 
         with pytest.raises(
             MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment. '
-                'Your card is incomplete.'
-            ),
+            match='Your card is incomplete.',
         ):
             obj.send()
 
@@ -742,28 +850,12 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 0
 
         obj.currency = 'eur'
-
-        with pytest.raises(
-            MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment.'
-            ),
-        ):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
         obj.sepa = sepa
         obj.customer = customer
 
         with pytest.raises(
             MissingPaymentMethodError,
-            match=(
-                'You must provide a valid credit card '
-                'or SEPA account before sending a payment. '
-                'Your SEPA account is incomplete.'
-            ),
+            match='Your SEPA account is incomplete.',
         ):
             obj.send()
 
@@ -1155,6 +1247,372 @@ class TestPayment(TestHelper):
         assert obj.device.languages is None
         assert obj.device.port == 1337
         assert obj.device.user_agent is None
+
+    @responses.activate
+    def test_send_without_method(self):
+        obj = Payment()
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+        email = self.random_string(15) + '@example.org'
+        mobile = self.random_mobile()
+        name = self.random_string(15)
+
+        customer = Customer()
+        customer.name = name
+        customer.email = email
+        customer.mobile = mobile
+
+        obj.customer = customer
+
+        with open('./tests/fixtures/payment/create-no-method.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            InvalidAmountError,
+            match='You must provide an amount before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.amount = amount
+
+        with pytest.raises(
+            InvalidCurrencyError,
+            match='You must provide a currency before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.currency = currency
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'card' not in body
+        assert 'sepa' not in body
+
+        assert 'customer' in body
+        assert isinstance(body.get('customer'), dict)
+        assert 'email' in body.get('customer')
+        assert body.get('customer').get('email') == email
+        assert 'mobile' in body.get('customer')
+        assert body.get('customer').get('mobile') == mobile
+        assert 'name' in body.get('customer')
+        assert body.get('customer').get('name') == name
+
+        # Data from fixture
+        assert obj.id == 'paym_pia9ossoqujuFFbX0HdS3FLi'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1562085759
+        assert obj.amount == 10000
+        assert obj.card is None
+        assert obj.currency == 'eur'
+        assert obj.customer == customer
+        assert obj.description == 'Test payment without any card or sepa account'
+        assert obj.live_mode is False
+        assert obj.method is None
+        assert obj.order_id is None
+        assert obj.sepa is None
+
+        assert customer.id == 'cust_IYsHodYTugeBndSIOdm6rnBA'
+
+    @responses.activate
+    def test_send_autocreate_device(self, monkeypatch):
+        obj = Payment()
+        card = Card()
+
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        port = self.random_integer(1, 65535)
+
+        monkeypatch.setenv('SERVER_ADDR', ip)
+        monkeypatch.setenv('SERVER_PORT', str(port))
+
+        with open('./tests/fixtures/payment/create-card.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+
+        cvc = self.random_string(3)
+        exp_month = self.random_integer(1, 12)
+        exp_year = self.random_year()
+        number = '4111111111111111'
+
+        obj.amount = amount
+        obj.currency = currency
+        obj.card = card
+
+        card.cvc = cvc
+        card.exp_month = exp_month
+        card.exp_year = exp_year
+        card.number = number
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
+
+        assert 'device' in body
+        assert isinstance(body.get('device'), dict)
+        assert 'ip' in body.get('device')
+        assert body.get('device').get('ip') == ip
+        assert 'port' in body.get('device')
+        assert body.get('device').get('port') == port
+
+        # Data from fixture
+        assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1538564253
+        assert obj.amount == 100
+        assert obj.capture is True
+        assert obj.card == card
+        assert obj.currency == 'eur'
+        assert obj.description == 'le test restfull v1'
+        assert obj.method == 'card'
+        assert obj.order_id is None
+        assert obj.sepa is None
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
+        assert card.exp_month == 2
+        assert card.exp_year == 2020
+        assert card.last4 == '4444'
+        assert card.name is None
+        # Number is unchanged in send process
+        assert card.number == '4111111111111111'
+        assert card.zip_code is None
+
+        assert isinstance(obj.device, Device)
+        assert obj.device.ip == ip
+        assert obj.device.port == port
+
+    @responses.activate
+    def test_send_auth_object(self, monkeypatch):
+        obj = Payment()
+        card = Card()
+        auth = Auth()
+
+        with open('./tests/fixtures/payment/create-card-auth.json') as opened:
+            content = opened.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+        cvc = self.random_string(3)
+        exp_month = self.random_integer(1, 12)
+        exp_year = self.random_year()
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        number = '4111111111111111'
+        port = self.random_integer(1, 65535)
+        return_url = 'https://www.example.org/?' + self.random_string(50)
+
+        obj.amount = amount
+        obj.auth = auth
+        obj.currency = currency
+        obj.card = card
+
+        auth.return_url = return_url
+
+        card.cvc = cvc
+        card.exp_month = exp_month
+        card.exp_year = exp_year
+        card.number = number
+
+        with pytest.raises(InvalidIpAddressError):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        monkeypatch.setenv('SERVER_ADDR', ip)
+
+        with pytest.raises(InvalidPortError):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        monkeypatch.setenv('SERVER_PORT', str(port))
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'auth' in body
+        assert isinstance(body.get('auth'), dict)
+        assert 'return_url' in body.get('auth')
+        assert body.get('auth').get('return_url') == return_url
+        assert 'status' in body.get('auth')
+        assert body.get('auth').get('status') == AuthStatus.REQUEST
+
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
+
+        assert 'device' in body
+        assert isinstance(body.get('device'), dict)
+        assert 'ip' in body.get('device')
+        assert body.get('device').get('ip') == ip
+        assert 'port' in body.get('device')
+        assert body.get('device').get('port') == port
+
+        # Data from fixture
+        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.amount == 1337
+        assert obj.auth == auth
+        assert obj.capture is True
+        assert obj.card == card
+        assert obj.currency == 'eur'
+        assert obj.description == 'Auth test'
+        assert obj.method == 'card'
+        assert obj.order_id is None
+        assert obj.sepa is None
+
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
+        assert card.exp_month == 2
+        assert card.exp_year == 2020
+        assert card.last4 == '4444'
+        assert card.name is None
+        # Number is unchanged in send process
+        assert card.number == '4111111111111111'
+        assert card.zip_code is None
+
+        assert isinstance(obj.auth, Auth)
+        assert obj.auth.return_url == 'https://www.free.fr'
+        assert obj.auth.status == AuthStatus.AVAILABLE
+
+        assert isinstance(obj.device, Device)
+        assert obj.device.http_accept == 'text/html'
+        assert obj.device.ip == '212.27.48.10'
+        assert obj.device.languages is None
+        assert obj.device.port == 1337
+        assert obj.device.user_agent is None
+
+    @responses.activate
+    def test_send_with_auth_for_payment_page(self, monkeypatch):
+        obj = Payment()
+
+        amount = self.random_integer(50, 999999)
+        currency = 'eur'
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        port = self.random_integer(1, 65535)
+
+        obj.auth = True
+
+        monkeypatch.setenv('SERVER_ADDR', ip)
+        monkeypatch.setenv('SERVER_PORT', str(port))
+
+        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            InvalidAmountError,
+            match='You must provide an amount before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.amount = amount
+
+        with pytest.raises(
+            InvalidCurrencyError,
+            match='You must provide a currency before sending a payment.',
+        ):
+            obj.send()
+
+        assert len(responses.calls) == 0
+
+        obj.currency = currency
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        # Data sent
+        body = json.loads(responses.calls[0].request.body)
+
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
+
+        assert 'auth' in body
+        assert isinstance(body.get('auth'), dict)
+        assert 'return_url' not in body.get('auth')
+        assert 'status' in body.get('auth')
+        assert body.get('auth').get('status') == AuthStatus.REQUEST
+
+        assert 'card' not in body
+        assert 'sepa' not in body
+        assert 'device' not in body
+
+        # Data from fixture
+        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
+        assert isinstance(obj.created, date)
+        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.amount == 1337
+        assert obj.card is None
+        assert obj.currency == 'eur'
+        assert obj.description == 'Auth test'
+        assert obj.live_mode is False
+        assert obj.method is None
+        assert obj.order_id is None
+        assert obj.sepa is None
 
     @responses.activate
     def test_sepa(self):

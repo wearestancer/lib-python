@@ -119,13 +119,19 @@ class Device(AbstractObject):
         if self.port is None and os.getenv('SERVER_PORT') is not None:
             self.port = int(os.getenv('SERVER_PORT'))
 
-        if self.http_accept is None:
+        if self.http_accept is None and os.getenv('HTTP_ACCEPT') is not None:
             self.http_accept = os.getenv('HTTP_ACCEPT')
 
-        if self.languages is None:
+        if all([
+            self.languages is None,
+            os.getenv('HTTP_ACCEPT_LANGUAGE') is not None,
+        ]):
             self.languages = os.getenv('HTTP_ACCEPT_LANGUAGE')
 
-        if self.user_agent is None:
+        if all([
+            self.user_agent is None,
+            os.getenv('HTTP_USER_AGENT') is not None,
+        ]):
             self.user_agent = os.getenv('HTTP_USER_AGENT')
 
         if self.ip is None:

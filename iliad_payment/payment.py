@@ -11,6 +11,7 @@ from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .core.payment.auth import PaymentAuth
+from .core.payment.page import PaymentPage
 from .exceptions import IliadNotImplementedError
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
@@ -27,7 +28,7 @@ from .status.refund import RefundStatus
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
 
-class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth):
+class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, PaymentPage):
     """Representation of a payment."""
 
     _ENDPOINT = 'checkout'
@@ -388,21 +389,15 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth):
             message = 'You must provide a currency before sending a payment.'
             raise InvalidCurrencyError(message)
 
-        message = (
-            'You must provide a valid credit card '
-            'or SEPA account before sending a payment.'
-        )
-
-        if self.card is None and self.sepa is None:
-            raise MissingPaymentMethodError(message)
-
         if self.card is not None and self.card.is_not_complete:
-            message += ' Your card is incomplete.'
+            message = 'Your card is incomplete.'
             raise MissingPaymentMethodError(message)
 
         if self.sepa is not None and self.sepa.is_not_complete:
-            message += ' Your SEPA account is incomplete.'
+            message = 'Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
+
+        self._create_device()
 
         return super().send()
 

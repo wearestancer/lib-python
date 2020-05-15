@@ -10,9 +10,14 @@ from ...exceptions import InvalidAuthError
 from ...exceptions import InvalidDeviceError
 
 
-def _coerce_auth(value: Union[Auth, str]) -> Auth:
+def _coerce_auth(value: Union[Auth, str, bool]) -> Auth:
     if isinstance(value, str):
         return Auth(return_url=value)
+
+    if isinstance(value, bool):
+        if value:
+            return Auth()
+        return None
 
     return value
 
@@ -76,3 +81,32 @@ class PaymentAuth(object):
     @validate_type(Device, throws=InvalidDeviceError)
     def device(self, value: Device):
         self._data['device'] = value
+
+    def _create_device(self):
+        """
+        Create and populate device.
+
+        Should be used in `Payment.send()` method.
+        """
+
+        if self.method is None:
+            return self
+
+        if self.device is not None:
+            self.device.hydrate_from_env()
+
+            return self
+
+        device = Device()
+
+        if self.auth and self.auth.return_url:
+            device.hydrate_from_env()
+            self.device = device
+        else:
+            try:
+                device.hydrate_from_env()
+                self.device = device
+            except Exception:
+                pass
+
+        return self

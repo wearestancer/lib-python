@@ -362,7 +362,7 @@ class TestStubObject(TestHelper):
 
         params = {
             'string1': self.random_string(10),
-            'integer1': self.random_integer(10),
+            'integer1': self.random_integer(10, 100),
             'created': 1546867615,
         }
 
