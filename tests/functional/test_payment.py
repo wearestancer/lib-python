@@ -10,6 +10,7 @@ from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
+from iliad_payment import PaymentStatus
 from iliad_payment.exceptions import NotFoundError
 from .TestHelper import TestHelper
 
@@ -158,3 +159,50 @@ class TestFunctionalPayment(TestHelper):
         assert payment.payment_page_url.find(payment.id) > 0
 
         config.keys = keys
+
+    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
+    def test_send_path_status(self, currency):
+        amount = self.random_integer(50, 99999)
+        description = 'Patch status test for Python, {:.2f} {}'.format(amount / 100, currency)
+
+        payment = Payment()
+        payment.amount = amount
+        payment.currency = currency
+        payment.description = description
+
+        assert payment.send() == payment
+        assert payment.id is not None
+        assert payment.id.startswith('paym_')
+        assert payment.method is None
+        assert payment.status is None
+
+        # We have a payment without status, we need to add a method
+
+        card = Card(
+            cvc=str(self.random_integer(100, 999)),
+            exp_month=self.random_integer(1, 12),
+            exp_year=self.random_year(),
+            number=self.get_card_number(),
+        )
+        payment.card = card
+
+        assert payment.send() == payment
+        assert payment.method == 'card'
+        assert payment.status is None
+
+        assert card.id is not None
+        assert card.id.startswith('card_')
+
+        # Still no status, but we can modify it, first we will ask an authorization
+
+        payment.status = PaymentStatus.AUTHORIZE
+
+        assert payment.send() == payment
+        assert payment.status == PaymentStatus.AUTHORIZED
+
+        # Let's try a capture
+
+        payment.status = PaymentStatus.CAPTURE
+
+        assert payment.send() == payment
+        assert payment.status == PaymentStatus.TO_CAPTURE
