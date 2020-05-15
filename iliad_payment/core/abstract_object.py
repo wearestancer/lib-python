@@ -46,7 +46,9 @@ class AbstractObject(object):
         self._data = {}
         self._populated = True
 
-        del self._modified  # init modified flags
+        # init modified flags
+        self.__modified = None
+        del self._modified
 
         self.hydrate(**self._default_values)
 
@@ -88,7 +90,7 @@ class AbstractObject(object):
     def _modified(self):
         self.__modified = set()
 
-        for key, obj in self._data.items():
+        for _, obj in self._data.items():
             if isinstance(obj, AbstractObject):
                 del obj._modified
 
@@ -100,9 +102,9 @@ class AbstractObject(object):
     def _populated(self, value: bool):
         self.__populated = value
 
-        for key, obj in self._data.items():
+        for _, obj in self._data.items():
             if isinstance(obj, AbstractObject):
-                obj._populated = value
+                obj._populated = value  # pylint: disable=protected-access
 
     @property
     def id(self) -> str:  # pylint: disable=invalid-name
@@ -154,7 +156,7 @@ class AbstractObject(object):
 
         for parent in cls.mro():
             if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes  ## pylint: disable=protected-access
+                allowed += parent._allowed_attributes  # pylint: disable=protected-access
 
         return allowed
 
@@ -185,7 +187,7 @@ class AbstractObject(object):
                     else:
                         obj.hydrate(**val)
 
-                if not obj in new_values:
+                if obj not in new_values:
                     new_values.append(obj)
 
             if missing:
@@ -254,16 +256,16 @@ class AbstractObject(object):
                     modify = False
 
                     if val is not None:
-                        tmp._populated = True  ## pylint: disable=protected-access
+                        tmp._populated = True  # pylint: disable=protected-access
                         value = tmp.hydrate(**val)
-                        value._populated = self._populated  ## pylint: disable=protected-access
+                        value._populated = self._populated  # pylint: disable=protected-access
 
             if key == 'id':
                 self._id = value
             elif key == 'created':
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
-                prop = self.__class__.__dict__.get(key)
+                prop = dict(self.__class__.__dict__).get(key)
 
                 if prop is not None and prop.fset is not None:
                     prop.fset(self, value)

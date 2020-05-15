@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Union
+from typing import Optional
 from urllib.parse import urlencode
 
 from ..decorators import populate_on_call
@@ -10,6 +10,13 @@ from ...exceptions import InvalidUrlError
 from ...exceptions import MissingApiKeyError
 from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
+
+
+def _valid_retur_url(value) -> Optional[str]:
+    if value.startswith('https://'):
+        return None
+
+    return 'Return URL must use HTTPS protocol.'
 
 
 class PaymentPage(object):
@@ -22,6 +29,7 @@ class PaymentPage(object):
     def __init__(self):
         """Init internal data."""
         self._data = {}
+        self.id = None  # pylint: disable=invalid-name
 
     def payment_page_url(self, **kwargs) -> str:
         """
@@ -29,8 +37,10 @@ class PaymentPage(object):
 
         You can pass parameters to the URL.
 
-        For now we only handle `lang` and may be used to tell which language to use.
-        If no language available matches the asked one, the page will be shown in english.
+        For now we only handle `lang` and may be used to tell which
+        language to use.
+        If no language available matches the asked one,
+        the page will be shown in english.
 
         Args:
             kwargs: Keyword argument use as URL parameters.
@@ -39,13 +49,22 @@ class PaymentPage(object):
             Payment page URL for the current payment.
 
         Raises:
-            MissingReturnUrlError: When you forgot to pass a return URL to receive the finalised payment.
-            MissingPaymentIdError: When current payment has no ID, you may forgot to send it.
-            MissingApiKeyError: When a public key was not found in your keychain.
+            MissingReturnUrlError: When you forgot to pass a return URL
+                to receive the finalised payment.
+            MissingPaymentIdError: When current payment has no ID,
+                you may forgot to send it.
+            MissingApiKeyError: When a public key was not found in
+                your keychain.
         """
 
         if self.return_url is None:
-            raise MissingReturnUrlError('You must provide a return URL before going to the payment page.')
+            message = (
+                'You must provide a return URL'
+                ' '
+                'before going to the payment page.'
+            )
+
+            raise MissingReturnUrlError(message)
 
         if self.id is None:
             message = (
@@ -59,15 +78,24 @@ class PaymentPage(object):
         config = Config()
 
         if config.public_key is None:
-            raise MissingApiKeyError('A public API key is needed to obtain a payment page URL.')
+            message = (
+                'A public API key is needed to obtain a payment page URL.'
+            )
+
+            raise MissingApiKeyError(message)
 
         if config.port is None:
             pattern = 'https://{host}/{key}/{id}'
         else:
             pattern = 'https://{host}:{port}/{key}/{id}'
 
-        host = config.host.replace('api', 'payment')
-        url = pattern.format(host=host, port=config.port, key=config.public_key, id=self.id)
+        tmp = {
+            'host': config.host.replace('api', 'payment'),
+            'id': self.id,
+            'key': config.public_key,
+            'port': config.port,
+        }
+        url = pattern.format(**tmp)
 
         allowed = ('lang',)
         params = {x: kwargs[x] for x in kwargs if x in allowed}
@@ -79,7 +107,7 @@ class PaymentPage(object):
 
     @property
     @populate_on_call
-    def return_url(self) -> str:
+    def return_url(self) -> Optional[str]:
         """
         URL used to return to your store when using the payment page.
 
@@ -98,7 +126,7 @@ class PaymentPage(object):
     @validate_type(
         str,
         name='Return URL',
-        validation=lambda v: None if v.startswith('https://') else 'Return URL must use HTTPS protocol.',
+        validation=_valid_retur_url,
         throws=InvalidUrlError,
     )
     def return_url(self, value: str):

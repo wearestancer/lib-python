@@ -24,7 +24,7 @@ def ip_validation(value):
     try:
         ip_address(value)
     except ValueError:
-        return 'This IP address seems invalid (%s).'.format(value)
+        return 'This IP address seems invalid ({}).'.format(value)
 
     return None
 
@@ -114,7 +114,7 @@ class Device(AbstractObject):
         """
 
         if self.ip is None and os.getenv('SERVER_ADDR') is not None:
-            self.ip = os.getenv('SERVER_ADDR')
+            self.ip = os.getenv('SERVER_ADDR')  # pylint: disable=invalid-name
 
         if self.port is None and os.getenv('SERVER_PORT') is not None:
             self.port = int(os.getenv('SERVER_PORT'))
@@ -122,16 +122,20 @@ class Device(AbstractObject):
         if self.http_accept is None and os.getenv('HTTP_ACCEPT') is not None:
             self.http_accept = os.getenv('HTTP_ACCEPT')
 
-        if all([
+        tmp = [
             self.languages is None,
             os.getenv('HTTP_ACCEPT_LANGUAGE') is not None,
-        ]):
+        ]
+
+        if all(tmp):
             self.languages = os.getenv('HTTP_ACCEPT_LANGUAGE')
 
-        if all([
+        tmp = [
             self.user_agent is None,
             os.getenv('HTTP_USER_AGENT') is not None,
-        ]):
+        ]
+
+        if all(tmp):
             self.user_agent = os.getenv('HTTP_USER_AGENT')
 
         if self.ip is None:
@@ -144,7 +148,7 @@ class Device(AbstractObject):
 
     @property
     @populate_on_call
-    def ip(self) -> str:
+    def ip(self) -> str:  # pylint: disable=invalid-name
         """
         Customer's IP address.
 
@@ -163,7 +167,7 @@ class Device(AbstractObject):
         str,
         validation=ip_validation,
         throws=InvalidIpAddressError,
-    )
+    )  # pylint: disable=invalid-name
     def ip(self, value: str):
         self._data['ip'] = value
 

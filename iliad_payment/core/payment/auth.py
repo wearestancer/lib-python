@@ -33,6 +33,8 @@ class PaymentAuth(object):
     def __init__(self):
         """Init internal data."""
         self._data = {}
+        self.id = None  # pylint: disable=invalid-name
+        self.method = None
 
     @property
     @populate_on_call
@@ -106,7 +108,7 @@ class PaymentAuth(object):
             try:
                 device.hydrate_from_env()
                 self.device = device
-            except Exception:
+            except:  # pylint: disable=bare-except
                 pass
 
         return self

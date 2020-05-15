@@ -33,7 +33,7 @@ CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, PaymentPage):
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'
+    _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
 
     _allowed_attributes = [
         'capture',
@@ -134,7 +134,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
     def customer(self, value: Customer):
         self._data['customer'] = value
 
-    def delete(self):
+    def delete(self):  # pylint: disable=no-self-use
         """
         Delete the current object.
 
