@@ -12,6 +12,7 @@ from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
+from iliad_payment import PaymentStatus
 from iliad_payment import Refund
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractAmount
@@ -30,6 +31,7 @@ from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidPortError
 from iliad_payment.exceptions import InvalidSepaError
+from iliad_payment.exceptions import InvalidStatusError
 from iliad_payment.exceptions import InvalidUrlError
 from iliad_payment.exceptions import MissingApiKeyError
 from iliad_payment.exceptions import MissingPaymentIdError
@@ -389,15 +391,71 @@ class TestPayment(TestHelper):
     def test_is_success(self):
         obj = Payment()
 
-        obj.hydrate(response_code='00')
+        # Both false if undefined
+
+        assert obj.is_success is False
+        assert obj.is_error is False
+
+        assert obj.is_not_success is True
+        assert obj.is_not_error is True
+
+        # Captured payments are success
+
+        obj.hydrate(status=PaymentStatus.CAPTURED)
 
         assert obj.is_success is True
         assert obj.is_error is False
 
-        obj.hydrate(response_code=self.random_string(2))
+        assert obj.is_not_success is False
+        assert obj.is_not_error is True
+
+        # Awaiting for capture payments are success
+
+        obj.hydrate(status=PaymentStatus.TO_CAPTURE)
+
+        assert obj.is_success is True
+        assert obj.is_error is False
+
+        assert obj.is_not_success is False
+        assert obj.is_not_error is True
+
+        # Authorized payments not asked for capture are success
+
+        obj.hydrate(capture=False, status=PaymentStatus.AUTHORIZED)
+
+        assert obj.is_success is True
+        assert obj.is_error is False
+
+        assert obj.is_not_success is False
+        assert obj.is_not_error is True
+
+        # Authorized payments asked for capture are error
+
+        obj.hydrate(capture=True, status=PaymentStatus.AUTHORIZED)
 
         assert obj.is_success is False
         assert obj.is_error is True
+
+        assert obj.is_not_success is True
+        assert obj.is_not_error is False
+
+        # Others are all errors
+
+        statuses = [
+            PaymentStatus.CANCELED,
+            PaymentStatus.DISPUTED,
+            PaymentStatus.EXPIRED,
+            PaymentStatus.FAILED,
+        ]
+
+        for status in statuses:
+            obj.hydrate(status=status)
+
+            assert obj.is_success is False
+            assert obj.is_error is True
+
+            assert obj.is_not_success is True
+            assert obj.is_not_error is False
 
     @responses.activate
     def test_live_mode(self):
@@ -1615,6 +1673,78 @@ class TestPayment(TestHelper):
         assert obj.sepa is None
 
     @responses.activate
+    def test_send_delayed_capture(self):
+        obj = Payment()
+
+        # Prepare responses
+        with open('./tests/fixtures/payment/create-card-status-null-no-method.json') as opened:
+            responses.add(responses.POST, obj.uri, body=opened.read())
+
+        uri = obj.uri + '/paym_a9LJ0xrGhhuT0M4crx0NEmXJ'  # Based on fixture
+
+        with open('./tests/fixtures/payment/create-card-status-null-with-card.json') as opened:
+            responses.add(responses.PATCH, uri, body=opened.read())
+
+        with open('./tests/fixtures/payment/create-card-status-to-capture.json') as opened:
+            responses.add(responses.PATCH, uri, body=opened.read())
+
+        obj.amount = self.random_integer(50, 999999)
+        obj.currency = 'eur'
+
+        # Payment creation
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 1
+
+        assert obj.card is None
+        assert obj.status is None
+
+        # Add card
+
+        cvc = self.random_string(3)
+        exp_month = self.random_integer(1, 12)
+        exp_year = self.random_year()
+        number = '4242424242424242'
+
+        obj.card = Card()
+        obj.card.cvc = cvc
+        obj.card.exp_month = exp_month
+        obj.card.exp_year = exp_year
+        obj.card.number = number
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 2
+
+        body = json.loads(responses.calls[1].request.body)
+
+        assert len(body.keys()) == 1
+
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
+
+        # Change status
+
+        obj.status = PaymentStatus.CAPTURE
+
+        assert obj.send() == obj
+        assert len(responses.calls) == 3
+
+        body = json.loads(responses.calls[2].request.body)
+
+        assert len(body.keys()) == 1
+
+        assert 'status' in body
+        assert body.get('status') == PaymentStatus.CAPTURE
+
+    @responses.activate
     def test_sepa(self):
         obj = Payment()
         sepa = Sepa()
@@ -1657,11 +1787,20 @@ class TestPayment(TestHelper):
     @responses.activate
     def test_status(self):
         obj = Payment()
+        status = self.random_string(10)
 
         assert obj.status is None
 
-        with pytest.raises(AttributeError):
-            obj.status = self.random_string(29)
+        obj.status = status
+
+        assert obj.status == status
+        assert obj.to_json().find('"status":"{}"'.format(status)) > 0
+
+        with pytest.raises(
+            InvalidStatusError,
+            match='Status must be a string.',
+        ):
+            obj.status = self.random_integer(20)
 
         obj = Payment(self.random_string(29))
         params = {

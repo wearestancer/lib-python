@@ -144,7 +144,7 @@ def validate_type(type_expected, **options):
             res = method(self, value, *args, **kwargs)
 
             if hasattr(self, '_modified') and not options['silent']:
-                self._modified.add(method.__name__)  ## pylint: disable=protected-access
+                self._modified = method.__name__  # pylint: disable=protected-access
 
             return res
         return wrapper

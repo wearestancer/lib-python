@@ -16,8 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `Object.save()` is renamed `Object.send()`
+- `Payment.status` can be modified
 - `Object.send()` can be use without method
 - `Object.hydrate()` will use setter when possible
+- `Payment.is_success` and `Payment.is_error` are based on `Payment.status` now
+
+### Fixed
+- `Object.to_json()` will not send empty object
+- Populated flag are passed to inner object
+- Reseting modified flag will trigger a reset on inner object too
 
 
 ## [0.0.2] - 2020-03-18

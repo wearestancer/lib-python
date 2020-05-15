@@ -323,6 +323,9 @@ class TestStubObject(TestHelper):
         params = {
             'string1': self.random_string(10),
             'integer1': self.random_integer(10, 100),
+            'card1': {
+                'number': '4242424242424242',
+            },
             'created': 1546867615,
         }
 
@@ -341,6 +344,7 @@ class TestStubObject(TestHelper):
 
         assert len(responses.calls) == 1
         assert obj.is_populated
+        assert obj.card1.is_populated  # Inner object are populated too
         assert obj.is_not_modified
 
         # Multiple populate will not trigger multiple call
@@ -445,54 +449,45 @@ class TestStubObject(TestHelper):
             'string1': self.random_string(10),
             'integer1': self.random_integer(10, 100),
             'card1': {
-                'number': '4242424242424242',
                 'brand': self.random_string(10),
+                'number': '4242424242424242',
             },
             'created': 1546867615,
         }
 
         obj.hydrate(**params)
-        card = obj.card1
+        card1 = obj.card1
 
         result = obj.to_json()
 
         assert isinstance(result, str)
         assert result.find('"string1":"{}"'.format(params['string1'])) > 0
         assert result.find('"integer1":{}'.format(params['integer1'])) > 0
-        assert result.find('"card1":{{"number":"{}"}}'.format(card.number)) > 0
+        assert result.find('"card1":{{"number":"{}"}}'.format(card1.number)) > 0
         assert result.find('"created"') == -1
+        assert result.find('"card2"') == -1
 
         # Inner object may send their ID
-        card.hydrate(id=self.random_string(29))
-        card._modified = set() # Do not do this at home
-
-        obj.force_modified('card1')
+        card2 = Card(self.random_string(29))
+        obj.card2 = card2
 
         result = obj.to_json()
 
-        assert result.find('"card1":"{}"'.format(card.id)) > 0
+        assert result.find('"card2":"{}"'.format(card2.id)) > 0
 
         # Only export modified properties
         obj.reset_modified()
+        del card1._modified  # Do not do this at home
+        del card2._modified  # Do not do this at home
 
         result = obj.to_json()
 
         assert isinstance(result, str)
         assert result == '{}'
 
-        # Export modified inner object
-        card.cvc = str(self.random_integer(100, 999))
-
-        result = obj.to_json()
-
-        assert isinstance(result, str)
-        assert result.find('"card1":{{"cvc":"{}"}}'.format(card.cvc)) > 0
-
         # An object with an ID will return only his ID into the json
         uid = self.random_string(29)
         obj.hydrate(id=uid)
-
-        card._modified = set() # Do not do this at home
 
         result = obj.to_json()
 
@@ -514,3 +509,21 @@ class TestStubObject(TestHelper):
 
         assert 'id' not in result
         assert 'created' not in result
+
+        # Export modified inner object
+        card2.cvc = str(self.random_integer(100, 999))
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"card1"') == -1
+        assert result.find('"card2":{{"cvc":"{}"}}'.format(card2.cvc)) > 0
+
+        # Do not export empty object
+        obj.card2 = Card()
+
+        result = obj.to_json()
+
+        assert isinstance(result, str)
+        assert result.find('"card1"') == -1
+        assert result.find('"card2"') == -1

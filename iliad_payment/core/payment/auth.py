@@ -89,7 +89,7 @@ class PaymentAuth(object):
         Should be used in `Payment.send()` method.
         """
 
-        if self.method is None:
+        if self.method is None or self.id is not None:
             return self
 
         if self.device is not None:
