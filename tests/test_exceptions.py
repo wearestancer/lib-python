@@ -30,6 +30,9 @@ class TestExceptions(TestHelper):
     def test_invalid_amount_error(self):
         assert issubclass(InvalidAmountError, IliadValueError)
 
+    def test_invalid_auth_error(self):
+        assert issubclass(InvalidAuthError, IliadValueError)
+
     def test_invalid_bic_error(self):
         assert issubclass(InvalidBicError, IliadValueError)
 
@@ -63,8 +66,14 @@ class TestExceptions(TestHelper):
     def test_invalid_customer_mobile_error(self):
         assert issubclass(InvalidCustomerMobileError, IliadValueError)
 
+    def test_invalid_device_error(self):
+        assert issubclass(InvalidDeviceError, IliadValueError)
+
     def test_invalid_Iban_error(self):
         assert issubclass(InvalidIbanError, IliadValueError)
+
+    def test_invalid_ip_address_error(self):
+        assert issubclass(InvalidIpAddressError, IliadValueError)
 
     def test_invalid_name_error(self):
         assert issubclass(InvalidNameError, IliadValueError)
@@ -78,8 +87,14 @@ class TestExceptions(TestHelper):
     def test_invalid_payment_order_id_error(self):
         assert issubclass(InvalidPaymentOrderIdError, IliadValueError)
 
+    def test_invalid_payment_port_error(self):
+        assert issubclass(InvalidPortError, IliadValueError)
+
     def test_invalid_sepa_error(self):
         assert issubclass(InvalidSepaError, IliadValueError)
+
+    def test_invalid_url_error(self):
+        assert issubclass(InvalidUrlError, IliadValueError)
 
     def test_invalid_zip_code_error(self):
         assert issubclass(InvalidZipCodeError, IliadValueError)

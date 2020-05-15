@@ -26,7 +26,7 @@ class TestFunctionalCustomer(TestHelper):
         assert obj.email == 'john.doe@example.com'
         assert obj.mobile == '+33666172730'  # Random generated number
 
-    def test_save(self):
+    def test_send(self):
         obj = Customer()
 
         tmp = self.random_string(5)
@@ -39,12 +39,12 @@ class TestFunctionalCustomer(TestHelper):
         obj.mobile = mobile
 
         assert obj.id is None
-        assert obj.save() == obj
+        assert obj.send() == obj
         assert obj.id is not None
 
         uid = obj.id
 
-        # If saved, we can get it
+        # If sent, we can get it
         obj = Customer(uid)
 
         assert obj.name == name
@@ -66,14 +66,14 @@ class TestFunctionalCustomer(TestHelper):
         obj.mobile = mobile
 
         assert obj.id is None
-        assert obj.save() == obj
+        assert obj.send() == obj
         assert obj.id is not None
         assert obj.name is None
         assert obj.email is None
         assert obj.mobile == mobile
 
         obj.name = name
-        obj.save()
+        obj.send()
 
         assert obj.name == name
         assert obj.email is None
@@ -81,7 +81,7 @@ class TestFunctionalCustomer(TestHelper):
 
         obj.email = email
         obj.mobile = self.random_mobile()
-        obj.save()
+        obj.send()
 
         assert obj.name == name
         assert obj.email == email

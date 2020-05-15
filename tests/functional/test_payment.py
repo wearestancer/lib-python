@@ -39,7 +39,7 @@ class TestFunctionalPayment(TestHelper):
         assert obj.customer.id == 'cust_6FbQaYtxjADzerqdO5gs79as'
 
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_save(self, currency):
+    def test_send(self, currency):
         obj = Payment()
 
         amount = self.random_integer(50, 10000)
@@ -66,14 +66,14 @@ class TestFunctionalPayment(TestHelper):
         obj.description = desc
 
         assert obj.id is None
-        assert obj.save() == obj
+        assert obj.send() == obj
         assert obj.id is not None
 
         uid = obj.id
         card_uid = card.id
         customer_uid = customer.id
 
-        # If saved, we can get it
+        # If sent, we can get it
         obj = Payment(uid)
 
         assert obj.amount == amount

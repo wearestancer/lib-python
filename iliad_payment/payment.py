@@ -10,6 +10,7 @@ from .core import AbstractCountry
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.payment.auth import PaymentAuth
 from .exceptions import IliadNotImplementedError
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
@@ -26,7 +27,7 @@ from .status.refund import RefundStatus
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
 
-class Payment(AbstractObject, AbstractAmount, AbstractCountry):
+class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth):
     """Representation of a payment."""
 
     _ENDPOINT = 'checkout'
@@ -241,7 +242,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     def order_id(self, value: str):
         self._data['order_id'] = value
 
-    @validate_type(int, min=50, throws=InvalidAmountError, optional=True, silent=True)
+    @validate_type(
+        int,
+        min=50,
+        throws=InvalidAmountError,
+        optional=True,
+        silent=True,
+    )
     def refund(self, amount: int = 0) -> CurrentInstance:
         """
         Refund a payment, or part of it.
@@ -278,7 +285,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             params['amount'] = amount
 
         refund.hydrate(**params)
-        refund.save()
+        refund.send()
 
         refunds = self._data.get('refunds', [])
         refunds.append(refund)
@@ -358,7 +365,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         return responses.get(response_code)
 
-    def save(self) -> CurrentInstance:
+    def send(self) -> CurrentInstance:
         """
         Create or update the payment.
 
@@ -397,7 +404,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             message += ' Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
-        return super().save()
+        return super().send()
 
     @property
     @populate_on_call

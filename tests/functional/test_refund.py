@@ -35,7 +35,7 @@ class TestFunctionalRefund(TestHelper):
         payment.customer = customer
         payment.description = desc
 
-        payment.save()
+        payment.send()
 
         assert payment.status == PaymentStatus.TO_CAPTURE
 
@@ -85,7 +85,7 @@ class TestFunctionalRefund(TestHelper):
         payment.customer = customer
         payment.description = desc
 
-        payment.save()
+        payment.send()
 
         assert payment.refund(refund1) == payment
 

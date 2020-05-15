@@ -94,9 +94,9 @@ class TestSepa(TestHelper):
         obj.iban = iban
 
         spaceless = re.sub(r'\s', '', iban)
-        formatted = re.sub(r'(.{,4})', '\\1 ', spaceless)
+        formatted = re.sub(r'(.{,4})', '\\1 ', spaceless).strip()
 
-        assert obj.formatted_iban == formatted.strip()
+        assert obj.formatted_iban == formatted
 
         obj = Sepa(self.random_string(29))
         params = {
@@ -105,7 +105,7 @@ class TestSepa(TestHelper):
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.iban == iban
+        assert obj.iban == spaceless
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -113,16 +113,17 @@ class TestSepa(TestHelper):
     @pytest.mark.parametrize('iban', TestHelper.iban_provider())
     def test_iban(self, iban):
         obj = Sepa()
-        formatted = re.sub(r'\s', '', iban)
+
+        spaceless = re.sub(r'\s', '', iban)
 
         assert obj.iban is None
         assert obj.is_not_modified
 
         obj.iban = iban
 
-        assert obj.iban == formatted
-        assert obj.last4 == formatted[-4:]
-        assert obj.country == formatted[0:2].lower()
+        assert obj.iban == spaceless
+        assert obj.last4 == spaceless[-4:]
+        assert obj.country == spaceless[0:2].lower()
         assert obj.is_modified
 
         with pytest.raises(
@@ -146,7 +147,7 @@ class TestSepa(TestHelper):
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.iban == iban
+        assert obj.iban == spaceless
         assert obj.is_populated
         assert len(responses.calls) == 1
 

@@ -30,6 +30,10 @@ class InvalidAmountError(IliadValueError):
     """Raised when an invalid amount is used."""
 
 
+class InvalidAuthError(IliadValueError):
+    """Raised when an invalid auth object is used."""
+
+
 class InvalidBicError(IliadValueError):
     """Raised when an invalid BIC is used."""
 
@@ -74,8 +78,16 @@ class InvalidCustomerMobileError(IliadValueError):
     """Raised when an invalid mobile phone number is used."""
 
 
+class InvalidDeviceError(IliadValueError):
+    """Raised when an invalid device is used."""
+
+
 class InvalidIbanError(IliadValueError):
     """Raised when an invalid IBAN is used."""
+
+
+class InvalidIpAddressError(IliadValueError):
+    """Raised when an invalid IP address is used."""
 
 
 class InvalidNameError(IliadValueError):
@@ -94,8 +106,16 @@ class InvalidPaymentOrderIdError(IliadValueError):
     """Raised when an invalid order ID is used."""
 
 
+class InvalidPortError(IliadValueError):
+    """Raised when an invalid port is used."""
+
+
 class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
+
+
+class InvalidUrlError(IliadValueError):
+    """Raised when an invalid URL is used."""
 
 
 class InvalidZipCodeError(IliadValueError):
