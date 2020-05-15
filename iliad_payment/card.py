@@ -2,6 +2,7 @@
 
 from datetime import date
 import re
+from typing import Optional
 from typing import TypeVar
 
 from .core import AbstractCountry
@@ -159,6 +160,20 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         self._data['exp_year'] = value
 
     @property
+    @populate_on_call
+    def funding(self) -> Optional[str]:
+        """
+        Type of funding.
+
+        Should be one of "credit", "debit", "prepaid", "universal", "charge", "deferred".
+        May be `None` when the type could not be determined.
+
+        Returns:
+            Type of funding.
+        """
+        return self._data.get('funding')
+
+    @property
     def is_complete(self) -> bool:
         """
         Indicate if all mandatory card data are provided.
@@ -190,6 +205,34 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
             Card's last 4 digits.
         """
         return self._data.get('last4')
+
+    @property
+    @populate_on_call
+    def nature(self) -> Optional[str]:
+        """
+        Nature of the card.
+
+        Should be "personnal" or "corporate".
+        May be `None` when the type could not be determined.
+
+        Returns:
+            Nature of the card.
+        """
+        return self._data.get('nature')
+
+    @property
+    @populate_on_call
+    def network(self) -> Optional[str]:
+        """
+        Card network.
+
+        Should be "mastercard", "national" or "visa".
+        May be `None` when the type could not be determined.
+
+        Returns:
+            Card network.
+        """
+        return self._data.get('network')
 
     @property
     @populate_on_call
