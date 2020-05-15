@@ -224,6 +224,26 @@ class TestCard(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    @responses.activate
+    def test_funding(self):
+        obj = Card()
+
+        assert obj.funding is None
+
+        with pytest.raises(AttributeError):
+            obj.funding = self.random_string(15)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'funding': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.funding == params['funding']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
     def test_is_complete(self):
         cvc = self.random_string(3)
         exp_month = self.random_integer(1, 12)
@@ -306,6 +326,46 @@ class TestCard(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.last4 == params['last4']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_nature(self):
+        obj = Card()
+
+        assert obj.nature is None
+
+        with pytest.raises(AttributeError):
+            obj.nature = self.random_string(15)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'nature': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.nature == params['nature']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_network(self):
+        obj = Card()
+
+        assert obj.network is None
+
+        with pytest.raises(AttributeError):
+            obj.network = self.random_string(15)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'network': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.network == params['network']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
