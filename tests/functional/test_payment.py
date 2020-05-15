@@ -6,6 +6,7 @@ import pytest
 from iliad_payment import Auth
 from iliad_payment import AuthStatus
 from iliad_payment import Card
+from iliad_payment import Config
 from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
@@ -121,3 +122,39 @@ class TestFunctionalPayment(TestHelper):
         assert payment.auth.status == AuthStatus.AVAILABLE
         assert payment.auth.redirect_url is not None
         assert payment.auth.redirect_url.startswith('https://3ds.')
+
+    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
+    def test_send_for_payment_page(self, currency):
+        amount = self.random_integer(50, 99999)
+        description = 'Payment page test for Python, {:.2f} {}'.format(amount / 100, currency)
+        return_url = 'https://www.example.org/?' + self.random_string(30)
+
+        payment = Payment()
+        payment.amount = amount
+        payment.currency = currency
+        payment.description = description
+        payment.return_url = return_url
+
+        assert payment.send() == payment
+        assert payment.id is not None
+        assert payment.id.startswith('paym_')
+        assert payment.method is None
+        assert payment.status is None
+
+        assert isinstance(payment.auth, Auth)
+        assert payment.auth.status == AuthStatus.REQUESTED
+        assert payment.auth.return_url is None
+        assert payment.auth.redirect_url is None
+
+        config = Config()
+
+        keys = config.keys
+        fake_public_key = 'p' + config.secret_key[1:]
+        config.keys = fake_public_key
+
+        assert payment.payment_page_url is not None
+        assert payment.payment_page_url.startswith('https://payment')
+        assert payment.payment_page_url.find(fake_public_key) > 0
+        assert payment.payment_page_url.find(payment.id) > 0
+
+        config.keys = keys
