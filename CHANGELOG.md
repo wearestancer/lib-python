@@ -9,10 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `Auth` object
 - `Device` object
+- `Card` endpoint
 - `Payment.auth` property
 - `Payment.device` property
 - `Payment.return_url` property
 - `Payment.payment_page_url()` method
+- `Card.funding` property
+- `Card.nature` property
+- `Card.network` property
 
 ### Changed
 - `Object.save()` is renamed `Object.send()`
