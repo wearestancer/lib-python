@@ -12,6 +12,7 @@ from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .core.payment.auth import PaymentAuth
 from .core.payment.page import PaymentPage
+from .core.payment.refund import PaymentRefund
 from .exceptions import IliadNotImplementedError
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
@@ -24,13 +25,20 @@ from .exceptions import InvalidStatusError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
 from .status.payment import PaymentStatus
-from .status.refund import RefundStatus
 
 
+BaseObject = (
+    AbstractObject,
+    AbstractAmount,
+    AbstractCountry,
+    PaymentAuth,
+    PaymentPage,
+    PaymentRefund,
+)
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
 
-class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, PaymentPage):
+class Payment(*BaseObject):
     """Representation of a payment."""
 
     _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
@@ -52,13 +60,6 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
     @property
     def _init_customer(self) -> Customer:
         return Customer
-
-    @property
-    def _init_refunds(self):
-        # Prevent import loop
-        from .refund import Refund  # pylint: disable=import-outside-toplevel
-
-        return Refund
 
     @property
     def _init_sepa(self) -> Sepa:
@@ -280,93 +281,6 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry, PaymentAuth, Paym
     )
     def order_id(self, value: str):
         self._data['order_id'] = value
-
-    @validate_type(
-        int,
-        min=50,
-        throws=InvalidAmountError,
-        optional=True,
-        silent=True,
-    )
-    def refund(self, amount: int = 0) -> CurrentInstance:
-        """
-        Refund a payment, or part of it.
-
-        Args:
-            amount (int): Amount to refund,
-                if not present all paid amount will be refund.
-
-        Raises:
-            InvalidAmountError: When trying to refund more than paid.
-            InvalidAmountError: When the amount is invalid.
-        """
-        # Prevent import loop
-        from .refund import Refund  # pylint: disable=import-outside-toplevel
-
-        refund = Refund()
-        params = {
-            'payment': self,
-        }
-
-        if amount:
-            if amount > self.refundable_amount:
-                message = (
-                    'You are trying to refund ({amount:.2f} {currency}) '
-                    'more than possible ({max:.2f} {currency}).'
-                ).format(
-                    amount=amount / 100,
-                    currency=self.currency.upper(),
-                    max=self.refundable_amount / 100,
-                )
-
-                raise InvalidAmountError(message)
-
-            params['amount'] = amount
-
-        refund.hydrate(**params)
-        refund.send()
-
-        refunds = self._data.get('refunds', [])
-        refunds.append(refund)
-
-        self._data['refunds'] = refunds
-
-        if refund.status != RefundStatus.TO_REFUND:
-            self._populated = False
-            self.populate()
-
-        return self
-
-    @property
-    def refunded_amount(self) -> int:
-        """
-        Amount already refunded.
-
-        Returns:
-            int: Amount already refund.
-        """
-        return sum(map(lambda refund: refund.amount, self.refunds))
-
-    @property
-    def refundable_amount(self) -> int:
-        """
-        Amount not already refunded.
-
-        Returns:
-            int: Amount left to refund.
-        """
-        return self.amount - self.refunded_amount
-
-    @property
-    @populate_on_call
-    def refunds(self):
-        """
-        Returns refund's list.
-
-        Returns:
-            Refund[]: Refund's list
-        """
-        return self._data.get('refunds', [])
 
     @property
     @populate_on_call
