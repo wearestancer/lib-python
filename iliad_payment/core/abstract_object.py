@@ -21,6 +21,9 @@ class AbstractObject(object):
 
     _ENDPOINT = None  # pylint: disable=invalid-name
     _allowed_attributes = []
+    _datetime_property = [
+        'created',
+    ]
     _default_values = {}
 
     def __init__(self, uid: str = None, **kwargs):
@@ -43,7 +46,6 @@ class AbstractObject(object):
             An instance of the current object.
         """
         self._id = uid
-        self._created = None
         self._data = {}
         self._populated = True
 
@@ -86,6 +88,16 @@ class AbstractObject(object):
         for parent in cls.mro():
             if hasattr(parent, '_allowed_attributes'):
                 allowed.update(parent._allowed_attributes)  # pylint: disable=protected-access
+
+        return allowed
+
+    @classmethod
+    def _get_datetime_property(cls) -> Set[str]:
+        allowed = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_datetime_property'):
+                allowed.update(parent._datetime_property)  # pylint: disable=protected-access
 
         return allowed
 
@@ -140,7 +152,7 @@ class AbstractObject(object):
         Returns:
             Creation date and time (into the API) during server side creation.
         """
-        return self._created
+        return self._data.get('created')
 
     def delete(self) -> CurrentInstance:
         """
@@ -259,10 +271,11 @@ class AbstractObject(object):
                         value = tmp.hydrate(**val)
                         value._populated = self._populated  # pylint: disable=protected-access
 
+            if key in self._get_datetime_property():
+                value = datetime.fromtimestamp(value, tz=config.default_timezone)
+
             if key == 'id':
                 self._id = value
-            elif key == 'created':
-                self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 prop = dict(self.__class__.__dict__).get(key)
 
