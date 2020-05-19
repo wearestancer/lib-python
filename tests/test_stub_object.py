@@ -1,10 +1,12 @@
 """Test abstract object"""
 
 import base64
-from datetime import datetime, tzinfo
+from datetime import datetime
+from datetime import timezone
+from datetime import tzinfo
 import json
 import pytest
-from pytz import timezone
+from pytz import timezone as tz
 from random import choice
 import requests
 import responses
@@ -71,9 +73,9 @@ class TestStubObject(TestHelper):
 
         assert isinstance(obj.created, datetime)
         assert obj.created.timestamp() == date
-        assert obj.created.tzinfo is None
+        assert obj.created.tzinfo is timezone.utc
 
-        config.default_timezone = timezone(zone)
+        config.default_timezone = tz(zone)
 
         obj.hydrate(**params)
 
@@ -185,7 +187,10 @@ class TestStubObject(TestHelper):
 
     def test_hydrate(self):
         obj = StubObject()
+        config = Config()
         uid = self.random_string(29)
+
+        del config.default_timezone  # Just in case, should use UTC
 
         params = {
             'string1': self.random_string(10),
@@ -200,6 +205,7 @@ class TestStubObject(TestHelper):
         assert obj.integer1 == params['integer1']
 
         assert isinstance(obj.created, datetime)
+        assert obj.created.tzinfo is timezone.utc
         assert obj.created.year == 2019
         assert obj.created.month == 1
         assert obj.created.day == 7

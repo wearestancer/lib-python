@@ -2,10 +2,11 @@
 
 from datetime import date
 from datetime import datetime
+from datetime import timezone
 from datetime import tzinfo
 import json
 import pytest
-from pytz import timezone
+from pytz import timezone as tz
 import responses
 import uuid
 
@@ -270,9 +271,9 @@ class TestPayment(TestHelper):
 
         assert isinstance(obj.date_bank, datetime)
         assert obj.date_bank.timestamp() == timestamp
-        assert obj.date_bank.tzinfo is None
+        assert obj.date_bank.tzinfo is timezone.utc
 
-        config.default_timezone = timezone(zone)
+        config.default_timezone = tz(zone)
 
         obj.hydrate(**params)
 
@@ -914,7 +915,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1538564253
+        assert obj.created.timestamp() == 1538564253
         assert obj.amount == 100
         assert obj.capture is True
         assert obj.card == card
@@ -994,7 +995,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_5IptC9R1Wu2wKBR5cjM2so7k'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1538564504
+        assert obj.created.timestamp() == 1538564504
         assert obj.amount == 100
         assert obj.card is None
         assert obj.capture is True
@@ -1101,7 +1102,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.auth == auth
         assert obj.capture is True
@@ -1218,7 +1219,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.capture is True
         assert obj.card == card
@@ -1339,7 +1340,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.auth == auth
         assert obj.capture is True
@@ -1441,7 +1442,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_pia9ossoqujuFFbX0HdS3FLi'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1562085759
+        assert obj.created.timestamp() == 1562085759
         assert obj.amount == 10000
         assert obj.card is None
         assert obj.currency == 'eur'
@@ -1520,7 +1521,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1538564253
+        assert obj.created.timestamp() == 1538564253
         assert obj.amount == 100
         assert obj.capture is True
         assert obj.card == card
@@ -1631,7 +1632,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.auth == auth
         assert obj.capture is True
@@ -1728,7 +1729,7 @@ class TestPayment(TestHelper):
         # Data from fixture
         assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
-        assert int(obj.created.strftime('%s')) == 1567094428
+        assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.card is None
         assert obj.currency == 'eur'
