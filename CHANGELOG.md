@@ -13,7 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Payment.auth` property
 - `Payment.device` property
 - `Payment.return_url` property
+- `Payment.unique_id` property
 - `Payment.payment_page_url()` method
+- `Customer.external_id` property
 - `Card.funding` property
 - `Card.nature` property
 - `Card.network` property
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Object.send()` can be use without method
 - `Object.hydrate()` will use setter when possible
 - `Payment.is_success` and `Payment.is_error` are based on `Payment.status` now
+- `Payment.order_id` accept 36 characters
 
 ### Fixed
 - `Object.to_json()` will not send empty object

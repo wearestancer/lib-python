@@ -1,6 +1,7 @@
 """Functional tests for customer object"""
 
 import pytest
+import uuid
 
 from iliad_payment import Customer
 from iliad_payment.exceptions import NotFoundError
@@ -32,28 +33,54 @@ class TestFunctionalCustomer(TestHelper):
         tmp = self.random_string(5)
         name = 'John Doe ({})'.format(tmp)
         email = 'john.doe+{}@example.com'.format(tmp)
+        external_id = uuid.uuid4()
         mobile = self.random_mobile()
 
         obj.name = name
         obj.email = email
+        obj.external_id = external_id
         obj.mobile = mobile
 
         assert obj.id is None
         assert obj.send() == obj
         assert obj.id is not None
+        assert obj.id.startswith('cust_')
 
-        uid = obj.id
+        uid1 = obj.id
 
         # If sent, we can get it
-        obj = Customer(uid)
+        obj = Customer(uid1)
 
         assert obj.name == name
         assert obj.email == email
+        assert obj.external_id == external_id
         assert obj.mobile == mobile
 
-        # Clean it
-        assert obj.delete() == obj
+        # External ID does not prevent duplication
+        obj = Customer()
+
+        tmp = self.random_string(5)
+        name = 'John Doe ({})'.format(tmp)
+        email = 'john.doe+{}@example.com'.format(tmp)
+
+        obj.name = name
+        obj.email = email
+        obj.external_id = external_id
+
         assert obj.id is None
+        assert obj.send() == obj
+        assert obj.id is not None
+        assert obj.id.startswith('cust_')
+        assert obj.id != uid1
+
+        uid2 = obj.id
+
+        # Clean
+        for uid in (uid1, uid2):
+            obj = Customer(uid)
+
+            assert obj.delete() == obj
+            assert obj.id is None
 
     def test_update(self):
         obj = Customer()

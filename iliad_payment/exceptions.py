@@ -74,6 +74,10 @@ class InvalidCustomerEmailError(IliadValueError):
     """Raised when an invalid email is used."""
 
 
+class InvalidCustomerExternalIdError(IliadValueError):
+    """Raised when an invalid external ID is used."""
+
+
 class InvalidCustomerMobileError(IliadValueError):
     """Raised when an invalid mobile phone number is used."""
 
@@ -104,6 +108,10 @@ class InvalidPaymentDescriptionError(IliadValueError):
 
 class InvalidPaymentOrderIdError(IliadValueError):
     """Raised when an invalid order ID is used."""
+
+
+class InvalidPaymentUniqueIdError(IliadValueError):
+    """Raised when an invalid unique ID is used."""
 
 
 class InvalidPortError(IliadValueError):
