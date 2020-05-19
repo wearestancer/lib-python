@@ -3,6 +3,7 @@
 from datetime import datetime
 import json
 from typing import List
+from typing import Set
 from typing import TypeVar
 
 from ..config import Config
@@ -19,6 +20,7 @@ class AbstractObject(object):
 
     _ENDPOINT = None  # pylint: disable=invalid-name
     _allowed_attributes = []
+    _default_values = {}
 
     def __init__(self, uid: str = None, **kwargs):
         """
@@ -42,8 +44,13 @@ class AbstractObject(object):
         self._id = uid
         self._created = None
         self._data = {}
-        self._modified = set()
         self._populated = True
+
+        # init modified flags
+        self.__modified = None
+        del self._modified
+
+        self.hydrate(**self._default_values)
 
         if kwargs:
             self.hydrate(**kwargs)
@@ -70,6 +77,34 @@ class AbstractObject(object):
             representation[key] = value
 
         return representation
+
+    @property
+    def _modified(self) -> Set[str]:
+        return self.__modified
+
+    @_modified.setter
+    def _modified(self, value: str):
+        self.__modified.add(value)
+
+    @_modified.deleter
+    def _modified(self):
+        self.__modified = set()
+
+        for _, obj in self._data.items():
+            if isinstance(obj, AbstractObject):
+                del obj._modified
+
+    @property
+    def _populated(self) -> bool:
+        return self.__populated
+
+    @_populated.setter
+    def _populated(self, value: bool):
+        self.__populated = value
+
+        for _, obj in self._data.items():
+            if isinstance(obj, AbstractObject):
+                obj._populated = value  # pylint: disable=protected-access
 
     @property
     def id(self) -> str:  # pylint: disable=invalid-name
@@ -105,11 +140,10 @@ class AbstractObject(object):
         Raises:
             IliadHTTPError: On error during with the API.
         """
-        Request(self).delete  ## pylint: disable=expression-not-assigned
+        Request(self).delete  # pylint: disable=expression-not-assigned
 
-        self._modified = [
-            'id', # Force modified to allow sending it again to the API
-        ]
+        # Force modified to allow sending it again to the API
+        self._modified = 'id'
 
         return self
 
@@ -122,7 +156,7 @@ class AbstractObject(object):
 
         for parent in cls.mro():
             if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes  ## pylint: disable=protected-access
+                allowed += parent._allowed_attributes  # pylint: disable=protected-access
 
         return allowed
 
@@ -153,7 +187,7 @@ class AbstractObject(object):
                     else:
                         obj.hydrate(**val)
 
-                if not obj in new_values:
+                if obj not in new_values:
                     new_values.append(obj)
 
             if missing:
@@ -222,19 +256,24 @@ class AbstractObject(object):
                     modify = False
 
                     if val is not None:
-                        tmp._populated = True  ## pylint: disable=protected-access
+                        tmp._populated = True  # pylint: disable=protected-access
                         value = tmp.hydrate(**val)
-                        value._populated = self._populated  ## pylint: disable=protected-access
+                        value._populated = self._populated  # pylint: disable=protected-access
 
             if key == 'id':
                 self._id = value
             elif key == 'created':
                 self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
-                self._data[key] = value
+                prop = dict(self.__class__.__dict__).get(key)
 
-                if modify:
-                    self._modified.add(key)
+                if prop is not None and prop.fset is not None:
+                    prop.fset(self, value)
+                else:
+                    self._data[key] = value
+
+                    if modify:
+                        self._modified = key
 
         return self
 
@@ -330,13 +369,14 @@ class AbstractObject(object):
         if self.id is not None and not self._populated:
             self._populated = True
             Request(self).get  ## pylint: disable=expression-not-assigned
-            self._modified.clear()
+
+            del self._modified
 
         self._populated = True
 
         return self
 
-    def save(self) -> CurrentInstance:
+    def send(self) -> CurrentInstance:
         """
         Save the current object.
 
@@ -351,7 +391,7 @@ class AbstractObject(object):
         if self._modified:
             Request(self).post  ## pylint: disable=expression-not-assigned
 
-        self._modified.clear()
+        del self._modified
 
         return self
 
@@ -359,7 +399,7 @@ class AbstractObject(object):
         """
         Return a JSON representation of the current object.
 
-        Be carefull, this is mainly used in `Object.save()` method.
+        Be carefull, this is mainly used in `Object.send()` method.
         It will return all object data if no ID is present or
         if the current object is tagged as `modified`.
         Unless that, it will return a JSON with only the `id` key.
@@ -391,7 +431,10 @@ class AbstractObject(object):
 
             for key, value in items.items():
                 if hasattr(value, 'to_json_repr'):
-                    representation[key] = value.to_json_repr()
+                    val = value.to_json_repr()
+
+                    if val:
+                        representation[key] = val
                 else:
                     representation[key] = value
 

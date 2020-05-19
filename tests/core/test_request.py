@@ -7,7 +7,7 @@ import responses
 from iliad_payment import Config
 from iliad_payment.core import Request
 from iliad_payment.exceptions import IliadValueError
-from iliad_payment.exceptions import NotAuthorizedError
+from iliad_payment.exceptions import UnauthorizedError
 from ..stub.stub_object import StubObject
 from ..TestHelper import TestHelper
 
@@ -51,7 +51,7 @@ class TestRequest(TestHelper):
 
         responses.add(responses.GET, obj.uri, body=content, status=401)
 
-        with pytest.raises(NotAuthorizedError) as error:
+        with pytest.raises(UnauthorizedError) as error:
             req.get
 
         assert error.value.status_code == 401

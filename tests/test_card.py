@@ -174,7 +174,7 @@ class TestCard(TestHelper):
 
         obj = Card(self.random_string(29))
         params = {
-            'exp_month': self.random_string(1, 12),
+            'exp_month': self.random_integer(1, 12),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
@@ -221,6 +221,26 @@ class TestCard(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.exp_year == params['exp_year']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_funding(self):
+        obj = Card()
+
+        assert obj.funding is None
+
+        with pytest.raises(AttributeError):
+            obj.funding = self.random_string(15)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'funding': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.funding == params['funding']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -306,6 +326,46 @@ class TestCard(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.last4 == params['last4']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_nature(self):
+        obj = Card()
+
+        assert obj.nature is None
+
+        with pytest.raises(AttributeError):
+            obj.nature = self.random_string(15)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'nature': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.nature == params['nature']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_network(self):
+        obj = Card()
+
+        assert obj.network is None
+
+        with pytest.raises(AttributeError):
+            obj.network = self.random_string(15)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'network': self.random_string(10),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.network == params['network']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -450,7 +510,7 @@ class TestCard(TestHelper):
 
         obj = Card(self.random_string(2, 8))
         params = {
-            'zip_code': True,
+            'zip_code': self.random_string(2, 8),
         }
 
         responses.add(responses.GET, obj.uri, json=params)

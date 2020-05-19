@@ -177,18 +177,23 @@ class TestHelper(object):
         )
 
     @classmethod
-    def currency_provider(cls):
-        return (
+    def currency_provider(cls, one=False):
+        currencies = (
             'eur',
             'gbp',
             'usd',
         )
 
+        if one:
+            return choice(currencies)
+
+        return currencies
+
     @classmethod
     def http_code_provider(cls):
         return [
             (400, BadRequestError),
-            (401, NotAuthorizedError),
+            (401, UnauthorizedError),
             (402, PaymentRequiredError),
             (403, ForbiddenError),
             (404, NotFoundError),
@@ -218,3 +223,38 @@ class TestHelper(object):
             'GB98 MIDL 0700 9312 3456 78',
             'GB82WEST12345698765432',
         )
+
+    @classmethod
+    def ip_provider(cls, one=False):
+        ips = cls.ipv4_provider() + cls.ipv6_provider()
+
+        if one:
+            return choice(ips)
+
+        return ips
+
+    @classmethod
+    def ipv4_provider(cls):  # 7 addresses
+        return [
+            '212.27.48.10',  # www.free.fr
+            '216.58.206.238',  # www.google.com
+            '17.178.96.59',  # www.apple.com
+            '17.142.160.59',  # www.apple.com
+            '17.172.224.47',  # www.apple.com
+            '179.60.192.36',  # www.facebook.com
+            '198.41.0.4',  # a.root-servers.org
+        ]
+
+    @classmethod
+    def ipv6_provider(cls):  # 9 addresses
+        return [
+            '2a01:0e0c:0001:0000:0000:0000:0000:0001',  # www.free.fr
+            '2a01:e0c:1:0:0:0:0:1',  # www.free.fr
+            '2a01:e0c:1::1',  # www.free.fr
+            '2a00:1450:4007:080f:0000:0000:0000:200e',  # www.google.com
+            '2a00:1450:4007:80f::200e',  # www.google.com
+            '2a03:2880:f11f:0083:face:b00c:0000:25de',  # www.facebook.com
+            '2a03:2880:f11f:83:face:b00c:0:25de',  # www.facebook.com
+            '2001:0503:ba3e:0000:0000:0000:0002:0030',  # a.root-servers.org
+            '2001:503:ba3e::2:30',  # a.root-servers.org
+        ]

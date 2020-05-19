@@ -8,6 +8,7 @@ from iliad_payment.core.decorators import populate_on_call
 class StubObject(AbstractObject):
     _allowed_attributes = [
         'card1',
+        'card2',
         'cards',
         'integer1',
         'string1',
@@ -25,7 +26,7 @@ class StubObject(AbstractObject):
         return self
 
     def reset_modified(self):
-        self._modified.clear()
+        del self._modified
 
         return self
 
@@ -55,6 +56,19 @@ class StubObject(AbstractObject):
 
     @property
     def _init_card1(self) -> Card:
+        return Card
+
+    @property
+    def card2(self):
+        return self._data.get('card2')
+
+    @card2.setter
+    def card2(self, value):
+        self._modified.add('card2')
+        self._data['card2'] = value
+
+    @property
+    def _init_card2(self) -> Card:
         return Card
 
     @property
