@@ -192,6 +192,17 @@ class Payment(*BaseObject):
         self._data['description'] = value
 
     @property
+    @populate_on_call
+    def fee(self) -> datetime:
+        """
+        Fee applied at checkout.
+
+        Returns:
+            Fee applied at checkout.
+        """
+        return self._data.get('fee')
+
+    @property
     def is_error(self) -> bool:
         """
         Is the operation an error ?

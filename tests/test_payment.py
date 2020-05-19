@@ -369,6 +369,26 @@ class TestPayment(TestHelper):
         ):
             obj.device = self.random_string(2)
 
+    @responses.activate
+    def test_fee(self):
+        obj = Payment()
+
+        assert obj.fee is None
+
+        with pytest.raises(AttributeError):
+            obj.fee = self.random_integer(1, 50)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'fee': self.random_integer(1, 50),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.fee == params['fee']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
     def test_hydrate(self):
         obj = Payment()
 
