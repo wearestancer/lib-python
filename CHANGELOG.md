@@ -27,8 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Object.hydrate()` will use setter when possible
 - `Payment.is_success` and `Payment.is_error` are based on `Payment.status` now
 - `Payment.order_id` accept 36 characters
+- `IliadHTTPError.factory()` replaced by `IliadHTTPError.__new__()`
 
 ### Fixed
+- Exceptions will use standard Python message mechanism (aka `str(err)`)
 - `Object.to_json()` will not send empty object
 - Populated flag are passed to inner object
 - Reseting modified flag will trigger a reset on inner object too
