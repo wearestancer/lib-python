@@ -79,6 +79,16 @@ class AbstractObject(object):
 
         return representation
 
+    @classmethod
+    def _get_allowed_attributes(cls) -> Set[str]:
+        allowed = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_allowed_attributes'):
+                allowed.update(parent._allowed_attributes)  # pylint: disable=protected-access
+
+        return allowed
+
     @property
     def _modified(self) -> Set[str]:
         return self.__modified
@@ -148,19 +158,6 @@ class AbstractObject(object):
         self._modified = 'id'
 
         return self
-
-    @classmethod
-    def _get_allowed_attributes(cls) -> List[str]:
-        allowed = []
-
-        if hasattr(cls, '_allowed_attributes'):
-            allowed = cls._allowed_attributes
-
-        for parent in cls.mro():
-            if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes  # pylint: disable=protected-access
-
-        return allowed
 
     def _hydrate_list(self, key, value):
         tmp = getattr(self, key)
