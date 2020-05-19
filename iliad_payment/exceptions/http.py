@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from typing import Tuple
 from typing import TypeVar
 from requests import HTTPError, Response
 
@@ -14,6 +15,8 @@ class IliadHTTPError(IliadException, HTTPError):
 
     They also inherit from `requests.HTTPError`.
     """
+
+    reason = 'HTTP error'
 
     def __new__(cls, response: Response, *args, **kwargs):
         """
@@ -45,38 +48,84 @@ class IliadHTTPError(IliadException, HTTPError):
         return super().__new__(exc_class, response, *args, **kwargs)
 
     def __init__(self, response: Response, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.response = response
-        self.status_code = response.status_code
-
-        if hasattr(response, 'reason'):
-            self.reason = getattr(response, 'reason')
-
-        self.request = getattr(response, 'request')
-
-        self.type = ''
-        self.message = ''
+        message = type(self).reason
+        type_data = None
 
         try:
             res = response.json()
 
-            if 'error' in res:
-                if 'type' in res['error']:
-                    self.type = res['error']['type']
+            if response.reason is not None:
+                message = response.reason
 
-                if 'message' in res['error']:
-                    self.message = res['error']['message']
-        except ValueError:
+            if isinstance(res, dict) and 'error' in res:
+                (message, type_data) = self._parse_message(res['error'])
+        except:  # pylint: disable=bare-except
             pass
+
+        params = {
+            **kwargs,
+            'response': response,
+        }
+
+        super().__init__(message, *args, **params)
+
+        self.message = message
+        self.type = type_data
+
+        if self.response is not None:
+            self.reason = self.response.reason
+            self.status_code = self.response.status_code
+
+    def __str__(self) -> str:
+        """
+        Return a nicely printable string representation of the current error.
+
+        This become mandatory as Python uses the first argument passed
+        to `__new__` and do not update it with arguments passed to `__init__`.
+
+        Returns:
+            Current error message.
+        """
+
+        if self.message is None:
+            return ''
+
+        return str(self.message)
+
+    @classmethod
+    def _parse_message(cls, err) -> Tuple[str, str]:
+        message = err
+        type_data = None
+
+        if isinstance(err, dict):
+            if 'message' in err:
+                message = err['message']
+
+                if 'id' in err['message']:
+                    message = str(err['message']['id'])
+
+                if 'error' in err['message']:
+                    message = err['message']['error']
+
+                    if 'id' in err['message']:
+                        message += ' ({})'.format(err['message']['id'])
+
+            if 'type' in err:
+                type_data = err['type']
+
+        return (message, type_data)
 
 
 class IliadHTTPClientError(IliadHTTPError):
     """Base exception for HTTP 4xx status."""
 
+    reason = 'Client error'
+
 
 class IliadHTTPServerError(IliadHTTPError):
     """Base exception for HTTP 5xx status."""
+
+    reason = 'Server error'
 
 
 class BadRequestError(IliadHTTPClientError):
@@ -86,11 +135,11 @@ class BadRequestError(IliadHTTPClientError):
     reason = 'Bad Request'
 
 
-class NotAuthorizedError(IliadHTTPClientError):
-    """HTTP 401 - Not Authorized"""
+class UnauthorizedError(IliadHTTPClientError):
+    """HTTP 401 - Unauthorized"""
 
     status_code = 401
-    reason = 'Not Authorized'
+    reason = 'Unauthorized'
 
 
 class PaymentRequiredError(IliadHTTPClientError):

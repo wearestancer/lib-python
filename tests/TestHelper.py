@@ -193,7 +193,7 @@ class TestHelper(object):
     def http_code_provider(cls):
         return [
             (400, BadRequestError),
-            (401, NotAuthorizedError),
+            (401, UnauthorizedError),
             (402, PaymentRequiredError),
             (403, ForbiddenError),
             (404, NotFoundError),
