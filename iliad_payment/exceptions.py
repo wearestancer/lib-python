@@ -74,6 +74,10 @@ class InvalidCustomerEmailError(IliadValueError):
     """Raised when an invalid email is used."""
 
 
+class InvalidCustomerExternalIdError(IliadValueError):
+    """Raised when an invalid external ID is used."""
+
+
 class InvalidCustomerMobileError(IliadValueError):
     """Raised when an invalid mobile phone number is used."""
 

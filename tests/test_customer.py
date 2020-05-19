@@ -8,6 +8,7 @@ from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject
 from iliad_payment.core import AbstractName
 from iliad_payment.exceptions import InvalidCustomerEmailError
+from iliad_payment.exceptions import InvalidCustomerExternalIdError
 from iliad_payment.exceptions import InvalidCustomerMobileError
 from .TestHelper import TestHelper
 
@@ -64,6 +65,40 @@ class TestCustomer(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.email == params['email']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_external_id(self):
+        obj = Customer()
+        external_id = self.random_string(36)
+
+        assert obj.external_id is None
+
+        obj.external_id = external_id
+
+        assert obj.external_id == external_id
+
+        with pytest.raises(
+            InvalidCustomerExternalIdError,
+            match='External ID must be a string.',
+        ):
+            obj.external_id = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidCustomerExternalIdError,
+            match='External ID must be 36 characters maximum.',
+        ):
+            obj.external_id = self.random_string(40)
+
+        obj = Customer(self.random_string(29))
+        params = {
+            'external_id': self.random_string(36),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.external_id == params['external_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
