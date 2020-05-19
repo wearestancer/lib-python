@@ -264,7 +264,7 @@ class Payment(*BaseObject):
         it allow you to add your ID to a payment.
 
         Args:
-            value (str): Must be maximum 24 characters.
+            value (str): Must be maximum 36 characters.
 
         Returns:
             str: External order ID.
@@ -277,7 +277,7 @@ class Payment(*BaseObject):
     @order_id.setter
     @validate_type(
         str,
-        max=24,
+        max=36,
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )

@@ -501,7 +501,7 @@ class TestPayment(TestHelper):
     @responses.activate
     def test_order_id(self):
         obj = Payment()
-        order_id = self.random_string(1, 24)
+        order_id = self.random_string(1, 36)
 
         assert obj.order_id is None
 
@@ -517,13 +517,13 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidPaymentOrderIdError,
-            match='Order id must be 24 characters maximum.',
+            match='Order id must be 36 characters maximum.',
         ):
-            obj.order_id = self.random_string(25, 30)
+            obj.order_id = self.random_string(37, 50)
 
         obj = Payment(self.random_string(29))
         params = {
-            'order_id': self.random_string(1, 24),
+            'order_id': self.random_string(1, 36),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
