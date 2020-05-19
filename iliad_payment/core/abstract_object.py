@@ -7,6 +7,7 @@ from typing import Set
 from typing import TypeVar
 
 from ..config import Config
+from .decorators import populate_on_call
 from .request import Request
 
 
@@ -121,6 +122,7 @@ class AbstractObject(object):
         self._id = None
 
     @property
+    @populate_on_call
     def created(self) -> datetime:
         """
         Return the creation date and time of the current object.

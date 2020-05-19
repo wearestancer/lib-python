@@ -56,6 +56,7 @@ class TestStubObject(TestHelper):
         assert isinstance(result['card1'], Card)
         assert result['card1'] == card
 
+    @responses.activate
     def test_created(self):
         obj = StubObject()
         config = Config()
@@ -81,6 +82,18 @@ class TestStubObject(TestHelper):
         assert isinstance(obj.created.tzinfo, tzinfo)
         assert obj.created.tzinfo.zone == zone
 
+        obj = StubObject(self.random_string(29))
+        params = {
+            'created': self.random_integer(1500000000, 1600000000),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.created, datetime)
+        assert obj.created.timestamp() == params['created']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
     def test_instance(self):
         empty = StubObject()
 
@@ -90,6 +103,7 @@ class TestStubObject(TestHelper):
 
         uid = self.random_string(29)
         with_id = StubObject(uid)
+        with_id.force_populated(True)  # Prevent tests errors
 
         assert isinstance(with_id, StubObject)
         assert with_id.id == uid
