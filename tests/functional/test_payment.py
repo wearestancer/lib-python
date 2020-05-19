@@ -24,12 +24,10 @@ class TestFunctionalPayment(TestHelper):
             obj = Payment(self.random_string(29))
             obj.amount
 
-        assert error.value.status_code == 404
+        assert error.value.message == 'No such payment {}'.format(obj.id)
         assert error.value.reason == 'Not Found'
+        assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
-        assert isinstance(error.value.message, dict)
-        message = 'No such payment {}'.format(obj.id)
-        assert error.value.message['id'] == message
 
         # Recover a valid payment
         obj = Payment('paym_FQgpGVJpyGPVJVIuQtO3zy6i')

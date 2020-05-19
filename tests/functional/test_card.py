@@ -15,12 +15,10 @@ class TestFunctionalCard(TestHelper):
             obj = Card(self.random_string(29))
             obj.name
 
-        assert error.value.status_code == 404
+        assert error.value.message == 'No such card {}'.format(obj.id)
         assert error.value.reason == 'Not Found'
+        assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
-        assert isinstance(error.value.message, dict)
-        message = 'No such card {}'.format(obj.id)
-        assert error.value.message['id'] == message
 
         card = Card('card_9bKZ9cr0Ji0qSPs5c1uMQG5z')
 

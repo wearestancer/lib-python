@@ -14,12 +14,10 @@ class TestFunctionalCustomer(TestHelper):
             obj = Customer(self.random_string(29))
             obj.name
 
-        assert error.value.status_code == 404
+        assert error.value.message == 'No such customer {}'.format(obj.id)
         assert error.value.reason == 'Not Found'
+        assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
-        assert isinstance(error.value.message, dict)
-        message = 'No such customer {}'.format(obj.id)
-        assert error.value.message['id'] == message
 
         obj = Customer('cust_9y1U3mHPd1yPvbx07VBRqd9C')
 
