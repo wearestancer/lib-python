@@ -57,7 +57,7 @@ class Request(object):
             )
 
             if not response.ok:
-                raise IliadHTTPError.factory(response)
+                raise IliadHTTPError(response)
 
             if response.ok and name == 'delete':
                 del self._obj.id

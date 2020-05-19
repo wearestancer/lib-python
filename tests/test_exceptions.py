@@ -136,9 +136,9 @@ class TestExceptions(TestHelper):
         assert BadRequestError.reason == 'Bad Request'
 
     def test_not_authorized_error(self):
-        assert issubclass(NotAuthorizedError, IliadHTTPClientError)
-        assert NotAuthorizedError.status_code == 401
-        assert NotAuthorizedError.reason == 'Not Authorized'
+        assert issubclass(UnauthorizedError, IliadHTTPClientError)
+        assert UnauthorizedError.status_code == 401
+        assert UnauthorizedError.reason == 'Unauthorized'
 
     def test_payment_required_error(self):
         assert issubclass(PaymentRequiredError, IliadHTTPClientError)
@@ -207,11 +207,162 @@ class TestExceptions(TestHelper):
 
         res.json = lambda: content
 
-        obj = IliadHTTPError.factory(res)
+        obj = IliadHTTPError(res)
 
         assert isinstance(obj, cls)
-        assert obj.status_code == status_code
-        assert obj.response == res
-        assert obj.request == req
-        assert obj.type == content['error']['type']
+        assert str(obj) == content['error']['message']
         assert obj.message == content['error']['message']
+        assert obj.request == req
+        assert obj.response == res
+        assert obj.status_code == status_code
+        assert obj.type == content['error']['type']
+
+    def test_message(self):
+        res = Response()
+        res.status_code = 400
+
+        # With None
+
+        res.json = lambda: None
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == 'Bad Request'
+        assert obj.message == 'Bad Request'
+
+        # With a string
+
+        res.json = lambda: self.random_string(10)
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == 'Bad Request'
+        assert obj.message == 'Bad Request'
+
+        # With a JSON without error
+
+        content = {
+            'string': self.random_string(10),
+        }
+        expected = 'Bad Request'
+
+        res.json = lambda: content
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == expected
+        assert obj.message == expected
+
+        # With message
+
+        content = {
+            'error': {
+                'message': self.random_string(10),
+            },
+        }
+        expected = content['error']['message']
+
+        res.json = lambda: content
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == expected
+        assert obj.message == expected
+
+        # With error
+
+        content = {
+            'error': {
+                'message': {
+                    'error': self.random_string(10),
+                },
+            },
+        }
+        expected = content['error']['message']['error']
+
+        res.json = lambda: content
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == expected
+        assert obj.message == expected
+
+        # With error and id
+
+        content = {
+            'error': {
+                'message': {
+                    'error': self.random_string(10),
+                    'id': self.random_string(10),
+                },
+            },
+        }
+        expected = '{} ({})'.format(content['error']['message']['error'], content['error']['message']['id'])
+
+        res.json = lambda: content
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == expected
+        assert obj.message == expected
+
+        # With only an id
+
+        content = {
+            'error': {
+                'message': {
+                    'id': self.random_integer(1, 10),
+                },
+            },
+        }
+        expected = str(content['error']['message']['id'])
+
+        res.json = lambda: content
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, BadRequestError)
+        assert str(obj) == expected
+        assert obj.message == expected
+
+        # With unknown client exception
+
+        res = Response()
+        res.status_code = 499
+        res.json = lambda: None
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, IliadHTTPClientError)
+        assert str(obj) == 'Client error'
+        assert obj.message == 'Client error'
+
+        # With unknown server exception
+
+        res = Response()
+        res.status_code = 599
+        res.json = lambda: None
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, IliadHTTPServerError)
+        assert str(obj) == 'Server error'
+        assert obj.message == 'Server error'
+
+        # With unknown other exception
+
+        res = Response()
+        res.status_code = 399
+        res.json = lambda: None
+
+        obj = IliadHTTPError(res)
+
+        assert isinstance(obj, IliadHTTPError)
+        assert str(obj) == 'HTTP error'
+        assert obj.message == 'HTTP error'
