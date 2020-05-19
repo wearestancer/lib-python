@@ -53,7 +53,7 @@ class TestFunctionalCustomer(TestHelper):
 
         assert obj.name == name
         assert obj.email == email
-        assert obj.external_id == external_id
+        assert obj.external_id == str(external_id)
         assert obj.mobile == mobile
 
         # External ID does not prevent duplication

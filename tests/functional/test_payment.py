@@ -253,7 +253,7 @@ class TestFunctionalPayment(TestHelper):
         assert obj.amount == amount
         assert obj.currency == currency
         assert obj.description == desc
-        assert obj.unique_id == unique_id
+        assert obj.unique_id == str(unique_id)
 
         assert obj.card.id == card_uid
         assert obj.customer.id == customer_uid
