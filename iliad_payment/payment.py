@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from typing import TypeVar
 
 from .card import Card
@@ -55,6 +56,9 @@ class Payment(*BaseObject):
         'sepa',
         'status',
         'unique_id',
+    ]
+    _datetime_property = [
+        'date_bank',
     ]
 
     @property
@@ -138,6 +142,17 @@ class Payment(*BaseObject):
     @validate_type(Customer, throws=InvalidCustomerError)
     def customer(self, value: Customer):
         self._data['customer'] = value
+
+    @property
+    @populate_on_call
+    def date_bank(self) -> datetime:
+        """
+        Value date.
+
+        Returns:
+            Payment value date.
+        """
+        return self._data.get('date_bank')
 
     def delete(self):  # pylint: disable=no-self-use
         """

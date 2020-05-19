@@ -1,8 +1,11 @@
 """Test payment object"""
 
 from datetime import date
+from datetime import datetime
+from datetime import tzinfo
 import json
 import pytest
+from pytz import timezone
 import responses
 import uuid
 
@@ -249,6 +252,48 @@ class TestPayment(TestHelper):
         assert obj.currency == params['currency']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_date_bank(self):
+        obj = Payment()
+        config = Config()
+        zone = 'Europe/Paris'
+        timestamp = self.random_integer(1500000000, 1600000000)
+
+        assert obj.date_bank is None
+
+        params = {
+            'date_bank': timestamp,
+        }
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.date_bank, datetime)
+        assert obj.date_bank.timestamp() == timestamp
+        assert obj.date_bank.tzinfo is None
+
+        config.default_timezone = timezone(zone)
+
+        obj.hydrate(**params)
+
+        assert isinstance(obj.date_bank, datetime)
+        assert obj.date_bank.timestamp() == timestamp
+        assert isinstance(obj.date_bank.tzinfo, tzinfo)
+        assert obj.date_bank.tzinfo.zone == zone
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'date_bank': self.random_integer(1500000000, 1600000000),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.date_bank, datetime)
+        assert obj.date_bank.timestamp() == params['date_bank']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+        del config.default_timezone
 
     @responses.activate
     def test_description(self):
