@@ -76,7 +76,7 @@ class TestFunctionalCard(TestHelper):
 
         card = Card(card_id)
 
-        assert card.cvc == cvc
+        assert card.cvc is None  # CVC can not be obtain
         assert card.exp_month == month
         assert card.exp_year == year
         assert card.name == name
