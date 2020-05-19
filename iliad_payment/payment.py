@@ -10,6 +10,7 @@ from .core import AbstractCountry
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.helpers import coerce_uuid
 from .core.payment.auth import PaymentAuth
 from .core.payment.page import PaymentPage
 from .core.payment.refund import PaymentRefund
@@ -277,6 +278,7 @@ class Payment(*BaseObject):
     @order_id.setter
     @validate_type(
         str,
+        coerce=coerce_uuid,
         max=36,
         name='Order id',
         throws=InvalidPaymentOrderIdError,
@@ -419,6 +421,7 @@ class Payment(*BaseObject):
     @unique_id.setter
     @validate_type(
         str,
+        coerce=coerce_uuid,
         max=36,
         name='Unique ID',
         throws=InvalidPaymentUniqueIdError,

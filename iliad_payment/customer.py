@@ -5,6 +5,7 @@ from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.helpers import coerce_uuid
 from .exceptions import InvalidCustomerEmailError
 from .exceptions import InvalidCustomerExternalIdError
 from .exceptions import InvalidCustomerMobileError
@@ -65,6 +66,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
     @external_id.setter
     @validate_type(
         str,
+        coerce=coerce_uuid,
         max=36,
         name='External ID',
         throws=InvalidCustomerExternalIdError,

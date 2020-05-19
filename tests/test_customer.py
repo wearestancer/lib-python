@@ -2,6 +2,7 @@
 
 import pytest
 import responses
+import uuid
 
 from iliad_payment import Customer
 from iliad_payment.core import AbstractCountry
@@ -101,6 +102,17 @@ class TestCustomer(TestHelper):
         assert obj.external_id == params['external_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+        # Works with uuid
+
+        obj = Customer()
+        external_id = uuid.uuid4()
+
+        assert obj.external_id is None
+
+        obj.external_id = external_id
+
+        assert obj.external_id == str(external_id)
 
     def test_is_complete(self):
         email = self.random_string(5, 64)

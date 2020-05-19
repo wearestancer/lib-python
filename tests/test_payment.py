@@ -4,6 +4,7 @@ from datetime import date
 import json
 import pytest
 import responses
+import uuid
 
 from iliad_payment import Auth
 from iliad_payment import AuthStatus
@@ -531,6 +532,17 @@ class TestPayment(TestHelper):
         assert obj.order_id == params['order_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+        # Works with uuid
+
+        obj = Payment()
+        order_id = uuid.uuid4()
+
+        assert obj.order_id is None
+
+        obj.order_id = order_id
+
+        assert obj.order_id == str(order_id)
 
     @responses.activate
     def test_payment_page_url(self):
@@ -1860,3 +1872,14 @@ class TestPayment(TestHelper):
         assert obj.unique_id == params['unique_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+        # Works with uuid
+
+        obj = Payment()
+        unique_id = uuid.uuid4()
+
+        assert obj.unique_id is None
+
+        obj.unique_id = unique_id
+
+        assert obj.unique_id == str(unique_id)
