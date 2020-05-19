@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Payment.return_url` property
 - `Payment.unique_id` property
 - `Payment.payment_page_url()` method
+- `Customer.external_id` property
 - `Card.funding` property
 - `Card.nature` property
 - `Card.network` property
