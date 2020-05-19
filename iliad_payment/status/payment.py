@@ -2,8 +2,10 @@
 
 # pylint: disable=invalid-name
 
+from enum import Enum
 
-class PaymentStatus(object):
+
+class PaymentStatus(Enum):
     """List of payment status"""
 
     AUTHORIZE = 'authorize'
