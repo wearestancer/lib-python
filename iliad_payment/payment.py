@@ -21,6 +21,7 @@ from .exceptions import InvalidCustomerError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
+from .exceptions import InvalidPaymentUniqueIdError
 from .exceptions import InvalidStatusError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
@@ -51,6 +52,7 @@ class Payment(*BaseObject):
         'order_id',
         'sepa',
         'status',
+        'unique_id',
     ]
 
     @property
@@ -391,3 +393,35 @@ class Payment(*BaseObject):
     @validate_type(str, throws=InvalidStatusError)
     def status(self, value: str):
         self._data['status'] = value
+
+    @property
+    @populate_on_call
+    def unique_id(self) -> str:
+        """
+        External unique ID.
+
+        If a `unique_id` is provided, it will used to deduplicate payments.
+
+        This should be used only with an identifier unique in your system.
+        You should use an auto-increment or a UUID made in your environment.
+
+        Args:
+            value (str): Must be maximum 36 characters.
+
+        Returns:
+            str: External unique ID.
+
+        Raises:
+            InvalidPaymentUniqueIdError: When unique id is invalid.
+        """
+        return self._data.get('unique_id')
+
+    @unique_id.setter
+    @validate_type(
+        str,
+        max=36,
+        name='Unique ID',
+        throws=InvalidPaymentUniqueIdError,
+    )
+    def unique_id(self, value: str):
+        self._data['unique_id'] = value

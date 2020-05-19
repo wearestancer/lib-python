@@ -29,6 +29,7 @@ from iliad_payment.exceptions import InvalidIpAddressError
 from iliad_payment.exceptions import InvalidPaymentCaptureError
 from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
+from iliad_payment.exceptions import InvalidPaymentUniqueIdError
 from iliad_payment.exceptions import InvalidPortError
 from iliad_payment.exceptions import InvalidSepaError
 from iliad_payment.exceptions import InvalidStatusError
@@ -1825,3 +1826,37 @@ class TestPayment(TestHelper):
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
+
+    @responses.activate
+    def test_unique_id(self):
+        obj = Payment()
+        unique_id = self.random_string(36)
+
+        assert obj.unique_id is None
+
+        obj.unique_id = unique_id
+
+        assert obj.unique_id == unique_id
+
+        with pytest.raises(
+            InvalidPaymentUniqueIdError,
+            match='Unique ID must be a string.',
+        ):
+            obj.unique_id = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidPaymentUniqueIdError,
+            match='Unique ID must be 36 characters maximum.',
+        ):
+            obj.unique_id = self.random_string(40)
+
+        obj = Payment(self.random_string(29))
+        params = {
+            'unique_id': self.random_string(36),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.unique_id == params['unique_id']
+        assert obj.is_populated
+        assert len(responses.calls) == 1

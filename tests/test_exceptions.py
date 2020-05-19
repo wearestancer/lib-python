@@ -87,6 +87,9 @@ class TestExceptions(TestHelper):
     def test_invalid_payment_order_id_error(self):
         assert issubclass(InvalidPaymentOrderIdError, IliadValueError)
 
+    def test_invalid_payment_unique_id_error(self):
+        assert issubclass(InvalidPaymentUniqueIdError, IliadValueError)
+
     def test_invalid_payment_port_error(self):
         assert issubclass(InvalidPortError, IliadValueError)
 

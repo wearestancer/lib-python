@@ -106,6 +106,10 @@ class InvalidPaymentOrderIdError(IliadValueError):
     """Raised when an invalid order ID is used."""
 
 
+class InvalidPaymentUniqueIdError(IliadValueError):
+    """Raised when an invalid unique ID is used."""
+
+
 class InvalidPortError(IliadValueError):
     """Raised when an invalid port is used."""
 
