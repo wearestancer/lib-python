@@ -6,7 +6,6 @@ from typing import TypeVar
 from .core import AbstractAmount
 from .core import AbstractObject
 from .core.decorators import populate_on_call
-from .config import Config
 from .payment import Payment
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Refund')

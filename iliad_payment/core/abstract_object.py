@@ -2,7 +2,6 @@
 
 from datetime import datetime
 import json
-from typing import List
 from typing import Set
 from typing import TypeVar
 
