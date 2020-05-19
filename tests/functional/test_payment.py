@@ -12,6 +12,7 @@ from iliad_payment import Customer
 from iliad_payment import Device
 from iliad_payment import Payment
 from iliad_payment import PaymentStatus
+from iliad_payment.exceptions import ConflictError
 from iliad_payment.exceptions import NotFoundError
 from .TestHelper import TestHelper
 
