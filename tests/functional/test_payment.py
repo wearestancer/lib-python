@@ -133,6 +133,7 @@ class TestFunctionalPayment(TestHelper):
 
         payment = Payment()
         payment.amount = amount
+        payment.auth = True
         payment.currency = currency
         payment.description = description
         payment.return_url = return_url
@@ -154,10 +155,10 @@ class TestFunctionalPayment(TestHelper):
         fake_public_key = 'p' + config.secret_key[1:]
         config.keys = fake_public_key
 
-        assert payment.payment_page_url is not None
-        assert payment.payment_page_url.startswith('https://payment')
-        assert payment.payment_page_url.find(fake_public_key) > 0
-        assert payment.payment_page_url.find(payment.id) > 0
+        assert payment.payment_page_url() is not None
+        assert payment.payment_page_url().startswith('https://payment')
+        assert payment.payment_page_url().find(fake_public_key) > 0
+        assert payment.payment_page_url().find(payment.id) > 0
 
         config.keys = keys
 
