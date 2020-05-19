@@ -15,6 +15,35 @@ class IliadHTTPError(IliadException, HTTPError):
     They also inherit from `requests.HTTPError`.
     """
 
+    def __new__(cls, response: Response, *args, **kwargs):
+        """
+        Called to create a new instance of `IliadHTTPError` or one child of it.
+
+        Args:
+            response: A `Response` object for an API call.
+
+        Returns:
+            A brand new instance waiting to get initialized with `__init__`.
+        """
+
+        exc_class = cls
+
+        if response.status_code >= 400:
+            exc_class = IliadHTTPClientError
+
+            for tmp in IliadHTTPClientError.__subclasses__():
+                if tmp.status_code == response.status_code:
+                    exc_class = tmp
+
+        if response.status_code >= 500:
+            exc_class = IliadHTTPServerError
+
+            for tmp in IliadHTTPServerError.__subclasses__():
+                if tmp.status_code == response.status_code:
+                    exc_class = tmp
+
+        return super().__new__(exc_class, response, *args, **kwargs)
+
     def __init__(self, response: Response, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -40,35 +69,6 @@ class IliadHTTPError(IliadException, HTTPError):
                     self.message = res['error']['message']
         except ValueError:
             pass
-
-    @classmethod
-    def factory(cls, response: Response, *args, **kwargs) -> CurrentInstance:
-        """
-        Return correct error instance form HTTP status.
-
-        Args:
-            response: HTTP Response that produced the exception
-            *args: Variable lenght argument list, will passed to the new instance.
-            **kwargs: Arbitrary keywors arguments, will passed to the new instance.
-
-        Returns:
-            An child instance of IliadHTTPError.
-        """
-        if response.status_code >= 500:
-            for tmp in IliadHTTPServerError.__subclasses__():
-                if tmp.status_code == response.status_code:
-                    return tmp(response, *args, **kwargs)
-
-            return IliadHTTPServerError(response, *args, **kwargs)
-
-        if response.status_code >= 400:
-            for tmp in IliadHTTPClientError.__subclasses__():
-                if tmp.status_code == response.status_code:
-                    return tmp(response, *args, **kwargs)
-
-            return IliadHTTPClientError(response, *args, **kwargs)
-
-        return IliadHTTPError(response, *args, **kwargs)
 
 
 class IliadHTTPClientError(IliadHTTPError):

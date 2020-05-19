@@ -207,7 +207,7 @@ class TestExceptions(TestHelper):
 
         res.json = lambda: content
 
-        obj = IliadHTTPError.factory(res)
+        obj = IliadHTTPError(res)
 
         assert isinstance(obj, cls)
         assert obj.status_code == status_code
