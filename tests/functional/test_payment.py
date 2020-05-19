@@ -2,6 +2,7 @@
 
 import platform
 import pytest
+import uuid
 
 from iliad_payment import Auth
 from iliad_payment import AuthStatus
@@ -206,3 +207,64 @@ class TestFunctionalPayment(TestHelper):
 
         assert payment.send() == payment
         assert payment.status == PaymentStatus.TO_CAPTURE
+
+    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
+    def test_send_with_unique_id(self, currency):
+        obj = Payment()
+
+        amount = self.random_integer(50, 10000)
+        desc = 'Python {} automatic test for `unique_id`, {:.2f} {}'.format(
+            platform.python_version(),
+            amount / 100,
+            currency.upper(),
+        )
+        unique_id = uuid.uuid4()
+
+        card = Card()
+        card.number = self.get_card_number()
+        card.exp_month = self.random_integer(1, 12)
+        card.exp_year = self.random_year()
+        card.cvc = str(self.random_integer(100, 999))
+
+        customer = Customer()
+        customer.name = 'John Doe'
+        customer.email = 'john.doe@example.com'
+
+        obj.amount = amount
+        obj.card = card
+        obj.currency = currency
+        obj.customer = customer
+        obj.description = desc
+        obj.unique_id = unique_id
+
+        assert obj.id is None
+        assert obj.send() == obj
+        assert obj.id is not None
+        assert obj.id.startswith('paym_')
+
+        uid = obj.id
+        card_uid = card.id
+        customer_uid = customer.id
+
+        # If sent, we can get it
+        obj = Payment(uid)
+
+        assert obj.amount == amount
+        assert obj.currency == currency
+        assert obj.description == desc
+        assert obj.unique_id == unique_id
+
+        assert obj.card.id == card_uid
+        assert obj.customer.id == customer_uid
+
+        # But we can not create another payment with the same unique ID
+
+        obj = Payment()
+
+        obj.amount = self.random_integer(50, 9999)
+        obj.card = card
+        obj.currency = currency
+        obj.unique_id = unique_id
+
+        with pytest.raises(ConflictError):
+            obj.send()
