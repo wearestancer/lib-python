@@ -10,6 +10,7 @@ from .core import AbstractCountry
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.helpers import coerce_status
 from .core.helpers import coerce_uuid
 from .core.payment.auth import PaymentAuth
 from .core.payment.page import PaymentPage
@@ -392,7 +393,7 @@ class Payment(*BaseObject):
         return self._data.get('status')
 
     @status.setter
-    @validate_type(str, throws=InvalidStatusError)
+    @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
     def status(self, value: str):
         self._data['status'] = value
 

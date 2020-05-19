@@ -2,10 +2,10 @@
 
 # pylint: disable=invalid-name
 
-from enum import Enum
+from .base import BaseStatus
 
 
-class RefundStatus(Enum):
+class RefundStatus(BaseStatus):
     """List of refund status"""
 
     NOT_HONORED = 'not_honored'

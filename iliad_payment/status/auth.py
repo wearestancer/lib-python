@@ -2,10 +2,10 @@
 
 # pylint: disable=invalid-name
 
-from enum import Enum
+from .base import BaseStatus
 
 
-class AuthStatus(Enum):
+class AuthStatus(BaseStatus):
     """List of auth status"""
 
     ATTEMPTED = 'attempted'
