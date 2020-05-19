@@ -94,6 +94,8 @@ class TestStubObject(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+        del config.default_timezone
+
     def test_instance(self):
         empty = StubObject()
 
@@ -201,7 +203,7 @@ class TestStubObject(TestHelper):
         assert obj.created.year == 2019
         assert obj.created.month == 1
         assert obj.created.day == 7
-        assert obj.created.hour == 14
+        assert obj.created.hour == 13
         assert obj.created.minute == 26
         assert obj.created.second == 55
 
