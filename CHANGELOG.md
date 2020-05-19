@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Device` object
 - `Card` endpoint
 - `Payment.auth` property
+- `Payment.date_bank` property
 - `Payment.device` property
+- `Payment.fee` property
 - `Payment.return_url` property
 - `Payment.unique_id` property
 - `Payment.payment_page_url()` method
@@ -22,14 +24,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `Object.save()` is renamed `Object.send()`
+- `AuthStatus`, `PaymentStatus` and `RefundStatus` use python's native `Enum`
 - `Payment.status` can be modified
 - `Object.send()` can be use without method
 - `Object.hydrate()` will use setter when possible
 - `Payment.is_success` and `Payment.is_error` are based on `Payment.status` now
 - `Payment.order_id` accept 36 characters
 - `IliadHTTPError.factory()` replaced by `IliadHTTPError.__new__()`
+- Simplify datetime property management
 
 ### Fixed
+- All datetime will be "aware" and use UTC as default
+- `Object.created` can be call directly on new instances (and fetch the API is possible)
 - Exceptions will use standard Python message mechanism (aka `str(err)`)
 - `Object.to_json()` will not send empty object
 - Populated flag are passed to inner object
