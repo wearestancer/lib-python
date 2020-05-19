@@ -8,7 +8,7 @@ from .status import AuthStatus
 
 
 class Auth(AbstractObject):
-    """Representation of an authention object."""
+    """Representation of an authentication object."""
 
     _allowed_attributes = [
         'return_url',
