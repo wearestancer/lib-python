@@ -6,7 +6,7 @@ from .base import BaseStatus
 
 
 class RefundStatus(BaseStatus):
-    """List of refund status"""
+    """List of refund status."""
 
     NOT_HONORED = 'not_honored'
     PAYMENT_CANCELED = 'payment_canceled'

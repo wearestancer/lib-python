@@ -6,7 +6,7 @@ from .base import BaseStatus
 
 
 class PaymentStatus(BaseStatus):
-    """List of payment status"""
+    """List of payment status."""
 
     AUTHORIZE = 'authorize'
     AUTHORIZED = 'authorized'

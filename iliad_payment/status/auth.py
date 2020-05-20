@@ -6,7 +6,7 @@ from .base import BaseStatus
 
 
 class AuthStatus(BaseStatus):
-    """List of auth status"""
+    """List of auth status."""
 
     ATTEMPTED = 'attempted'
     AVAILABLE = 'available'
