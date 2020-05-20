@@ -6,7 +6,6 @@ from typing import TypeVar
 from .core import AbstractAmount
 from .core import AbstractObject
 from .core.decorators import populate_on_call
-from .config import Config
 from .payment import Payment
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Refund')
@@ -19,6 +18,10 @@ class Refund(AbstractObject, AbstractAmount):
 
     _allowed_attributes = [
         'payment',
+    ]
+    _datetime_property = [
+        'date_bank',
+        'date_refund',
     ]
 
     def __init__(self, uid: str = None, **kwargs):
@@ -41,13 +44,7 @@ class Refund(AbstractObject, AbstractAmount):
             An instance of the current object.
         """
         super().__init__(uid, **kwargs)
-        self._modified.add('payment')
-
-    def _init_date_bank(self, timestamp) -> datetime:  # pylint: disable=no-self-use
-        return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
-
-    def _init_date_refund(self, timestamp) -> datetime:  # pylint: disable=no-self-use
-        return datetime.fromtimestamp(timestamp, tz=Config().default_timezone)
+        self._modified = 'payment'
 
     @property
     def _init_payment(self) -> Payment:
@@ -55,7 +52,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def date_bank(self):
+    def date_bank(self) -> datetime:
         """
         Value date.
 
@@ -66,7 +63,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def date_refund(self):
+    def date_refund(self) -> datetime:
         """
         Date when the refund is sent to the bank.
 

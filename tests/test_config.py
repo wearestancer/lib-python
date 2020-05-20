@@ -1,5 +1,6 @@
 """Test config object"""
 
+import datetime
 import pytest
 from pytz import timezone
 
@@ -16,7 +17,8 @@ class TestConfig(TestHelper):
         obj = Config()
         tz = timezone('Europe/Paris')
 
-        assert obj.default_timezone is None
+        assert isinstance(obj.default_timezone, datetime.tzinfo)
+        assert obj.default_timezone == datetime.timezone.utc
 
         obj.default_timezone = tz
 
@@ -24,7 +26,8 @@ class TestConfig(TestHelper):
 
         del obj.default_timezone
 
-        assert obj.default_timezone is None
+        assert isinstance(obj.default_timezone, datetime.tzinfo)
+        assert obj.default_timezone == datetime.timezone.utc
 
     def test_host(self):
         obj = Config()

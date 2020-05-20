@@ -55,6 +55,12 @@ def validate_type(type_expected, **options):
 
             (std_type, type_name) = is_std_type()
 
+            if 'coerce' in options:
+                value = options['coerce'](value)
+
+                if value is None:
+                    return None
+
             try:
                 length = len(value)
             except TypeError:
@@ -126,6 +132,9 @@ def validate_type(type_expected, **options):
 
                 value = tmp_value
 
+            if 'validation' in options and message is None:
+                message = options['validation'](value)
+
             if message is not None and not is_optional:
                 if 'throws' in options:
                     excep = options['throws']
@@ -135,7 +144,7 @@ def validate_type(type_expected, **options):
             res = method(self, value, *args, **kwargs)
 
             if hasattr(self, '_modified') and not options['silent']:
-                self._modified.add(method.__name__)  ## pylint: disable=protected-access
+                self._modified = method.__name__  # pylint: disable=protected-access
 
             return res
         return wrapper

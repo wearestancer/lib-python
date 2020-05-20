@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from typing import TypeVar
 
 from .card import Card
@@ -10,6 +11,11 @@ from .core import AbstractCountry
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.helpers import coerce_status
+from .core.helpers import coerce_uuid
+from .core.payment.auth import PaymentAuth
+from .core.payment.page import PaymentPage
+from .core.payment.refund import PaymentRefund
 from .exceptions import IliadNotImplementedError
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
@@ -18,18 +24,28 @@ from .exceptions import InvalidCustomerError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
+from .exceptions import InvalidPaymentUniqueIdError
+from .exceptions import InvalidStatusError
 from .exceptions import InvalidSepaError
 from .exceptions import MissingPaymentMethodError
-from .status.refund import RefundStatus
+from .status.payment import PaymentStatus
 
 
+BaseObject = (
+    AbstractObject,
+    AbstractAmount,
+    AbstractCountry,
+    PaymentAuth,
+    PaymentPage,
+    PaymentRefund,
+)
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
 
-class Payment(AbstractObject, AbstractAmount, AbstractCountry):
+class Payment(*BaseObject):
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'
+    _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
 
     _allowed_attributes = [
         'capture',
@@ -38,6 +54,11 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         'description',
         'order_id',
         'sepa',
+        'status',
+        'unique_id',
+    ]
+    _datetime_property = [
+        'date_bank',
     ]
 
     @property
@@ -47,13 +68,6 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     @property
     def _init_customer(self) -> Customer:
         return Customer
-
-    @property
-    def _init_refunds(self):
-        # Prevent import loop
-        from .refund import Refund  # pylint: disable=import-outside-toplevel
-
-        return Refund
 
     @property
     def _init_sepa(self) -> Sepa:
@@ -129,7 +143,18 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     def customer(self, value: Customer):
         self._data['customer'] = value
 
-    def delete(self):
+    @property
+    @populate_on_call
+    def date_bank(self) -> datetime:
+        """
+        Value date.
+
+        Returns:
+            Payment value date.
+        """
+        return self._data.get('date_bank')
+
+    def delete(self):  # pylint: disable=no-self-use
         """
         Delete the current object.
 
@@ -168,14 +193,14 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
     @property
     @populate_on_call
-    def is_success(self) -> bool:
+    def fee(self) -> datetime:
         """
-        Is the operation a success ?
+        Fee applied at checkout.
 
         Returns:
-            Is the operation a success ?
+            Fee applied at checkout.
         """
-        return self.response_code == '00'
+        return self._data.get('fee')
 
     @property
     def is_error(self) -> bool:
@@ -185,7 +210,53 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         Returns:
             Is the operation an error ?
         """
+        if self.status is None:
+            return False
+
         return not self.is_success
+
+    @property
+    @populate_on_call
+    def is_not_error(self) -> bool:
+        """
+        Is the operation not an error ?
+
+        Basicaly, it's just a `not self.is_error`.
+
+        Returns:
+            Is the operation not an error ?
+        """
+        return not self.is_error
+
+    @property
+    @populate_on_call
+    def is_not_success(self) -> bool:
+        """
+        Is the operation not a success ?
+
+        Basicaly, it's just a `not self.is_success`.
+
+        Returns:
+            Is the operation not a success ?
+        """
+        return not self.is_success
+
+    @property
+    @populate_on_call
+    def is_success(self) -> bool:
+        """
+        Is the operation a success ?
+
+        Returns:
+            Is the operation a success ?
+        """
+        if self.status is None:
+            return False
+
+        if self.status == PaymentStatus.AUTHORIZED:
+            return not self.capture
+
+        return self.status in (PaymentStatus.CAPTURED, PaymentStatus.TO_CAPTURE)
 
     @property
     @populate_on_call
@@ -221,7 +292,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
         it allow you to add your ID to a payment.
 
         Args:
-            value (str): Must be maximum 24 characters.
+            value (str): Must be maximum 36 characters.
 
         Returns:
             str: External order ID.
@@ -234,93 +305,13 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
     @order_id.setter
     @validate_type(
         str,
-        max=24,
+        coerce=coerce_uuid,
+        max=36,
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
     def order_id(self, value: str):
         self._data['order_id'] = value
-
-    @validate_type(int, min=50, throws=InvalidAmountError, optional=True, silent=True)
-    def refund(self, amount: int = 0) -> CurrentInstance:
-        """
-        Refund a payment, or part of it.
-
-        Args:
-            amount (int): Amount to refund,
-                if not present all paid amount will be refund.
-
-        Raises:
-            InvalidAmountError: When trying to refund more than paid.
-            InvalidAmountError: When the amount is invalid.
-        """
-        # Prevent import loop
-        from .refund import Refund  # pylint: disable=import-outside-toplevel
-
-        refund = Refund()
-        params = {
-            'payment': self,
-        }
-
-        if amount:
-            if amount > self.refundable_amount:
-                message = (
-                    'You are trying to refund ({amount:.2f} {currency}) '
-                    'more than possible ({max:.2f} {currency}).'
-                ).format(
-                    amount=amount / 100,
-                    currency=self.currency.upper(),
-                    max=self.refundable_amount / 100,
-                )
-
-                raise InvalidAmountError(message)
-
-            params['amount'] = amount
-
-        refund.hydrate(**params)
-        refund.save()
-
-        refunds = self._data.get('refunds', [])
-        refunds.append(refund)
-
-        self._data['refunds'] = refunds
-
-        if refund.status != RefundStatus.TO_REFUND:
-            self._populated = False
-            self.populate()
-
-        return self
-
-    @property
-    def refunded_amount(self) -> int:
-        """
-        Amount already refunded.
-
-        Returns:
-            int: Amount already refund.
-        """
-        return sum(map(lambda refund: refund.amount, self.refunds))
-
-    @property
-    def refundable_amount(self) -> int:
-        """
-        Amount not already refunded.
-
-        Returns:
-            int: Amount left to refund.
-        """
-        return self.amount - self.refunded_amount
-
-    @property
-    @populate_on_call
-    def refunds(self):
-        """
-        Returns refund's list.
-
-        Returns:
-            Refund[]: Refund's list
-        """
-        return self._data.get('refunds', [])
 
     @property
     @populate_on_call
@@ -358,7 +349,7 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
 
         return responses.get(response_code)
 
-    def save(self) -> CurrentInstance:
+    def send(self) -> CurrentInstance:
         """
         Create or update the payment.
 
@@ -381,23 +372,17 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             message = 'You must provide a currency before sending a payment.'
             raise InvalidCurrencyError(message)
 
-        message = (
-            'You must provide a valid credit card '
-            'or SEPA account before sending a payment.'
-        )
-
-        if self.card is None and self.sepa is None:
-            raise MissingPaymentMethodError(message)
-
         if self.card is not None and self.card.is_not_complete:
-            message += ' Your card is incomplete.'
+            message = 'Your card is incomplete.'
             raise MissingPaymentMethodError(message)
 
         if self.sepa is not None and self.sepa.is_not_complete:
-            message += ' Your SEPA account is incomplete.'
+            message = 'Your SEPA account is incomplete.'
             raise MissingPaymentMethodError(message)
 
-        return super().save()
+        self._create_device()
+
+        return super().send()
 
     @property
     @populate_on_call
@@ -432,3 +417,41 @@ class Payment(AbstractObject, AbstractAmount, AbstractCountry):
             str: Current status.
         """
         return self._data.get('status')
+
+    @status.setter
+    @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
+    def status(self, value: str):
+        self._data['status'] = value
+
+    @property
+    @populate_on_call
+    def unique_id(self) -> str:
+        """
+        External unique ID.
+
+        If a `unique_id` is provided, it will used to deduplicate payments.
+
+        This should be used only with an identifier unique in your system.
+        You should use an auto-increment or a UUID made in your environment.
+
+        Args:
+            value (str): Must be maximum 36 characters.
+
+        Returns:
+            str: External unique ID.
+
+        Raises:
+            InvalidPaymentUniqueIdError: When unique id is invalid.
+        """
+        return self._data.get('unique_id')
+
+    @unique_id.setter
+    @validate_type(
+        str,
+        coerce=coerce_uuid,
+        max=36,
+        name='Unique ID',
+        throws=InvalidPaymentUniqueIdError,
+    )
+    def unique_id(self, value: str):
+        self._data['unique_id'] = value

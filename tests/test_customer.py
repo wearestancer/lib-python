@@ -2,12 +2,14 @@
 
 import pytest
 import responses
+import uuid
 
 from iliad_payment import Customer
 from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject
 from iliad_payment.core import AbstractName
 from iliad_payment.exceptions import InvalidCustomerEmailError
+from iliad_payment.exceptions import InvalidCustomerExternalIdError
 from iliad_payment.exceptions import InvalidCustomerMobileError
 from .TestHelper import TestHelper
 
@@ -17,13 +19,6 @@ class TestCustomer(TestHelper):
         assert issubclass(Customer, AbstractCountry)
         assert issubclass(Customer, AbstractName)
         assert issubclass(Customer, AbstractObject)
-
-        attrs = Customer._get_allowed_attributes()
-
-        assert isinstance(attrs, list)
-        assert 'email' in attrs
-        assert 'mobile' in attrs
-        assert 'name' in attrs
 
     @responses.activate
     def test_email(self):
@@ -66,6 +61,51 @@ class TestCustomer(TestHelper):
         assert obj.email == params['email']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_external_id(self):
+        obj = Customer()
+        external_id = self.random_string(36)
+
+        assert obj.external_id is None
+
+        obj.external_id = external_id
+
+        assert obj.external_id == external_id
+
+        with pytest.raises(
+            InvalidCustomerExternalIdError,
+            match='External ID must be a string.',
+        ):
+            obj.external_id = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidCustomerExternalIdError,
+            match='External ID must be 36 characters maximum.',
+        ):
+            obj.external_id = self.random_string(40)
+
+        obj = Customer(self.random_string(29))
+        params = {
+            'external_id': self.random_string(36),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.external_id == params['external_id']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+        # Works with uuid
+
+        obj = Customer()
+        external_id = uuid.uuid4()
+
+        assert obj.external_id is None
+
+        obj.external_id = external_id
+
+        assert obj.external_id == str(external_id)
 
     def test_is_complete(self):
         email = self.random_string(5, 64)

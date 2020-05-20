@@ -1,8 +1,10 @@
 """Test refund object"""
 
-from datetime import datetime, tzinfo
+from datetime import datetime
+from datetime import timezone
+from datetime import tzinfo
 import pytest
-from pytz import timezone
+from pytz import timezone as tz
 import responses
 
 from iliad_payment import Config
@@ -40,9 +42,9 @@ class TestRefund(TestHelper):
 
         assert isinstance(obj.date_bank, datetime)
         assert obj.date_bank.timestamp() == date
-        assert obj.date_bank.tzinfo is None
+        assert obj.date_bank.tzinfo is timezone.utc
 
-        config.default_timezone = timezone(zone)
+        config.default_timezone = tz(zone)
 
         obj.hydrate(**params)
 
@@ -72,9 +74,9 @@ class TestRefund(TestHelper):
 
         assert isinstance(obj.date_refund, datetime)
         assert obj.date_refund.timestamp() == date
-        assert obj.date_refund.tzinfo is None
+        assert obj.date_refund.tzinfo is timezone.utc
 
-        config.default_timezone = timezone(zone)
+        config.default_timezone = tz(zone)
 
         obj.hydrate(**params)
 

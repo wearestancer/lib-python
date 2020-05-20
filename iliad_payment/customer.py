@@ -5,7 +5,9 @@ from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.helpers import coerce_uuid
 from .exceptions import InvalidCustomerEmailError
+from .exceptions import InvalidCustomerExternalIdError
 from .exceptions import InvalidCustomerMobileError
 
 
@@ -16,6 +18,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     _allowed_attributes = [
         'email',
+        'external_id',
         'mobile',
     ]
 
@@ -40,6 +43,36 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
     @validate_type(str, min=5, max=64, throws=InvalidCustomerEmailError)
     def email(self, value: str):
         self._data['email'] = value
+
+    @property
+    @populate_on_call
+    def external_id(self) -> str:
+        """
+        Customer's external ID.
+
+        External for the API, you can store your customer's identifier here.
+
+        Args:
+            value (str): New ID, must be between 36 characters max.
+
+        Returns:
+            str: Customer's external ID.
+
+        Raises:
+            InvalidCustomerExternalIdError: When external ID is invalid.
+        """
+        return self._data.get('external_id')
+
+    @external_id.setter
+    @validate_type(
+        str,
+        coerce=coerce_uuid,
+        max=36,
+        name='External ID',
+        throws=InvalidCustomerExternalIdError,
+    )
+    def external_id(self, value: str):
+        self._data['external_id'] = value
 
     @property
     def is_complete(self) -> bool:
