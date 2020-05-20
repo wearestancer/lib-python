@@ -2,9 +2,11 @@
 
 # pylint: disable=invalid-name
 
+from .base import BaseStatus
 
-class RefundStatus(object):
-    """List of refund status"""
+
+class RefundStatus(BaseStatus):
+    """List of refund status."""
 
     NOT_HONORED = 'not_honored'
     PAYMENT_CANCELED = 'payment_canceled'

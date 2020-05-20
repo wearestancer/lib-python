@@ -2,11 +2,11 @@
 
 from datetime import datetime
 import json
-from typing import List
 from typing import Set
 from typing import TypeVar
 
 from ..config import Config
+from .decorators import populate_on_call
 from .request import Request
 
 
@@ -20,6 +20,9 @@ class AbstractObject(object):
 
     _ENDPOINT = None  # pylint: disable=invalid-name
     _allowed_attributes = []
+    _datetime_property = [
+        'created',
+    ]
     _default_values = {}
 
     def __init__(self, uid: str = None, **kwargs):
@@ -42,7 +45,6 @@ class AbstractObject(object):
             An instance of the current object.
         """
         self._id = uid
-        self._created = None
         self._data = {}
         self._populated = True
 
@@ -77,6 +79,26 @@ class AbstractObject(object):
             representation[key] = value
 
         return representation
+
+    @classmethod
+    def _get_allowed_attributes(cls) -> Set[str]:
+        allowed = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_allowed_attributes'):
+                allowed.update(parent._allowed_attributes)  # pylint: disable=protected-access
+
+        return allowed
+
+    @classmethod
+    def _get_datetime_property(cls) -> Set[str]:
+        allowed = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_datetime_property'):
+                allowed.update(parent._datetime_property)  # pylint: disable=protected-access
+
+        return allowed
 
     @property
     def _modified(self) -> Set[str]:
@@ -121,6 +143,7 @@ class AbstractObject(object):
         self._id = None
 
     @property
+    @populate_on_call
     def created(self) -> datetime:
         """
         Return the creation date and time of the current object.
@@ -128,7 +151,7 @@ class AbstractObject(object):
         Returns:
             Creation date and time (into the API) during server side creation.
         """
-        return self._created
+        return self._data.get('created')
 
     def delete(self) -> CurrentInstance:
         """
@@ -146,19 +169,6 @@ class AbstractObject(object):
         self._modified = 'id'
 
         return self
-
-    @classmethod
-    def _get_allowed_attributes(cls) -> List[str]:
-        allowed = []
-
-        if hasattr(cls, '_allowed_attributes'):
-            allowed = cls._allowed_attributes
-
-        for parent in cls.mro():
-            if parent != cls and hasattr(parent, '_allowed_attributes'):
-                allowed += parent._allowed_attributes  # pylint: disable=protected-access
-
-        return allowed
 
     def _hydrate_list(self, key, value):
         tmp = getattr(self, key)
@@ -260,10 +270,11 @@ class AbstractObject(object):
                         value = tmp.hydrate(**val)
                         value._populated = self._populated  # pylint: disable=protected-access
 
+            if key in self._get_datetime_property():
+                value = datetime.fromtimestamp(value, tz=config.default_timezone)
+
             if key == 'id':
                 self._id = value
-            elif key == 'created':
-                self._created = datetime.fromtimestamp(value, tz=config.default_timezone)
             else:
                 prop = dict(self.__class__.__dict__).get(key)
 

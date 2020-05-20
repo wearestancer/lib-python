@@ -58,6 +58,7 @@ class TestStubWithDefault(TestHelper):
 
         uid = self.random_string(29)
         with_id = StubWithDefault(uid)
+        with_id.force_populated(True)  # Prevent tests errors
 
         assert isinstance(with_id, StubWithDefault)
         assert with_id.id == uid

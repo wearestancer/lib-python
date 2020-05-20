@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timezone
 from datetime import tzinfo
 from typing import List
 from typing import TypeVar
@@ -30,7 +31,7 @@ class Config(Singleton):
 
     def __init__(self):
         """Initialize configuration instance."""
-        self._default_timezone = None
+        self._default_timezone = timezone.utc
         self._host = None
         self._keys = []
         self._mode = None
@@ -64,7 +65,7 @@ class Config(Singleton):
 
     @default_timezone.deleter
     def default_timezone(self):
-        self._default_timezone = None
+        self._default_timezone = timezone.utc
 
     @property
     def host(self) -> str:

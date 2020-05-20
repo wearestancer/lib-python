@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from typing import TypeVar
 
 from .card import Card
@@ -10,6 +11,7 @@ from .core import AbstractCountry
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.helpers import coerce_status
 from .core.helpers import coerce_uuid
 from .core.payment.auth import PaymentAuth
 from .core.payment.page import PaymentPage
@@ -54,6 +56,9 @@ class Payment(*BaseObject):
         'sepa',
         'status',
         'unique_id',
+    ]
+    _datetime_property = [
+        'date_bank',
     ]
 
     @property
@@ -138,6 +143,17 @@ class Payment(*BaseObject):
     def customer(self, value: Customer):
         self._data['customer'] = value
 
+    @property
+    @populate_on_call
+    def date_bank(self) -> datetime:
+        """
+        Value date.
+
+        Returns:
+            Payment value date.
+        """
+        return self._data.get('date_bank')
+
     def delete(self):  # pylint: disable=no-self-use
         """
         Delete the current object.
@@ -174,6 +190,17 @@ class Payment(*BaseObject):
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
     def description(self, value: str):
         self._data['description'] = value
+
+    @property
+    @populate_on_call
+    def fee(self) -> datetime:
+        """
+        Fee applied at checkout.
+
+        Returns:
+            Fee applied at checkout.
+        """
+        return self._data.get('fee')
 
     @property
     def is_error(self) -> bool:
@@ -392,7 +419,7 @@ class Payment(*BaseObject):
         return self._data.get('status')
 
     @status.setter
-    @validate_type(str, throws=InvalidStatusError)
+    @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
     def status(self, value: str):
         self._data['status'] = value
 

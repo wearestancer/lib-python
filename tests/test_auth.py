@@ -14,12 +14,6 @@ class TestAuth(TestHelper):
     def test_class(self):
         assert issubclass(Auth, AbstractObject)
 
-        attrs = Auth._get_allowed_attributes()
-
-        assert isinstance(attrs, list)
-        assert 'return_url' in attrs
-        assert 'status' in attrs
-
     @responses.activate
     def test_redirect_url(self):
         obj = Auth()

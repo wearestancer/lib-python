@@ -19,13 +19,6 @@ class TestSepa(TestHelper):
         assert issubclass(Sepa, AbstractName)
         assert issubclass(Sepa, AbstractObject)
 
-        attrs = Sepa._get_allowed_attributes()
-
-        assert isinstance(attrs, list)
-        assert 'bic' in attrs
-        assert 'iban' in attrs
-        assert 'name' in attrs
-
     @responses.activate
     def test_bic(self):
         obj = Sepa()

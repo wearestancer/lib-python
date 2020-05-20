@@ -2,9 +2,11 @@
 
 # pylint: disable=invalid-name
 
+from .base import BaseStatus
 
-class PaymentStatus(object):
-    """List of payment status"""
+
+class PaymentStatus(BaseStatus):
+    """List of payment status."""
 
     AUTHORIZE = 'authorize'
     AUTHORIZED = 'authorized'

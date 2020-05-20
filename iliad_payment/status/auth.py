@@ -2,9 +2,11 @@
 
 # pylint: disable=invalid-name
 
+from .base import BaseStatus
 
-class AuthStatus(object):
-    """List of auth status"""
+
+class AuthStatus(BaseStatus):
+    """List of auth status."""
 
     ATTEMPTED = 'attempted'
     AVAILABLE = 'available'
