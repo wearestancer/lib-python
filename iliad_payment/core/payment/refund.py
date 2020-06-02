@@ -7,8 +7,6 @@ from ..decorators import validate_type
 from ...exceptions import InvalidAmountError
 from ...status.refund import RefundStatus
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
-
 
 class PaymentRefund(object):
     """Specific property and method for payment refunds."""
@@ -38,7 +36,7 @@ class PaymentRefund(object):
         optional=True,
         silent=True,
     )
-    def refund(self, amount: int = 0) -> CurrentInstance:
+    def refund(self, amount: int = 0):
         """
         Refund a payment, or part of it.
 
@@ -85,7 +83,7 @@ class PaymentRefund(object):
             self._populated = False
             self.populate()
 
-        return self
+        return refund
 
     @property
     def refunded_amount(self) -> int:

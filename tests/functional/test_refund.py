@@ -46,25 +46,26 @@ class TestFunctionalRefund(TestHelper):
         assert error.value.reason == 'Conflict'
         assert error.value.status_code == 409
 
-        assert payment.refund() == payment
-
+        refund = payment.refund()
         refunds = payment.refunds
+
+        assert isinstance(refund, Refund)
+        assert refund.amount == amount
+        assert refund.currency == currency
+        assert refund.payment == payment
 
         assert isinstance(refunds, list)
         assert len(refunds) == 1
-        assert isinstance(refunds[0], Refund)
-        assert refunds[0].amount == amount
-        assert refunds[0].currency == currency
-        assert refunds[0].payment == payment
+        assert refunds[0] == refund
 
         assert payment.status == PaymentStatus.CANCELED
 
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_multiple_refund(self, currency):
         amount = self.random_integer(200, 100000)
-        refund1 = self.random_integer(50, amount // 4)
-        refund2 = self.random_integer(50, amount // 4)
-        refund3 = amount - refund1 - refund2
+        refund_amount1 = self.random_integer(50, amount // 4)
+        refund_amount2 = self.random_integer(50, amount // 4)
+        refund_amount3 = amount - refund_amount1 - refund_amount2
         desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
 
         card = Card()
@@ -87,52 +88,56 @@ class TestFunctionalRefund(TestHelper):
 
         payment.send()
 
-        assert payment.refund(refund1) == payment
-
+        refund1 = payment.refund(refund_amount1)
         refunds = payment.refunds
+
+        assert isinstance(refund1, Refund)
+        assert refund1.amount == refund_amount1
+        assert refund1.currency == currency
+        assert refund1.payment == payment
 
         assert isinstance(refunds, list)
         assert len(refunds) == 1
-        assert isinstance(refunds[0], Refund)
-        assert refunds[0].amount == refund1
-        assert refunds[0].currency == currency
-        assert refunds[0].payment == payment
+        assert refunds[0] == refund1
 
-        assert payment.refund(refund2) == payment
-
+        refund2 = payment.refund(refund_amount2)
         refunds = payment.refunds
 
         assert isinstance(refunds, list)
         assert len(refunds) == 2
+        assert refunds[0] == refund1
+        assert refunds[1] == refund2
 
-        assert isinstance(refunds[0], Refund)
-        assert refunds[0].amount == refund1
-        assert refunds[0].currency == currency
-        assert refunds[0].payment == payment
+        assert isinstance(refund1, Refund)
+        assert refund1.amount == refund_amount1
+        assert refund1.currency == currency
+        assert refund1.payment == payment
 
-        assert isinstance(refunds[1], Refund)
-        assert refunds[1].amount == refund2
-        assert refunds[1].currency == currency
-        assert refunds[1].payment == payment
+        assert isinstance(refund2, Refund)
+        assert refund2.amount == refund_amount2
+        assert refund2.currency == currency
+        assert refund2.payment == payment
 
-        assert payment.refund() == payment
-
+        refund3 = payment.refund()
         refunds = payment.refunds
 
         assert isinstance(refunds, list)
         assert len(refunds) == 3
+        assert refunds[0] == refund1
+        assert refunds[1] == refund2
+        assert refunds[2] == refund3
 
-        assert isinstance(refunds[0], Refund)
-        assert refunds[0].amount == refund1
-        assert refunds[0].currency == currency
-        assert refunds[0].payment == payment
+        assert isinstance(refund1, Refund)
+        assert refund1.amount == refund_amount1
+        assert refund1.currency == currency
+        assert refund1.payment == payment
 
-        assert isinstance(refunds[1], Refund)
-        assert refunds[1].amount == refund2
-        assert refunds[1].currency == currency
-        assert refunds[1].payment == payment
+        assert isinstance(refund2, Refund)
+        assert refund2.amount == refund_amount2
+        assert refund2.currency == currency
+        assert refund2.payment == payment
 
-        assert isinstance(refunds[2], Refund)
-        assert refunds[2].amount == refund3
-        assert refunds[2].currency == currency
-        assert refunds[2].payment == payment
+        assert isinstance(refund3, Refund)
+        assert refund3.amount == refund_amount3
+        assert refund3.currency == currency
+        assert refund3.payment == payment
