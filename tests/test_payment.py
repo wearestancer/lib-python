@@ -703,13 +703,16 @@ class TestPayment(TestHelper):
         assert len(obj.refunds) == 0
         assert len(responses.calls) == 1
 
-        assert obj.refund(refund1_amount) == obj
+        refund1 = obj.refund(refund1_amount)
+
+        assert isinstance(refund1, Refund)
         assert len(responses.calls) == 2
 
         assert isinstance(obj.refunds, list)
         assert len(obj.refunds) == 1
-        assert obj.refunds[0].id == refund1_content['id']
-        assert obj.refunds[0].amount == refund1_amount
+        assert refund1.id == refund1_content['id']
+        assert refund1.amount == refund1_amount
+        assert obj.refunds[0] == refund1
 
         with pytest.raises(InvalidAmountError) as err:
             obj.refund(paid)
@@ -719,15 +722,19 @@ class TestPayment(TestHelper):
             'more than possible ({1:.2f} {2}).'
         ).format(paid / 100, refund2_amount / 100, obj.currency.upper())
 
-        assert obj.refund() == obj
+        refund2 = obj.refund()
+
+        assert isinstance(refund2, Refund)
         assert len(responses.calls) == 3
 
         assert isinstance(obj.refunds, list)
         assert len(obj.refunds) == 2
-        assert obj.refunds[0].id == refund1_content['id']
-        assert obj.refunds[0].amount == refund1_amount
-        assert obj.refunds[1].id == refund2_content['id']
-        assert obj.refunds[1].amount == refund2_amount
+        assert refund1.id == refund1_content['id']
+        assert refund1.amount == refund1_amount
+        assert refund2.id == refund2_content['id']
+        assert refund2.amount == refund2_amount
+        assert obj.refunds[0] == refund1
+        assert obj.refunds[1] == refund2
 
         assert obj.is_not_modified
 
