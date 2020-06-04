@@ -106,6 +106,9 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
         Returns:
             Is the SEPA account complete ?
         """
+        if self.id is not None:
+            return True
+
         if self.bic is None:
             return False
 

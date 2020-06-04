@@ -234,6 +234,7 @@ class TestCard(TestHelper):
         assert len(responses.calls) == 1
 
     def test_is_complete(self):
+        uid = 'card_{}'.format(self.random_string(24))
         cvc = self.random_string(3)
         exp_month = self.random_integer(1, 12)
         exp_year = self.random_year()
@@ -242,6 +243,12 @@ class TestCard(TestHelper):
         # Empty card is not complete
         assert Card().is_complete is False
         assert Card().is_not_complete is True
+
+        # A card with an ID is complete
+        obj = Card(uid)
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
 
         # Without CVC => incomplete
         obj = Card()
