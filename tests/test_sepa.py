@@ -145,12 +145,19 @@ class TestSepa(TestHelper):
         assert len(responses.calls) == 1
 
     def test_is_complete(self):
+        uid = 'sepa_{}'.format(self.random_string(24))
         bic = self.random_string(8)
         iban = 'GB82WEST12345698765432'
 
         # Empty SEPA is not complete
         assert Sepa().is_complete is False
         assert Sepa().is_not_complete is True
+
+        # A SEPA with an ID is complete
+        obj = Sepa(uid)
+
+        assert obj.is_complete is True
+        assert obj.is_not_complete is False
 
         # Without BIC => incomplete
         obj = Sepa()
