@@ -181,6 +181,9 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
         Returns:
             Is the card complete ?
         """
+        if self.id is not None:
+            return True
+
         if self.cvc is None:
             return False
 
