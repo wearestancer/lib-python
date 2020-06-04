@@ -1,4 +1,5 @@
 
+import json
 import responses
 
 from iliad_payment import Payment
@@ -25,3 +26,7 @@ class TestIssues(TestHelper):
 
         assert payment.send() == payment
         assert payment.status == status
+
+        body = json.loads(responses.calls[1].request.body)
+
+        assert body.get('status') == PaymentStatus.CAPTURE
