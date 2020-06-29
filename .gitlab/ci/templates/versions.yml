@@ -2,6 +2,6 @@
 .versions:
   before_script:
     - tox --version
-    - pyenv local 3.5.9 3.6.10 3.7.7 3.8.2 3.9.0a4
+    - pyenv local 3.5.9 3.6.10 3.7.7 3.8.3 3.9.0b3
     - export LC_ALL=C.UTF-8 # py35 and py36 was complaining
     - export LANG=C.UTF-8   # py35 and py36 was complaining
