@@ -16,6 +16,11 @@ py27:tests:
   needs:
     - py27:lint
 
+py27:bandit:
+  extends:
+    - .py27
+    - .bandit
+
 py27:coverage-check:
   extends:
     - .py27
