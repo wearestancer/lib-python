@@ -1,9 +1,9 @@
 
 stages:
   - lint
+  - bandit
   - test
   - coverage
-  - bandit
   - build
 
 include:
