@@ -6,6 +6,7 @@ from ..decorators import populate_on_call
 from ..decorators import validate_type
 from ...auth import Auth
 from ...device import Device
+from ...exceptions import IliadException
 from ...exceptions import InvalidAuthError
 from ...exceptions import InvalidDeviceError
 
@@ -108,7 +109,7 @@ class PaymentAuth(object):
             try:
                 device.hydrate_from_env()
                 self.device = device
-            except:  # pylint: disable=bare-except
+            except IliadException:
                 pass
 
         return self
