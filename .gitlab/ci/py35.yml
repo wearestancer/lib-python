@@ -16,6 +16,11 @@ py35:tests:
   needs:
     - py35:lint
 
+py35:bandit:
+  extends:
+    - .py35
+    - .bandit
+
 py35:coverage-check:
   extends:
     - .py35

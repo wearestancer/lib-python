@@ -7,6 +7,7 @@ verify_ssl = true
 requests = "*"
 
 [dev-packages]
+bandit = "*"
 pylint = "*"
 pylint-junit = "*"
 pytest = "*"

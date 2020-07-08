@@ -16,6 +16,11 @@ py38:tests:
   needs:
     - py38:lint
 
+py38:bandit:
+  extends:
+    - .py38
+    - .bandit
+
 py38:coverage-check:
   extends:
     - .py38
