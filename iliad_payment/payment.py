@@ -315,7 +315,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def response_code(self) -> str:
+    def response(self) -> str:
         """
         API response code.
 
@@ -325,7 +325,7 @@ class Payment(*BaseObject):
         Returns:
             str: API response for the payment.
         """
-        return self._data.get('response_code')
+        return self._data.get('response')
 
     @property
     @populate_on_call
@@ -333,12 +333,12 @@ class Payment(*BaseObject):
         """
         API response message.
 
-        See `Payment.response_code`.
+        See `Payment.response`.
 
         Returns:
             str: API response message.
         """
-        response_code = self.response_code
+        response = self.response
         responses = {
             '00': 'OK',
             '05': 'Do not honor',
@@ -347,7 +347,7 @@ class Payment(*BaseObject):
             '51': 'Insufficient funds',
         }
 
-        return responses.get(response_code)
+        return responses.get(response)
 
     def send(self) -> CurrentInstance:
         """

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check for common security issues in CI
 
 ### Changed
+- `Payment.response_code` is renamed `Payment.response`
 - Python version used in tests
 
 
