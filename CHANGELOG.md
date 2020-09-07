@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Payment.response_code` is renamed `Payment.response`
 - Python version used in tests
+- Simplify list hydratation
 
 
 ## [0.0.5] - 2020-06-04

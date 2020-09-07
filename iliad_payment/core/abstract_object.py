@@ -203,14 +203,7 @@ class AbstractObject(object):
             if missing:
                 if not isinstance(val, AbstractObject):
                     cls = getattr(self, init_method)
-
-                    obj = cls(uid)
-
-                    obj._populated = True   # pylint: disable=protected-access
-                    obj.hydrate(**val)
-                    obj._populated = False  # pylint: disable=protected-access
-
-                    val = obj
+                    val = cls(uid, **val)
 
                 if val not in new_values:
                     new_values.append(val)
