@@ -19,6 +19,6 @@
   "live_mode": false,
   "method": "card",
   "order_id": null,
-  "response_code": "00",
+  "response": "00",
   "status": "to_capture"
 }

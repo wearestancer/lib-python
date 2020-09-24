@@ -791,22 +791,22 @@ class TestPayment(TestHelper):
         assert obj.refunded_amount == refund_amount
 
     @responses.activate
-    def test_response_code(self):
+    def test_response(self):
         obj = Payment()
 
-        assert obj.response_code is None
+        assert obj.response is None
 
         with pytest.raises(AttributeError):
-            obj.response_code = self.random_string(29)
+            obj.response = self.random_string(29)
 
         obj = Payment(self.random_string(29))
         params = {
-            'response_code': self.random_string(2),
+            'response': self.random_string(2),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.response_code == params['response_code']
+        assert obj.response == params['response']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -821,12 +821,12 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            'response_code': self.random_string(2),
+            'response': self.random_string(2),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.response_code == params['response_code']
+        assert obj.response == params['response']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
