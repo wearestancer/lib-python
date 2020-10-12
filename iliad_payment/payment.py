@@ -9,6 +9,7 @@ from .sepa import Sepa
 from .core import AbstractAmount
 from .core import AbstractCountry
 from .core import AbstractObject
+from .core import AbstractSearch
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .core.helpers import coerce_status
@@ -25,8 +26,9 @@ from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidPaymentUniqueIdError
-from .exceptions import InvalidStatusError
+from .exceptions import InvalidSearchFilter
 from .exceptions import InvalidSepaError
+from .exceptions import InvalidStatusError
 from .exceptions import MissingPaymentMethodError
 from .status.payment import PaymentStatus
 
@@ -35,11 +37,15 @@ BaseObject = (
     AbstractObject,
     AbstractAmount,
     AbstractCountry,
+    AbstractSearch,
     PaymentAuth,
     PaymentPage,
     PaymentRefund,
 )
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
+
+order_id_max_len = 36
+unique_id_max_len = 36
 
 
 class Payment(*BaseObject):
@@ -202,6 +208,50 @@ class Payment(*BaseObject):
         """
         return self._data.get('fee')
 
+    @classmethod
+    def filter_list_params(cls, **kwargs) -> dict:
+        """
+        Filter for list method.
+
+        Allow `order_id` and `unique_id` parameters.
+
+        Args:
+            kwargs: Arbitrary keyword argument to filter.
+
+        Returns:
+            Filtered arguments.
+        """
+
+        params = {}
+
+        if 'order_id' in kwargs:
+            if not isinstance(kwargs['order_id'], str):
+                raise InvalidSearchFilter('Order ID must be a string.')
+
+            length = len(kwargs['order_id'])
+
+            if length > order_id_max_len or length == 0:
+                message = 'A valid order ID must be between 1 and {} characters.'.format(order_id_max_len)
+
+                raise InvalidSearchFilter(message)
+
+            params['order_id'] = kwargs['order_id']
+
+        if 'unique_id' in kwargs:
+            if not isinstance(kwargs['unique_id'], str):
+                raise InvalidSearchFilter('Unique ID must be a string.')
+
+            length = len(kwargs['unique_id'])
+
+            if length > unique_id_max_len or length == 0:
+                message = 'A valid unique ID must be between 1 and {} characters.'.format(unique_id_max_len)
+
+                raise InvalidSearchFilter(message)
+
+            params['unique_id'] = kwargs['unique_id']
+
+        return params
+
     @property
     def is_error(self) -> bool:
         """
@@ -306,7 +356,7 @@ class Payment(*BaseObject):
     @validate_type(
         str,
         coerce=coerce_uuid,
-        max=36,
+        max=order_id_max_len,
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
@@ -449,7 +499,7 @@ class Payment(*BaseObject):
     @validate_type(
         str,
         coerce=coerce_uuid,
-        max=36,
+        max=unique_id_max_len,
         name='Unique ID',
         throws=InvalidPaymentUniqueIdError,
     )
