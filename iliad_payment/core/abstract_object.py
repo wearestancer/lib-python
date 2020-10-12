@@ -263,7 +263,7 @@ class AbstractObject(object):
                         value = tmp.hydrate(**val)
                         value._populated = self._populated  # pylint: disable=protected-access
 
-            if key in self._get_datetime_property():
+            if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
 
             if key == 'id':
