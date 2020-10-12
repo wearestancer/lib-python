@@ -11,7 +11,6 @@ include:
   - local: .gitlab/ci/templates.yml
   - local: .gitlab/ci/build.yml
   - local: .gitlab/ci/publish/python.yml
-  - local: .gitlab/ci/py35.yml
   - local: .gitlab/ci/py36.yml
   - local: .gitlab/ci/py37.yml
   - local: .gitlab/ci/py38.yml
