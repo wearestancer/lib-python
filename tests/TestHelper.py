@@ -19,6 +19,8 @@ class TestHelper(object):
 
         conf.keys = 'stest_' + self.random_string(24)
 
+        del conf.default_timezone
+
     def random_integer(self, min, max=0):
         if max < min:
             (min, max) = (max, min)

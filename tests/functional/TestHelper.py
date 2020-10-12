@@ -25,6 +25,15 @@ class TestHelper(Helper):
         conf.host = str(os.getenv('API_HOST'))
         conf.timeout = 1
 
+    def get_disputed_card_number(self):
+        cards = [
+            '4000000000000259',
+            '4000000000001976',
+            '4000000000005423',
+        ]
+
+        return random.choice(cards)
+
     def get_card_number(self):
         cards = [
             '4242424242424242',

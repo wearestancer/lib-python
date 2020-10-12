@@ -96,8 +96,6 @@ class TestStubObject(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-        del config.default_timezone
-
     def test_instance(self):
         empty = StubObject()
 
@@ -155,16 +153,6 @@ class TestStubObject(TestHelper):
 
     @responses.activate
     def test_delete(self):
-        obj = StubObject()
-
-        with pytest.raises(
-            IliadValueError,
-            match='You can not delete an object without an ID.',
-        ):
-            obj.delete()
-
-        assert len(responses.calls) == 0
-
         obj = StubObject(self.random_string(29))
 
         responses.add(responses.DELETE, obj.uri, status=204)
@@ -189,8 +177,6 @@ class TestStubObject(TestHelper):
         obj = StubObject()
         config = Config()
         uid = self.random_string(29)
-
-        del config.default_timezone  # Just in case, should use UTC
 
         params = {
             'string1': self.random_string(10),
@@ -311,6 +297,26 @@ class TestStubObject(TestHelper):
         assert obj.is_modified
         assert obj.cards[0].is_not_modified
         assert obj.cards[1].is_modified
+
+    @responses.activate
+    def test_live_mode(self):
+        obj = StubObject()
+
+        assert obj.live_mode is None
+
+        with pytest.raises(AttributeError):
+            obj.live_mode = True
+
+        obj = StubObject(self.random_string(29))
+        params = {
+            'live_mode': True,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.live_mode is True
+        assert obj.is_populated
+        assert len(responses.calls) == 1
 
     def test_modified_status(self):
         obj = StubObject()

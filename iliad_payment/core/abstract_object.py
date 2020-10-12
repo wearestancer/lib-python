@@ -163,7 +163,7 @@ class AbstractObject(object):
         Raises:
             IliadHTTPError: On error during with the API.
         """
-        Request(self).delete  # pylint: disable=expression-not-assigned
+        Request().delete(self)
 
         # Force modified to allow sending it again to the API
         self._modified = 'id'
@@ -263,7 +263,7 @@ class AbstractObject(object):
                         value = tmp.hydrate(**val)
                         value._populated = self._populated  # pylint: disable=protected-access
 
-            if key in self._get_datetime_property():
+            if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
 
             if key == 'id':
@@ -360,6 +360,19 @@ class AbstractObject(object):
         """
         return self._populated
 
+    @property
+    @populate_on_call
+    def live_mode(self) -> bool:
+        """
+        Indicate if we are in live or test mode.
+
+        True => live / False => test
+
+        Returns:
+            Are we in live mode ?
+        """
+        return self._data.get('live_mode')
+
     def populate(self) -> CurrentInstance:
         """
         Populate the current object.
@@ -370,9 +383,9 @@ class AbstractObject(object):
         Returns:
             Current instance.
         """
-        if self.id is not None and not self._populated:
+        if self.id is not None and self._ENDPOINT is not None and not self._populated:
             self._populated = True
-            Request(self).get  ## pylint: disable=expression-not-assigned
+            Request().get(self)
 
             del self._modified
 
@@ -393,7 +406,10 @@ class AbstractObject(object):
             IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
         """
         if self._modified:
-            Request(self).post  ## pylint: disable=expression-not-assigned
+            if self.id is None:
+                Request().post(self)
+            else:
+                Request().patch(self)
 
         del self._modified
 

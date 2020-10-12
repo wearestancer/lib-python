@@ -23,6 +23,7 @@ from iliad_payment import Sepa
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject
+from iliad_payment.core import AbstractSearch
 from iliad_payment.exceptions import IliadNotImplementedError
 from iliad_payment.exceptions import InvalidAmountError
 from iliad_payment.exceptions import InvalidAuthError
@@ -36,6 +37,7 @@ from iliad_payment.exceptions import InvalidPaymentDescriptionError
 from iliad_payment.exceptions import InvalidPaymentOrderIdError
 from iliad_payment.exceptions import InvalidPaymentUniqueIdError
 from iliad_payment.exceptions import InvalidPortError
+from iliad_payment.exceptions import InvalidSearchFilter
 from iliad_payment.exceptions import InvalidSepaError
 from iliad_payment.exceptions import InvalidStatusError
 from iliad_payment.exceptions import InvalidUrlError
@@ -49,9 +51,10 @@ from .TestHelper import TestHelper
 
 class TestPayment(TestHelper):
     def test_class(self):
-        assert issubclass(Payment, AbstractCountry)
         assert issubclass(Payment, AbstractAmount)
+        assert issubclass(Payment, AbstractCountry)
         assert issubclass(Payment, AbstractObject)
+        assert issubclass(Payment, AbstractSearch)
 
     @responses.activate
     def test_amount(self):
@@ -294,8 +297,6 @@ class TestPayment(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-        del config.default_timezone
-
     @responses.activate
     def test_description(self):
         obj = Payment()
@@ -389,6 +390,54 @@ class TestPayment(TestHelper):
         assert obj.fee == params['fee']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    def test_filter_list_params(self):
+        order_id = self.random_string(10)
+        unique_id = self.random_string(10)
+
+        params = Payment.filter_list_params(order_id=order_id, unique_id=unique_id)
+
+        assert 'order_id' in params
+        assert params['order_id'] == order_id
+
+        assert 'unique_id' in params
+        assert params['unique_id'] == unique_id
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='A valid order ID must be between 1 and 36 characters.',
+        ):
+            Payment.filter_list_params(order_id='')
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='A valid order ID must be between 1 and 36 characters.',
+        ):
+            Payment.filter_list_params(order_id=self.random_string(37))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Order ID must be a string.',
+        ):
+            Payment.filter_list_params(order_id=self.random_integer(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='A valid unique ID must be between 1 and 36 characters.',
+        ):
+            Payment.filter_list_params(unique_id='')
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='A valid unique ID must be between 1 and 36 characters.',
+        ):
+            Payment.filter_list_params(unique_id=self.random_string(37))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Unique ID must be a string.',
+        ):
+            Payment.filter_list_params(unique_id=self.random_integer(10))
 
     def test_hydrate(self):
         obj = Payment()
@@ -512,26 +561,6 @@ class TestPayment(TestHelper):
 
             assert obj.is_not_success is True
             assert obj.is_not_error is False
-
-    @responses.activate
-    def test_live_mode(self):
-        obj = Payment()
-
-        assert obj.live_mode is None
-
-        with pytest.raises(AttributeError):
-            obj.live_mode = True
-
-        obj = Payment(self.random_string(29))
-        params = {
-            'live_mode': True,
-        }
-
-        responses.add(responses.GET, obj.uri, json=params)
-
-        assert obj.live_mode is True
-        assert obj.is_populated
-        assert len(responses.calls) == 1
 
     @responses.activate
     def test_method(self):
