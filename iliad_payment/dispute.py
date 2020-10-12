@@ -2,11 +2,12 @@
 
 from .core import AbstractAmount
 from .core import AbstractObject
+from .core import AbstractSearch
 from .core.decorators import populate_on_call
 from .payment import Payment
 
 
-class Dispute(AbstractObject, AbstractAmount):
+class Dispute(AbstractObject, AbstractAmount, AbstractSearch):
     """Representation of a dispute."""
 
     _ENDPOINT = 'disputes'

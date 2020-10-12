@@ -7,6 +7,7 @@ from iliad_payment import Dispute
 from iliad_payment import Payment
 from iliad_payment.core import AbstractAmount
 from iliad_payment.core import AbstractObject
+from iliad_payment.core import AbstractSearch
 from .TestHelper import TestHelper
 
 
@@ -14,6 +15,7 @@ class TestDispute(TestHelper):
     def test_class(self):
         assert issubclass(Dispute, AbstractAmount)
         assert issubclass(Dispute, AbstractObject)
+        assert issubclass(Dispute, AbstractSearch)
 
     @responses.activate
     def test_order_id(self):
