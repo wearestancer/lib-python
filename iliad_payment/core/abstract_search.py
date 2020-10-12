@@ -64,3 +64,6 @@ class AbstractSearch(object):
                 raise InvalidSearchFilter('Start must be a positive integer.')
 
             params['start'] = start
+
+        if not params:
+            raise InvalidSearchFilter('Invalid search filters.')

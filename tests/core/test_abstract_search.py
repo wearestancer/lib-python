@@ -43,6 +43,19 @@ class TestAbstractSearch(TestHelper):
             date = datetime.now() + timedelta(days=1)
             AbstractSearch.list(created=date)
 
+    def test_invalid_filters(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Invalid search filters.',
+        ):
+            AbstractSearch.list()
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Invalid search filters.',
+        ):
+            AbstractSearch.list(foo='bar')
+
     def test_invalid_limit(self):
         with pytest.raises(
             InvalidSearchFilter,
