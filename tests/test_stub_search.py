@@ -17,11 +17,12 @@ class TestStubSearch(TestHelper):
         limit = self.random_integer(1, 100)
         start = self.random_integer(0, 100_000)
         foo = self.random_string(10)
+        foobar = self.random_string(10)
 
         with open('./tests/fixtures/stub/list.json') as opened_file:
             responses.add(responses.GET, obj.uri, body=opened_file.read())
 
-        results = StubSearch.list(created=created, limit=limit, start=start, foo=foo)
+        results = StubSearch.list(created=created, limit=limit, start=start, foo=foo, foobar=foobar)
 
         assert isgenerator(results)
         assert len(responses.calls) == 0
@@ -42,7 +43,8 @@ class TestStubSearch(TestHelper):
         assert 'created={}'.format(created) in api_call.request.url
         assert 'limit={}'.format(limit) in api_call.request.url
         assert 'start={}'.format(start) in api_call.request.url
-        assert 'foo' not in api_call.request.url
+        assert 'foo={}'.format(foo) in api_call.request.url
+        assert 'foobar' not in api_call.request.url
 
         item = next(results)
 
@@ -67,4 +69,5 @@ class TestStubSearch(TestHelper):
         assert 'created={}'.format(created) in api_call.request.url
         assert 'limit={}'.format(limit) in api_call.request.url
         assert 'start={}'.format(2) in api_call.request.url  # 2 => start + limit in response
-        assert 'foo' not in api_call.request.url
+        assert 'foo={}'.format(foo) in api_call.request.url
+        assert 'foobar' not in api_call.request.url

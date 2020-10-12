@@ -13,6 +13,21 @@ class AbstractSearch(object):
     """Common search method."""
 
     @classmethod
+    def filter_list_params(cls, **kwargs) -> dict:  # pylint: disable=unused-argument
+        """
+        Filter for list method.
+
+        This method should be overrided in child object.
+
+        Args:
+            kwargs: Arbitrary keyword argument to filter.
+
+        Returns:
+            Filtered arguments.
+        """
+        return {}
+
+    @classmethod
     def list(
         cls,
         created: Union[int, datetime] = None,
@@ -36,7 +51,7 @@ class AbstractSearch(object):
             Generator.
         """
 
-        params = {}
+        params = cls.filter_list_params(**kwargs)
 
         if created is not None:
             if isinstance(created, datetime):
