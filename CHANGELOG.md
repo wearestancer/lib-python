@@ -7,11 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+- `Dispute`
+- `Payment.list()`
+- `Sepa` endpoint
+- `Sepa.date_mandate` property
+- `Sepa.mandate` property
 - Check for common security issues in CI
 
 ### Changed
 - Remove support for Python 3.5 https://pythoninsider.blogspot.com/2020/10/python-35-is-no-longer-supported.html
 - `Payment.response_code` is renamed `Payment.response`
+- Global refact for `Request`
 - Python version used in tests
 - Simplify list hydratation
 
