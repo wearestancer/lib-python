@@ -55,6 +55,10 @@ class InvalidCustomerMobileError(IliadValueError):
     """Raised when an invalid mobile phone number is used."""
 
 
+class InvalidDateMandateError(IliadValueError):
+    """Raised when an invalid date mandate is used."""
+
+
 class InvalidDeviceError(IliadValueError):
     """Raised when an invalid device is used."""
 
@@ -65,6 +69,10 @@ class InvalidIbanError(IliadValueError):
 
 class InvalidIpAddressError(IliadValueError):
     """Raised when an invalid IP address is used."""
+
+
+class InvalidMandateError(IliadValueError):
+    """Raised when an invalid mandate is used."""
 
 
 class InvalidNameError(IliadValueError):

@@ -1,15 +1,22 @@
 """Test sepa object"""
 
+from datetime import datetime
+from datetime import timezone
+from datetime import tzinfo
 import pytest
+from pytz import timezone as tz
 import re
 import responses
 
+from iliad_payment import Config
 from iliad_payment import Sepa
 from iliad_payment.core import AbstractCountry
 from iliad_payment.core import AbstractObject
 from iliad_payment.core import AbstractName
 from iliad_payment.exceptions import InvalidBicError
+from iliad_payment.exceptions import InvalidDateMandateError
 from iliad_payment.exceptions import InvalidIbanError
+from iliad_payment.exceptions import InvalidMandateError
 from .TestHelper import TestHelper
 
 
@@ -76,6 +83,56 @@ class TestSepa(TestHelper):
         assert obj.country == params['country']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_date_mandate(self):
+        obj = Sepa()
+        timestamp = self.random_integer(1_500_000_000, 1_600_000_000)
+        date = datetime.now()
+        config = Config()
+        zone = 'Europe/Paris'
+
+        assert obj.date_mandate is None
+
+        obj.date_mandate = timestamp
+
+        assert isinstance(obj.date_mandate, datetime)
+        assert obj.date_mandate.timestamp() == timestamp
+        assert obj.date_mandate.tzinfo is timezone.utc
+
+        obj.date_mandate = date
+
+        assert isinstance(obj.date_mandate, datetime)
+        assert obj.date_mandate == date
+
+        config.default_timezone = tz(zone)
+
+        obj.date_mandate = timestamp
+
+        assert isinstance(obj.date_mandate, datetime)
+        assert obj.date_mandate.timestamp() == timestamp
+        assert isinstance(obj.date_mandate.tzinfo, tzinfo)
+        assert obj.date_mandate.tzinfo.zone == zone
+
+        with pytest.raises(
+            InvalidDateMandateError,
+            match='You must provide a valid instance of datetime.',
+        ):
+            obj.date_mandate = self.random_string(2)
+
+        obj = Sepa(self.random_string(29))
+        params = {
+            'date_mandate': self.random_integer(1_500_000_000, 1_600_000_000),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert isinstance(obj.date_mandate, datetime)
+        assert obj.date_mandate.timestamp() == params['date_mandate']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+        del config.default_timezone
 
     @responses.activate
     @pytest.mark.parametrize('iban', TestHelper.iban_provider())
@@ -203,5 +260,45 @@ class TestSepa(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.last4 == params['last4']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_mandate(self):
+        obj = Sepa()
+        mandate = self.random_string(35)
+
+        assert obj.mandate is None
+
+        obj.mandate = mandate
+
+        assert obj.mandate == mandate
+
+        with pytest.raises(
+            InvalidMandateError,
+            match='Mandate must be a string.',
+        ):
+            obj.mandate = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidMandateError,
+            match='Mandate must be between 3 and 35 characters.',
+        ):
+            obj.mandate = self.random_string(2)
+
+        with pytest.raises(
+            InvalidMandateError,
+            match='Mandate must be between 3 and 35 characters.',
+        ):
+            obj.mandate = self.random_string(36)
+
+        obj = Sepa(self.random_string(29))
+        params = {
+            'mandate': self.random_string(20),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.mandate == params['mandate']
         assert obj.is_populated
         assert len(responses.calls) == 1
