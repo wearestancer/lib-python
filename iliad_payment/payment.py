@@ -44,8 +44,8 @@ BaseObject = (
 )
 CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
 
-order_id_max_len = 36
-unique_id_max_len = 36
+ORDER_ID_MAX_LEN = 36
+UNIQUE_ID_MAX_LEN = 36
 
 
 class Payment(*BaseObject):
@@ -223,6 +223,7 @@ class Payment(*BaseObject):
         """
 
         params = {}
+        base_message = 'A valid {} must be between {} and {} characters.'
 
         if 'order_id' in kwargs:
             if not isinstance(kwargs['order_id'], str):
@@ -230,10 +231,8 @@ class Payment(*BaseObject):
 
             length = len(kwargs['order_id'])
 
-            if length > order_id_max_len or length == 0:
-                message = 'A valid order ID must be between 1 and {} characters.'.format(order_id_max_len)
-
-                raise InvalidSearchFilter(message)
+            if length > ORDER_ID_MAX_LEN or length == 0:
+                raise InvalidSearchFilter(base_message.format('order ID', 1, ORDER_ID_MAX_LEN))
 
             params['order_id'] = kwargs['order_id']
 
@@ -243,10 +242,8 @@ class Payment(*BaseObject):
 
             length = len(kwargs['unique_id'])
 
-            if length > unique_id_max_len or length == 0:
-                message = 'A valid unique ID must be between 1 and {} characters.'.format(unique_id_max_len)
-
-                raise InvalidSearchFilter(message)
+            if length > UNIQUE_ID_MAX_LEN or length == 0:
+                raise InvalidSearchFilter(base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN))
 
             params['unique_id'] = kwargs['unique_id']
 
@@ -356,7 +353,7 @@ class Payment(*BaseObject):
     @validate_type(
         str,
         coerce=coerce_uuid,
-        max=order_id_max_len,
+        max=ORDER_ID_MAX_LEN,
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
@@ -499,7 +496,7 @@ class Payment(*BaseObject):
     @validate_type(
         str,
         coerce=coerce_uuid,
-        max=unique_id_max_len,
+        max=UNIQUE_ID_MAX_LEN,
         name='Unique ID',
         throws=InvalidPaymentUniqueIdError,
     )

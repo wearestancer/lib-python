@@ -32,7 +32,12 @@ class Request(object):
         """
         return self._request('delete', obj)
 
-    def get(self, obj: AbstractObject, update: bool = True, **kwargs) -> Union[CurrentInstance, str]:
+    def get(
+        self,
+        obj: AbstractObject,
+        update: bool = True,
+        **kwargs,
+    ) -> Union[CurrentInstance, str]:
         """
         Send a GET HTTP request.
 
@@ -70,7 +75,13 @@ class Request(object):
         """
         return self._request('post', obj)
 
-    def _request(self, method: str, obj: AbstractObject, update: bool = True, **kwargs) -> CurrentInstance:
+    def _request(
+        self,
+        method: str,
+        obj: AbstractObject,
+        update: bool = True,
+        **kwargs,
+    ) -> CurrentInstance:
         """Handle "delete", "get", "patch" and "post" method."""
 
         if method not in ['delete', 'get', 'patch', 'post']:

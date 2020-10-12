@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from abc import ABC
+from abc import abstractmethod
 from datetime import datetime
 import json
 from time import time
+from typing import TypeVar
 from typing import Union
 
 from .request import Request
@@ -10,8 +13,10 @@ from ..exceptions import InvalidSearchFilter
 from ..exceptions import InvalidSearchResponse
 from ..exceptions import NotFoundError
 
+CurrentInstance = TypeVar('CurrentInstance')
 
-class AbstractSearch(object):
+
+class AbstractSearch(ABC):
     """Common search method."""
 
     @classmethod
@@ -28,6 +33,19 @@ class AbstractSearch(object):
             Filtered arguments.
         """
         return {}
+
+    @abstractmethod
+    def hydrate(self, **params) -> CurrentInstance:
+        """
+        Hydrate current object.
+
+        Args:
+            **params: Elements used to hydrate the object.
+                Every key matching an object property will be used.
+
+        Returns:
+            Current instance.
+        """
 
     @classmethod
     def list(

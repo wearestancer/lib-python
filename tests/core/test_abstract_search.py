@@ -5,6 +5,7 @@ from datetime import timedelta
 import pytest
 from time import time
 
+from iliad_payment.core import AbstractObject
 from iliad_payment.core import AbstractSearch
 from iliad_payment.exceptions import InvalidSearchFilter
 from ..TestHelper import TestHelper
@@ -28,7 +29,7 @@ class TestAbstractSearch(TestHelper):
             InvalidSearchFilter,
             match='Created must be a position integer or a DateTime object.',
         ):
-            AbstractSearch.list(created=AbstractSearch())
+            AbstractSearch.list(created=AbstractObject())
 
         with pytest.raises(
             InvalidSearchFilter,
@@ -79,7 +80,7 @@ class TestAbstractSearch(TestHelper):
             InvalidSearchFilter,
             match='Limit must be between 1 and 100.',
         ):
-            AbstractSearch.list(limit=AbstractSearch())
+            AbstractSearch.list(limit=AbstractObject())
 
     def test_invalid_start(self):
         with pytest.raises(
@@ -98,4 +99,4 @@ class TestAbstractSearch(TestHelper):
             InvalidSearchFilter,
             match='Start must be a positive integer.',
         ):
-            AbstractSearch.list(start=AbstractSearch())
+            AbstractSearch.list(start=AbstractObject())
