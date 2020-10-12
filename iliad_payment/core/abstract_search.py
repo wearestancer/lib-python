@@ -7,6 +7,7 @@ from typing import Union
 
 from .request import Request
 from ..exceptions import InvalidSearchFilter
+from ..exceptions import NotFoundError
 
 
 class AbstractSearch(object):
@@ -92,14 +93,19 @@ class AbstractSearch(object):
             has_more = True
 
             while has_more:
-                response = json.loads(request.get(obj, update=False, **params))
+                try:
+                    response = json.loads(request.get(obj, update=False, **params))
 
-                key = list(response.keys() - ['live_mode', 'range'])[0]
+                    key = list(response.keys() - ['live_mode', 'range'])[0]
 
-                has_more = response['range']['has_more']
-                params['start'] = response['range']['start'] + response['range']['limit']
 
-                for item in response[key]:
-                    yield cls().hydrate(**item)
+                    has_more = response['range']['has_more']
+                    params['start'] = response['range']['start'] + response['range']['limit']
+
+                    for item in response[key]:
+                        yield cls().hydrate(**item)
+
+                except NotFoundError:
+                    has_more = False
 
         return gen()
