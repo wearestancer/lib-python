@@ -56,3 +56,23 @@ class TestDispute(TestHelper):
         assert obj.payment.id == params['payment']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_response(self):
+        obj = Dispute()
+
+        assert obj.response is None
+
+        with pytest.raises(AttributeError):
+            obj.response = self.random_string(29)
+
+        obj = Dispute(self.random_string(29))
+        params = {
+            'response': self.random_string(2),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.response == params['response']
+        assert obj.is_populated
+        assert len(responses.calls) == 1

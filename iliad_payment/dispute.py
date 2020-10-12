@@ -36,3 +36,14 @@ class Dispute(AbstractObject, AbstractAmount):
             Payment: Original payment.
         """
         return self._data.get('payment')
+
+    @property
+    @populate_on_call
+    def response(self) -> str:
+        """
+        API response code.
+
+        Returns:
+            str: API response for the dispute.
+        """
+        return self._data.get('response')
