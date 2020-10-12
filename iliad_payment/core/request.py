@@ -20,14 +20,14 @@ class Request(object):
         self._obj = obj
         self._conf = Config()
 
-    def __getattr__(self, name: str) -> CurrentInstance:
+    def __getattr__(self, method: str) -> CurrentInstance:
         """Handle automaticaly "get", "post" and "delete" method."""
 
-        if name in ['delete', 'get', 'post']:
-            if self._obj.id is None and name in ('get', 'delete'):
+        if method in ['delete', 'get', 'post']:
+            if self._obj.id is None and method in ('get', 'delete'):
                 message = (
                     'You can not {} an object without an ID.'
-                ).format(name)
+                ).format(method)
 
                 raise IliadValueError(message)
 
@@ -36,17 +36,16 @@ class Request(object):
             if username is None:
                 raise AttributeError('No API key found.')
 
-            if name == 'post' and self._obj.id is not None:
-                name = 'patch'
-
-            method = getattr(requests, name)
+            if method == 'post' and self._obj.id is not None:
+                method = 'patch'
 
             body = None
 
-            if name not in ('get', 'delete'):
+            if method not in ('get', 'delete'):
                 body = self._obj.to_json()
 
-            response = method(
+            response = requests.request(
+                method,
                 self._obj.uri,
                 auth=(username, ''),
                 data=body,
@@ -59,7 +58,7 @@ class Request(object):
             if not response.ok:
                 raise IliadHTTPError(response)
 
-            if response.ok and name == 'delete':
+            if response.ok and method == 'delete':
                 del self._obj.id
 
             if response.text is not None:
