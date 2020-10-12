@@ -67,3 +67,22 @@ class TestAbstractSearch(TestHelper):
             match='Limit must be between 1 and 100.',
         ):
             AbstractSearch.list(limit=AbstractSearch())
+
+    def test_invalid_start(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            AbstractSearch.list(start=-1)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            AbstractSearch.list(start=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            AbstractSearch.list(start=AbstractSearch())

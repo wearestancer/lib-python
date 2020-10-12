@@ -58,3 +58,9 @@ class AbstractSearch(object):
                 raise InvalidSearchFilter('Limit must be between 1 and 100.')
 
             params['limit'] = limit
+
+        if start is not None:
+            if not isinstance(start, int) or start < 0:
+                raise InvalidSearchFilter('Start must be a positive integer.')
+
+            params['start'] = start
