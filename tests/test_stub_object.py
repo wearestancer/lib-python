@@ -153,16 +153,6 @@ class TestStubObject(TestHelper):
 
     @responses.activate
     def test_delete(self):
-        obj = StubObject()
-
-        with pytest.raises(
-            IliadValueError,
-            match='You can not delete an object without an ID.',
-        ):
-            obj.delete()
-
-        assert len(responses.calls) == 0
-
         obj = StubObject(self.random_string(29))
 
         responses.add(responses.DELETE, obj.uri, status=204)

@@ -163,7 +163,7 @@ class AbstractObject(object):
         Raises:
             IliadHTTPError: On error during with the API.
         """
-        Request(self).delete  # pylint: disable=expression-not-assigned
+        Request().delete(self)
 
         # Force modified to allow sending it again to the API
         self._modified = 'id'
@@ -372,7 +372,7 @@ class AbstractObject(object):
         """
         if self.id is not None and self._ENDPOINT is not None and not self._populated:
             self._populated = True
-            Request(self).get  # pylint: disable=expression-not-assigned
+            Request().get(self)
 
             del self._modified
 
@@ -393,7 +393,10 @@ class AbstractObject(object):
             IliadHTTPError: On error during with the API (may be child instance of IliadHTTPError).
         """
         if self._modified:
-            Request(self).post  ## pylint: disable=expression-not-assigned
+            if self.id is None:
+                Request().post(self)
+            else:
+                Request().patch(self)
 
         del self._modified
 
