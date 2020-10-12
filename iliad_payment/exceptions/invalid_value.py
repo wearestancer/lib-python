@@ -99,6 +99,10 @@ class InvalidSearchFilter(IliadValueError):
     """Raised when an invalid search filter is used."""
 
 
+class InvalidSearchResponse(IliadValueError):
+    """Raised when server provide an invalid search response."""
+
+
 class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
 

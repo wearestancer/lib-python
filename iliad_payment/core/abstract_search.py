@@ -7,6 +7,7 @@ from typing import Union
 
 from .request import Request
 from ..exceptions import InvalidSearchFilter
+from ..exceptions import InvalidSearchResponse
 from ..exceptions import NotFoundError
 
 
@@ -96,9 +97,12 @@ class AbstractSearch(object):
                 try:
                     response = json.loads(request.get(obj, update=False, **params))
 
-                    key = list(response.keys() - ['live_mode', 'range'])[0]
+                    keys = list(response.keys() - ['live_mode', 'range'])
 
+                    if len(keys) != 1:
+                        raise InvalidSearchResponse('Results not found.')
 
+                    key = keys[0]
                     has_more = response['range']['has_more']
                     params['start'] = response['range']['start'] + response['range']['limit']
 
@@ -107,5 +111,10 @@ class AbstractSearch(object):
 
                 except NotFoundError:
                     has_more = False
+
+                except json.JSONDecodeError as err:
+                    has_more = False
+
+                    raise InvalidSearchResponse('Invalid results.') from err
 
         return gen()
