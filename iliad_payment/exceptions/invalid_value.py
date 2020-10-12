@@ -95,6 +95,10 @@ class InvalidPortError(IliadValueError):
     """Raised when an invalid port is used."""
 
 
+class InvalidSearchFilter(IliadValueError):
+    """Raised when an invalid search filter is used."""
+
+
 class InvalidSepaError(IliadValueError):
     """Raised when an invalid SEPA account is used."""
 

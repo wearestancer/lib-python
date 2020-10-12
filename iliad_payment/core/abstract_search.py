@@ -1,5 +1,54 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+from time import time
+from typing import Union
+
+from ..exceptions import InvalidSearchFilter
+
 
 class AbstractSearch(object):
     """Common search method."""
+
+    @classmethod
+    def list(
+        cls,
+        created: Union[int, datetime] = None,
+        limit: int = None,
+        start: int = None,
+        **kwargs,
+    ):
+        """
+        List elements.
+
+        Args:
+            created: must be an unix timestamp or a datetime object which will
+                filter payments equal to or greater than this value.
+            limit: must be an integer between 1 and 100 and will limit the number of
+                objects to be returned.
+            start: must be an integer, will be used as a pagination cursor,
+                starts at 0.
+            kwargs: Arbitrary keyword argument.
+
+        Returns:
+            Generator.
+        """
+
+        params = {}
+
+        if created is not None:
+            if isinstance(created, datetime):
+                created = created.timestamp()
+
+            if isinstance(created, float):
+                created = int(created)
+
+            if not isinstance(created, int) or created < 0:
+                message = 'Created must be a position integer or a DateTime object.'
+
+                raise InvalidSearchFilter(message)
+
+            if created > time():
+                raise InvalidSearchFilter('Created must be in the past.')
+
+            params['created'] = created
