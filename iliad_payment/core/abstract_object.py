@@ -360,6 +360,19 @@ class AbstractObject(object):
         """
         return self._populated
 
+    @property
+    @populate_on_call
+    def live_mode(self) -> bool:
+        """
+        Indicate if we are in live or test mode.
+
+        True => live / False => test
+
+        Returns:
+            Are we in live mode ?
+        """
+        return self._data.get('live_mode')
+
     def populate(self) -> CurrentInstance:
         """
         Populate the current object.

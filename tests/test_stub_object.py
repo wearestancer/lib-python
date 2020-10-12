@@ -298,6 +298,26 @@ class TestStubObject(TestHelper):
         assert obj.cards[0].is_not_modified
         assert obj.cards[1].is_modified
 
+    @responses.activate
+    def test_live_mode(self):
+        obj = StubObject()
+
+        assert obj.live_mode is None
+
+        with pytest.raises(AttributeError):
+            obj.live_mode = True
+
+        obj = StubObject(self.random_string(29))
+        params = {
+            'live_mode': True,
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.live_mode is True
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
     def test_modified_status(self):
         obj = StubObject()
 

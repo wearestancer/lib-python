@@ -563,26 +563,6 @@ class TestPayment(TestHelper):
             assert obj.is_not_error is False
 
     @responses.activate
-    def test_live_mode(self):
-        obj = Payment()
-
-        assert obj.live_mode is None
-
-        with pytest.raises(AttributeError):
-            obj.live_mode = True
-
-        obj = Payment(self.random_string(29))
-        params = {
-            'live_mode': True,
-        }
-
-        responses.add(responses.GET, obj.uri, json=params)
-
-        assert obj.live_mode is True
-        assert obj.is_populated
-        assert len(responses.calls) == 1
-
-    @responses.activate
     def test_method(self):
         obj = Payment()
 
