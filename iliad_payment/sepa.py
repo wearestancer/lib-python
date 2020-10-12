@@ -1,22 +1,32 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 import re
+from typing import Union
 
 from .core import AbstractCountry
+from .core import AbstractLast4
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidBicError
 from .exceptions import InvalidIbanError
+from .exceptions import InvalidDateMandateError
+from .exceptions import InvalidMandateError
 
 
-class Sepa(AbstractObject, AbstractName, AbstractCountry):
+class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     """Representation of a SEPA account."""
+
+    _ENDPOINT = 'sepa'
 
     _allowed_attributes = [
         'bic',
         'iban',
+    ]
+    _datetime_property = [
+        'date_mandate',
     ]
 
     @property
@@ -43,6 +53,25 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
             raise InvalidBicError('"{}" is not a valid BIC.'.format(value))
 
         self._data['bic'] = value
+
+    @property
+    @populate_on_call
+    def date_mandate(self) -> datetime:
+        """
+        Mandate signature date.
+
+        Args:
+            valuz (datetime|int): New date. Maybe be a datetime object or a timestamp.
+
+        Returns:
+            datetime: Mandate signature date.
+        """
+        return self._data.get('date_mandate')
+
+    @date_mandate.setter
+    @validate_type(datetime, throws=InvalidDateMandateError)
+    def date_mandate(self, value: Union[int, datetime]):
+        self._data['date_mandate'] = value
 
     @property
     def formatted_iban(self) -> str:
@@ -119,11 +148,19 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def last4(self) -> str:
+    def mandate(self) -> str:
         """
-        Return IBAN's last 4 digits.
+        Referring mandate.
+
+        Args:
+            value (str): New mandate.
 
         Returns:
-            str: IBAN's last 4 digits.
+            str: Mandate.
         """
-        return self._data.get('last4')
+        return self._data.get('mandate')
+
+    @mandate.setter
+    @validate_type(str, min=3, max=35, throws=InvalidMandateError)
+    def mandate(self, value: str):
+        self._data['mandate'] = value

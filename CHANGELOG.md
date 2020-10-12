@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2020-10-12
+
+### Added
+- `Dispute`
+- `Payment.list()`
+- `Sepa` endpoint
+- `Sepa.date_mandate` property
+- `Sepa.mandate` property
+- Check for common security issues in CI
+
+### Changed
+- Remove support for Python 3.5 https://pythoninsider.blogspot.com/2020/10/python-35-is-no-longer-supported.html
+- `Payment.response_code` is renamed `Payment.response`
+- Global refact for `Request`
+- Python version used in tests
+- Simplify list hydratation
+
+
 ## [0.0.5] - 2020-06-04
 
 ### Fixed

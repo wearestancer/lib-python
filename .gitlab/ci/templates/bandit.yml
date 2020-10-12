@@ -1,0 +1,12 @@
+
+.bandit:
+  extends:
+    - .versions
+
+  stage: bandit
+
+  script:
+    - tox -e $PYTHON_VERSION-bandit
+
+  tags:
+    - python

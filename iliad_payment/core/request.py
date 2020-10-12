@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import TypeVar
+from typing import TypeVar, Union
 
 import requests
 
@@ -10,64 +10,120 @@ from ..exceptions import IliadValueError
 
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Request')
+AbstractObject = TypeVar('AbstractObject', bound='AbstractObject')
 
 
 class Request(object):
     """API request manager."""
 
-    def __init__(self, obj):
+    def __init__(self):
         """Initialize"""
-        self._obj = obj
         self._conf = Config()
 
-    def __getattr__(self, name: str) -> CurrentInstance:
-        """Handle automaticaly "get", "post" and "delete" method."""
+    def delete(self, obj: AbstractObject) -> CurrentInstance:
+        """
+        Send a DELETE HTTP request.
 
-        if name in ['delete', 'get', 'post']:
-            if self._obj.id is None and name in ('get', 'delete'):
-                message = (
-                    'You can not {} an object without an ID.'
-                ).format(name)
+        Args:
+            obj: Target object.
 
-                raise IliadValueError(message)
+        Returns:
+            Current instance of Request.
+        """
+        return self._request('delete', obj)
 
-            username = self._conf.secret_key
+    def get(
+        self,
+        obj: AbstractObject,
+        update: bool = True,
+        **kwargs,
+    ) -> Union[CurrentInstance, str]:
+        """
+        Send a GET HTTP request.
 
-            if username is None:
-                raise AttributeError('No API key found.')
+        Args:
+            obj: Target object.
+            uodate: Do we update the object ?
+            kwargs: Query parameters.
 
-            if name == 'post' and self._obj.id is not None:
-                name = 'patch'
+        Returns:
+            Current instance of Request.
+        """
+        return self._request('get', obj, update, **kwargs)
 
-            method = getattr(requests, name)
+    def patch(self, obj: AbstractObject) -> CurrentInstance:
+        """
+        Send a POST HTTP request.
 
-            body = None
+        Args:
+            obj: Target object.
 
-            if name not in ('get', 'delete'):
-                body = self._obj.to_json()
+        Returns:
+            Current instance of Request.
+        """
+        return self._request('patch', obj)
 
-            response = method(
-                self._obj.uri,
-                auth=(username, ''),
-                data=body,
-                timeout=self._conf.timeout,
-                headers={
-                    'Content-Type': 'application/json',
-                },
-            )
+    def post(self, obj: AbstractObject) -> CurrentInstance:
+        """
+        Send a POST HTTP request.
 
-            if not response.ok:
-                raise IliadHTTPError(response)
+        Args:
+            obj: Target object.
 
-            if response.ok and name == 'delete':
-                del self._obj.id
+        Returns:
+            Current instance of Request.
+        """
+        return self._request('post', obj)
 
-            if response.text is not None:
-                try:
-                    self._obj.hydrate(**response.json())
-                except ValueError:
-                    # Bypass in case of decoding error
-                    #  (if the body is HTML or whatever)
-                    pass
+    def _request(
+        self,
+        method: str,
+        obj: AbstractObject,
+        update: bool = True,
+        **kwargs,
+    ) -> CurrentInstance:
+        """Handle "delete", "get", "patch" and "post" method."""
+
+        if method not in ['delete', 'get', 'patch', 'post']:
+            raise IliadValueError('Invalid HTTP method.')
+
+        username = self._conf.secret_key
+
+        if username is None:
+            raise AttributeError('No API key found.')
+
+        body = None
+
+        if method not in ('get', 'delete'):
+            body = obj.to_json()
+
+        response = requests.request(
+            method,
+            obj.uri,
+            auth=(username, ''),
+            data=body,
+            params=kwargs,
+            timeout=self._conf.timeout,
+            headers={
+                'Content-Type': 'application/json',
+            },
+        )
+
+        if not response.ok:
+            raise IliadHTTPError(response)
+
+        if response.ok and method == 'delete':
+            del obj.id
+
+        if not update:
+            return response.text
+
+        if response.text is not None:
+            try:
+                obj.hydrate(**response.json())
+            except ValueError:
+                # Bypass in case of decoding error
+                #  (if the body is HTML or whatever)
+                pass
 
         return self

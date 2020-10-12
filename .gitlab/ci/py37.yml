@@ -16,6 +16,11 @@ py37:tests:
   needs:
     - py37:lint
 
+py37:bandit:
+  extends:
+    - .py37
+    - .bandit
+
 py37:coverage-check:
   extends:
     - .py37

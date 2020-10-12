@@ -43,6 +43,79 @@ class TestFunctionalPayment(TestHelper):
         assert isinstance(obj.customer, Customer)
         assert obj.customer.id == 'cust_6FbQaYtxjADzerqdO5gs79as'
 
+    def test_list(self):
+        order_id = self.random_string(36)
+        unique_id = self.random_string(36)
+
+        amount1 = self.random_integer(50, 100_00)
+        currency1 = TestHelper.currency_provider(True)
+
+        payment1 = Payment()
+        payment1.amount = amount1
+        payment1.currency = currency1
+        payment1.description = 'Automatic test for payments list, {} {}, 1/2'.format(amount1 / 100, currency1.upper())
+        payment1.order_id = order_id
+        payment1.unique_id = unique_id
+
+        payment1.card = Card()
+        payment1.card.number = self.get_card_number()
+        payment1.card.exp_month = self.random_integer(1, 12)
+        payment1.card.exp_year = self.random_year()
+        payment1.card.cvc = str(self.random_integer(100, 999))
+
+        payment1.send()
+
+        amount2 = self.random_integer(50, 100_00)
+        currency2 = TestHelper.currency_provider(True)
+
+        payment2 = Payment()
+        payment2.amount = amount2
+        payment2.currency = currency2
+        payment2.description = 'Automatic test for payments list, {} {}, 2/2'.format(amount2 / 100, currency2.upper())
+        payment2.order_id = order_id
+
+        payment2.card = Card()
+        payment2.card.number = self.get_card_number()
+        payment2.card.exp_month = self.random_integer(1, 12)
+        payment2.card.exp_year = self.random_year()
+        payment2.card.cvc = str(self.random_integer(100, 999))
+
+        payment2.send()
+
+        counter = 0
+
+        for payment in Payment.list(order_id=order_id):
+            assert isinstance(payment, Payment)
+            assert payment.id in (payment1.id, payment2.id)
+            assert payment.order_id == order_id
+
+            if payment.id == payment1.id:
+                assert payment.amount == amount1
+                assert payment.currency == currency1
+                assert payment.unique_id == unique_id
+            else:
+                assert payment.amount == amount2
+                assert payment.currency == currency2
+                assert payment.unique_id is None
+
+            counter += 1
+
+        assert counter == 2
+
+        counter = 0
+
+        for payment in Payment.list(unique_id=unique_id):
+            assert isinstance(payment, Payment)
+            assert payment.id == payment1.id
+            assert payment.amount == amount1
+            assert payment.currency == currency1
+            assert payment.order_id == order_id
+            assert payment.unique_id == unique_id
+
+            counter += 1
+
+        assert counter == 1
+
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send(self, currency):
         obj = Payment()

@@ -16,6 +16,11 @@ py36:tests:
   needs:
     - py36:lint
 
+py36:bandit:
+  extends:
+    - .py36
+    - .bandit
+
 py36:coverage-check:
   extends:
     - .py36

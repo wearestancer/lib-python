@@ -59,7 +59,7 @@ class IliadHTTPError(IliadException, HTTPError):
 
             if isinstance(res, dict) and 'error' in res:
                 (message, type_data) = self._parse_message(res['error'])
-        except:  # pylint: disable=bare-except
+        except ValueError:
             pass
 
         params = {

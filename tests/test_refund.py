@@ -53,8 +53,6 @@ class TestRefund(TestHelper):
         assert isinstance(obj.date_bank.tzinfo, tzinfo)
         assert obj.date_bank.tzinfo.zone == zone
 
-        del config.default_timezone
-
     def test_date_refund(self):
         obj = Refund()
         config = Config()
@@ -84,8 +82,6 @@ class TestRefund(TestHelper):
         assert obj.date_refund.timestamp() == date
         assert isinstance(obj.date_refund.tzinfo, tzinfo)
         assert obj.date_refund.tzinfo.zone == zone
-
-        del config.default_timezone
 
     @responses.activate
     def test_payment(self):
