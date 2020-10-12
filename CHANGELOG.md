@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Check for common security issues in CI
 
 ### Changed
+- Remove support for Python 3.5 https://pythoninsider.blogspot.com/2020/10/python-35-is-no-longer-supported.html
 - `Payment.response_code` is renamed `Payment.response`
 - Python version used in tests
 - Simplify list hydratation
