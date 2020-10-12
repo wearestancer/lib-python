@@ -6,6 +6,8 @@ from iliad_payment.core.decorators import populate_on_call
 
 
 class StubObject(AbstractObject):
+    _ENDPOINT = 'stub'
+
     _allowed_attributes = [
         'card1',
         'card2',
