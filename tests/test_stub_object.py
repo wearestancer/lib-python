@@ -96,8 +96,6 @@ class TestStubObject(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-        del config.default_timezone
-
     def test_instance(self):
         empty = StubObject()
 
@@ -189,8 +187,6 @@ class TestStubObject(TestHelper):
         obj = StubObject()
         config = Config()
         uid = self.random_string(29)
-
-        del config.default_timezone  # Just in case, should use UTC
 
         params = {
             'string1': self.random_string(10),

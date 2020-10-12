@@ -132,8 +132,6 @@ class TestSepa(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-        del config.default_timezone
-
     @responses.activate
     @pytest.mark.parametrize('iban', TestHelper.iban_provider())
     def test_formatted_iban(self, iban):

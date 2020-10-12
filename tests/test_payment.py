@@ -294,8 +294,6 @@ class TestPayment(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-        del config.default_timezone
-
     @responses.activate
     def test_description(self):
         obj = Payment()
