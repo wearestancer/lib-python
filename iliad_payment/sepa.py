@@ -5,6 +5,7 @@ import re
 from typing import Union
 
 from .core import AbstractCountry
+from .core import AbstractLast4
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -15,7 +16,7 @@ from .exceptions import InvalidDateMandateError
 from .exceptions import InvalidMandateError
 
 
-class Sepa(AbstractObject, AbstractName, AbstractCountry):
+class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     """Representation of a SEPA account."""
 
     _ENDPOINT = 'sepa'
@@ -144,17 +145,6 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry):
             return False
 
         return True
-
-    @property
-    @populate_on_call
-    def last4(self) -> str:
-        """
-        Return IBAN's last 4 digits.
-
-        Returns:
-            str: IBAN's last 4 digits.
-        """
-        return self._data.get('last4')
 
     @property
     @populate_on_call

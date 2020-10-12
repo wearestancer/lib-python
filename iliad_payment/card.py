@@ -6,6 +6,7 @@ from typing import Optional
 from typing import TypeVar
 
 from .core import AbstractCountry
+from .core import AbstractLast4
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -21,7 +22,7 @@ from .exceptions import InvalidZipCodeError
 CurrentInstance = TypeVar('CurrentInstance', bound='Card')
 
 
-class Card(AbstractObject, AbstractName, AbstractCountry):
+class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     """Representation of a card."""
 
     _ENDPOINT = 'cards'
@@ -197,17 +198,6 @@ class Card(AbstractObject, AbstractName, AbstractCountry):
             return False
 
         return True
-
-    @property
-    @populate_on_call
-    def last4(self) -> str:
-        """
-        Card number's last 4 digits.
-
-        Returns:
-            Card's last 4 digits.
-        """
-        return self._data.get('last4')
 
     @property
     @populate_on_call
