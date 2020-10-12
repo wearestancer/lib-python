@@ -52,3 +52,9 @@ class AbstractSearch(object):
                 raise InvalidSearchFilter('Created must be in the past.')
 
             params['created'] = created
+
+        if limit is not None:
+            if not isinstance(limit, int) or limit < 1 or limit > 100:
+                raise InvalidSearchFilter('Limit must be between 1 and 100.')
+
+            params['limit'] = limit

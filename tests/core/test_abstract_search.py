@@ -42,3 +42,28 @@ class TestAbstractSearch(TestHelper):
         ):
             date = datetime.now() + timedelta(days=1)
             AbstractSearch.list(created=date)
+
+    def test_invalid_limit(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            AbstractSearch.list(limit=0)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            AbstractSearch.list(limit=101)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            AbstractSearch.list(limit=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            AbstractSearch.list(limit=AbstractSearch())
