@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import json
 from time import time
 from typing import Union
 
+from .request import Request
 from ..exceptions import InvalidSearchFilter
 
 
@@ -67,3 +69,22 @@ class AbstractSearch(object):
 
         if not params:
             raise InvalidSearchFilter('Invalid search filters.')
+
+        request = Request()
+        obj = cls()
+
+        def gen():
+            has_more = True
+
+            while has_more:
+                response = json.loads(request.get(obj, update=False, **params))
+
+                key = list(response.keys() - ['live_mode', 'range'])[0]
+
+                has_more = response['range']['has_more']
+                params['start'] = response['range']['start'] + response['range']['limit']
+
+                for item in response[key]:
+                    yield cls().hydrate(**item)
+
+        return gen()
