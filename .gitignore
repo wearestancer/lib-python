@@ -9,10 +9,10 @@ dist/
 .pytest_cache/
 *.egg-info/
 .coverage*
-reports/
 __pycache__/
 .tox/
 *.pyc
+*.xml
 
 # Dependencies
 Pipfile.lock
