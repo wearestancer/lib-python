@@ -6,11 +6,12 @@
   stage: lint
 
   script:
+    - mkdir -p reports
     - tox -e $PYTHON_VERSION-lint
 
   artifacts:
     reports:
-      codequality: codeclimate.json
+      codequality: reports/codeclimate.json
 
   tags:
     - python
