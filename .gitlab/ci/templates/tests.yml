@@ -13,8 +13,8 @@
 
   artifacts:
     reports:
-      cobertura: reports/coverage.xml
-      junit: reports/junit.xml
+      cobertura: reports/coverage*.xml
+      junit: reports/junit*.xml
 
   tags:
     - python

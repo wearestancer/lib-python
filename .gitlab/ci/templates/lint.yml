@@ -11,7 +11,7 @@
 
   artifacts:
     reports:
-      codequality: reports/codeclimate.json
+      codequality: reports/codeclimate*.json
 
   tags:
     - python
