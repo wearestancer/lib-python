@@ -12,7 +12,8 @@
 
   artifacts:
     reports:
-      junit: reports/$PYTHON_VERSION-unit.xml
+      cobertura: coverage.xml
+      junit: junit.xml
 
   tags:
     - python
