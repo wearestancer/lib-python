@@ -9,7 +9,7 @@ requests = "*"
 [dev-packages]
 bandit = "*"
 pylint = "*"
-pylint-gitlab = "*"
+pylint2codeclimate = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
