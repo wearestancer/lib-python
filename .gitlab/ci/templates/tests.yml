@@ -9,6 +9,10 @@
     - mkdir -p reports
     - tox -e $PYTHON_VERSION-unit
 
+  after_script:
+    # Fix for https://gitlab.com/gitlab-org/gitlab/-/issues/217664
+    - sed -i "s;filename=\";filename=\"iliad_payment/;g" reports/coverage-${PYTHON_VERSION}-unit.xml
+
   coverage: '/TOTAL \s+[\d+\s+]* (\d+%)/'
 
   artifacts:
