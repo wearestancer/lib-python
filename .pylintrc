@@ -2,7 +2,6 @@
 [MASTER]
 
 ignore = tests, setup.py
-load-plugins = pylint_junit
 
 
 [REPORTS]

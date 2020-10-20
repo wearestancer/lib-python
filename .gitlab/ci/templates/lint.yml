@@ -10,7 +10,7 @@
 
   artifacts:
     reports:
-      junit: reports/$PYTHON_VERSION-lint.xml
+      codequality: codeclimate.json
 
   tags:
     - python
