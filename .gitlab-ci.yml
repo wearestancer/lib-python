@@ -4,3 +4,6 @@ include:
     file:
       - '/run.yml'
       - '/registry/pypi.yml'
+
+variables:
+  PYLINT_TARGET: iliad_payment
