@@ -10,7 +10,7 @@ dist/
 *.egg-info/
 __pycache__/
 *.pyc
-.coverage*
+.coverage
 coverage.xml
 junit.xml
 
