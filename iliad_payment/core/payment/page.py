@@ -98,7 +98,7 @@ class PaymentPage(object):
         url = pattern.format(**tmp)
 
         allowed = ('lang',)
-        params = {x: kwargs[x] for x in kwargs if x in allowed}
+        params = { k: v for k, v in kwargs.items() if k in allowed }
 
         if params:
             return url + '?' + urlencode(params)
