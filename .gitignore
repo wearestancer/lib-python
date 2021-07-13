@@ -9,7 +9,6 @@ dist/
 .pytest_cache/
 *.egg-info/
 __pycache__/
-.tox/
 *.pyc
 .coverage*
 coverage.xml
