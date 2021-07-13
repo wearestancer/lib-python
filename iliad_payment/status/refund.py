@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# pylint: disable=invalid-name
-
 from .base import BaseStatus
 
 
