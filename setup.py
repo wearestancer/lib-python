@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 
 # Import version
-exec(open('iliad_payment/version.py').read())
+version = __import__('iliad_payment.version').__version__
 
 # Add a long description
 readme_path = path.join(path.dirname(path.abspath(__file__)), 'README.md')
@@ -16,7 +16,7 @@ with open(readme_path, 'r', encoding='utf8') as f:
 
 setup(
     name='iliad-payment',
-    version=__version__,
+    version=version,
     description='Iliad payment solution',
     license='MIT',
     long_description=long_desc,
