@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Changed
+- GitLab CI jobs
 - GitLab reports
+
+### Fixed
+- Bandit warning
+- Pylint warnings
 
 
 ## [0.0.6] - 2020-10-12
