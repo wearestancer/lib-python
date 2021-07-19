@@ -292,14 +292,16 @@ class AbstractObject(object):
                     else:
                         value = tmp(value)
 
-                elif hasattr(tmp, 'hydrate'):
-                    val = {'id': value} if isinstance(value, str) else value
-                    modify = False
+                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
+                    val = {'id': value} if not isinstance(value, dict) else value
 
-                    if val is not None:
-                        tmp._populated = True  # pylint: disable=protected-access
-                        value = tmp.hydrate(**val)
-                        value._populated = self._populated  # pylint: disable=protected-access
+                    # pylint: disable=protected-access
+
+                    modify = False
+                    populated = tmp._populated
+                    tmp._populated = True
+                    value = tmp.hydrate(**val)
+                    value._populated = populated
 
             if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
