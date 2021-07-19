@@ -74,9 +74,6 @@ class AbstractObject(object):
         if self.id is not None:
             representation['id'] = self.id
 
-        if self.created is not None:
-            representation['created'] = self.created
-
         for key, value in self._data.items():
             representation[key] = value
 
