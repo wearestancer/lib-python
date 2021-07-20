@@ -26,6 +26,24 @@ class TestSepa(TestHelper):
         assert issubclass(Sepa, AbstractName)
         assert issubclass(Sepa, AbstractObject)
 
+    @pytest.mark.parametrize('iban', TestHelper.iban_provider())
+    def test__repr(self, iban):
+        obj = Sepa()
+
+        assert repr(obj) == '<Sepa() at 0x%x>' % id(obj)
+
+        obj = Sepa(**{ 'iban': iban })
+
+        spaceless = re.sub(r'\s', '', iban)
+
+        params = {
+            'country': spaceless[0:2].lower(),
+            'id': id(obj),
+            'last4': spaceless[-4:],
+        }
+
+        assert repr(obj) == '<Sepa(country="{country}", last4="{last4}") at 0x{id:x}>'.format(**params)
+
     @responses.activate
     def test_bic(self):
         obj = Sepa()

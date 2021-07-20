@@ -24,6 +24,7 @@ class AbstractObject(object):
         'created',
     ]
     _default_values = {}
+    _repr_ignore = set()
 
     def __init__(self, uid: str = None, **kwargs):
         """
@@ -87,6 +88,9 @@ class AbstractObject(object):
             params.append('"%s"' % self.id)
 
         for key in sorted(self._data.keys()):
+            if key in self._repr_ignore:
+                continue
+
             value = self._data.get(key)
 
             if isinstance(value, int):
