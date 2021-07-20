@@ -23,6 +23,52 @@ class TestAbstractObject(TestHelper):
 
         assert obj.id is None
 
+    def test__repr(self):
+        obj = AbstractObject()
+
+        assert repr(obj) == '<AbstractObject() at 0x%x>' % id(obj)
+
+        key1 = 'a' + self.random_string(10)
+        key2 = 'b' + self.random_string(10)
+        value1 = self.random_string(10)
+        value2 = self.random_integer(10)
+
+        obj = AbstractObject(**{ key2: value2, key1: value1 })
+
+        params = {
+            'id': id(obj),
+            'key1': key1,
+            'key2': key2,
+            'value1': value1,
+            'value2': value2,
+        }
+
+        assert repr(obj) == '<AbstractObject({key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(**params)
+
+        uid = self.random_string(29)
+        obj = AbstractObject(uid)
+
+        assert repr(obj) == '<AbstractObject("%s") at 0x%x>' % (uid, id(obj))
+
+        uid = self.random_string(29)
+        key1 = 'a' + self.random_string(10)
+        key2 = 'b' + self.random_string(10)
+        value1 = self.random_string(10)
+        value2 = self.random_integer(10)
+
+        obj = AbstractObject(uid, **{ key2: value2, key1: value1 })
+
+        params = {
+            'id': id(obj),
+            'key1': key1,
+            'key2': key2,
+            'uid': uid,
+            'value1': value1,
+            'value2': value2,
+        }
+
+        assert repr(obj) == '<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(**params)
+
     def test_uri(self):
         obj = AbstractObject()
         conf = Config()

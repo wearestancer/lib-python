@@ -80,6 +80,22 @@ class AbstractObject(object):
 
         return representation
 
+    def __repr__(self) -> str:
+        params = []
+
+        if self.id:
+            params.append('"%s"' % self.id)
+
+        for key in sorted(self._data.keys()):
+            value = self._data.get(key)
+
+            if isinstance(value, int):
+                params.append('%s=%d' % (key, value))
+            else:
+                params.append('%s="%s"' % (key, value))
+
+        return '<{name}({}) at 0x{id:x}>'.format(', '.join(params), id=id(self), name=type(self).__name__)
+
     @classmethod
     def _get_allowed_attributes(cls) -> Set[str]:
         allowed = set()
