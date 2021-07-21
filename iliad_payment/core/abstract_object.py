@@ -112,7 +112,7 @@ class AbstractObject(object):
     def _modified(self):
         self.__modified = set()
 
-        for _, obj in self._data.items():
+        for obj in self._data.values():
             if isinstance(obj, AbstractObject):
                 del obj._modified
 
@@ -124,7 +124,7 @@ class AbstractObject(object):
     def _populated(self, value: bool):
         self.__populated = value
 
-        for _, obj in self._data.items():
+        for obj in self._data.values():
             if isinstance(obj, AbstractObject):
                 obj._populated = value  # pylint: disable=protected-access
 
