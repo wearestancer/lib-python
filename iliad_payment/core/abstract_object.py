@@ -47,6 +47,7 @@ class AbstractObject(object):
         """
         self._id = uid
         self._data = {}
+        self._bypass = False
         self._populated = True
 
         # init modified flags
@@ -99,6 +100,19 @@ class AbstractObject(object):
                 params.append('%s="%s"' % (key, value))
 
         return '<{name}({}) at 0x{id:x}>'.format(', '.join(params), id=id(self), name=type(self).__name__)
+
+    @property
+    def _bypass(self) -> bool:
+        return self.__bypass
+
+    @_bypass.setter
+    def _bypass(self, value: bool):
+        self.__bypass = value
+
+        for obj in self._data.values():
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj.__bypass != value:
+                obj._bypass = value
 
     @classmethod
     def _get_allowed_attributes(cls) -> Set[str]:
@@ -289,11 +303,19 @@ class AbstractObject(object):
             if key == 'id':
                 self._id = value
             else:
-                prop = dict(self.__class__.__dict__).get(key)
+                applied = False
 
-                if prop is not None and prop.fset is not None:
-                    prop.fset(self, value)
-                else:
+                try:
+                    prop = dict(self.__class__.__dict__).get(key)
+
+                    if prop is not None and prop.fset is not None:
+                        prop.fset(self, value)
+                        applied = True
+                except ValueError:
+                    if not self._bypass:
+                        raise
+
+                if not applied:
                     self._data[key] = value
 
                     if modify:

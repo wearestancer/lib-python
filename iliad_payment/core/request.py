@@ -119,11 +119,9 @@ class Request(object):
             return response.text
 
         if response.text is not None:
-            try:
-                obj.hydrate(**response.json())
-            except ValueError:
-                # Bypass in case of decoding error
-                #  (if the body is HTML or whatever)
-                pass
+            # pylint: disable=protected-access
+            obj._bypass = True
+            obj.hydrate(**response.json())
+            obj._bypass = False
 
         return self
