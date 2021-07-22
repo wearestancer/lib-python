@@ -118,7 +118,7 @@ class Request(object):
         if not update:
             return response.text
 
-        if response.text is not None:
+        if response.text:
             # pylint: disable=protected-access
             obj._bypass = True
             obj.hydrate(**response.json())
