@@ -83,10 +83,10 @@ class AbstractObject(object):
         return representation
 
     def __repr__(self) -> str:
-        params = []
+        args = []
 
         if self.id:
-            params.append('"%s"' % self.id)
+            args.append('"%s"' % self.id)
 
         for key in sorted(self._data.keys()):
             if key in self._repr_ignore:
@@ -95,11 +95,16 @@ class AbstractObject(object):
             value = self._data.get(key)
 
             if isinstance(value, int):
-                params.append('%s=%d' % (key, value))
+                args.append('%s=%d' % (key, value))
             else:
-                params.append('%s="%s"' % (key, value))
+                args.append('%s="%s"' % (key, value))
 
-        return '<{name}({}) at 0x{id:x}>'.format(', '.join(params), id=id(self), name=type(self).__name__)
+        params = {
+            'id': id(self),
+            'name': type(self).__name__,
+        }
+
+        return '<{name}({}) at 0x{id:x}>'.format(', '.join(args), **params)
 
     @property
     def _bypass(self) -> bool:
