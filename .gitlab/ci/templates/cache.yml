@@ -1,8 +1,0 @@
-
-.cache:
-  cache:
-    key: "$PYTHON_VERSION"
-    paths:
-      - coverage
-      - .coverage
-      - .pytest_cache

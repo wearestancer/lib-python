@@ -22,6 +22,21 @@ class TestCard(TestHelper):
         assert issubclass(Card, AbstractName)
         assert issubclass(Card, AbstractObject)
 
+    @pytest.mark.parametrize('number', TestHelper.card_number_provider())
+    def test__repr(self, number):
+        obj = Card()
+
+        assert repr(obj) == '<Card() at 0x%x>' % id(obj)
+
+        obj = Card(**{ 'number': number })
+
+        params = {
+            'id': id(obj),
+            'last4': number[-4:]
+        }
+
+        assert repr(obj) == '<Card(last4="{last4}") at 0x{id:x}>'.format(**params)
+
     def test_id(self):
         assert Card().id is None
 

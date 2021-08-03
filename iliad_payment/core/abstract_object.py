@@ -24,6 +24,7 @@ class AbstractObject(object):
         'created',
     ]
     _default_values = {}
+    _repr_ignore = set()
 
     def __init__(self, uid: str = None, **kwargs):
         """
@@ -46,6 +47,7 @@ class AbstractObject(object):
         """
         self._id = uid
         self._data = {}
+        self._bypass = False
         self._populated = True
 
         # init modified flags
@@ -80,6 +82,43 @@ class AbstractObject(object):
 
         return representation
 
+    def __repr__(self) -> str:
+        args = []
+
+        if self.id:
+            args.append('"%s"' % self.id)
+
+        for key in sorted(self._data.keys()):
+            if key in self._repr_ignore:
+                continue
+
+            value = self._data.get(key)
+
+            if isinstance(value, int):
+                args.append('%s=%d' % (key, value))
+            else:
+                args.append('%s="%s"' % (key, value))
+
+        params = {
+            'id': id(self),
+            'name': type(self).__name__,
+        }
+
+        return '<{name}({}) at 0x{id:x}>'.format(', '.join(args), **params)
+
+    @property
+    def _bypass(self) -> bool:
+        return self.__bypass
+
+    @_bypass.setter
+    def _bypass(self, value: bool):
+        self.__bypass = value
+
+        for obj in self._data.values():
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj.__bypass != value:
+                obj._bypass = value
+
     @classmethod
     def _get_allowed_attributes(cls) -> Set[str]:
         allowed = set()
@@ -112,7 +151,7 @@ class AbstractObject(object):
     def _modified(self):
         self.__modified = set()
 
-        for _, obj in self._data.items():
+        for obj in self._data.values():
             if isinstance(obj, AbstractObject):
                 del obj._modified
 
@@ -124,7 +163,7 @@ class AbstractObject(object):
     def _populated(self, value: bool):
         self.__populated = value
 
-        for _, obj in self._data.items():
+        for obj in self._data.values():
             if isinstance(obj, AbstractObject):
                 obj._populated = value  # pylint: disable=protected-access
 
@@ -269,11 +308,19 @@ class AbstractObject(object):
             if key == 'id':
                 self._id = value
             else:
-                prop = dict(self.__class__.__dict__).get(key)
+                applied = False
 
-                if prop is not None and prop.fset is not None:
-                    prop.fset(self, value)
-                else:
+                try:
+                    prop = dict(self.__class__.__dict__).get(key)
+
+                    if prop is not None and prop.fset is not None:
+                        prop.fset(self, value)
+                        applied = True
+                except ValueError:
+                    if not self._bypass:
+                        raise
+
+                if not applied:
                     self._data[key] = value
 
                     if modify:

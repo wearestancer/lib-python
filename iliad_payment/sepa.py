@@ -28,6 +28,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     _datetime_property = [
         'date_mandate',
     ]
+    _repr_ignore = {'iban'}
 
     @property
     @populate_on_call

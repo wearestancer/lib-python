@@ -4,14 +4,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [packages]
-requests = "*"
+requests = "~=2.19"
 
 [dev-packages]
-bandit = "*"
-pylint = "*"
-pylint2codeclimate = "*"
-pytest = "*"
-pytest-cov = "*"
-pytest-xdist = "*"
+pytest = "~=6.2"
+pytest-cov = "~=2.12"
+pytest-xdist = "~=2.3"
 pytz = "*"
-responses = "*"
+responses = "~=0.13"

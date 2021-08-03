@@ -8,11 +8,11 @@ dist/
 .eggs/
 .pytest_cache/
 *.egg-info/
-.coverage*
 __pycache__/
-.tox/
-reports/
 *.pyc
+.coverage
+coverage.xml
+junit.xml
 
 # Dependencies
 Pipfile.lock

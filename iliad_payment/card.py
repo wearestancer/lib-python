@@ -35,6 +35,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         'tokenize',
         'zip_code',
     ]
+    _repr_ignore = {'number'}
 
     @property
     @populate_on_call
