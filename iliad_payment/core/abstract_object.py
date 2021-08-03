@@ -74,9 +74,6 @@ class AbstractObject(object):
         if self.id is not None:
             representation['id'] = self.id
 
-        if self.created is not None:
-            representation['created'] = self.created
-
         for key, value in self._data.items():
             representation[key] = value
 
@@ -152,7 +149,8 @@ class AbstractObject(object):
         self.__modified = set()
 
         for obj in self._data.values():
-            if isinstance(obj, AbstractObject):
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj._modified:
                 del obj._modified
 
     @property
@@ -164,8 +162,9 @@ class AbstractObject(object):
         self.__populated = value
 
         for obj in self._data.values():
-            if isinstance(obj, AbstractObject):
-                obj._populated = value  # pylint: disable=protected-access
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj.__populated != value:
+                obj._populated = value
 
     @property
     def id(self) -> str:  # pylint: disable=invalid-name
@@ -293,14 +292,16 @@ class AbstractObject(object):
                     else:
                         value = tmp(value)
 
-                elif hasattr(tmp, 'hydrate'):
-                    val = {'id': value} if isinstance(value, str) else value
-                    modify = False
+                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
+                    val = {'id': value} if not isinstance(value, dict) else value
 
-                    if val is not None:
-                        tmp._populated = True  # pylint: disable=protected-access
-                        value = tmp.hydrate(**val)
-                        value._populated = self._populated  # pylint: disable=protected-access
+                    # pylint: disable=protected-access
+
+                    modify = False
+                    populated = tmp._populated
+                    tmp._populated = True
+                    value = tmp.hydrate(**val)
+                    value._populated = populated
 
             if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
