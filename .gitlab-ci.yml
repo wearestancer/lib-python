@@ -3,7 +3,6 @@ include:
   - project: 'stancer/ci-template'
     file:
       - '/run.yml'
-      - '/registry/pypi.yml'
 
 variables:
   KUBERNETES_MEMORY_LIMIT: 2Gi
