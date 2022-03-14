@@ -51,7 +51,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     def bic(self, value: str):
         if len(value) != 8 and len(value) != 11:
             # Poorly test but I have nothing more to test
-            raise InvalidBicError('"{}" is not a valid BIC.'.format(value))
+            raise InvalidBicError(f'"{value}" is not a valid BIC.')
 
         self._data['bic'] = value
 
@@ -122,7 +122,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
                 code += letter
 
         if int(code) % 97 != 1:
-            raise InvalidIbanError('"{}" is not a valid IBAN.'.format(value))
+            raise InvalidIbanError(f'"{value}" is not a valid IBAN.')
 
         self._data['iban'] = iban
         self._data['last4'] = iban[-4:]

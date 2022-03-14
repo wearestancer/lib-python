@@ -74,21 +74,15 @@ def validate_type(type_expected, **options):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
 
             if not isinstance(value, type_expected):
-                message = '{} must be {}.'.format(name, type_name)
+                message = f'{name} must be {type_name}.'
                 excep = TypeError
 
                 if not std_type:
-                    message = (
-                        'You must provide a '
-                        'valid instance of {}.'
-                    ).format(type_expected.__name__)
+                    message = f'You must provide a valid instance of {type_expected.__name__}.'
 
             if std_type and message is None:
                 if 'length' in options and length != options['length']:
-                    message = '{} must have {} characters.'.format(
-                        name,
-                        options['length'],
-                    )
+                    message = f'{name} must have {options[length]} characters.'
 
                 (minimum, maximum) = get_min_max(options)
                 char_suffix = ''
@@ -99,28 +93,21 @@ def validate_type(type_expected, **options):
                 if minimum is not None:
                     if maximum is not None:
                         if length < minimum or length > maximum:
-                            message = '{} must be between {} and {}{}.'.format(
-                                name,
-                                minimum,
-                                maximum,
-                                char_suffix,
-                            )
+                            message = ' '.join([
+                                f'{name} must be',
+                                f'between {minimum} and {maximum}{char_suffix}.'
+                            ])
                     elif length < minimum:
-                        message = (
-                            '{} must be greater '
-                            'than or equal to {}{}.'
-                        ).format(
-                            name,
-                            minimum,
-                            char_suffix,
-                        )
+                        message = ' '.join([
+                            f'{name} must be',
+                            f'greater than or equal to {minimum}{char_suffix}.',
+                        ])
 
                 elif maximum is not None and length > maximum:
-                    message = '{} must be {}{} maximum.'.format(
-                        name,
-                        maximum,
-                        char_suffix,
-                    )
+                    message = ' '.join([
+                        f'{name} must be',
+                        f'{maximum}{char_suffix} maximum.'
+                    ])
 
                 tmp_value = value
 
@@ -128,14 +115,10 @@ def validate_type(type_expected, **options):
                     tmp_value = value.lower()
 
                 if 'allowed' in options and tmp_value not in options['allowed']:
-                    message = (
-                        '"{}" is not a valid {}, '
-                        'please use one of following: {}'
-                    ).format(
-                        value,
-                        options.get('name', method.__name__),
-                        ', '.join(options['allowed'])
-                    )
+                    message = ' '.join([
+                        f'"{value}" is not a valid {options.get("name", method.__name__)},'
+                        f'please use one of following: {", ".join(options["allowed"])}',
+                    ])
 
                 value = tmp_value
 

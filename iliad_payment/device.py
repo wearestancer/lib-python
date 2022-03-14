@@ -24,7 +24,7 @@ def ip_validation(value):
     try:
         ip_address(value)
     except ValueError:
-        return 'This IP address seems invalid ({}).'.format(value)
+        return f'This IP address seems invalid ({value})'
 
     return None
 

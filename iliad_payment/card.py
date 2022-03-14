@@ -268,7 +268,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         chk = [calc[val] if idx % 2 else val for idx, val in enumerate(parts)]
 
         if sum(chk) % 10:
-            message = '"{}" is not a valid credit card number.'.format(number)
+            message = f'"{number}" is not a valid credit card number.'
             raise InvalidCardNumberError(message)
 
         self._data['number'] = number
