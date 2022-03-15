@@ -24,6 +24,7 @@ class AbstractObject(object):
         'created',
     ]
     _default_values = {}
+    _repr_ignore = set()
 
     def __init__(self, uid: str = None, **kwargs):
         """
@@ -46,6 +47,7 @@ class AbstractObject(object):
         """
         self._id = uid
         self._data = {}
+        self._bypass = False
         self._populated = True
 
         # init modified flags
@@ -72,13 +74,44 @@ class AbstractObject(object):
         if self.id is not None:
             representation['id'] = self.id
 
-        if self.created is not None:
-            representation['created'] = self.created
-
         for key, value in self._data.items():
             representation[key] = value
 
         return representation
+
+    def __repr__(self) -> str:
+        args = []
+
+        if self.id:
+            args.append(f'"{self.id}"')
+
+        for key in sorted(self._data.keys()):
+            if key in self._repr_ignore:
+                continue
+
+            value = self._data.get(key)
+
+            if isinstance(value, int):
+                args.append(f'{key}={value}')
+            else:
+                args.append(f'{key}="{value}"')
+
+        name = type(self).__name__
+
+        return f'<{name}({", ".join(args)}) at 0x{id(self):02x}>'
+
+    @property
+    def _bypass(self) -> bool:
+        return self.__bypass
+
+    @_bypass.setter
+    def _bypass(self, value: bool):
+        self.__bypass = value
+
+        for obj in self._data.values():
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj.__bypass != value:
+                obj._bypass = value
 
     @classmethod
     def _get_allowed_attributes(cls) -> Set[str]:
@@ -112,8 +145,9 @@ class AbstractObject(object):
     def _modified(self):
         self.__modified = set()
 
-        for _, obj in self._data.items():
-            if isinstance(obj, AbstractObject):
+        for obj in self._data.values():
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj._modified:
                 del obj._modified
 
     @property
@@ -124,9 +158,10 @@ class AbstractObject(object):
     def _populated(self, value: bool):
         self.__populated = value
 
-        for _, obj in self._data.items():
-            if isinstance(obj, AbstractObject):
-                obj._populated = value  # pylint: disable=protected-access
+        for obj in self._data.values():
+            # pylint: disable=protected-access
+            if isinstance(obj, AbstractObject) and obj.__populated != value:
+                obj._populated = value
 
     @property
     def id(self) -> str:  # pylint: disable=invalid-name
@@ -254,14 +289,16 @@ class AbstractObject(object):
                     else:
                         value = tmp(value)
 
-                elif hasattr(tmp, 'hydrate'):
-                    val = {'id': value} if isinstance(value, str) else value
-                    modify = False
+                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
+                    val = {'id': value} if not isinstance(value, dict) else value
 
-                    if val is not None:
-                        tmp._populated = True  # pylint: disable=protected-access
-                        value = tmp.hydrate(**val)
-                        value._populated = self._populated  # pylint: disable=protected-access
+                    # pylint: disable=protected-access
+
+                    modify = False
+                    populated = tmp._populated
+                    tmp._populated = True
+                    value = tmp.hydrate(**val)
+                    value._populated = populated
 
             if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
@@ -269,11 +306,19 @@ class AbstractObject(object):
             if key == 'id':
                 self._id = value
             else:
-                prop = dict(self.__class__.__dict__).get(key)
+                applied = False
 
-                if prop is not None and prop.fset is not None:
-                    prop.fset(self, value)
-                else:
+                try:
+                    prop = dict(self.__class__.__dict__).get(key)
+
+                    if prop is not None and prop.fset is not None:
+                        prop.fset(self, value)
+                        applied = True
+                except ValueError:
+                    if not self._bypass:
+                        raise
+
+                if not applied:
                     self._data[key] = value
 
                     if modify:
@@ -475,13 +520,12 @@ class AbstractObject(object):
             Uniform Resource Identifier.
         """
         conf = Config()
+        port = ''
 
         if conf.port is not None:
-            location = 'https://{}:{}'.format(conf.host, conf.port)
-        else:
-            location = 'https://{}'.format(conf.host)
+            port = f':{conf.port}'
 
-        location += '/v{}'.format(conf.version)
+        location = f'https://{conf.host}{port}/v{conf.version}'
 
         if self._ENDPOINT is not None:
             location += '/' + self._ENDPOINT

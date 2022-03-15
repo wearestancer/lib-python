@@ -1,17 +1,10 @@
 
-stages:
-  - lint
-  - bandit
-  - test
-  - coverage
-  - build
-  - deploy
-
 include:
-  - local: .gitlab/ci/templates.yml
-  - local: .gitlab/ci/build.yml
-  - local: .gitlab/ci/publish/python.yml
-  - local: .gitlab/ci/py36.yml
-  - local: .gitlab/ci/py37.yml
-  - local: .gitlab/ci/py38.yml
-  - local: .gitlab/ci/py39.yml
+  - project: 'stancer/ci-template'
+    file:
+      - '/run.yml'
+
+variables:
+  KUBERNETES_MEMORY_LIMIT: 2Gi
+  KUBERNETES_MEMORY_REQUEST: 1Gi
+  PYLINT_TARGET: iliad_payment

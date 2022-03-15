@@ -131,7 +131,7 @@ class Config(Singleton):
                 key_prefix = key[:5]
 
                 if key_prefix not in self._keys:
-                    message = '"{}" is not a valid API key.'.format(key)
+                    message = f'"{key}" is not a valid API key.'
 
                     raise IliadValueError(message)
 
@@ -165,11 +165,10 @@ class Config(Singleton):
     @mode.setter
     def mode(self, value: str):
         if value not in (self.LIVE_MODE, self.TEST_MODE):
-            message = (
-                'Unknonw mode "{}". '
-                'Please use class constant '
-                '"LIVE_MODE" or "TEST_MODE".'
-            ).format(value)
+            message = ' '.join([
+                f'Unknonw mode "{value}".',
+                'Please use class constant "LIVE_MODE" or "TEST_MODE".',
+            ])
 
             raise IliadValueError(message)
 

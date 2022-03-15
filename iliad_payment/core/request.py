@@ -43,7 +43,7 @@ class Request(object):
 
         Args:
             obj: Target object.
-            uodate: Do we update the object ?
+            update: Do we update the object ?
             kwargs: Query parameters.
 
         Returns:
@@ -118,12 +118,10 @@ class Request(object):
         if not update:
             return response.text
 
-        if response.text is not None:
-            try:
-                obj.hydrate(**response.json())
-            except ValueError:
-                # Bypass in case of decoding error
-                #  (if the body is HTML or whatever)
-                pass
+        if response.text:
+            # pylint: disable=protected-access
+            obj._bypass = True
+            obj.hydrate(**response.json())
+            obj._bypass = False
 
         return self

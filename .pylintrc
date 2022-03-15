@@ -2,7 +2,6 @@
 [MASTER]
 
 ignore = tests, setup.py
-load-plugins = pylint_junit
 
 
 [REPORTS]
@@ -36,6 +35,7 @@ variable-naming-style = snake_case
 
 [DESIGN]
 
+max-attributes = 10
 max-parents = 10
 
 

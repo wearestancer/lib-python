@@ -1,9 +1,5 @@
 """Test auth status object"""
 
-from datetime import date
-import json
-import pytest
-
 from iliad_payment import AuthStatus
 from .TestHelper import TestHelper
 

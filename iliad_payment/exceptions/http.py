@@ -2,7 +2,8 @@
 
 from typing import Tuple
 from typing import TypeVar
-from requests import HTTPError, Response
+from requests import HTTPError
+from requests import Response
 
 from .base import IliadException
 
@@ -108,7 +109,7 @@ class IliadHTTPError(IliadException, HTTPError):
                     message = err['message']['error']
 
                     if 'id' in err['message']:
-                        message += ' ({})'.format(err['message']['id'])
+                        message += f' ({err["message"]["id"]})'
 
             if 'type' in err:
                 type_data = err['type']

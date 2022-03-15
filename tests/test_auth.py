@@ -5,7 +5,6 @@ import pytest
 from iliad_payment import Auth
 from iliad_payment import AuthStatus
 from iliad_payment.core import AbstractObject
-from iliad_payment.exceptions import InvalidUrlError
 from .TestHelper import TestHelper
 
 

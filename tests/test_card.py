@@ -22,6 +22,21 @@ class TestCard(TestHelper):
         assert issubclass(Card, AbstractName)
         assert issubclass(Card, AbstractObject)
 
+    @pytest.mark.parametrize('number', TestHelper.card_number_provider())
+    def test__repr(self, number):
+        obj = Card()
+
+        assert repr(obj) == '<Card() at 0x%x>' % id(obj)
+
+        obj = Card(**{'number': number})
+
+        params = {
+            'id': id(obj),
+            'last4': number[-4:]
+        }
+
+        assert repr(obj) == '<Card(last4="{last4}") at 0x{id:x}>'.format(**params)
+
     def test_id(self):
         assert Card().id is None
 
@@ -190,17 +205,6 @@ class TestCard(TestHelper):
             match='Expiration year must be an integer.',
         ):
             obj.exp_year = self.random_string(4)
-
-        message = (
-            'Expiration year must be greater '
-            'than or equal to {}.'
-        ).format(self.current_year)
-
-        with pytest.raises(
-            InvalidCardExpirationYearError,
-            match=message,
-        ):
-            obj.exp_year = self.current_year - 1
 
         obj = Card(self.random_string(29))
         params = {

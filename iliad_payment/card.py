@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
 import re
 from typing import Optional
 from typing import TypeVar
@@ -18,7 +17,6 @@ from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
 from .exceptions import InvalidZipCodeError
 
-
 CurrentInstance = TypeVar('CurrentInstance', bound='Card')
 
 
@@ -35,6 +33,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         'tokenize',
         'zip_code',
     ]
+    _repr_ignore = {'number'}
 
     @property
     @populate_on_call
@@ -153,7 +152,6 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     @exp_year.setter
     @validate_type(
         int,
-        min=date.today().year,
         name='Expiration year',
         throws=InvalidCardExpirationYearError,
     )
@@ -267,7 +265,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         chk = [calc[val] if idx % 2 else val for idx, val in enumerate(parts)]
 
         if sum(chk) % 10:
-            message = '"{}" is not a valid credit card number.'.format(number)
+            message = f'"{number}" is not a valid credit card number.'
             raise InvalidCardNumberError(message)
 
         self._data['number'] = number

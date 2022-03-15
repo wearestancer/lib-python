@@ -1,7 +1,6 @@
 """Test exceptions"""
 
 import pytest
-from requests.models import Response
 
 from iliad_payment.exceptions import *  # pylint: disable=wildcard-import
 from .TestHelper import TestHelper

@@ -1,16 +1,7 @@
 """Test abstract object"""
 
-import base64
-from datetime import datetime, tzinfo
+from datetime import datetime
 import json
-import pytest
-from pytz import timezone
-from random import choice
-import requests
-import responses
-
-from iliad_payment import Config
-from iliad_payment.exceptions import IliadValueError
 from .stub.stub_with_default import StubWithDefault
 from .TestHelper import TestHelper
 
