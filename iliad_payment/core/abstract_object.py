@@ -83,7 +83,7 @@ class AbstractObject(object):
         args = []
 
         if self.id:
-            args.append('"%s"' % self.id)
+            args.append(f'"{self.id}"')
 
         for key in sorted(self._data.keys()):
             if key in self._repr_ignore:
@@ -92,16 +92,13 @@ class AbstractObject(object):
             value = self._data.get(key)
 
             if isinstance(value, int):
-                args.append('%s=%d' % (key, value))
+                args.append(f'{key}={value}')
             else:
-                args.append('%s="%s"' % (key, value))
+                args.append(f'{key}="{value}"')
 
-        params = {
-            'id': id(self),
-            'name': type(self).__name__,
-        }
+        name = type(self).__name__
 
-        return '<{name}({}) at 0x{id:x}>'.format(', '.join(args), **params)
+        return f'<{name}({", ".join(args)}) at 0x{id(self):02x}>'
 
     @property
     def _bypass(self) -> bool:
@@ -523,13 +520,12 @@ class AbstractObject(object):
             Uniform Resource Identifier.
         """
         conf = Config()
+        port = ''
 
         if conf.port is not None:
-            location = 'https://{}:{}'.format(conf.host, conf.port)
-        else:
-            location = 'https://{}'.format(conf.host)
+            port = f':{conf.port}'
 
-        location += '/v{}'.format(conf.version)
+        location = f'https://{conf.host}{port}/v{conf.version}'
 
         if self._ENDPOINT is not None:
             location += '/' + self._ENDPOINT

@@ -43,7 +43,7 @@ class Request(object):
 
         Args:
             obj: Target object.
-            uodate: Do we update the object ?
+            update: Do we update the object ?
             kwargs: Query parameters.
 
         Returns:

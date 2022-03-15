@@ -1,9 +1,5 @@
 """Test payment object"""
 
-from datetime import date
-import json
-import pytest
-
 from iliad_payment import RefundStatus
 from .TestHelper import TestHelper
 

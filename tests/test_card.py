@@ -28,7 +28,7 @@ class TestCard(TestHelper):
 
         assert repr(obj) == '<Card() at 0x%x>' % id(obj)
 
-        obj = Card(**{ 'number': number })
+        obj = Card(**{'number': number})
 
         params = {
             'id': id(obj),
@@ -205,17 +205,6 @@ class TestCard(TestHelper):
             match='Expiration year must be an integer.',
         ):
             obj.exp_year = self.random_string(4)
-
-        message = (
-            'Expiration year must be greater '
-            'than or equal to {}.'
-        ).format(self.current_year)
-
-        with pytest.raises(
-            InvalidCardExpirationYearError,
-            match=message,
-        ):
-            obj.exp_year = self.current_year - 1
 
         obj = Card(self.random_string(29))
         params = {
