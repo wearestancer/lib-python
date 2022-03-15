@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Bandit warning
 - Pylint warnings
+- Pytest errors with responses > 0.18.0
+- Pytest with card outdated
 
 
 ## [0.0.6] - 2020-10-12
