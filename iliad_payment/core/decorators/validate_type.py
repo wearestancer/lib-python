@@ -5,6 +5,7 @@ from functools import wraps
 
 from ...config import Config
 
+
 # pylint: disable=too-many-branches, too-many-statements, too-many-locals
 
 def validate_type(type_expected, **options):
@@ -82,7 +83,7 @@ def validate_type(type_expected, **options):
 
             if std_type and message is None:
                 if 'length' in options and length != options['length']:
-                    message = f'{name} must have {options[length]} characters.'
+                    message = f'{name} must have {options["length"]} characters.'
 
                 (minimum, maximum) = get_min_max(options)
                 char_suffix = ''
@@ -137,5 +138,7 @@ def validate_type(type_expected, **options):
                 self._modified = method.__name__  # pylint: disable=protected-access
 
             return res
+
         return wrapper
+
     return wrapper

@@ -18,7 +18,6 @@ from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
 from .exceptions import InvalidZipCodeError
 
-
 CurrentInstance = TypeVar('CurrentInstance', bound='Card')
 
 
@@ -154,7 +153,6 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     @exp_year.setter
     @validate_type(
         int,
-        min=date.today().year,
         name='Expiration year',
         throws=InvalidCardExpirationYearError,
     )
