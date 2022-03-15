@@ -117,7 +117,7 @@ def validate_type(type_expected, **options):
 
                 if 'allowed' in options and tmp_value not in options['allowed']:
                     message = ' '.join([
-                        f'"{value}" is not a valid {options.get("name", method.__name__)},'
+                        f'"{value}" is not a valid {options.get("name", method.__name__)},',
                         f'please use one of following: {", ".join(options["allowed"])}',
                     ])
 

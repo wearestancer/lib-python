@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
 import re
 from typing import Optional
 from typing import TypeVar
