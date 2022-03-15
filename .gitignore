@@ -14,5 +14,3 @@ __pycache__/
 coverage.xml
 junit.xml
 
-# Dependencies
-Pipfile.lock
