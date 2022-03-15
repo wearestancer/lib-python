@@ -18,6 +18,7 @@ classifiers = [
     'Programming Language :: Python :: 3',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
+python_requires = '>=3.%d' % py_min
 
 for index in range(py_min, py_max + 1):
     classifiers.append('Programming Language :: Python :: 3.%d' % index)
@@ -58,6 +59,6 @@ setup(
     install_requires=[
         'requests',
     ],
-    python_requires=">=3.6",
+    python_requires=python_requires,
     classifiers=classifiers,
 )
