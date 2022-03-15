@@ -57,7 +57,7 @@ setup(
         'sepa',
     ],
     install_requires=[
-        'requests',
+        'requests>=2.19.0,<3.0.0',
     ],
     python_requires=python_requires,
     classifiers=classifiers,
