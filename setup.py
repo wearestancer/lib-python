@@ -2,9 +2,14 @@
 from os import path
 from setuptools import find_packages, setup
 
+version = '0.0.7'
 
-# Import version
-version = __import__('iliad_payment.version').__version__
+# Version management
+version_path = path.join(current_dir, 'iliad_payment', 'version.py')
+
+with open(version_path, 'w', encoding='utf8') as f:
+    f.write('__version__ = \'%s\'\n' % version)
+
 
 # Add a long description
 readme_path = path.join(path.dirname(path.abspath(__file__)), 'README.md')
