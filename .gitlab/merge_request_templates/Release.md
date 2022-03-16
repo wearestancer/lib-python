@@ -2,4 +2,4 @@
 
 * [ ] Changelog is up to date (with every changes)
 * [ ] Version updated in `CHANGELOG.md`
-* [ ] Version updated in `version.py`
+* [ ] Version updated in `setup.py`

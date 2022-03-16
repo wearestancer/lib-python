@@ -31,7 +31,7 @@ class TestAbstractObject(TestHelper):
         key1 = 'a' + self.random_string(10)
         key2 = 'b' + self.random_string(10)
         value1 = self.random_string(10)
-        value2 = self.random_integer(10)
+        value2 = self.random_integer(1, 10)
 
         obj = AbstractObject(**{ key2: value2, key1: value1 })
 

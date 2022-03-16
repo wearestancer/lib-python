@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitLab reports
 
 ### Fixed
+- Tests
 - Bandit warning
 - Pylint warnings
 - Pytest errors with responses > 0.18.0

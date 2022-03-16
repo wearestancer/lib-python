@@ -2,9 +2,34 @@
 from os import path
 from setuptools import find_packages, setup
 
+py_min = 6
+py_max = 10
+version = '0.0.7'
 
-# Import version
-version = __import__('iliad_payment.version').__version__
+current_dir = path.dirname(path.abspath(__file__))
+
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'Environment :: Plugins',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+python_requires = '>=3.%d' % py_min
+
+for index in range(py_min, py_max + 1):
+    classifiers.append('Programming Language :: Python :: 3.%d' % index)
+
+
+# Version management
+version_path = path.join(current_dir, 'iliad_payment', 'version.py')
+
+with open(version_path, 'w', encoding='utf8') as f:
+    f.write('__version__ = \'%s\'\n' % version)
+
 
 # Add a long description
 readme_path = path.join(path.dirname(path.abspath(__file__)), 'README.md')
@@ -32,21 +57,8 @@ setup(
         'sepa',
     ],
     install_requires=[
-        'requests',
+        'requests>=2.19.0,<3.0.0',
     ],
-    python_requires=">=3.6",
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Plugins',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
+    python_requires=python_requires,
+    classifiers=classifiers,
 )
