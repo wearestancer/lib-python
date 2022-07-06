@@ -1,0 +1,7 @@
+
+exclude_dirs:
+  - .venv
+  - tests
+
+try_except_pass:
+  check_typed_exception: False

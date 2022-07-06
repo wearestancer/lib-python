@@ -1,0 +1,52 @@
+
+[MASTER]
+
+ignore = tests, setup.py
+
+
+[REPORTS]
+
+output-format = colorized
+
+
+[MESSAGES CONTROL]
+
+enable = all
+disable = consider-using-get,
+    cyclic-import,
+    locally-disabled,
+    missing-docstring,
+    missing-module-docstring,
+    suppressed-message,
+    too-few-public-methods,
+    useless-object-inheritance
+
+[BASIC]
+
+attr-naming-style = snake_case
+class-attribute-naming-style = snake_case
+class-naming-style = PascalCase
+const-naming-style = UPPER_CASE
+function-naming-style = snake_case
+method-naming-style = snake_case
+module-naming-style = snake_case
+variable-naming-style = snake_case
+
+
+[DESIGN]
+
+max-attributes = 10
+max-parents = 10
+
+
+[VARIABLES]
+
+allow-global-unused-variables = yes
+
+
+[SIMILARITIES]
+
+ignore-comments = yes
+ignore-docstrings = yes
+ignore-imports = no
+min-similarity-lines = 7

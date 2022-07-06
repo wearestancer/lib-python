@@ -1,0 +1,59 @@
+{
+  "amount": 150,
+  "auth": {
+    "redirect_url": "https://3ds.stancer.com/v1/redirect/test_qa47f82a-74ba-4178-95a8-09f7c6388f45",
+    "return_url": "https://payment.stancer.com/ptest_aVsodlLhRmeU3EKJ6b3YZyrx/paym_rLFNuoBpTZuA2NaIx2XxPXrL",
+    "status": "success"
+  },
+  "capture": false,
+  "card": {
+    "brand": "visa",
+    "country": "FR",
+    "created": 1591173536,
+    "exp_month": 7,
+    "exp_year": 2021,
+    "funding": "credit",
+    "id": "card_gox8oLJoRLpxwpX755nx71fb",
+    "last4": "0077",
+    "live_mode": false,
+    "name": null,
+    "nature": "personnal",
+    "network": "national",
+    "zip_code": null
+  },
+  "country": "FR",
+  "created": 1589984558,
+  "currency": "eur",
+  "customer": {
+    "country": "FR",
+    "created": 1588766452,
+    "email": "test@example.com",
+    "external_id": null,
+    "id": "cust_DsucMlnRX1ZbWHUQJiCvZV3P",
+    "live_mode": false,
+    "mobile": "+33633333333",
+    "name": "test"
+  },
+  "date_bank": null,
+  "date_paym": 1589984558,
+  "description": "Bee",
+  "device": {
+    "city": "Saint-Sauflieu",
+    "country": "FR",
+    "http_accept": "application/json, text/plain, */*",
+    "languages": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
+    "port": 16848,
+    "user_agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537.36",
+    "zip_code": "80160"
+  },
+  "fee": 13,
+  "id": "paym_rLFNuoBpTZuA2NaIx2XxPXrL",
+  "live_mode": false,
+  "method": "card",
+  "order_id": null,
+  "response": "00",
+  "response_author": null,
+  "return_url": "https://www.example.org/return/cab55887-0f9e-4514-b850-0e4494444d96",
+  "status": "authorized",
+  "unique_id": null
+}

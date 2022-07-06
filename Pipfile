@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[packages]
+requests = "~=2.19"
+
+[dev-packages]
+importlib-metadata = { version = "*", markers="python_version < '3.8'" }
+pytest = "~=6.2"
+pytest-cov = "~=2.12"
+pytest-xdist = "~=2.3"
+pytz = "*"
+responses = "~=0.18.0"
+typing_extensions = { version = "*", markers="python_version < '3.8'" }
+zipp = { version = "*", markers="python_version < '3.8'" }
