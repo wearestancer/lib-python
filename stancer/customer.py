@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from .core import AbstractCountry
+from .core import AbstractDeleted
 from .core import AbstractName
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -9,18 +12,37 @@ from .core.helpers import coerce_uuid
 from .exceptions import InvalidCustomerEmailError
 from .exceptions import InvalidCustomerExternalIdError
 from .exceptions import InvalidCustomerMobileError
+from .exceptions import InvalidCustomerDateBirthError
+from .exceptions import InvalidCustomerLegalIdError
 
 
-class Customer(AbstractObject, AbstractName, AbstractCountry):
+class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
     """Representation of a customer."""
 
-    _ENDPOINT = 'customers'  # pylint:disable=invalid-name
+    _ENDPOINT = 'customers'
 
     _allowed_attributes = [
+        'date_birth',
         'email',
         'external_id',
+        'legal_id',
         'mobile',
     ]
+
+    @property
+    @populate_on_call
+    def date_birth(self) -> str | None:
+        """
+        Customer's birthdate.
+
+        Return the birthdate of the customer
+        """
+        return self._data.get('date_birth')
+
+    @date_birth.setter
+    @validate_type(str, min=10, max=10, throws=InvalidCustomerDateBirthError)
+    def date_birth(self, value: str):
+        self._data['date_birth'] = str(datetime.date.fromisoformat(value))
 
     @property
     @populate_on_call
@@ -86,6 +108,22 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
             return False
 
         return True
+
+    @property
+    @populate_on_call
+    def legal_id(self) -> str | None:
+        """
+        Customer's legal identification ( SIREN, CBE, KVK, ...).
+
+        Returns:
+            The legal Id of the customer
+        """
+        return self._data.get('legal_id')
+
+    @legal_id.setter
+    @validate_type(str, max=16, name='Legal ID', throws=InvalidCustomerLegalIdError)
+    def legal_id(self, value: str):
+        self._data['legal_id'] = value
 
     @property
     @populate_on_call

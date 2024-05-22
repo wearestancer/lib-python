@@ -16,20 +16,19 @@ from stancer import PaymentStatus
 from stancer.exceptions import ConflictError
 from stancer.exceptions import NotFoundError
 
-from .TestHelper import TestHelper
+from .FunctionalTestHelper import TestHelper
 
 
 class TestFunctionalPayment(TestHelper):
     def test_get(self):
         # 404 with an unknown payment (with a random id)
         with pytest.raises(NotFoundError) as error:
-            obj = Payment(self.random_string(29))
+            obj = Payment(f'paym_{self.random_string(24)}')
             obj.amount
 
-        assert error.value.message == f'No such payment {obj.id}'
+        assert error.value.message == self.get_not_found_message(obj)
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
-        assert error.value.type == 'invalid_request_error'
 
         # Recover a valid payment
         obj = Payment('paym_FQgpGVJpyGPVJVIuQtO3zy6i')
@@ -241,6 +240,7 @@ class TestFunctionalPayment(TestHelper):
         payment.amount = amount
         payment.currency = currency
         payment.description = description
+        payment.capture = False
 
         assert payment.send() == payment
         assert payment.id is not None
@@ -258,18 +258,11 @@ class TestFunctionalPayment(TestHelper):
         )
         payment.card = card
 
+        ## When we add a method we authorize the payment contrary to the v1 api
         assert payment.send() == payment
         assert payment.method == 'card'
-        assert payment.status is None
-
         assert card.id is not None
         assert card.id.startswith('card_')
-
-        # Still no status, but we can modify it, first we will ask an authorization
-
-        payment.status = PaymentStatus.AUTHORIZE
-
-        assert payment.send() == payment
         assert payment.status == PaymentStatus.AUTHORIZED
 
         # Let's try a capture

@@ -4,6 +4,7 @@ from abc import abstractmethod
 from urllib.parse import urlencode
 from typing import Any
 
+from ..enum import Version
 from ...config import Config
 from ...exceptions import InvalidUrlError
 from ...exceptions import MissingApiKeyError
@@ -72,35 +73,39 @@ class PaymentPage(ABC, PaymentProtocol):
 
             raise MissingPaymentIdError(message)
 
-        config = Config()
+        tmp: dict[str, str | int | None] = {}
+        if config.version == Version.API_V1:
+            if config.public_key is None:
+                message = 'A public API key is needed to obtain a payment page URL.'
 
-        if config.public_key is None:
-            message = "A public API key is needed to obtain a payment page URL."
-
-            raise MissingApiKeyError(message)
+                raise MissingApiKeyError(message)
+            tmp['key'] = config.public_key
 
         if config.host is None:
             message = 'You need to declare the API host'
             raise InvalidUrlError(message)
 
-        if config.port is None:
-            pattern = "https://{host}/{key}/{id}"
-        else:
-            pattern = "https://{host}:{port}/{key}/{id}"
+        tmp.update(
+            {
+                'host': config.host.replace('api', 'payment'),
+                'id': self.id,
+                'port': config.port,
+            }
+        )
+        pattern = 'https://{host}'
+        if config.port is not None:
+            pattern += ':{port}'
+        if config.version == Version.API_V1:
+            pattern += '/{key}'
+        pattern += '/{id}'
 
-        tmp = {
-            "host": config.host.replace("api", "payment"),
-            "id": self.id,
-            "key": config.public_key,
-            "port": config.port,
-        }
         url = pattern.format(**tmp)
 
         allowed = ("lang",)
         params = {k: v for k, v in kwargs.items() if k in allowed}
 
         if params:
-            return url + "?" + urlencode(params)
+            return f'{url}?{urlencode(params)}'
 
         return url
 

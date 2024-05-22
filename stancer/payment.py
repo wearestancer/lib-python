@@ -4,6 +4,8 @@ from datetime import datetime
 from typing import Any
 
 from .card import Card
+from .customer import Customer
+from .sepa import Sepa
 from .core import AbstractAmount
 from .core import AbstractCountry
 from .core import AbstractObject
@@ -12,10 +14,10 @@ from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .core.helpers import coerce_status
 from .core.helpers import coerce_uuid
-from .core.payment import PaymentAuth
-from .core.payment import PaymentPage
-from .core.payment import PaymentRefund
-from .customer import Customer
+from .core.payment.auth import PaymentAuth
+from .core.payment.page import PaymentPage
+from .core.payment.refund import PaymentRefund
+from .exceptions import StancerNotImplementedError
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
@@ -28,8 +30,6 @@ from .exceptions import InvalidSearchFilter
 from .exceptions import InvalidSepaError
 from .exceptions import InvalidStatusError
 from .exceptions import MissingPaymentMethodError
-from .exceptions import StancerNotImplementedError
-from .sepa import Sepa
 from .status.payment import PaymentStatus
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -58,7 +58,8 @@ class Payment(
     # our way of building object imposes many ancestors
     """Representation of a payment."""
 
-    _ENDPOINT = "checkout"
+    _DEPRECATED_ENDPOINT = [1, 'checkout']
+    _ENDPOINT = 'payments'
 
     _allowed_attributes = [
         "capture",
@@ -69,6 +70,11 @@ class Payment(
         "sepa",
         "status",
         "unique_id",
+    ]
+    _flat_attributes = [
+        'card',
+        'customer',
+        'sepa'
     ]
     _datetime_property = [
         "date_bank",
@@ -177,7 +183,7 @@ class Payment(
                 delete, refund it.
         """
         message = (
-            "You are not allowed to delete a payment, you need to refund it instead."
+            'You are not allowed to delete a payment, you need to refund it instead.'
         )
 
         raise StancerNotImplementedError(message)

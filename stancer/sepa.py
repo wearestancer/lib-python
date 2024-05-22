@@ -19,7 +19,7 @@ from .exceptions import InvalidMandateError
 class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     """Representation of a SEPA account."""
 
-    _ENDPOINT = 'sepa'  # pylint:disable=invalid-name
+    _ENDPOINT = 'sepa'
 
     _allowed_attributes = [
         'bic',

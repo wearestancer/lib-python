@@ -70,11 +70,12 @@ class TestAbstractObject(TestHelper):
         conf = Config()
         uid = self.random_string(29)
 
-        assert obj.uri == 'https://api.stancer.com/v1'
+        version = self.api_version()
+        assert obj.uri == f'https://api.stancer.com/v{version}/'
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == f'https://api.stancer.com/v1/{uid}'
+        assert obj.uri == f'https://api.stancer.com/v{version}/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

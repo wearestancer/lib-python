@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import json
+from typing import Optional
 
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
+from .core.enum import Version
 from .exceptions import InvalidUrlError
 from .status import AuthStatus
+from .config import Config
 
 
 class Auth(AbstractObject):
@@ -67,3 +71,8 @@ class Auth(AbstractObject):
             Authentication status.
         """
         return self._data.get('status')
+
+    def to_api_request(self) -> dict[str, Any] | str| bool:
+        if Config().version == Version.API_V1:
+            return super().to_api_request()
+        return json.dumps(True)

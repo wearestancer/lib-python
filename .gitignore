@@ -15,4 +15,4 @@ __pycache__/
 coverage.xml
 junit.xml
 
-.venv/
+.venv

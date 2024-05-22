@@ -101,8 +101,8 @@ class Request:
 
         body = None
 
-        if method not in ("get", "delete"):
-            body = obj.to_json()
+        if method not in ('get', 'delete'):
+            body = obj.to_api_request()
 
         response = requests.request(
             method,
@@ -127,6 +127,7 @@ class Request:
 
         if response.text:
             # pylint: disable=protected-access
+            obj._populated = True
             obj._bypass = True
             obj.hydrate(**response.json())
             obj._bypass = False

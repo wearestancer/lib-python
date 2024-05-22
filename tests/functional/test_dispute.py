@@ -6,7 +6,7 @@ from datetime import timezone
 from stancer import Dispute
 from stancer import Payment
 
-from .TestHelper import TestHelper
+from .FunctionalTestHelper import TestHelper
 
 
 class TestFunctionalDispute(TestHelper):

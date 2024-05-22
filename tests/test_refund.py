@@ -165,3 +165,15 @@ class TestRefund(TestHelper):
         assert isinstance(result, str)
         assert result.find('"amount":') == -1
         assert result.find(f'"payment":"{payment.id}"') > 0
+
+    @pytest.mark.parametrize('version',TestHelper.version_provider())
+    def test_uri(self,version):
+
+        obj = Refund()
+        uid = self.random_string(29)
+        self.conf.version = version
+        assert obj.uri == f'https://{self.conf.host}/v{self.conf.version}/refunds/'
+
+        obj.hydrate(id=uid)
+
+        assert obj.uri == f'https://{self.conf.host}/v{self.conf.version}/refunds/{uid}'

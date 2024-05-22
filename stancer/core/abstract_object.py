@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from typing import Any
 
+from .enum import Version
 from ..config import Config
 from .decorators import populate_on_call
 from .request import Request
@@ -24,8 +25,10 @@ except ImportError:
 class AbstractObject:
     """Manage common code between API object."""
 
+    _DEPRECATED_ENDPOINT: list[str | int] = []  # pylint: disable=invalid-name
     _ENDPOINT: str | None = None  # pylint: disable=invalid-name
     _allowed_attributes: list[str] = []
+    _flat_attributes: list[str] = []
     _datetime_property: list[str] = [
         "created",
     ]
@@ -223,6 +226,9 @@ class AbstractObject:
         self._modified = "id"
 
         return self
+
+    def get_config(self):
+        return Config()
 
     def _hydrate_list(self, key: str, value: Any) -> list:
         tmp = getattr(self, key)
@@ -487,6 +493,31 @@ class AbstractObject:
 
         return self
 
+    def to_api_request(self) -> str:
+        """
+        Return a JSON representation of the object, processable by our API
+
+        It will return all object data if no ID is present or
+        if the current object is tagged as `modified`.
+
+        Unless that, it will return a JSON with only the `id` key.
+
+        It must be overridden if the object representation isn't the same as the API request
+        Returns:
+            A JSON representation of the current object.
+        """
+        if Config().version != Version.API_V1:
+            send_object = [
+                v
+                for k,v in self._data.items()
+                if k in self._flat_attributes
+                and v is not None
+                and v.is_modified
+            ]
+            for api_object in send_object:
+                api_object.send()
+        return self.to_json()
+
     def to_json(self) -> str:
         """
         Return a JSON representation of the current object.
@@ -556,10 +587,17 @@ class AbstractObject:
 
         location = f"https://{conf.host}{port}/v{conf.version}"
 
-        if self._ENDPOINT is not None:
-            location += "/" + self._ENDPOINT
+        if len(self._DEPRECATED_ENDPOINT) == 2 and conf.version <= int(
+            self._DEPRECATED_ENDPOINT[0]
+        ):
+            location += f'/{self._DEPRECATED_ENDPOINT[1]}'
+        elif self._ENDPOINT is not None:
+            location += f'/{self._ENDPOINT}'
 
         if self.id is not None:
-            location += "/" + self.id
+            location_end = f'/{self.id}'
+        else:
+            location_end = '/'
+        location += location_end
 
         return location

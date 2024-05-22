@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class Refund(AbstractObject, AbstractAmount):
     """Representation of a refund."""
 
-    _ENDPOINT = "refunds"
+    _ENDPOINT = 'refunds'
 
     _allowed_attributes = [
         "payment",

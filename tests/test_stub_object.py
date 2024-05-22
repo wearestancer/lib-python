@@ -494,6 +494,7 @@ class TestStubObject(TestHelper):
         assert result.find(f'"card1":{{"number":"{card1.number}"}}') > 0
         assert result.find('"created"') == -1
         assert result.find('"card2"') == -1
+        assert obj.to_api_request() == result
 
         # Inner object may send their ID
         card2 = Card(self.random_string(29))
@@ -520,6 +521,7 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert result == f'"{uid}"'
+        assert obj.to_api_request() == result
 
         # Unless it was modified
         obj.string2 = self.random_string(20)
@@ -527,6 +529,7 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
+        assert obj.to_api_request() == result
 
         result = json.loads(result)
 
@@ -546,6 +549,7 @@ class TestStubObject(TestHelper):
         assert isinstance(result, str)
         assert result.find('"card1"') == -1
         assert result.find(f'"card2":{{"cvc":"{card2.cvc}"}}') > 0
+        assert obj.to_api_request() == result
 
         # Do not export empty object
         obj.card2 = Card()
@@ -555,3 +559,4 @@ class TestStubObject(TestHelper):
         assert isinstance(result, str)
         assert result.find('"card1"') == -1
         assert result.find('"card2"') == -1
+        assert obj.to_api_request() == result

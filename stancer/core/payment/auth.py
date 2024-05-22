@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from ...auth import Auth
 from ...device import Device
 from ...exceptions import InvalidAuthError
+from ...exceptions import InvalidUrlError
 from ...exceptions import InvalidDeviceError
 from ...exceptions import StancerException
 from ..decorators import populate_on_call
@@ -18,13 +19,15 @@ if TYPE_CHECKING:
 
 
 def _coerce_auth(value: Auth | str | bool) -> Auth | None:
+    if value is False:
+        return None
     if isinstance(value, str):
+        if not value:
+            raise InvalidUrlError()
         return Auth(return_url=value)
 
     if isinstance(value, bool):
-        if value:
-            return Auth()
-        return None
+        return Auth()
 
     return value
 
@@ -107,7 +110,7 @@ class PaymentAuth(ABC, PaymentProtocol):
 
         device = Device()
 
-        if self.auth and self.auth.return_url:
+        if self.auth and (hasattr(self.auth, 'return_url') and self.auth.return_url):
             device.hydrate_from_env()
             self.device = device
         else:
