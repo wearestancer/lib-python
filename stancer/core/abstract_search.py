@@ -54,13 +54,112 @@ class AbstractSearch(ABC):
         """
 
     @classmethod
-    def list(
+    def get_param(
         cls,
         created: int | float | datetime | None = None,
         limit: int | None = None,
         start: int | None = None,
         **kwargs,
-    ):
+    ) -> dict:
+        """
+        Create the parameters for the listing,
+
+        Args:
+            created: must be an unix timestamp or a datetime object which will
+                filter payments equal to or greater than this value.
+            limit: must be an integer between 1 and 100 and will limit the number of
+                objects to be returned.
+            start: must be an integer, will be used as a pagination cursor,
+                starts at 0.
+            kwargs: Arbitrary keyword argument.
+        Returns:
+            dict.
+
+        """
+        params = cls.filter_list_params(**kwargs)
+        if created is not None:
+            if isinstance(created, datetime):
+                created = created.timestamp()
+
+            if isinstance(created, float):
+                created = int(created)
+
+            if not isinstance(created, int) or created < 0:
+                message = "Created must be a position integer or a DateTime object."
+
+                raise InvalidSearchFilter(message)
+
+            if created > time():
+                raise InvalidSearchFilter("Created must be in the past.")
+
+            params["created"] = created
+
+        if limit is not None:
+            if not isinstance(limit, int) or limit < 1 or limit > 100:
+                raise InvalidSearchFilter("Limit must be between 1 and 100.")
+
+            params["limit"] = limit
+
+        if start is not None:
+            if not isinstance(start, int) or start < 0:
+                raise InvalidSearchFilter("Start must be a positive integer.")
+
+            params["start"] = start
+        return params
+
+    @staticmethod
+    def _create_generator(obj, searched_class, **kwargs) -> Callable[[],Generator]:
+        """
+        Create a generator that will iterate on all the object on a given route.
+
+        args:
+            obj: An Instance of our classes.
+            searched_class: The class that will be listed.
+
+        returns:
+            A generator
+        """
+        request = Request()
+
+        def gen():
+            has_more = True
+
+            while has_more:
+                try:
+                    response = json.loads(request.get(obj, update=False, **kwargs))
+
+                    keys = list(response.keys() - ["live_mode", "range"])
+
+                    if len(keys) != 1:
+                        raise InvalidSearchResponse("Results not found.")
+
+                    key = keys[0]
+                    has_more = response["range"]["has_more"]
+                    kwargs["start"] = (
+                        response["range"]["start"] + response["range"]["limit"]
+                    )
+
+                    for item in response[key]:
+                        yield searched_class().hydrate(**item)
+
+                except NotFoundError:
+                    has_more = False
+
+                except json.JSONDecodeError as err:
+                    has_more = False
+
+                    raise InvalidSearchResponse("Invalid results.") from err
+
+        return gen()
+
+    @classmethod
+    def list(
+        cls,
+        created: int | datetime = None,
+        limit: int = None,
+        start: int = None,
+        **kwargs,
+    ) -> Callable[[],Generator] :
         """
         List elements.
 
@@ -77,70 +176,9 @@ class AbstractSearch(ABC):
             Generator.
         """
 
-        params = cls.filter_list_params(**kwargs)
-
-        if created is not None:
-            if isinstance(created, datetime):
-                created = created.timestamp()
-
-            if isinstance(created, float):
-                created = int(created)
-
-            if not isinstance(created, int) or created < 0:
-                message = 'Created must be a position integer or a DateTime object.'
-
-                raise InvalidSearchFilter(message)
-
-            if created > time():
-                raise InvalidSearchFilter('Created must be in the past.')
-
-            params['created'] = created
-
-        if limit is not None:
-            if not isinstance(limit, int) or limit < 1 or limit > 100:
-                raise InvalidSearchFilter('Limit must be between 1 and 100.')
-
-            params['limit'] = limit
-
-        if start is not None:
-            if not isinstance(start, int) or start < 0:
-                raise InvalidSearchFilter('Start must be a positive integer.')
-
-            params['start'] = start
+        params = cls.get_param(created, limit, start, **kwargs)
 
         if not params:
-            raise InvalidSearchFilter('Invalid search filters.')
+            raise InvalidSearchFilter("Invalid search filters.")
 
-        request = Request()
-        obj = cls()
-
-        def gen():
-            has_more = True
-
-            while has_more:
-                try:
-                    response = json.loads(request.get(obj, update=False, **params))
-
-                    keys = list(response.keys() - ['live_mode', 'range'])
-
-                    if len(keys) != 1:
-                        raise InvalidSearchResponse('Results not found.')
-
-                    key = keys[0]
-                    has_more = response['range']['has_more']
-                    params['start'] = (
-                        response['range']['start'] + response['range']['limit']
-                    )
-
-                    for item in response[key]:
-                        yield cls().hydrate(**item)
-
-                except NotFoundError:
-                    has_more = False
-
-                except json.JSONDecodeError as err:
-                    has_more = False
-
-                    raise InvalidSearchResponse('Invalid results.') from err
-
-        return gen()
+        return cls._create_generator(cls(), cls, **params)

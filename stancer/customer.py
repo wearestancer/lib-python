@@ -142,6 +142,9 @@ class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
         Returns:
             Is the customer complete ?
         """
+        if self.id is not None:
+            return True
+
         if self.email is None and self.mobile is None:
             return False
 

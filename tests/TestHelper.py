@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-import os
 import string
-
+import os
+import re
 
 # pylint: enable=missing-docstring
 from datetime import date
 from random import choice
+import pytest
 from random import randint
 
 from stancer.config import Config
-from stancer.core.enum.version import Version
+from stancer.core.enum import Version
 from stancer.exceptions import BadRequestError
 from stancer.exceptions import ConflictError
 from stancer.exceptions import ForbiddenError
@@ -30,6 +31,15 @@ from stancer.exceptions import UnauthorizedError
 
 class TestHelper:
     """Add some helper for tests."""
+
+    @pytest.fixture
+    def version_1(self):
+        self.conf.version = 1
+
+    @pytest.fixture
+    def version_2(self):
+        self.conf.version = 2
+
 
     def setup_method(self, method):
         self.conf = Config()
@@ -99,6 +109,9 @@ class TestHelper:
 
     def random_year(self):
         return self.random_integer(1, 20) + self.current_year
+
+    def api_version(self):
+        return self.conf.version
 
     @property
     def current_year(self):
@@ -289,5 +302,6 @@ class TestHelper:
         return [
             'api.stancer.com',
             'api.dev.stancer.com',
-            Config().host,
+            Config().host
+
         ]

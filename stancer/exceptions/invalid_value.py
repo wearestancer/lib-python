@@ -94,6 +94,16 @@ class InvalidNameError(StancerValueError):
 class InvalidPaymentDescriptionError(StancerValueError):
     """Raised when an invalid description is used."""
 
+class InvalidPaymentIntentCaptureError(StancerValueError):
+    """Raised when an invalid capture value is used."""
+class InvalidPaymentIntentDescriptionError(StancerValueError):
+    """Raised when an invalid description is used."""
+
+class InvalidPaymentIntentOrderIdError(StancerValueError):
+    """Raised when an invalid order ID is used."""
+
+class InvalidPaymentIntentMethodsAllowed(StancerValueError):
+    """Raised when an invalid method is used."""
 
 class InvalidPaymentOrderIdError(StancerValueError):
     """Raised when an invalid order ID is used."""
@@ -122,6 +132,8 @@ class InvalidSepaError(StancerValueError):
 class InvalidStatusError(StancerValueError):
     """Raised when an invalid status is used."""
 
+class InvalidThreedsStatusError(StancerValueError):
+    """Raised when an invalid threeds status is used."""
 
 class InvalidUrlError(StancerValueError):
     """Raised when an invalid URL is used."""

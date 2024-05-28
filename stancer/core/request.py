@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from typing import Union
 from typing import TYPE_CHECKING
 
 import requests
@@ -81,7 +82,7 @@ class Request:
         Returns:
             Current instance of Request.
         """
-        return self._request('post', obj)
+        return self._request('post', obj, **kwargs)
 
     def _request(
         self: Self,
@@ -107,7 +108,7 @@ class Request:
 
         response = requests.request(
             method,
-            obj.uri,
+            f'{obj.uri}{kwargs.pop("inner_route","")}',
             auth=(username, ''),
             data=body,
             params=kwargs,

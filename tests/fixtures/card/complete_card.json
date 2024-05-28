@@ -1,0 +1,17 @@
+{
+    "brand": "visa",
+    "country": "US",
+    "created": 1704203719,
+    "customer": null,
+    "deleted": false,
+    "exp_month": 12,
+    "exp_year": 2048,
+    "external_id": null,
+    "funding": "credit",
+    "id": "card_oNKkmI6XoRgHxA9HqMOWblfF",
+    "last4": "4242",
+    "name": "deren",
+    "nature": "personal",
+    "network": "visa",
+    "zip_code": null
+}

@@ -8,6 +8,8 @@ from typing import Any
 from ..config import Config
 from .decorators.populate_on_call import populate_on_call
 from .enum.version import Version
+from ..exceptions import StancerApiVersionError
+from .decorators import populate_on_call
 from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -25,17 +27,18 @@ except ImportError:
 class AbstractObject:
     """Manage common code between API object."""
 
-    _DEPRECATED_ENDPOINT: dict[str, Any] = {}  # pylint: disable=invalid-name
-    _ENDPOINT: str | None = None  # pylint: disable=invalid-name
-    _allowed_attributes: list[str] = []
-    _flat_attributes: list[str] = []
+    _DEPRECATED_ENDPOINT: list[Union[str, int]] = []  # pylint: disable=invalid-name
+    _ENDPOINT: Union[None, str] = None  # pylint: disable=invalid-name
+    _version = Version.API_V1
+    _allowed_attributes: list[Any] = []
+    _flat_attributes: list[Any] = []
     _datetime_property: list[str] = [
         'created',
     ]
     _default_values: dict[str, Any] = {}
-    _repr_ignore: set[str] = set()
+    _repr_ignore: set[Any] = set()
 
-    def __init__(self, uid: str | None = None, **kwargs):
+    def __init__(self, uid: Union[str, None] = None, **kwargs):
         """
         Create or get an API object.
 
@@ -58,11 +61,12 @@ class AbstractObject:
         self._data: dict[str, Any] = {}
         self._bypass = False
         self._populated = True
-
+        self._config = config
         # init modified flags
         self.__modified: set[str] | None = None
         del self._modified
-
+        if self._version > self._config.version:
+            raise StancerApiVersionError
         self.hydrate(**self._default_values)
 
         if kwargs:
@@ -87,16 +91,6 @@ class AbstractObject:
             representation[key] = value
 
         return representation
-
-    @__dict__.setter
-    def __dict__(self, value: Any):
-        """
-        We don't modify the dict as our model fields aren't dynamic.
-
-        Returns:
-            Nothing.
-        """
-        raise ValueError(f'{value} cannot be added to our dataModel')
 
     def __repr__(self) -> str:
         args = []
@@ -186,7 +180,7 @@ class AbstractObject:
                 obj._populated = value
 
     @property
-    def id(self) -> str | None:
+    def id(self) -> str | None:  # pylint: disable=invalid-name
         """
         Return current object ID.
 
@@ -314,13 +308,10 @@ class AbstractObject:
                     else:
                         value = tmp(value)
 
-                elif isinstance(tmp, AbstractObject) and not isinstance(
-                    value, AbstractObject
-                ):
+                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
                     val = {'id': value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access
-
                     modify = False
                     populated = tmp._populated
                     tmp._populated = True
