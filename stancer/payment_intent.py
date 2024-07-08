@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import re
 from typing import Generator
 from typing import Optional
 from typing import TypeVar
+
+from stancer.exceptions.invalid_value import InvalidSearchFilter
 
 from .core.request import Request
 
@@ -33,10 +36,13 @@ from .exceptions import MissingPaymentIdError
 
 CurrentInstance = TypeVar("CurrentInstance", bound="PaymentIntent")
 
+ORDER_ID_MAX_LEN = 36
+
 
 class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
 
     _ENDPOINT = "payment_intents"  # pylint: disable=invalid-name
+
     _version = 2
 
     _allowed_attributes = [
@@ -192,6 +198,56 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
     @validate_type(str, min=3, max=64, throws=InvalidPaymentIntentDescriptionError)
     def description(self, value: str):
         self._data["description"] = value
+
+    @classmethod
+    def filter_list_params(cls, **kwargs) -> dict:
+        """
+        Filter for list method.
+
+        Allow `order_id` and `unique_id` parameters.
+
+        Args:
+            kwargs: Arbitrary keyword argument to filter.
+
+        Returns:
+            Filtered arguments.
+        """
+        params = {}
+        base_message = "A valid {} must be between {} and {} characters."
+
+        if "order_id" in kwargs:
+            params["order_id"] = cls.validate_order_id_params(
+                kwargs["order_id"], ORDER_ID_MAX_LEN, base_message
+            )
+        if "order" in kwargs:
+            params["order"] = cls.validate_order_params(kwargs["order"])
+
+        if "card" in kwargs:
+            card = kwargs["card"]
+            if isinstance(card, Card) and card.id is not None:
+                card = card.id
+            if not (isinstance(card, str) and re.match("^card_[a-zA-Z0-9]{24}$", card)):
+                raise InvalidSearchFilter("Card must be a card ID.")
+            params["card"] = card
+
+        if "sepa" in kwargs:
+            sepa = kwargs["sepa"]
+            if isinstance(sepa, Sepa) and sepa.id is not None:
+                sepa = sepa.id
+            if not (isinstance(sepa, str) and re.match("^sepa_[a-zA-Z0-9]{24}$", sepa)):
+                raise InvalidSearchFilter("Sepa must be a sepa ID.")
+            params["sepa"] = sepa
+
+        if "field" in kwargs:
+            if not (
+                isinstance(kwargs["field"], str)
+                and (kwargs["field"] in ("created", "due"))
+            ):
+                raise InvalidSearchFilter("Field must be 'created' or 'due'.")
+
+            params["field"] = kwargs["field"]
+
+        return params
 
     def get_payment_list(self, **kwargs) -> Generator:
         """

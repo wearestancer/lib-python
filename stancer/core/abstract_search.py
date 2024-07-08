@@ -40,6 +40,50 @@ class AbstractSearch(ABC):
         """
         return {}
 
+    @classmethod
+    def validate_order_id_params(cls,order_id: any, max_length: int, base_message: str) -> str:
+        """
+        Filter Order ids.
+        as it is a common params we add it to not reimplement it on all class
+
+        Args:
+            order_id: A string representing order_id
+
+        Returns:
+            The validated order_id
+
+        Raises:
+            InvalidSearchFilter if the order_id isn't a valid order_id
+        """
+        if not isinstance(order_id, str):
+            raise InvalidSearchFilter('Order ID must be a string.')
+
+        length = len(order_id)
+
+        if length > max_length or not length:
+            raise InvalidSearchFilter(base_message.format('order ID', 1, max_length))
+        return order_id
+
+    @classmethod
+    def validate_order_params(cls,order:any) -> str:
+        """
+        Filter Order parameter.
+
+        Args:
+            order: A string defining the order of our list
+
+        Returns:
+            The order of our list (validated)
+
+        Raises:
+            InvalidSearchFilter if the order isn't either asc or desc
+        """
+        if not ( isinstance(order, str) and order in ('asc', 'desc' )):
+            raise InvalidSearchFilter("Order must be 'desc' or 'asc'.")
+
+        return order
+
+
     @abstractmethod
     def hydrate(self: Self, **params) -> Self:
         """

@@ -2,7 +2,7 @@
 
 import pytest
 
-from stancer import Card
+from stancer import Card, payment_intent
 from stancer import PaymentIntent
 from stancer import Customer
 from stancer.exceptions import NotFoundError
@@ -149,7 +149,7 @@ class TestFunctionalPaymentIntent(TestHelper):
         customer.mobile = self.random_mobile()
 
         amount = self.random_integer(50,9999)
-        capture = True
+        capture = False
         currency = 'eur'
         description = 'test complete PI'
         metadata = 'truc'
@@ -233,3 +233,46 @@ class TestFunctionalPaymentIntent(TestHelper):
 
         with pytest.raises(StancerNotImplementedError):
             pi.delete()
+
+    def test_list(self):
+        pi_list = PaymentIntent().list(card="card_nRBHRjo5UP2pLFb27WxApj8l",order="asc")
+
+        first_pi = next(pi_list)
+        assert isinstance(first_pi.card, Card)
+        assert first_pi.id == "pi_HSZ4jdiqhbZ1auOrvbJSKpKg"
+        assert first_pi.created_at == 1717424212
+        assert first_pi.created is None
+        assert first_pi.amount == 739
+        assert first_pi.capture is False
+        assert first_pi.card.id == "card_nRBHRjo5UP2pLFb27WxApj8l"
+        assert first_pi.currency == 'eur'
+        assert first_pi.customer is None
+        assert first_pi.description is None
+        # We test the list as set because we don't want to check for order.
+        assert set(first_pi.methods_allowed) == {'card','sepa',}
+        assert first_pi.order_id is None
+        assert first_pi.sepa is None
+        assert first_pi.status == "require_authentication"
+        assert first_pi.threeds == "required"
+        assert first_pi.url == "https://payment.stancer.com/test_pi_HSZ4jdiqhbZ1auOrvbJSKpKg"
+
+        second_pi = next(pi_list)
+        assert isinstance(second_pi.card, Card)
+        assert second_pi.id == "pi_ANfJj6SqOtVdbqrShzviH2ls"
+        assert second_pi.created_at == 1717424242
+        assert second_pi.created is None
+        assert second_pi.amount == 110
+        assert second_pi.capture is False
+        assert second_pi.card.id == "card_nRBHRjo5UP2pLFb27WxApj8l"
+        assert second_pi.currency == 'eur'
+        assert second_pi.customer is None
+        assert second_pi.description is None
+        # We test the list as set because we don't want to check for order.
+        assert set(second_pi.methods_allowed) == {'card','sepa',}
+        assert second_pi.order_id is None
+        assert second_pi.return_url is None
+        assert second_pi.sepa is None
+        assert second_pi.status == "require_authentication"
+        assert second_pi.threeds == "none"
+        assert second_pi.url == "https://payment.stancer.com/test_pi_ANfJj6SqOtVdbqrShzviH2ls"
+
