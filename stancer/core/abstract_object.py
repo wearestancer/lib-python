@@ -484,7 +484,7 @@ class AbstractObject(object):
         representation = {}
 
         if self.id is not None and self.is_not_modified:
-            representation = self.id
+            representation = self._data
         else:
             items = {
                 k: v
