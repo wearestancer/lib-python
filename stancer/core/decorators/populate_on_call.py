@@ -10,6 +10,7 @@ def populate_on_call(method):
     This permits to get fresh data only when you need it,
     and reduce API calls.
     """
+
     @wraps(method)
     def wrapper(self):
         value = method(self)
@@ -19,4 +20,5 @@ def populate_on_call(method):
             value = method(self)
 
         return value
+
     return wrapper

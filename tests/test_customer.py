@@ -1,16 +1,18 @@
 """Test customer object"""
 
+import uuid
+
 import pytest
 import responses
-import uuid
 
 from stancer import Customer
 from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
 from stancer.core import AbstractName
+from stancer.core import AbstractObject
 from stancer.exceptions import InvalidCustomerEmailError
 from stancer.exceptions import InvalidCustomerExternalIdError
 from stancer.exceptions import InvalidCustomerMobileError
+
 from .TestHelper import TestHelper
 
 
@@ -232,7 +234,7 @@ class TestCustomer(TestHelper):
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == 'https://api.stancer.com/v1/customers/' + uid
+        assert obj.uri == f'https://api.stancer.com/v1/customers/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

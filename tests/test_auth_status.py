@@ -1,6 +1,7 @@
 """Test auth status object"""
 
 from stancer import AuthStatus
+
 from .TestHelper import TestHelper
 
 

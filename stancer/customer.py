@@ -24,7 +24,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def email(self) -> str:
+    def email(self) -> str | None:
         """
         Customer's email.
 
@@ -41,12 +41,12 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @email.setter
     @validate_type(str, min=5, max=64, throws=InvalidCustomerEmailError)
-    def email(self, value: str):
+    def email(self, value: str) -> None:
         self._data['email'] = value
 
     @property
     @populate_on_call
-    def external_id(self) -> str:
+    def external_id(self) -> str | None:
         """
         Customer's external ID.
 
@@ -71,7 +71,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         name='External ID',
         throws=InvalidCustomerExternalIdError,
     )
-    def external_id(self, value: str):
+    def external_id(self, value: str) -> None:
         self._data['external_id'] = value
 
     @property
@@ -89,7 +89,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
 
     @property
     @populate_on_call
-    def mobile(self) -> str:
+    def mobile(self) -> str | None:
         """
         Customer's mobile phone number.
 
@@ -112,5 +112,5 @@ class Customer(AbstractObject, AbstractName, AbstractCountry):
         name='Mobile phone',
         throws=InvalidCustomerMobileError,
     )
-    def mobile(self, value: str):
+    def mobile(self, value: str) -> None:
         self._data['mobile'] = value

@@ -5,14 +5,15 @@ import responses
 
 from stancer import Card
 from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
 from stancer.core import AbstractName
-from stancer.exceptions import InvalidCardVerificationCodeError
+from stancer.core import AbstractObject
 from stancer.exceptions import InvalidCardExpirationMonthError
 from stancer.exceptions import InvalidCardExpirationYearError
 from stancer.exceptions import InvalidCardNumberError
 from stancer.exceptions import InvalidCardTokenizeError
+from stancer.exceptions import InvalidCardVerificationCodeError
 from stancer.exceptions import InvalidZipCodeError
+
 from .TestHelper import TestHelper
 
 
@@ -30,12 +31,7 @@ class TestCard(TestHelper):
 
         obj = Card(**{'number': number})
 
-        params = {
-            'id': id(obj),
-            'last4': number[-4:]
-        }
-
-        assert repr(obj) == '<Card(last4="{last4}") at 0x{id:x}>'.format(**params)
+        assert repr(obj) == f'<Card(last4="{number[-4:]}") at 0x{id(obj):x}>'
 
     def test_id(self):
         assert Card().id is None
@@ -238,7 +234,7 @@ class TestCard(TestHelper):
         assert len(responses.calls) == 1
 
     def test_is_complete(self):
-        uid = 'card_{}'.format(self.random_string(24))
+        uid = f'card_{self.random_string(24)}'
         cvc = self.random_string(3)
         exp_month = self.random_integer(1, 12)
         exp_year = self.random_year()
@@ -394,7 +390,7 @@ class TestCard(TestHelper):
 
         with pytest.raises(
             InvalidCardNumberError,
-            match='"{}" is not a valid credit card number.'.format(bad_number),
+            match=f'"{bad_number}" is not a valid credit card number.',
         ):
             obj.number = bad_number
 
@@ -467,10 +463,10 @@ class TestCard(TestHelper):
 
         assert isinstance(result, str)
 
-        assert result.find('"name":"{}"'.format(params['name'])) > 0
-        assert result.find('"number":"{}"'.format(params['number'])) > 0
-        assert result.find('"exp_month":{}'.format(params['exp_month'])) > 0
-        assert result.find('"exp_year":{}'.format(params['exp_year'])) > 0
+        assert result.find(f'"name":"{params["name"]}"') > 0
+        assert result.find(f'"number":"{params["number"]}"') > 0
+        assert result.find(f'"exp_month":{params["exp_month"]}') > 0
+        assert result.find(f'"exp_year":{params["exp_year"]}') > 0
 
         assert result.find('brand') == -1
         assert result.find('country') == -1

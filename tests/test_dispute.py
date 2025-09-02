@@ -8,6 +8,7 @@ from stancer import Payment
 from stancer.core import AbstractAmount
 from stancer.core import AbstractObject
 from stancer.core import AbstractSearch
+
 from .TestHelper import TestHelper
 
 

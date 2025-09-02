@@ -8,6 +8,7 @@ from stancer import Payment
 from stancer import PaymentStatus
 from stancer import Refund
 from stancer.exceptions import ConflictError
+
 from .TestHelper import TestHelper
 
 
@@ -15,7 +16,7 @@ class TestFunctionalRefund(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_single_refund(self, currency):
         amount = self.random_integer(100, 10000)
-        desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
+        desc = f'Refund test, {amount / 100:.2f} {currency.upper()}'
 
         card = Card()
         card.number = self.get_card_number()
@@ -42,7 +43,10 @@ class TestFunctionalRefund(TestHelper):
         with pytest.raises(ConflictError) as error:
             payment.refund(amount - 1)
 
-        assert error.value.message == 'Payment cannot be partially refunded before it has been captured'
+        assert (
+            error.value.message
+            == 'Payment cannot be partially refunded before it has been captured'
+        )
         assert error.value.reason == 'Conflict'
         assert error.value.status_code == 409
 
@@ -66,7 +70,7 @@ class TestFunctionalRefund(TestHelper):
         refund_amount1 = self.random_integer(50, amount // 4)
         refund_amount2 = self.random_integer(50, amount // 4)
         refund_amount3 = amount - refund_amount1 - refund_amount2
-        desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
+        desc = f'Refund test, {amount / 100:.2f} {currency.upper()}'
 
         card = Card()
         card.number = '4000000000000077'

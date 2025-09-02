@@ -3,9 +3,11 @@
 from datetime import datetime
 from datetime import timezone
 from datetime import tzinfo
+
 import pytest
-from pytz import timezone as tz
 import responses
+
+from pytz import timezone as tz
 
 from stancer import Config
 from stancer import Payment
@@ -13,6 +15,7 @@ from stancer import Refund
 from stancer import RefundStatus
 from stancer.core import AbstractAmount
 from stancer.core import AbstractObject
+
 from .TestHelper import TestHelper
 
 
@@ -146,8 +149,8 @@ class TestRefund(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
-        assert result.find('"amount":{}'.format(params['amount'])) > 0
-        assert result.find('"payment":"{}"'.format(payment.id)) > 0
+        assert result.find(f'"amount":{params["amount"]}') > 0
+        assert result.find(f'"payment":"{payment.id}"') > 0
 
         obj = Refund()
 
@@ -161,4 +164,4 @@ class TestRefund(TestHelper):
 
         assert isinstance(result, str)
         assert result.find('"amount":') == -1
-        assert result.find('"payment":"{}"'.format(payment.id)) > 0
+        assert result.find(f'"payment":"{payment.id}"') > 0

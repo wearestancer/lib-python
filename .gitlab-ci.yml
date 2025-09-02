@@ -1,0 +1,135 @@
+stages:
+  - lint
+  - test
+
+workflow:
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - when: always
+
+variables:
+  DOCKER_REGISTRY: docker.io/wearestancer
+  VERSION: 3.12
+
+
+.python::base:
+  image: ${DOCKER_REGISTRY}/python:$VERSION-uv
+  before_script:
+    - section_start --collapsed install "Package install"
+    - uv --version
+    - python --version
+    - uv sync --locked
+    - uv tree
+    - section_end install
+
+
+.python::current-versions:
+  extends:
+    - .python::base
+  rules:
+    - if: $VERSION == "3.14rc"
+      allow_failure: true
+    - when: on_success
+
+  parallel:
+    matrix:
+      - VERSION:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "3.14rc"
+
+
+pylint:
+  extends: .python::base
+
+  stage: lint
+
+  script:
+    - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
+  artifacts:
+    reports:
+      codequality: codequality.json
+
+
+bandit:
+  extends: .python::base
+
+  stage: lint
+
+  script:
+    - uv run bandit --exit-zero --configfile pyproject.toml --recursive ${BANDIT_TARGET:-.}
+    - uv run bandit --configfile pyproject.toml --format json --output results.json --recursive ${BANDIT_TARGET:-.}
+
+  artifacts:
+    reports:
+      codequality: results.json
+
+
+unit_test:
+  extends: .python::current-versions
+
+  stage: test
+
+  script:
+    - uv run pytest --ignore=tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
+
+
+functional_test:
+  extends: .python::current-versions
+
+  stage: test
+
+  script:
+    - uv run pytest tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
+
+  allow_failure: true
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
+
+
+ruff:
+  extends: .python::base
+
+  stage: lint
+
+  script:
+    - uv run ruff --version
+    - uv run ruff check --exit-zero --output-format=gitlab > ruff-report.json
+    - uv run ruff format
+    - uv run ruff check
+    - uv run ruff check --select I
+
+  artifacts:
+    reports:
+      codequality: ruff-report.json
+
+
+mypy:
+  extends: .python::current-versions
+
+  stage: lint
+  script:
+    - uv run mypy . --pretty --cobertura-xml-report ./ --junit-xml junit.xml
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
