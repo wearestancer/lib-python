@@ -1,0 +1,44 @@
+[project]
+name = "lib-python"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "requests>=2.32.5",
+]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.8.6",
+    "importlib-metadata>=8.7.0",
+    "pylint>=3.3.8",
+    "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
+    "pytest-xdist>=3.8.0",
+    "pytz>=2025.2",
+    "responses>=0.25.8",
+    "ruff>=0.12.11",
+    "typing-extensions>=4.15.0",
+    "zipp>=3.23.0",
+]
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 20
+indent-style = "space"
+quote-style = "double"
+
+
+[tool.ruff.lint.isort]
+force-single-line = true
+from-first = false
+length-sort = false
+lines-between-types = 1
+no-sections = false
+relative-imports-order = "furthest-to-closest"

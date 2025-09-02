@@ -6,13 +6,38 @@ workflow:
       when: never
     - when: always
 
-pylint:
-  image: docker.io/wearestancer/python:latest-uv
+variables:
+  DOCKER_REGISTRY: docker.io/wearestancer
+  VERSION: 3.12
 
+.python::base:
+  image: ${DOCKER_REGISTRY}/python:$VERSION-uv
   before_script:
     - uv --version
-    - uv pip install pylint
     - python --version
+    - uv venv
+    - uv sync
+
+pylint:
+  extends: .python::base
 
   script:
-    - uv run pylint
+    - uv run pylint ./stancer/ ./tests/
+
+bandit:
+  extends: .python::base
+
+  script:
+    - uv run bandit ./stancer/ -r
+
+pytest:
+  extends: .python::base
+
+  script:
+    - uv run pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml ./stancer/
+
+ruff:
+  extends: .python::base
+
+  script:
+    - uv ruff check
