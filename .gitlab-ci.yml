@@ -1,0 +1,18 @@
+workflow:
+  rules:
+    - if: '$CI_COMMIT_REF_PROTECTED == "true"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: "$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS"
+      when: never
+    - when: always
+
+pylint:
+  image: docker.io/wearestancer/python:latest-uv
+
+  before_script:
+    - uv --version
+    - uv pip install pylint
+    - python --version
+
+  script:
+    - uv run pylint
