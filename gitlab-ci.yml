@@ -1,0 +1,199 @@
+workflow:
+  rules:
+    - when: always
+variables:
+  KUBERNETES_MEMORY_LIMIT: 2Gi
+  KUBERNETES_MEMORY_REQUEST: 1Gi
+  PYLINT_TARGET: stancer
+
+include:
+  - local: python_base.yml
+
+Clean pip/pipenv cache:
+  extends:
+    - .python::current-versions
+    - .python::cache::write
+
+  stage: .pre
+
+  allow_failure: true
+
+  before_script: []
+
+  script:
+    - !reference [".python::base", before_script]
+
+  rules:
+    - if: $PODMAN_READY == "true"
+      when: never
+    - if: $CONTAINERIZED
+      when: never
+    - exists:
+        - Pipfile
+        - Pipfile.lock
+
+bandit:
+  extends:
+    - .python::base
+    - .python::cache::none
+
+  stage: test
+
+  image: git.priv.iliad78.net:5050/stancer/ci-template/security/analyzer:python
+
+  before_script:
+    - python --version
+    - pipenv --version
+
+  script:
+    - bandit --exit-zero -c .bandit.yml -r ${BANDIT_TARGET:-.}
+    - bandit --exit-zero -c .bandit.yml -f json -o results.json -r ${BANDIT_TARGET:-.}
+    - bandit-to-codeclimate
+
+  artifacts:
+    reports:
+      codequality: codequality.json
+
+  rules:
+    - exists:
+        - .bandit.yml
+pylint:
+  extends:
+    - .python::base
+
+  image: git.priv.iliad78.net:5050/stancer/ci-template/linter:python
+
+  stage: test
+
+  script:
+    - pipenv run pip install pylint pylint-gitlab pylint-quotes
+    - pipenv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
+
+  variables:
+    CACHE_FALLBACK_KEY: "$CI_DEFAULT_BRANCH"
+    PYLINTHOME: "${CACHE_DIR}/pylint"
+
+  artifacts:
+    reports:
+      codequality: codequality.json
+
+  rules:
+    - if: $CONTAINERIZED
+      when: never
+    - if: $PODMAN_READY == "true"
+      when: never
+    - exists:
+        - pylintrc
+        - .pylintrc
+
+Pylint:
+  extends:
+    - pylint
+    - .python::internals::base
+
+  script:
+    - pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
+
+  rules:
+    - if: $CONTAINERIZED
+      exists:
+        - pylintrc
+        - .pylintrc
+    - if: $PODMAN_READY == "true"
+      exists:
+        - pylintrc
+        - .pylintrc
+
+pytest:
+  extends:
+    - .python::current-versions
+
+  stage: test
+
+  script:
+    - if [[ ! -f .coveragerc ]]; then echo -e "[report]\nprecision = 2" >> .coveragerc; fi
+    - pipenv run python -m pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml ${PYTEST_TARGET:-.}
+
+  coverage: '/TOTAL \s+[\d+\s+]* (\d+.?\d*%)/'
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
+
+  rules:
+    - if: $CONTAINERIZED
+      when: never
+    - if: $PODMAN_READY == "true"
+      when: never
+    - exists:
+        - pytest.ini
+
+Pytest:
+  extends:
+    - pytest
+    - .python::internals::base
+
+  script:
+    - if [[ ! -f .coveragerc ]]; then echo -e "[report]\nprecision = 2" >> .coveragerc; fi
+    - python -m pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml ${PYTEST_TARGET:-.}
+
+  rules:
+    - if: $CONTAINERIZED
+      exists:
+        - pytest.ini
+    - if: $PODMAN_READY == "true"
+      exists:
+        - pytest.ini
+
+safety:
+  extends:
+    - .python::base
+    - .python::cache::none
+
+  stage: test
+
+  image: git.priv.iliad78.net:5050/stancer/ci-template/security/dependency:python
+
+  before_script:
+    - python --version
+    - pipenv --version
+
+  script:
+    - merge-yamls ./.safety-policy.yml /etc/safety/safety-policy.yml --output $PWD/merged-safety-policy.yml -v
+    - pipenv check --output full-report --policy-file ./merged-safety-policy.yml --continue-on-error
+    - pipenv check --output json --policy-file ./merged-safety-policy.yml | safety-to-codeclimate > codequality.json
+
+  artifacts:
+    reports:
+      codequality: codequality.json
+
+  rules:
+    - exists:
+        - requirements.txt
+        - Pipfile
+
+build:python:
+  extends:
+    - .retry-on-server-error
+
+  image: git.priv.iliad78.net:5050/stancer/ci-template/registry:pypi
+
+  variables:
+    VERSION: "3.9"
+
+  stage: build
+
+  script:
+    - python setup.py sdist
+    - python -m build --sdist
+
+  artifacts:
+    paths:
+      - "dist/*.tar.gz"
+
+  rules:
+    - exists:
+        - setup.py
