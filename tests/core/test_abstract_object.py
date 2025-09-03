@@ -96,14 +96,14 @@ class TestAbstractObject(TestHelper):
         version = self.random_integer(1, 20)
         port = self.random_integer(100, 65535)
 
-        # TODO do we test the old host and version
-        old_host = conf.host  # noqa: F841
-        old_version = conf.version  # noqa: F841
+        old_host = conf.host
+        old_version = conf.version
 
         conf.host = host
         conf.version = version
 
         assert obj.uri == 'https://{}/v{}/{}'.format(host, version, uid)
+        assert obj.uri != 'https://{}/v{}/{}'.format(old_host, old_version, uid)
 
         pattern = 'https://{}:{}/v{}/{}'
 

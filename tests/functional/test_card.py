@@ -35,9 +35,6 @@ class TestFunctionalCard(TestHelper):
         assert card.created.timestamp() == 1579024205
 
     def test_crud(self):
-        # TODO do we need to test this obj ?
-        obj = Card()  # noqa: F841
-
         month = self.random_integer(1, 12)
         year = (
             self.random_year() + 20

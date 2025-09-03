@@ -18,6 +18,17 @@ variables:
     - uv sync
     - uv tree
 
+.python::current-versions:
+  extends:
+    - .python::base
+  parallel:
+    matrix:
+      - VERSION:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+
 pylint:
   extends: .python::base
 
@@ -41,10 +52,10 @@ bandit:
       codequality: results.json
 
 pytest:
-  extends: .python::base
+  extends: .python::current-versions
 
   script:
-    - uv run pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml ./stancer/
+    - uv run pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
 
   artifacts:
     reports:

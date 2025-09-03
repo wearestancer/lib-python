@@ -6,6 +6,7 @@ from stancer import Auth
 from stancer import AuthStatus
 from stancer.core import AbstractObject
 from .TestHelper import TestHelper
+from stancer.exceptions import InvalidUrlError
 
 
 class TestAuth(TestHelper):
@@ -29,9 +30,11 @@ class TestAuth(TestHelper):
 
     def test_return_url(self):
         obj = Auth()
-        # TODO use bad_url
-        bad_url = 'http://' + self.random_string(50)  # noqa: F841
+        bad_url = 'http://' + self.random_string(50)
         return_url = 'https://' + self.random_string(50)
+
+        with pytest.raises(InvalidUrlError):
+            obj.return_url = bad_url
 
         assert obj.return_url is None
 
