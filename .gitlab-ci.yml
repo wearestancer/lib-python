@@ -15,20 +15,32 @@ variables:
   before_script:
     - uv --version
     - python --version
-    - uv venv
     - uv sync
+    - uv tree
 
 pylint:
   extends: .python::base
 
   script:
-    - uv run pylint ./stancer/ ./tests/
+    - uv add pylint-gitlab pylint-quotes
+    - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text \
+      --reports=y --score=y ${PYLINT_TARGET:-.}
+  artifacts:
+    reports:
+      codequality: codequality.json
 
 bandit:
   extends: .python::base
 
   script:
-    - uv run bandit ./stancer/ -r
+    - uv run bandit --exit-zero --configfile .bandit.yml --recursive ${BANDIT_TARGET:-.}
+    - uv run bandit --exit-zero --configfile .bandit.yml \
+      --format json --output results.json \
+      --recursive ${BANDIT_TARGET:-.}
+
+  artifacts:
+    reports:
+      codequality: results.json
 
 pytest:
   extends: .python::base
@@ -36,8 +48,21 @@ pytest:
   script:
     - uv run pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml ./stancer/
 
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
+
 ruff:
   extends: .python::base
 
   script:
-    - uv ruff check
+    - uv run ruff --version
+    - uv run ruff check
+    - uv run ruff check --output-format=gitlab > ruff-report.json
+
+  artifacts:
+    reports:
+      codequality: $CI_PROJECT_DIR/ruff-report.json
