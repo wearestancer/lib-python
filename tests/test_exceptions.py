@@ -1,8 +1,62 @@
 """Test exceptions"""
 
 import pytest
+from requests import Response
 
-from stancer.exceptions import *  # pylint: disable=wildcard-import # noqa: F403
+from stancer.exceptions import (
+    StancerException,
+    StancerNotImplementedError,
+    StancerTypeError,
+    StancerValueError,
+    StancerWarning,
+    InvalidAmountError,
+    InvalidAuthError,
+    InvalidBicError,
+    InvalidCardError,
+    InvalidCardExpirationMonthError,
+    InvalidCardExpirationYearError,
+    InvalidCardNumberError,
+    InvalidCardTokenizeError,
+    InvalidCardVerificationCodeError,
+    InvalidCurrencyError,
+    InvalidCustomerError,
+    InvalidCustomerEmailError,
+    InvalidCustomerExternalIdError,
+    InvalidCustomerMobileError,
+    InvalidDeviceError,
+    InvalidIbanError,
+    InvalidIpAddressError,
+    InvalidNameError,
+    InvalidPaymentCaptureError,
+    InvalidPaymentDescriptionError,
+    InvalidPaymentOrderIdError,
+    InvalidPaymentUniqueIdError,
+    InvalidPortError,
+    InvalidSepaError,
+    InvalidStatusError,
+    InvalidUrlError,
+    InvalidZipCodeError,
+    MissingPaymentMethodError,
+    MissingApiKeyError,
+    MissingPaymentIdError,
+    MissingReturnUrlError,
+    StancerHTTPError,
+    HTTPError,
+    StancerHTTPClientError,
+    StancerHTTPServerError,
+    BadRequestError,
+    UnauthorizedError,
+    PaymentRequiredError,
+    ForbiddenError,
+    NotFoundError,
+    MethodNotAllowedError,
+    NotAcceptableError,
+    ProxyAuthenticationRequiredError,
+    RequestTimeoutError,
+    ConflictError,
+    GoneError,
+    InternalServerError,
+)
 from .TestHelper import TestHelper
 
 

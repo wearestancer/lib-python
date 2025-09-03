@@ -3,12 +3,26 @@
 
 # pylint: enable=missing-docstring
 from datetime import date
-import pytest
 from random import choice, randint
 import string
 
 from stancer import Config
-from stancer.exceptions import *  # pylint: disable=wildcard-import # noqa: F403
+from stancer.exceptions import (
+    BadRequestError,
+    UnauthorizedError,
+    PaymentRequiredError,
+    ForbiddenError,
+    NotFoundError,
+    MethodNotAllowedError,
+    NotAcceptableError,
+    ProxyAuthenticationRequiredError,
+    RequestTimeoutError,
+    ConflictError,
+    GoneError,
+    InternalServerError,
+    StancerHTTPClientError,
+    StancerHTTPServerError,
+)
 
 
 class TestHelper(object):

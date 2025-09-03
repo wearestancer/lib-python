@@ -8,12 +8,10 @@ import json
 import pytest
 from pytz import timezone as tz
 from random import choice
-import requests
 import responses
 
 from stancer import Card
 from stancer import Config
-from stancer.exceptions import StancerValueError
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 

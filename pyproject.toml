@@ -32,9 +32,6 @@ docstring-code-line-length = 20
 indent-style = "space"
 quote-style = "single"
 
-[tool.ruff.lint]
-extend-ignore = ["F401","F405"]
-
 [tool.ruff.lint.isort]
 force-single-line = true
 from-first = false
@@ -44,7 +41,7 @@ no-sections = false
 relative-imports-order = "furthest-to-closest"
 
 [tool.ruff.lint.extend-per-file-ignores]
-"__init__.py" = ["F403"]
+
 
 [tool.pytest.ini_options]
 addopts = "--cov=stancer"
