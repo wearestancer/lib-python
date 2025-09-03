@@ -1,3 +1,7 @@
+stages:
+  - lint
+  - test
+
 workflow:
   rules:
     - if: '$CI_COMMIT_REF_PROTECTED == "true"'
@@ -30,6 +34,8 @@ variables:
           - "3.12"
 
 pylint:
+  stage: lint
+
   extends: .python::base
 
   script:
@@ -40,18 +46,21 @@ pylint:
       codequality: codequality.json
 
 bandit:
+  stage: lint
+
   extends: .python::base
 
   script:
     - uv run bandit --exit-zero --configfile .bandit.yml --recursive ${BANDIT_TARGET:-.}
-    - uv run bandit --exit-zero --configfile .bandit.yml \
-      --format json --output results.json --recursive ${BANDIT_TARGET:-.}
+    - uv run bandit --exit-zero --configfile .bandit.yml --format json --output results.json --recursive ${BANDIT_TARGET:-.}
 
   artifacts:
     reports:
       codequality: results.json
 
 pytest:
+  stage: test
+
   extends: .python::current-versions
 
   script:
@@ -65,6 +74,8 @@ pytest:
       junit: junit.xml
 
 ruff:
+  stage: lint
+
   extends: .python::base
 
   script:
