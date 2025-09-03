@@ -14,7 +14,7 @@ class StancerHTTPError(StancerException, HTTPError):
     They also inherit from `requests.HTTPError`.
     """
 
-    reason = 'HTTP error'
+    reason = "HTTP error"
 
     def __new__(cls, response: Response, *args, **kwargs):
         """
@@ -55,14 +55,14 @@ class StancerHTTPError(StancerException, HTTPError):
             if response.reason is not None:
                 message = response.reason
 
-            if isinstance(res, dict) and 'error' in res:
-                (message, type_data) = self._parse_message(res['error'])
+            if isinstance(res, dict) and "error" in res:
+                (message, type_data) = self._parse_message(res["error"])
         except ValueError:
             pass
 
         params = {
             **kwargs,
-            'response': response,
+            "response": response,
         }
 
         super().__init__(message, *args, **params)
@@ -85,7 +85,7 @@ class StancerHTTPError(StancerException, HTTPError):
             Current error message.
         """
 
-        return str(self.message or '')
+        return str(self.message or "")
 
     @classmethod
     def _parse_message(cls, err) -> tuple[str, str | None]:
@@ -93,20 +93,20 @@ class StancerHTTPError(StancerException, HTTPError):
         type_data = None
 
         if isinstance(err, dict):
-            if 'message' in err:
-                message = err['message']
+            if "message" in err:
+                message = err["message"]
                 if isinstance(message, dict):
-                    if 'id' in err['message']:
-                        message = str(err['message']['id'])
+                    if "id" in err["message"]:
+                        message = str(err["message"]["id"])
 
-                    if 'error' in err['message']:
-                        message = err['message']['error']
+                    if "error" in err["message"]:
+                        message = err["message"]["error"]
 
-                        if 'id' in err['message']:
-                            message += f' ({err["message"]["id"]})'
+                        if "id" in err["message"]:
+                            message += f" ({err['message']['id']})"
 
-            if 'type' in err:
-                type_data = err['type']
+            if "type" in err:
+                type_data = err["type"]
 
         return (message, type_data)
 
@@ -114,94 +114,94 @@ class StancerHTTPError(StancerException, HTTPError):
 class StancerHTTPClientError(StancerHTTPError):
     """Base exception for HTTP 4xx status."""
 
-    reason = 'Client error'
+    reason = "Client error"
 
 
 class StancerHTTPServerError(StancerHTTPError):
     """Base exception for HTTP 5xx status."""
 
-    reason = 'Server error'
+    reason = "Server error"
 
 
 class BadRequestError(StancerHTTPClientError):
     """HTTP 400 - Bad Request"""
 
     status_code = 400
-    reason = 'Bad Request'
+    reason = "Bad Request"
 
 
 class UnauthorizedError(StancerHTTPClientError):
     """HTTP 401 - Unauthorized"""
 
     status_code = 401
-    reason = 'Unauthorized'
+    reason = "Unauthorized"
 
 
 class PaymentRequiredError(StancerHTTPClientError):
     """HTTP 402 - Payment Required"""
 
     status_code = 402
-    reason = 'Payment Required'
+    reason = "Payment Required"
 
 
 class ForbiddenError(StancerHTTPClientError):
     """HTTP 403 - Forbidden"""
 
     status_code = 403
-    reason = 'Forbidden'
+    reason = "Forbidden"
 
 
 class NotFoundError(StancerHTTPClientError):
     """HTTP 404 - Not Found"""
 
     status_code = 404
-    reason = 'Not Found'
+    reason = "Not Found"
 
 
 class MethodNotAllowedError(StancerHTTPClientError):
     """HTTP 405 - Method Not Allowed"""
 
     status_code = 405
-    reason = 'Method Not Allowed'
+    reason = "Method Not Allowed"
 
 
 class NotAcceptableError(StancerHTTPClientError):
     """HTTP 406 - Not Acceptable"""
 
     status_code = 406
-    reason = 'Not Acceptable'
+    reason = "Not Acceptable"
 
 
 class ProxyAuthenticationRequiredError(StancerHTTPClientError):
     """HTTP 407 - Proxy Authentication Required"""
 
     status_code = 407
-    reason = 'Proxy Authentication Required'
+    reason = "Proxy Authentication Required"
 
 
 class RequestTimeoutError(StancerHTTPClientError):
     """HTTP 408 - Request Timeout"""
 
     status_code = 408
-    reason = 'Request Timeout'
+    reason = "Request Timeout"
 
 
 class ConflictError(StancerHTTPClientError):
     """HTTP 409 - Conflict"""
 
     status_code = 409
-    reason = 'Conflict'
+    reason = "Conflict"
 
 
 class GoneError(StancerHTTPClientError):
     """HTTP 410 - Gone"""
 
     status_code = 410
-    reason = 'Gone'
+    reason = "Gone"
 
 
 class InternalServerError(StancerHTTPServerError):
     """HTTP 500 - Internal Server Error"""
 
     status_code = 500
-    reason = 'Internal Server Error'
+    reason = "Internal Server Error"

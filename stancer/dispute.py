@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from .core import AbstractAmount
 from .core import AbstractObject
 from .core import AbstractSearch
@@ -9,7 +10,7 @@ from .payment import Payment
 class Dispute(AbstractObject, AbstractAmount, AbstractSearch):
     """Representation of a dispute."""
 
-    _ENDPOINT = 'disputes'
+    _ENDPOINT = 'disputes'  # pylint:disable=invalid-name
 
     @property
     def _init_payment(self) -> type[Payment]:

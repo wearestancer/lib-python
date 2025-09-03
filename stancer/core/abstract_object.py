@@ -16,7 +16,7 @@ try:
 except ImportError:
     from typing import TypeVar
 
-    Self = TypeVar('Self', bound='AbstractObject')  # type: ignore
+    Self = TypeVar("Self", bound="AbstractObject")  # type: ignore
 
 # pylint: disable=too-many-branches
 
@@ -27,7 +27,7 @@ class AbstractObject:
     _ENDPOINT: str | None = None  # pylint: disable=invalid-name
     _allowed_attributes: list[str] = []
     _datetime_property: list[str] = [
-        'created',
+        "created",
     ]
     _default_values: dict[str, Any] = {}
     _repr_ignore: set[str] = set()
@@ -78,7 +78,7 @@ class AbstractObject:
         representation = {}
 
         if self.id is not None:
-            representation['id'] = self.id
+            representation["id"] = self.id
 
         for key, value in self._data.items():
             representation[key] = value
@@ -108,13 +108,13 @@ class AbstractObject:
             value = self._data.get(key)
 
             if isinstance(value, int):
-                args.append(f'{key}={value}')
+                args.append(f"{key}={value}")
             else:
                 args.append(f'{key}="{value}"')
 
         name = type(self).__name__
 
-        return f'<{name}({", ".join(args)}) at 0x{id(self):02x}>'
+        return f"<{name}({', '.join(args)}) at 0x{id(self):02x}>"
 
     @property
     def _bypass(self) -> bool:
@@ -134,7 +134,7 @@ class AbstractObject:
         allowed = set()
 
         for parent in cls.mro():
-            if hasattr(parent, '_allowed_attributes'):
+            if hasattr(parent, "_allowed_attributes"):
                 allowed.update(parent._allowed_attributes)  # pylint: disable=protected-access
 
         return allowed
@@ -144,7 +144,7 @@ class AbstractObject:
         allowed = set()
 
         for parent in cls.mro():
-            if hasattr(parent, '_datetime_property'):
+            if hasattr(parent, "_datetime_property"):
                 allowed.update(parent._datetime_property)  # pylint: disable=protected-access
 
         return allowed
@@ -205,7 +205,7 @@ class AbstractObject:
         Returns:
             Creation date and time (into the API) during server side creation.
         """
-        return self._data.get('created')
+        return self._data.get("created")
 
     def delete(self: Self) -> Self:
         """
@@ -220,13 +220,13 @@ class AbstractObject:
         Request().delete(self)
 
         # Force modified to allow sending it again to the API
-        self._modified = 'id'
+        self._modified = "id"
 
         return self
 
     def _hydrate_list(self, key: str, value: Any) -> list:
         tmp = getattr(self, key)
-        init_method = '_init_' + key
+        init_method = "_init_" + key
         new_values = []
 
         for current_value in value:
@@ -239,7 +239,7 @@ class AbstractObject:
             elif isinstance(current_value, AbstractObject):
                 uid = current_value.id
             else:
-                uid = current_value.get('id')
+                uid = current_value.get("id")
 
             for obj in tmp:
                 if obj.id == uid:
@@ -284,7 +284,7 @@ class AbstractObject:
 
             if hasattr(self, key):
                 tmp = getattr(self, key)
-                init_method = '_init_' + key
+                init_method = "_init_" + key
 
                 if (
                     isinstance(tmp, list)
@@ -314,7 +314,7 @@ class AbstractObject:
                 elif isinstance(tmp, AbstractObject) and not isinstance(
                     value, AbstractObject
                 ):
-                    val = {'id': value} if not isinstance(value, dict) else value
+                    val = {"id": value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access
 
@@ -327,7 +327,7 @@ class AbstractObject:
             if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
 
-            if key == 'id':
+            if key == "id":
                 self._id = value
             else:
                 applied = False
@@ -442,7 +442,7 @@ class AbstractObject:
         Returns:
             Are we in live mode ?
         """
-        return self._data.get('live_mode')
+        return self._data.get("live_mode")
 
     def populate(self: Self) -> Self:
         """
@@ -499,7 +499,7 @@ class AbstractObject:
         Returns:
             A JSON representation of the current object.
         """
-        return json.dumps(self.to_json_repr(), separators=(',', ':'))
+        return json.dumps(self.to_json_repr(), separators=(",", ":"))
 
     def to_json_repr(self) -> dict[str, Any] | str:
         """
@@ -549,17 +549,17 @@ class AbstractObject:
             Uniform Resource Identifier.
         """
         conf = Config()
-        port = ''
+        port = ""
 
         if conf.port is not None:
-            port = f':{conf.port}'
+            port = f":{conf.port}"
 
-        location = f'https://{conf.host}{port}/v{conf.version}'
+        location = f"https://{conf.host}{port}/v{conf.version}"
 
         if self._ENDPOINT is not None:
-            location += '/' + self._ENDPOINT
+            location += "/" + self._ENDPOINT
 
         if self.id is not None:
-            location += '/' + self.id
+            location += "/" + self.id
 
         return location

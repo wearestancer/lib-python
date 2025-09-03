@@ -39,7 +39,7 @@ try:
 except ImportError:
     from typing import TypeVar
 
-    Self = TypeVar('Self', bound='Payment')  # type: ignore
+    Self = TypeVar("Self", bound="Payment")  # type: ignore
 
 ORDER_ID_MAX_LEN = 36
 
@@ -58,20 +58,20 @@ class Payment(
     # our way of building object imposes many ancestors
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'
+    _ENDPOINT = "checkout"
 
     _allowed_attributes = [
-        'capture',
-        'card',
-        'customer',
-        'description',
-        'order_id',
-        'sepa',
-        'status',
-        'unique_id',
+        "capture",
+        "card",
+        "customer",
+        "description",
+        "order_id",
+        "sepa",
+        "status",
+        "unique_id",
     ]
     _datetime_property = [
-        'date_bank',
+        "date_bank",
     ]
 
     @property
@@ -104,12 +104,12 @@ class Payment(
         Raises:
             InvalidPaymentCaptureError: When capture flag is invalid.
         """
-        return self._data.get('capture')
+        return self._data.get("capture")
 
     @capture.setter
     @validate_type(bool, throws=InvalidPaymentCaptureError)
     def capture(self, value: bool):
-        self._data['capture'] = value
+        self._data["capture"] = value
 
     @property
     @populate_on_call
@@ -126,13 +126,13 @@ class Payment(
         Raises:
             InvalidCardError: When card is invalid.
         """
-        return self._data.get('card')
+        return self._data.get("card")
 
     @card.setter
     @validate_type(Card, throws=InvalidCardError)
     def card(self, value: Card):
-        self._data['card'] = value
-        self._data['method'] = 'card'
+        self._data["card"] = value
+        self._data["method"] = "card"
 
     @property
     @populate_on_call
@@ -149,7 +149,7 @@ class Payment(
         Raises:
             InvalidCustomerError: When customer is invalid.
         """
-        return self._data.get('customer')
+        return self._data.get("customer")
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
@@ -165,7 +165,7 @@ class Payment(
         Returns:
             Payment value date.
         """
-        return self._data.get('date_bank')
+        return self._data.get("date_bank")
 
     # We raise an error before return so no need for type checking here.
     def delete(self: Self) -> Self:  # type: ignore # see above
@@ -177,7 +177,7 @@ class Payment(
                 delete, refund it.
         """
         message = (
-            'You are not allowed to delete a payment, you need to refund it instead.'
+            "You are not allowed to delete a payment, you need to refund it instead."
         )
 
         raise StancerNotImplementedError(message)
@@ -197,7 +197,7 @@ class Payment(
         Raises:
             InvalidPaymentDescriptionError: When description is invalid.
         """
-        return self._data.get('description')
+        return self._data.get("description")
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
@@ -213,7 +213,7 @@ class Payment(
         Returns:
             Fee applied at checkout.
         """
-        return self._data.get('fee')
+        return self._data.get("fee")
 
     @classmethod
     def filter_list_params(cls, **kwargs) -> dict[str, Any]:
@@ -230,33 +230,33 @@ class Payment(
         """
 
         params = {}
-        base_message = 'A valid {} must be between {} and {} characters.'
+        base_message = "A valid {} must be between {} and {} characters."
 
-        if 'order_id' in kwargs:
-            if not isinstance(kwargs['order_id'], str):
-                raise InvalidSearchFilter('Order ID must be a string.')
+        if "order_id" in kwargs:
+            if not isinstance(kwargs["order_id"], str):
+                raise InvalidSearchFilter("Order ID must be a string.")
 
-            length = len(kwargs['order_id'])
+            length = len(kwargs["order_id"])
 
             if length > ORDER_ID_MAX_LEN or not length:
                 raise InvalidSearchFilter(
-                    base_message.format('order ID', 1, ORDER_ID_MAX_LEN)
+                    base_message.format("order ID", 1, ORDER_ID_MAX_LEN)
                 )
 
-            params['order_id'] = kwargs['order_id']
+            params["order_id"] = kwargs["order_id"]
 
-        if 'unique_id' in kwargs:
-            if not isinstance(kwargs['unique_id'], str):
-                raise InvalidSearchFilter('Unique ID must be a string.')
+        if "unique_id" in kwargs:
+            if not isinstance(kwargs["unique_id"], str):
+                raise InvalidSearchFilter("Unique ID must be a string.")
 
-            length = len(kwargs['unique_id'])
+            length = len(kwargs["unique_id"])
 
             if length > UNIQUE_ID_MAX_LEN or not length:
                 raise InvalidSearchFilter(
-                    base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN)
+                    base_message.format("unique ID", 1, UNIQUE_ID_MAX_LEN)
                 )
 
-            params['unique_id'] = kwargs['unique_id']
+            params["unique_id"] = kwargs["unique_id"]
 
         return params
 
@@ -325,7 +325,7 @@ class Payment(
         Returns:
             str: Payment means used, should be "card" or "sepa".
         """
-        return self._data.get('method')
+        return self._data.get("method")
 
     @property
     @populate_on_call
@@ -345,14 +345,14 @@ class Payment(
         Raises:
             InvalidPaymentOrderIdError: When order id is invalid.
         """
-        return self._data.get('order_id')
+        return self._data.get("order_id")
 
     @order_id.setter
     @validate_type(
         str,
         coerce=coerce_uuid,
         max=ORDER_ID_MAX_LEN,
-        name='Order id',
+        name="Order id",
         throws=InvalidPaymentOrderIdError,
     )
     def order_id(self, value: str) -> None:
@@ -370,7 +370,7 @@ class Payment(
         Returns:
             str: API response for the payment.
         """
-        return self._data.get('response')
+        return self._data.get("response")
 
     @property
     @populate_on_call
@@ -385,11 +385,11 @@ class Payment(
         """
         response = self.response
         responses = {
-            '00': 'OK',
-            '05': 'Do not honor',
-            '41': 'Lost card',
-            '42': 'Stolen card',
-            '51': 'Insufficient funds',
+            "00": "OK",
+            "05": "Do not honor",
+            "41": "Lost card",
+            "42": "Stolen card",
+            "51": "Insufficient funds",
         }
 
         return responses.get(response)
@@ -411,19 +411,19 @@ class Payment(
                 (you may have forgotten the card number).
         """
         if self.amount is None:
-            message = 'You must provide an amount before sending a payment.'
+            message = "You must provide an amount before sending a payment."
             raise InvalidAmountError(message)
 
         if self.currency is None:
-            message = 'You must provide a currency before sending a payment.'
+            message = "You must provide a currency before sending a payment."
             raise InvalidCurrencyError(message)
 
         if self.card is not None and self.card.is_not_complete:
-            message = 'Your card is incomplete.'
+            message = "Your card is incomplete."
             raise MissingPaymentMethodError(message)
 
         if self.sepa is not None and self.sepa.is_not_complete:
-            message = 'Your SEPA account is incomplete.'
+            message = "Your SEPA account is incomplete."
             raise MissingPaymentMethodError(message)
 
         self._create_device()
@@ -445,7 +445,7 @@ class Payment(
         Raises:
             InvalidSepaError: When sepa is invalid.
         """
-        return self._data.get('sepa')
+        return self._data.get("sepa")
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
@@ -462,7 +462,7 @@ class Payment(
         Returns:
             str: Current status.
         """
-        return self._data.get('status')
+        return self._data.get("status")
 
     @status.setter
     @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
@@ -489,14 +489,14 @@ class Payment(
         Raises:
             InvalidPaymentUniqueIdError: When unique id is invalid.
         """
-        return self._data.get('unique_id')
+        return self._data.get("unique_id")
 
     @unique_id.setter
     @validate_type(
         str,
         coerce=coerce_uuid,
         max=UNIQUE_ID_MAX_LEN,
-        name='Unique ID',
+        name="Unique ID",
         throws=InvalidPaymentUniqueIdError,
     )
     def unique_id(self, value: str) -> None:

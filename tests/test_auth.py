@@ -8,6 +8,9 @@ from stancer.core import AbstractObject
 from stancer.exceptions import InvalidUrlError
 
 from .TestHelper import TestHelper
+from stancer.exceptions import InvalidUrlError
+
+from .TestHelper import TestHelper
 
 
 class TestAuth(TestHelper):
@@ -20,19 +23,19 @@ class TestAuth(TestHelper):
         assert obj.redirect_url is None
 
         with pytest.raises(AttributeError):
-            obj.redirect_url = f'https://{self.random_string(15)}'
+            obj.redirect_url = f"https://{self.random_string(15)}"
 
         params = {
-            'redirect_url': f'https://{self.random_string(50)}',
+            "redirect_url": f"https://{self.random_string(50)}",
         }
         obj.hydrate(**params)
 
-        assert obj.redirect_url == params['redirect_url']
+        assert obj.redirect_url == params["redirect_url"]
 
     def test_return_url(self):
         obj = Auth()
-        bad_url = f'http://{self.random_string(50)}'
-        return_url = f'https://{self.random_string(50)}'
+        bad_url = "http://" + self.random_string(50)
+        return_url = "https://" + self.random_string(50)
 
         with pytest.raises(InvalidUrlError):
             obj.return_url = bad_url

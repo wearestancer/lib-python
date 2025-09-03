@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from typing import TYPE_CHECKING
-
 import requests
 
 from ..config import Config
@@ -38,7 +37,7 @@ class Request:
         Returns:
             Current instance of Request.
         """
-        return self._request('delete', obj)
+        return self._request("delete", obj)
 
     def get(
         self: Self,
@@ -57,7 +56,7 @@ class Request:
         Returns:
             Current instance of Request.
         """
-        return self._request('get', obj, update, **kwargs)
+        return self._request("get", obj, update, **kwargs)
 
     def patch(self: Self, obj: 'AbstractObject') -> Self | str:
         """
@@ -69,7 +68,7 @@ class Request:
         Returns:
             Current instance of Request.
         """
-        return self._request('patch', obj)
+        return self._request("patch", obj)
 
     def post(self: Self, obj: 'AbstractObject') -> Self | str:
         """
@@ -81,7 +80,7 @@ class Request:
         Returns:
             Current instance of Request.
         """
-        return self._request('post', obj)
+        return self._request("post", obj)
 
     def _request(
         self: Self,
@@ -92,35 +91,35 @@ class Request:
     ) -> Self | str:
         """Handle "delete", "get", "patch" and "post" method."""
 
-        if method not in ['delete', 'get', 'patch', 'post']:
-            raise StancerValueError('Invalid HTTP method.')
+        if method not in ["delete", "get", "patch", "post"]:
+            raise StancerValueError("Invalid HTTP method.")
 
         username = self._conf.secret_key
 
         if username is None:
-            raise AttributeError('No API key found.')
+            raise AttributeError("No API key found.")
 
         body = None
 
-        if method not in ('get', 'delete'):
+        if method not in ("get", "delete"):
             body = obj.to_json()
 
         response = requests.request(
             method,
             obj.uri,
-            auth=(username, ''),
+            auth=(username, ""),
             data=body,
             params=kwargs,
             timeout=self._conf.timeout,
             headers={
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
             },
         )
 
         if not response.ok:
             raise StancerHTTPError(response)
 
-        if response.ok and method == 'delete':
+        if response.ok and method == "delete":
             del obj.id
 
         if not update:

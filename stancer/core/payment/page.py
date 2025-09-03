@@ -2,6 +2,7 @@
 from abc import ABC
 from abc import abstractmethod
 from urllib.parse import urlencode
+from typing import Any
 
 from ...config import Config
 from ...exceptions import InvalidUrlError
@@ -17,14 +18,14 @@ def _valid_return_url(value) -> str | None:
     if value.startswith('https://'):
         return None
 
-    return 'Return URL must use HTTPS protocol.'
+    return "Return URL must use HTTPS protocol."
 
 
 class PaymentPage(ABC, PaymentProtocol):
     """Specific property and method for payment page."""
 
     _allowed_attributes = [
-        'return_url',
+        "return_url",
     ]
 
     @abstractmethod
@@ -58,15 +59,15 @@ class PaymentPage(ABC, PaymentProtocol):
         """
 
         if self.return_url is None:
-            message = 'You must provide a return URL before going to the payment page.'
+            message = "You must provide a return URL before going to the payment page."
 
             raise MissingReturnUrlError(message)
 
         if self.id is None:
             message = (
-                'A payment ID is mandatory to obtain a payment page URL.'
-                ' '
-                'Maybe you forgot to send the payment.'
+                "A payment ID is mandatory to obtain a payment page URL."
+                " "
+                "Maybe you forgot to send the payment."
             )
 
             raise MissingPaymentIdError(message)
@@ -74,7 +75,7 @@ class PaymentPage(ABC, PaymentProtocol):
         config = Config()
 
         if config.public_key is None:
-            message = 'A public API key is needed to obtain a payment page URL.'
+            message = "A public API key is needed to obtain a payment page URL."
 
             raise MissingApiKeyError(message)
 
@@ -83,23 +84,23 @@ class PaymentPage(ABC, PaymentProtocol):
             raise InvalidUrlError(message)
 
         if config.port is None:
-            pattern = 'https://{host}/{key}/{id}'
+            pattern = "https://{host}/{key}/{id}"
         else:
-            pattern = 'https://{host}:{port}/{key}/{id}'
+            pattern = "https://{host}:{port}/{key}/{id}"
 
         tmp = {
-            'host': config.host.replace('api', 'payment'),
-            'id': self.id,
-            'key': config.public_key,
-            'port': config.port,
+            "host": config.host.replace("api", "payment"),
+            "id": self.id,
+            "key": config.public_key,
+            "port": config.port,
         }
         url = pattern.format(**tmp)
 
-        allowed = ('lang',)
+        allowed = ("lang",)
         params = {k: v for k, v in kwargs.items() if k in allowed}
 
         if params:
-            return url + '?' + urlencode(params)
+            return url + "?" + urlencode(params)
 
         return url
 
@@ -118,7 +119,7 @@ class PaymentPage(ABC, PaymentProtocol):
         Raises:
             InvalidUrlError: When URL is invalid.
         """
-        return self._data.get('return_url')
+        return self._data.get("return_url")
 
     @return_url.setter
     @validate_type(

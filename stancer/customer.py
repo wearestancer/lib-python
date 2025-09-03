@@ -14,7 +14,7 @@ from .exceptions import InvalidCustomerMobileError
 class Customer(AbstractObject, AbstractName, AbstractCountry):
     """Representation of a customer."""
 
-    _ENDPOINT = 'customers'
+    _ENDPOINT = 'customers'  # pylint:disable=invalid-name
 
     _allowed_attributes = [
         'email',

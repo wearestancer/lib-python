@@ -18,8 +18,8 @@ class Config(Singleton):
         TEST_MODE: Used with `Config.mode()` to set live or test API mode.
     """
 
-    LIVE_MODE = 'live'  # pylint: disable=invalid-name
-    TEST_MODE = 'test'  # pylint: disable=invalid-name
+    LIVE_MODE = "live"  # pylint: disable=invalid-name
+    TEST_MODE = "test"  # pylint: disable=invalid-name
 
     def __init__(self) -> None:
         """Initialize configuration instance."""
@@ -78,7 +78,7 @@ class Config(Singleton):
 
     @host.deleter
     def host(self) -> None:
-        self._host = 'api.stancer.com'
+        self._host = "api.stancer.com"
 
     @property
     def keys(self) -> dict[str, str | None]:
@@ -129,10 +129,10 @@ class Config(Singleton):
     @keys.deleter
     def keys(self) -> None:
         self._keys = {
-            'pprod': None,
-            'ptest': None,
-            'sprod': None,
-            'stest': None,
+            "pprod": None,
+            "ptest": None,
+            "sprod": None,
+            "stest": None,
         }
 
     @property
@@ -154,7 +154,7 @@ class Config(Singleton):
     @mode.setter
     def mode(self, value: str) -> None:
         if value not in (self.LIVE_MODE, self.TEST_MODE):
-            message = ' '.join(
+            message = " ".join(
                 [
                     f'Unknown mode "{value}".',
                     'Please use class constant "LIVE_MODE" or "TEST_MODE".',
@@ -177,7 +177,7 @@ class Config(Singleton):
         Returns:
             Public production key available in keychain.
         """
-        return self.keys['pprod']
+        return self.keys["pprod"]
 
     @property
     def port(self) -> int | None:
@@ -210,7 +210,7 @@ class Config(Singleton):
         Returns:
             Public development key available in keychain.
         """
-        return self.keys['ptest']
+        return self.keys["ptest"]
 
     @property
     def public_key(self) -> str | None:
@@ -246,7 +246,7 @@ class Config(Singleton):
         Returns:
             Secret production key available in keychain.
         """
-        return self.keys['sprod']
+        return self.keys["sprod"]
 
     @property
     def stest(self) -> str | None:
@@ -256,7 +256,7 @@ class Config(Singleton):
         Returns:
             Secret development key available in keychain.
         """
-        return self.keys['stest']
+        return self.keys["stest"]
 
     @property
     def timeout(self) -> int | None:

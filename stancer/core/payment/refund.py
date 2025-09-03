@@ -17,8 +17,10 @@ if TYPE_CHECKING:
 class PaymentRefund(ABC, PaymentProtocol):
     """Specific property and method for payment refunds."""
 
+    _allowed_attributes: list[str] = []
     @abstractmethod
     def __init__(self) -> None:
+        """Init internal data."""
         pass
 
     @property
@@ -50,8 +52,8 @@ class PaymentRefund(ABC, PaymentProtocol):
         from ...refund import Refund  # pylint: disable=import-outside-toplevel
 
         refund = Refund()
-        params: dict[str, Any] = {
-            'payment': self,
+        params = {
+            "payment": self,
         }
         if amount:
             if amount > self.refundable_amount:
@@ -64,15 +66,15 @@ class PaymentRefund(ABC, PaymentProtocol):
 
                 raise InvalidAmountError(message)
 
-            params['amount'] = amount
+            params["amount"] = amount
 
         refund.hydrate(**params)
         refund.send()
 
-        refunds = self._data.get('refunds', [])
+        refunds = self._data.get("refunds", [])
         refunds.append(refund)
 
-        self._data['refunds'] = refunds
+        self._data["refunds"] = refunds
 
         if refund.status != RefundStatus.TO_REFUND:
             self._populated = False
@@ -111,4 +113,4 @@ class PaymentRefund(ABC, PaymentProtocol):
         Returns:
             Refund[]: Refund's list
         """
-        return self._data.get('refunds', [])
+        return self._data.get("refunds", [])
