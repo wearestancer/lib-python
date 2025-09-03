@@ -86,3 +86,17 @@ ruff:
   artifacts:
     reports:
       codequality: $CI_PROJECT_DIR/ruff-report.json
+
+mypy:
+  stage: lint
+  extends: .python::base
+  allow_failure: true # This job is just indicative for now.
+  script:
+    - uv add lxml
+    - uv run mypy . --pretty --cobertura-xml-report ./ --junit-xml junit.xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml

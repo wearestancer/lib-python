@@ -4,12 +4,15 @@ version = "1.0.0"
 description = "Python SDK for the Stancer API"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["requests>=2.32.5"]
+dependencies = [
+    "requests>=2.32.5",
+]
 
 [dependency-groups]
 dev = [
     "bandit>=1.8.6",
     "importlib-metadata>=8.7.0",
+    "mypy>=1.17.1",
     "pylint>=3.3.8",
     "pytest>=8.4.1",
     "pytest-cov>=6.2.1",
@@ -17,6 +20,7 @@ dev = [
     "pytz>=2025.2",
     "responses>=0.25.8",
     "ruff>=0.12.11",
+    "types-pytz>=2025.2.0.20250809",
     "typing-extensions>=4.15.0",
     "zipp>=3.23.0",
 ]
@@ -47,3 +51,6 @@ relative-imports-order = "furthest-to-closest"
 addopts = "--cov=stancer"
 looponfailroots = ["stancer", "tests"]
 testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.9"
