@@ -60,8 +60,7 @@ class TestAbstractAmount(TestHelper):
         allowed_currency = ['eur', 'gbp', 'usd']
         bad_currency = self.random_string(3)
         message = (
-            '"{}" is not a valid currency, '
-            'please use one of following: {}'
+            '"{}" is not a valid currency, please use one of following: {}'
         ).format(bad_currency, ', '.join(allowed_currency))
 
         with pytest.raises(

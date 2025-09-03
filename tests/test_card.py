@@ -30,10 +30,7 @@ class TestCard(TestHelper):
 
         obj = Card(**{'number': number})
 
-        params = {
-            'id': id(obj),
-            'last4': number[-4:]
-        }
+        params = {'id': id(obj), 'last4': number[-4:]}
 
         assert repr(obj) == '<Card(last4="{last4}") at 0x{id:x}>'.format(**params)
 

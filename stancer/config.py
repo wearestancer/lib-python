@@ -162,10 +162,12 @@ class Config(Singleton):
     @mode.setter
     def mode(self, value: str):
         if value not in (self.LIVE_MODE, self.TEST_MODE):
-            message = ' '.join([
-                f'Unknonw mode "{value}".',
-                'Please use class constant "LIVE_MODE" or "TEST_MODE".',
-            ])
+            message = ' '.join(
+                [
+                    f'Unknonw mode "{value}".',
+                    'Please use class constant "LIVE_MODE" or "TEST_MODE".',
+                ]
+            )
 
             raise StancerValueError(message)
 

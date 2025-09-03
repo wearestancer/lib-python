@@ -33,7 +33,7 @@ class TestAbstractObject(TestHelper):
         value1 = self.random_string(10)
         value2 = self.random_integer(1, 10)
 
-        obj = AbstractObject(**{ key2: value2, key1: value1 })
+        obj = AbstractObject(**{key2: value2, key1: value1})
 
         params = {
             'id': id(obj),
@@ -43,7 +43,11 @@ class TestAbstractObject(TestHelper):
             'value2': value2,
         }
 
-        assert repr(obj) == '<AbstractObject({key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(**params)
+        assert repr(
+            obj
+        ) == '<AbstractObject({key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(
+            **params
+        )
 
         uid = self.random_string(29)
         obj = AbstractObject(uid)
@@ -56,7 +60,7 @@ class TestAbstractObject(TestHelper):
         value1 = self.random_string(10)
         value2 = self.random_integer(1, 10)
 
-        obj = AbstractObject(uid, **{ key2: value2, key1: value1 })
+        obj = AbstractObject(uid, **{key2: value2, key1: value1})
 
         params = {
             'id': id(obj),
@@ -67,7 +71,12 @@ class TestAbstractObject(TestHelper):
             'value2': value2,
         }
 
-        assert repr(obj) == '<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(**params)
+        assert (
+            repr(obj)
+            == '<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(
+                **params
+            )
+        )
 
     def test_uri(self):
         obj = AbstractObject()
@@ -87,8 +96,9 @@ class TestAbstractObject(TestHelper):
         version = self.random_integer(1, 20)
         port = self.random_integer(100, 65535)
 
-        old_host = conf.host
-        old_version = conf.version
+        # TODO do we test the old host and version
+        old_host = conf.host  # noqa: F841
+        old_version = conf.version  # noqa: F841
 
         conf.host = host
         conf.version = version

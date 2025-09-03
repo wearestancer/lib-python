@@ -172,8 +172,7 @@ class TestConfig(TestHelper):
         assert obj.mode == Config.LIVE_MODE
 
         message = (
-            'Unknonw mode "{}". '
-            'Please use class constant "LIVE_MODE" or "TEST_MODE".'
+            'Unknonw mode "{}". Please use class constant "LIVE_MODE" or "TEST_MODE".'
         ).format(mode)
 
         with pytest.raises(

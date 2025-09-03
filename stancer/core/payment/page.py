@@ -58,11 +58,7 @@ class PaymentPage(object):
         """
 
         if self.return_url is None:
-            message = (
-                'You must provide a return URL'
-                ' '
-                'before going to the payment page.'
-            )
+            message = 'You must provide a return URL before going to the payment page.'
 
             raise MissingReturnUrlError(message)
 
@@ -78,9 +74,7 @@ class PaymentPage(object):
         config = Config()
 
         if config.public_key is None:
-            message = (
-                'A public API key is needed to obtain a payment page URL.'
-            )
+            message = 'A public API key is needed to obtain a payment page URL.'
 
             raise MissingApiKeyError(message)
 
@@ -98,7 +92,7 @@ class PaymentPage(object):
         url = pattern.format(**tmp)
 
         allowed = ('lang',)
-        params = { k: v for k, v in kwargs.items() if k in allowed }
+        params = {k: v for k, v in kwargs.items() if k in allowed}
 
         if params:
             return url + '?' + urlencode(params)

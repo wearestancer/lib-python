@@ -42,7 +42,10 @@ class TestFunctionalRefund(TestHelper):
         with pytest.raises(ConflictError) as error:
             payment.refund(amount - 1)
 
-        assert error.value.message == 'Payment cannot be partially refunded before it has been captured'
+        assert (
+            error.value.message
+            == 'Payment cannot be partially refunded before it has been captured'
+        )
         assert error.value.reason == 'Conflict'
         assert error.value.status_code == 409
 

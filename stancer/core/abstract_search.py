@@ -122,7 +122,9 @@ class AbstractSearch(ABC):
 
                     key = keys[0]
                     has_more = response['range']['has_more']
-                    params['start'] = response['range']['start'] + response['range']['limit']
+                    params['start'] = (
+                        response['range']['start'] + response['range']['limit']
+                    )
 
                     for item in response[key]:
                         yield cls().hydrate(**item)

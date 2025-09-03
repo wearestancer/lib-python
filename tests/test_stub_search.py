@@ -103,7 +103,9 @@ class TestStubSearch(TestHelper):
         with open('./tests/fixtures/stub/list.json') as opened_file:
             responses.add(responses.GET, obj.uri, body=opened_file.read())
 
-        results = StubSearch.list(created=created, limit=limit, start=start, foo=foo, foobar=foobar)
+        results = StubSearch.list(
+            created=created, limit=limit, start=start, foo=foo, foobar=foobar
+        )
 
         assert isgenerator(results)
         assert len(responses.calls) == 0
@@ -149,6 +151,8 @@ class TestStubSearch(TestHelper):
         assert api_call.request.url.startswith(obj.uri)
         assert 'created={}'.format(created) in api_call.request.url
         assert 'limit={}'.format(limit) in api_call.request.url
-        assert 'start={}'.format(2) in api_call.request.url  # 2 => start + limit in response
+        assert (
+            'start={}'.format(2) in api_call.request.url
+        )  # 2 => start + limit in response
         assert 'foo={}'.format(foo) in api_call.request.url
         assert 'foobar' not in api_call.request.url

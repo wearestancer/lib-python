@@ -53,7 +53,9 @@ class TestFunctionalPayment(TestHelper):
         payment1 = Payment()
         payment1.amount = amount1
         payment1.currency = currency1
-        payment1.description = 'Automatic test for payments list, {} {}, 1/2'.format(amount1 / 100, currency1.upper())
+        payment1.description = 'Automatic test for payments list, {} {}, 1/2'.format(
+            amount1 / 100, currency1.upper()
+        )
         payment1.order_id = order_id
         payment1.unique_id = unique_id
 
@@ -71,7 +73,9 @@ class TestFunctionalPayment(TestHelper):
         payment2 = Payment()
         payment2.amount = amount2
         payment2.currency = currency2
-        payment2.description = 'Automatic test for payments list, {} {}, 2/2'.format(amount2 / 100, currency2.upper())
+        payment2.description = 'Automatic test for payments list, {} {}, 2/2'.format(
+            amount2 / 100, currency2.upper()
+        )
         payment2.order_id = order_id
 
         payment2.card = Card()
@@ -164,7 +168,9 @@ class TestFunctionalPayment(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send_with_authentification(self, currency):
         amount = self.random_integer(50, 99999)
-        description = 'Automatic auth test for Python, {:.2f} {}'.format(amount / 100, currency)
+        description = 'Automatic auth test for Python, {:.2f} {}'.format(
+            amount / 100, currency
+        )
         return_url = 'https://www.example.org/?' + self.random_string(30)
 
         ip = self.ip_provider(True)
@@ -200,7 +206,9 @@ class TestFunctionalPayment(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send_for_payment_page(self, currency):
         amount = self.random_integer(50, 99999)
-        description = 'Payment page test for Python, {:.2f} {}'.format(amount / 100, currency)
+        description = 'Payment page test for Python, {:.2f} {}'.format(
+            amount / 100, currency
+        )
         return_url = 'https://www.example.org/?' + self.random_string(30)
 
         payment = Payment()
@@ -237,7 +245,9 @@ class TestFunctionalPayment(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send_path_status(self, currency):
         amount = self.random_integer(50, 99999)
-        description = 'Patch status test for Python, {:.2f} {}'.format(amount / 100, currency)
+        description = 'Patch status test for Python, {:.2f} {}'.format(
+            amount / 100, currency
+        )
 
         payment = Payment()
         payment.amount = amount

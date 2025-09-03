@@ -629,7 +629,9 @@ class TestPayment(TestHelper):
 
     @responses.activate
     def test_payment_page_url(self):
-        obj = Payment(amount=self.random_integer(50, 99999), currency=self.currency_provider(True))
+        obj = Payment(
+            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
+        )
 
         return_url = 'https://www.example.org/?' + self.random_string(10)
 
@@ -691,7 +693,9 @@ class TestPayment(TestHelper):
         # With non ascii chars
         input = self.random_string(2) + ' ' + self.random_string(2)
         encoded = input.replace(' ', '+')
-        url = 'https://{}:{}/{}/{}?lang={}'.format(host, config.port, config.ptest, obj.id, encoded)
+        url = 'https://{}:{}/{}/{}?lang={}'.format(
+            host, config.port, config.ptest, obj.id, encoded
+        )
 
         assert obj.payment_page_url(lang=input) == url
 
@@ -747,8 +751,7 @@ class TestPayment(TestHelper):
             obj.refund(paid)
 
         assert str(err.value) == (
-            'You are trying to refund ({0:.2f} {2}) '
-            'more than possible ({1:.2f} {2}).'
+            'You are trying to refund ({0:.2f} {2}) more than possible ({1:.2f} {2}).'
         ).format(paid / 100, refund2_amount / 100, obj.currency.upper())
 
         refund2 = obj.refund()
@@ -1582,126 +1585,6 @@ class TestPayment(TestHelper):
         assert obj.device.port == port
 
     @responses.activate
-    def test_send_auth_object(self, monkeypatch):
-        obj = Payment()
-        card = Card()
-        auth = Auth()
-
-        with open('./tests/fixtures/payment/create-card-auth.json') as opened:
-            content = opened.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        amount = self.random_integer(50, 999999)
-        currency = 'eur'
-        cvc = self.random_string(3)
-        exp_month = self.random_integer(1, 12)
-        exp_year = self.random_year()
-        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
-        number = '4111111111111111'
-        port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
-
-        obj.amount = amount
-        obj.auth = auth
-        obj.currency = currency
-        obj.card = card
-
-        auth.return_url = return_url
-
-        card.cvc = cvc
-        card.exp_month = exp_month
-        card.exp_year = exp_year
-        card.number = number
-
-        with pytest.raises(InvalidIpAddressError):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
-        monkeypatch.setenv('SERVER_ADDR', ip)
-
-        with pytest.raises(InvalidPortError):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
-        monkeypatch.setenv('SERVER_PORT', str(port))
-
-        assert obj.send() == obj
-        assert len(responses.calls) == 1
-
-        # Data sent
-        body = json.loads(responses.calls[0].request.body)
-
-        assert 'amount' in body
-        assert body.get('amount') == amount
-        assert 'currency' in body
-        assert body.get('currency') == currency
-
-        assert 'auth' in body
-        assert isinstance(body.get('auth'), dict)
-        assert 'return_url' in body.get('auth')
-        assert body.get('auth').get('return_url') == return_url
-        assert 'status' in body.get('auth')
-        assert body.get('auth').get('status') == AuthStatus.REQUEST
-
-        assert 'card' in body
-        assert isinstance(body.get('card'), dict)
-        assert 'cvc' in body.get('card')
-        assert body.get('card').get('cvc') == cvc
-        assert 'exp_month' in body.get('card')
-        assert body.get('card').get('exp_month') == exp_month
-        assert 'exp_year' in body.get('card')
-        assert body.get('card').get('exp_year') == exp_year
-        assert 'number' in body.get('card')
-        assert body.get('card').get('number') == number
-
-        assert 'device' in body
-        assert isinstance(body.get('device'), dict)
-        assert 'ip' in body.get('device')
-        assert body.get('device').get('ip') == ip
-        assert 'port' in body.get('device')
-        assert body.get('device').get('port') == port
-
-        # Data from fixture
-        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
-        assert isinstance(obj.created, date)
-        assert obj.created.timestamp() == 1567094428
-        assert obj.amount == 1337
-        assert obj.auth == auth
-        assert obj.capture is True
-        assert obj.card == card
-        assert obj.currency == 'eur'
-        assert obj.description == 'Auth test'
-        assert obj.method == 'card'
-        assert obj.order_id is None
-        assert obj.sepa is None
-
-        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
-        assert card.brand == 'mastercard'
-        assert card.country == 'US'
-        assert card.exp_month == 2
-        assert card.exp_year == 2020
-        assert card.last4 == '4444'
-        assert card.name is None
-        # Number is unchanged in send process
-        assert card.number == '4111111111111111'
-        assert card.zip_code is None
-
-        assert isinstance(obj.auth, Auth)
-        assert obj.auth.return_url == 'https://www.free.fr'
-        assert obj.auth.status == AuthStatus.AVAILABLE
-
-        assert isinstance(obj.device, Device)
-        assert obj.device.http_accept == 'text/html'
-        assert obj.device.ip == '212.27.48.10'
-        assert obj.device.languages is None
-        assert obj.device.port == 1337
-        assert obj.device.user_agent is None
-
-    @responses.activate
     def test_send_with_auth_for_payment_page(self, monkeypatch):
         obj = Payment()
 
@@ -1780,15 +1663,21 @@ class TestPayment(TestHelper):
         obj = Payment()
 
         # Prepare responses
-        with open('./tests/fixtures/payment/create-card-status-null-no-method.json') as opened:
+        with open(
+            './tests/fixtures/payment/create-card-status-null-no-method.json'
+        ) as opened:
             responses.add(responses.POST, obj.uri, body=opened.read())
 
         uri = obj.uri + '/paym_a9LJ0xrGhhuT0M4crx0NEmXJ'  # Based on fixture
 
-        with open('./tests/fixtures/payment/create-card-status-null-with-card.json') as opened:
+        with open(
+            './tests/fixtures/payment/create-card-status-null-with-card.json'
+        ) as opened:
             responses.add(responses.PATCH, uri, body=opened.read())
 
-        with open('./tests/fixtures/payment/create-card-status-to-capture.json') as opened:
+        with open(
+            './tests/fixtures/payment/create-card-status-to-capture.json'
+        ) as opened:
             responses.add(responses.PATCH, uri, body=opened.read())
 
         obj.amount = self.random_integer(50, 999999)

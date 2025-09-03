@@ -59,7 +59,7 @@ class TestFunctionalDispute(TestHelper):
                 'id': 'dspt_WD2O1iOzmKtaceikbTDudin3',
                 'payment': 'paym_MQQrmRP5roIEVS6QRfW7gwzz',
                 'response': '45',
-            }
+            },
         ]
 
         for dispute in Dispute.list(created=datetime(2022, 2, 9), limit=10):

@@ -267,7 +267,11 @@ class AbstractObject(object):
                 tmp = getattr(self, key)
                 init_method = '_init_' + key
 
-                if isinstance(tmp, list) and isinstance(value, list) and hasattr(self, init_method):
+                if (
+                    isinstance(tmp, list)
+                    and isinstance(value, list)
+                    and hasattr(self, init_method)
+                ):
                     value = self._hydrate_list(key, value)
                     modify = not all(isinstance(val, AbstractObject) for val in value)
 
@@ -288,7 +292,9 @@ class AbstractObject(object):
                     else:
                         value = tmp(value)
 
-                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
+                elif isinstance(tmp, AbstractObject) and not isinstance(
+                    value, AbstractObject
+                ):
                     val = {'id': value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access
@@ -491,7 +497,10 @@ class AbstractObject(object):
                 for k, v in self._data.items()
                 if k in self._get_allowed_attributes()
                 and v is not None
-                and (k in self._modified or (isinstance(v, AbstractObject) and v.is_modified))
+                and (
+                    k in self._modified
+                    or (isinstance(v, AbstractObject) and v.is_modified)
+                )
             }
 
             for key, value in items.items():

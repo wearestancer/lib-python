@@ -46,7 +46,9 @@ class Auth(AbstractObject):
     @return_url.setter
     @validate_type(
         str,
-        validation=lambda v: None if v.startswith('https://') else 'Must be an HTTPS URL',
+        validation=lambda v: None
+        if v.startswith('https://')
+        else 'Must be an HTTPS URL',
         throws=InvalidUrlError,
     )
     def return_url(self, value: str):

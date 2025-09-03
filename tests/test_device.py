@@ -103,7 +103,10 @@ class TestDevice(TestHelper):
         obj.port = port
         obj.user_agent = agent
 
-        monkeypatch.setenv('SERVER_ADDR', '.'.join([str(self.random_integer(1, 254)) for _ in range(4)]))
+        monkeypatch.setenv(
+            'SERVER_ADDR',
+            '.'.join([str(self.random_integer(1, 254)) for _ in range(4)]),
+        )
         monkeypatch.setenv('SERVER_PORT', str(self.random_integer(1, 65535)))
         monkeypatch.setenv('HTTP_ACCEPT', self.random_string(100))
         monkeypatch.setenv('HTTP_ACCEPT_LANGUAGE', self.random_string(32))

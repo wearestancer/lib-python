@@ -35,8 +35,7 @@ bandit:
   script:
     - uv run bandit --exit-zero --configfile .bandit.yml --recursive ${BANDIT_TARGET:-.}
     - uv run bandit --exit-zero --configfile .bandit.yml \
-      --format json --output results.json \
-      --recursive ${BANDIT_TARGET:-.}
+      --format json --output results.json --recursive ${BANDIT_TARGET:-.}
 
   artifacts:
     reports:

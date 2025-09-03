@@ -169,8 +169,7 @@ class Payment(*BaseObject):
                 delete, refund it.
         """
         message = (
-            'You are not allowed to delete a payment, '
-            'you need to refund it instead.'
+            'You are not allowed to delete a payment, you need to refund it instead.'
         )
 
         raise StancerNotImplementedError(message)
@@ -232,7 +231,9 @@ class Payment(*BaseObject):
             length = len(kwargs['order_id'])
 
             if length > ORDER_ID_MAX_LEN or length == 0:
-                raise InvalidSearchFilter(base_message.format('order ID', 1, ORDER_ID_MAX_LEN))
+                raise InvalidSearchFilter(
+                    base_message.format('order ID', 1, ORDER_ID_MAX_LEN)
+                )
 
             params['order_id'] = kwargs['order_id']
 
@@ -243,7 +244,9 @@ class Payment(*BaseObject):
             length = len(kwargs['unique_id'])
 
             if length > UNIQUE_ID_MAX_LEN or length == 0:
-                raise InvalidSearchFilter(base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN))
+                raise InvalidSearchFilter(
+                    base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN)
+                )
 
             params['unique_id'] = kwargs['unique_id']
 

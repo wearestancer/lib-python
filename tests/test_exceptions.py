@@ -2,7 +2,7 @@
 
 import pytest
 
-from stancer.exceptions import *  # pylint: disable=wildcard-import
+from stancer.exceptions import *  # pylint: disable=wildcard-import # noqa: F403
 from .TestHelper import TestHelper
 
 
@@ -167,7 +167,9 @@ class TestExceptions(TestHelper):
     def test_proxy_authentication_required_error(self):
         assert issubclass(ProxyAuthenticationRequiredError, StancerHTTPClientError)
         assert ProxyAuthenticationRequiredError.status_code == 407
-        assert ProxyAuthenticationRequiredError.reason == 'Proxy Authentication Required'
+        assert (
+            ProxyAuthenticationRequiredError.reason == 'Proxy Authentication Required'
+        )
 
     def test_request_timeout_error(self):
         assert issubclass(RequestTimeoutError, StancerHTTPClientError)
@@ -301,7 +303,9 @@ class TestExceptions(TestHelper):
                 },
             },
         }
-        expected = '{} ({})'.format(content['error']['message']['error'], content['error']['message']['id'])
+        expected = '{} ({})'.format(
+            content['error']['message']['error'], content['error']['message']['id']
+        )
 
         res.json = lambda: content
 

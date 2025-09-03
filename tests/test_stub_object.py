@@ -175,7 +175,8 @@ class TestStubObject(TestHelper):
 
     def test_hydrate(self):
         obj = StubObject()
-        config = Config()
+        # TODO do we test this config or we just want to instanciate it ?
+        config = Config()  # noqa: F841
         uid = self.random_string(29)
 
         params = {
@@ -432,7 +433,8 @@ class TestStubObject(TestHelper):
 
         obj.hydrate(**params)
         obj.string2 = self.random_string(20)
-        card = obj.card1
+        # TODO do we use this card ?
+        card = obj.card1  # noqa: F841
 
         uid = self.random_string(29)
 

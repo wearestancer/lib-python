@@ -168,7 +168,7 @@ class Device(AbstractObject):
         validation=ip_validation,
         throws=InvalidIpAddressError,
     )
-    def ip(self, value: str): # pylint: disable=invalid-name
+    def ip(self, value: str):  # pylint: disable=invalid-name
         self._data['ip'] = value
 
     @property

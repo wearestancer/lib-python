@@ -9,8 +9,7 @@ from ...status.refund import RefundStatus
 class PaymentRefund(object):
     """Specific property and method for payment refunds."""
 
-    _allowed_attributes = [
-    ]
+    _allowed_attributes = []
 
     def __init__(self):
         """Init internal data."""

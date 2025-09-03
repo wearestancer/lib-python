@@ -32,7 +32,7 @@ class TestSepa(TestHelper):
 
         assert repr(obj) == '<Sepa() at 0x%x>' % id(obj)
 
-        obj = Sepa(**{ 'iban': iban })
+        obj = Sepa(**{'iban': iban})
 
         spaceless = re.sub(r'\s', '', iban)
 
@@ -42,7 +42,9 @@ class TestSepa(TestHelper):
             'last4': spaceless[-4:],
         }
 
-        assert repr(obj) == '<Sepa(country="{country}", last4="{last4}") at 0x{id:x}>'.format(**params)
+        assert repr(
+            obj
+        ) == '<Sepa(country="{country}", last4="{last4}") at 0x{id:x}>'.format(**params)
 
     @responses.activate
     def test_bic(self):

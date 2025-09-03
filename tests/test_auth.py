@@ -29,7 +29,8 @@ class TestAuth(TestHelper):
 
     def test_return_url(self):
         obj = Auth()
-        bad_url = 'http://' + self.random_string(50)
+        # TODO use bad_url
+        bad_url = 'http://' + self.random_string(50)  # noqa: F841
         return_url = 'https://' + self.random_string(50)
 
         assert obj.return_url is None
