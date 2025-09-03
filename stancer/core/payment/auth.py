@@ -34,7 +34,7 @@ class PaymentAuth(object):
     def __init__(self):
         """Init internal data."""
         self._data = {}
-        self.id = None  # pylint: disable=invalid-name
+        self.id = None
         self.method = None
 
     @property

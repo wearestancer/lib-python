@@ -114,7 +114,7 @@ class Device(AbstractObject):
         """
 
         if self.ip is None and os.getenv('SERVER_ADDR') is not None:
-            self.ip = os.getenv('SERVER_ADDR')  # pylint: disable=invalid-name
+            self.ip = os.getenv('SERVER_ADDR')
 
         if self.port is None and os.getenv('SERVER_PORT') is not None:
             self.port = int(os.getenv('SERVER_PORT'))
@@ -148,7 +148,7 @@ class Device(AbstractObject):
 
     @property
     @populate_on_call
-    def ip(self) -> str:  # pylint: disable=invalid-name
+    def ip(self) -> str:
         """
         Customer's IP address.
 
@@ -168,7 +168,7 @@ class Device(AbstractObject):
         validation=ip_validation,
         throws=InvalidIpAddressError,
     )
-    def ip(self, value: str):  # pylint: disable=invalid-name
+    def ip(self, value: str):
         self._data['ip'] = value
 
     @property

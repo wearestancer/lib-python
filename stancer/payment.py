@@ -230,7 +230,7 @@ class Payment(*BaseObject):
 
             length = len(kwargs['order_id'])
 
-            if length > ORDER_ID_MAX_LEN or length == 0:
+            if length > ORDER_ID_MAX_LEN or not length:
                 raise InvalidSearchFilter(
                     base_message.format('order ID', 1, ORDER_ID_MAX_LEN)
                 )
@@ -243,7 +243,7 @@ class Payment(*BaseObject):
 
             length = len(kwargs['unique_id'])
 
-            if length > UNIQUE_ID_MAX_LEN or length == 0:
+            if length > UNIQUE_ID_MAX_LEN or not length:
                 raise InvalidSearchFilter(
                     base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN)
                 )

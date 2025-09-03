@@ -29,7 +29,7 @@ class PaymentPage(object):
     def __init__(self):
         """Init internal data."""
         self._data = {}
-        self.id = None  # pylint: disable=invalid-name
+        self.id = None
 
     def payment_page_url(self, **kwargs) -> str:
         """

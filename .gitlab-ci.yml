@@ -23,8 +23,7 @@ pylint:
 
   script:
     - uv add pylint-gitlab pylint-quotes
-    - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text \
-      --reports=y --score=y ${PYLINT_TARGET:-.}
+    - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
   artifacts:
     reports:
       codequality: codequality.json

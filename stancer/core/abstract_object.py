@@ -164,7 +164,7 @@ class AbstractObject(object):
                 obj._populated = value
 
     @property
-    def id(self) -> str:  # pylint: disable=invalid-name
+    def id(self) -> str:
         """
         Return current object ID.
 
@@ -174,7 +174,7 @@ class AbstractObject(object):
         return self._id
 
     @id.deleter
-    def id(self):  # pylint: disable=invalid-name
+    def id(self):
         self._id = None
 
     @property
