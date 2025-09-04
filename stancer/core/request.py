@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from typing import TypeVar, Union
+from typing import TypeVar
+from typing import Union
 
 import requests
 
 from ..config import Config
 from ..exceptions import StancerHTTPError
 from ..exceptions import StancerValueError
-
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Request')
 AbstractObject = TypeVar('AbstractObject', bound='AbstractObject')

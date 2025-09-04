@@ -1,22 +1,26 @@
 """Test sepa object"""
 
+import re
+
 from datetime import datetime
 from datetime import timezone
 from datetime import tzinfo
+
 import pytest
-from pytz import timezone as tz
-import re
 import responses
+
+from pytz import timezone as tz
 
 from stancer import Config
 from stancer import Sepa
 from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
 from stancer.core import AbstractName
+from stancer.core import AbstractObject
 from stancer.exceptions import InvalidBicError
 from stancer.exceptions import InvalidDateMandateError
 from stancer.exceptions import InvalidIbanError
 from stancer.exceptions import InvalidMandateError
+
 from .TestHelper import TestHelper
 
 

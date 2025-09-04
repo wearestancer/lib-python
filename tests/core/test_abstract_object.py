@@ -4,6 +4,7 @@ import pytest
 
 from stancer import Config
 from stancer.core import AbstractObject
+
 from ..TestHelper import TestHelper
 
 
@@ -43,10 +44,9 @@ class TestAbstractObject(TestHelper):
             'value2': value2,
         }
 
-        assert repr(
-            obj
-        ) == '<AbstractObject({key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(
-            **params
+        assert (
+            repr(obj)
+            == f'<AbstractObject({key1}="{value1}", {key2}={value2}) at 0x{id(obj):x}>'
         )
 
         uid = self.random_string(29)
@@ -102,8 +102,8 @@ class TestAbstractObject(TestHelper):
         conf.host = host
         conf.version = version
 
-        assert obj.uri == 'https://{}/v{}/{}'.format(host, version, uid)
-        assert obj.uri != 'https://{}/v{}/{}'.format(old_host, old_version, uid)
+        assert obj.uri == f'https://{host}/v{version}/{uid}'
+        assert obj.uri != f'https://{old_host}/v{old_version}/{uid}'
 
         pattern = 'https://{}:{}/v{}/{}'
 

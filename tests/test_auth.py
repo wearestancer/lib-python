@@ -5,8 +5,9 @@ import pytest
 from stancer import Auth
 from stancer import AuthStatus
 from stancer.core import AbstractObject
-from .TestHelper import TestHelper
 from stancer.exceptions import InvalidUrlError
+
+from .TestHelper import TestHelper
 
 
 class TestAuth(TestHelper):

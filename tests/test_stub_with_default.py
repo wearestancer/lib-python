@@ -1,7 +1,9 @@
 """Test abstract object"""
 
-from datetime import datetime
 import json
+
+from datetime import datetime
+
 from .stub.stub_with_default import StubWithDefault
 from .TestHelper import TestHelper
 

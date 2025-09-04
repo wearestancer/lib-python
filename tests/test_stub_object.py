@@ -1,17 +1,21 @@
 """Test abstract object"""
 
 import base64
+import json
+
 from datetime import datetime
 from datetime import timezone
 from datetime import tzinfo
-import json
-import pytest
-from pytz import timezone as tz
 from random import choice
+
+import pytest
 import responses
+
+from pytz import timezone as tz
 
 from stancer import Card
 from stancer import Config
+
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 

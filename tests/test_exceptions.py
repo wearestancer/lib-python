@@ -1,62 +1,62 @@
 """Test exceptions"""
 
 import pytest
+
 from requests import Response
 
-from stancer.exceptions import (
-    StancerException,
-    StancerNotImplementedError,
-    StancerTypeError,
-    StancerValueError,
-    StancerWarning,
-    InvalidAmountError,
-    InvalidAuthError,
-    InvalidBicError,
-    InvalidCardError,
-    InvalidCardExpirationMonthError,
-    InvalidCardExpirationYearError,
-    InvalidCardNumberError,
-    InvalidCardTokenizeError,
-    InvalidCardVerificationCodeError,
-    InvalidCurrencyError,
-    InvalidCustomerError,
-    InvalidCustomerEmailError,
-    InvalidCustomerExternalIdError,
-    InvalidCustomerMobileError,
-    InvalidDeviceError,
-    InvalidIbanError,
-    InvalidIpAddressError,
-    InvalidNameError,
-    InvalidPaymentCaptureError,
-    InvalidPaymentDescriptionError,
-    InvalidPaymentOrderIdError,
-    InvalidPaymentUniqueIdError,
-    InvalidPortError,
-    InvalidSepaError,
-    InvalidStatusError,
-    InvalidUrlError,
-    InvalidZipCodeError,
-    MissingPaymentMethodError,
-    MissingApiKeyError,
-    MissingPaymentIdError,
-    MissingReturnUrlError,
-    StancerHTTPError,
-    HTTPError,
-    StancerHTTPClientError,
-    StancerHTTPServerError,
-    BadRequestError,
-    UnauthorizedError,
-    PaymentRequiredError,
-    ForbiddenError,
-    NotFoundError,
-    MethodNotAllowedError,
-    NotAcceptableError,
-    ProxyAuthenticationRequiredError,
-    RequestTimeoutError,
-    ConflictError,
-    GoneError,
-    InternalServerError,
-)
+from stancer.exceptions import BadRequestError
+from stancer.exceptions import ConflictError
+from stancer.exceptions import ForbiddenError
+from stancer.exceptions import GoneError
+from stancer.exceptions import HTTPError
+from stancer.exceptions import InternalServerError
+from stancer.exceptions import InvalidAmountError
+from stancer.exceptions import InvalidAuthError
+from stancer.exceptions import InvalidBicError
+from stancer.exceptions import InvalidCardError
+from stancer.exceptions import InvalidCardExpirationMonthError
+from stancer.exceptions import InvalidCardExpirationYearError
+from stancer.exceptions import InvalidCardNumberError
+from stancer.exceptions import InvalidCardTokenizeError
+from stancer.exceptions import InvalidCardVerificationCodeError
+from stancer.exceptions import InvalidCurrencyError
+from stancer.exceptions import InvalidCustomerEmailError
+from stancer.exceptions import InvalidCustomerError
+from stancer.exceptions import InvalidCustomerExternalIdError
+from stancer.exceptions import InvalidCustomerMobileError
+from stancer.exceptions import InvalidDeviceError
+from stancer.exceptions import InvalidIbanError
+from stancer.exceptions import InvalidIpAddressError
+from stancer.exceptions import InvalidNameError
+from stancer.exceptions import InvalidPaymentCaptureError
+from stancer.exceptions import InvalidPaymentDescriptionError
+from stancer.exceptions import InvalidPaymentOrderIdError
+from stancer.exceptions import InvalidPaymentUniqueIdError
+from stancer.exceptions import InvalidPortError
+from stancer.exceptions import InvalidSepaError
+from stancer.exceptions import InvalidStatusError
+from stancer.exceptions import InvalidUrlError
+from stancer.exceptions import InvalidZipCodeError
+from stancer.exceptions import MethodNotAllowedError
+from stancer.exceptions import MissingApiKeyError
+from stancer.exceptions import MissingPaymentIdError
+from stancer.exceptions import MissingPaymentMethodError
+from stancer.exceptions import MissingReturnUrlError
+from stancer.exceptions import NotAcceptableError
+from stancer.exceptions import NotFoundError
+from stancer.exceptions import PaymentRequiredError
+from stancer.exceptions import ProxyAuthenticationRequiredError
+from stancer.exceptions import RequestTimeoutError
+from stancer.exceptions import StancerException
+from stancer.exceptions import StancerHTTPClientError
+from stancer.exceptions import StancerHTTPError
+from stancer.exceptions import StancerHTTPServerError
+from stancer.exceptions import StancerNotImplementedError
+from stancer.exceptions import StancerTypeError
+from stancer.exceptions import StancerValueError
+from stancer.exceptions import StancerWarning
+from stancer.exceptions import UnauthorizedError
+
 from .TestHelper import TestHelper
 
 

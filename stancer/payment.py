@@ -4,8 +4,6 @@ from datetime import datetime
 from typing import TypeVar
 
 from .card import Card
-from .customer import Customer
-from .sepa import Sepa
 from .core import AbstractAmount
 from .core import AbstractCountry
 from .core import AbstractObject
@@ -17,7 +15,7 @@ from .core.helpers import coerce_uuid
 from .core.payment.auth import PaymentAuth
 from .core.payment.page import PaymentPage
 from .core.payment.refund import PaymentRefund
-from .exceptions import StancerNotImplementedError
+from .customer import Customer
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
@@ -30,8 +28,9 @@ from .exceptions import InvalidSearchFilter
 from .exceptions import InvalidSepaError
 from .exceptions import InvalidStatusError
 from .exceptions import MissingPaymentMethodError
+from .exceptions import StancerNotImplementedError
+from .sepa import Sepa
 from .status.payment import PaymentStatus
-
 
 BaseObject = (
     AbstractObject,

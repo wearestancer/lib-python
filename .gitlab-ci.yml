@@ -19,7 +19,7 @@ variables:
   before_script:
     - uv --version
     - python --version
-    - uv sync
+    - uv sync --locked
     - uv tree
 
 .python::current-versions:
@@ -34,9 +34,9 @@ variables:
           - "3.12"
 
 pylint:
-  stage: lint
-
   extends: .python::base
+
+  stage: lint
 
   script:
     - uv add pylint-gitlab pylint-quotes
@@ -46,22 +46,22 @@ pylint:
       codequality: codequality.json
 
 bandit:
-  stage: lint
-
   extends: .python::base
+
+  stage: lint
 
   script:
     - uv run bandit --exit-zero --configfile .bandit.yml --recursive ${BANDIT_TARGET:-.}
-    - uv run bandit --exit-zero --configfile .bandit.yml --format json --output results.json --recursive ${BANDIT_TARGET:-.}
+    - uv run bandit --configfile .bandit.yml --format json --output results.json --recursive ${BANDIT_TARGET:-.}
 
   artifacts:
     reports:
       codequality: results.json
 
 pytest:
-  stage: test
-
   extends: .python::current-versions
+
+  stage: test
 
   script:
     - uv run pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
@@ -74,26 +74,28 @@ pytest:
       junit: junit.xml
 
 ruff:
-  stage: lint
-
   extends: .python::base
+
+  stage: lint
 
   script:
     - uv run ruff --version
-    - uv run ruff check
+    - uv run ruff check --exit-zero
+    - uv run ruff format
     - uv run ruff check --output-format=gitlab > ruff-report.json
 
   artifacts:
     reports:
-      codequality: $CI_PROJECT_DIR/ruff-report.json
+      codequality: ruff-report.json
 
 mypy:
-  stage: lint
   extends: .python::base
-  allow_failure: true # This job is just indicative for now.
+
+  stage: lint
   script:
-    - uv add lxml
     - uv run mypy . --pretty --cobertura-xml-report ./ --junit-xml junit.xml
+
+  allow_failure: true # This job is just indicative for now.
   artifacts:
     reports:
       coverage_report:

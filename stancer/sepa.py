@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import re
+
+from datetime import datetime
 from typing import Union
 
 from .core import AbstractCountry
@@ -11,8 +12,8 @@ from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidBicError
-from .exceptions import InvalidIbanError
 from .exceptions import InvalidDateMandateError
+from .exceptions import InvalidIbanError
 from .exceptions import InvalidMandateError
 
 

@@ -1,11 +1,14 @@
 """Test config object"""
 
 import datetime
+
 import pytest
+
 from pytz import timezone
 
 from stancer import Config
 from stancer.exceptions import StancerValueError
+
 from .TestHelper import TestHelper
 
 
@@ -171,9 +174,7 @@ class TestConfig(TestHelper):
 
         assert obj.mode == Config.LIVE_MODE
 
-        message = (
-            'Unknonw mode "{}". Please use class constant "LIVE_MODE" or "TEST_MODE".'
-        ).format(mode)
+        message = f'Unknonw mode "{mode}". Please use class constant "LIVE_MODE" or "TEST_MODE".'
 
         with pytest.raises(
             StancerValueError,

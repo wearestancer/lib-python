@@ -9,7 +9,6 @@ from typing import Union
 from .core.singleton import Singleton
 from .exceptions import StancerValueError
 
-
 CurrentInstance = TypeVar('CurrentInstance', bound='Config')
 
 

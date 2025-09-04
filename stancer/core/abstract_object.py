@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import json
+
+from datetime import datetime
 from typing import Set
 from typing import TypeVar
 
 from ..config import Config
 from .decorators import populate_on_call
 from .request import Request
-
 
 CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
 

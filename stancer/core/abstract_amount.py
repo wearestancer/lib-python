@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .decorators import populate_on_call
-from .decorators import validate_type
 from ..exceptions import InvalidAmountError
 from ..exceptions import InvalidCurrencyError
+from .decorators import populate_on_call
+from .decorators import validate_type
 
 
 class AbstractAmount(object):

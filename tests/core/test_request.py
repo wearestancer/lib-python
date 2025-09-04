@@ -1,6 +1,7 @@
 """Test request object"""
 
 import base64
+
 import pytest
 import responses
 
@@ -8,6 +9,7 @@ from stancer import Config
 from stancer.core import Request
 from stancer.exceptions import StancerValueError
 from stancer.exceptions import UnauthorizedError
+
 from ..stub.stub_object import StubObject
 from ..TestHelper import TestHelper
 
@@ -218,7 +220,8 @@ class TestRequest(TestHelper):
         conf.mode = Config.TEST_MODE
 
         obj.hydrate(
-            string1=self.random_string(10, 20), integer1=self.random_integer(10, 999999)
+            string1=self.random_string(10, 20),
+            integer1=self.random_integer(10, 999999),
         )
 
         ret = {

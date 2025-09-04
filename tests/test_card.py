@@ -5,14 +5,15 @@ import responses
 
 from stancer import Card
 from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
 from stancer.core import AbstractName
-from stancer.exceptions import InvalidCardVerificationCodeError
+from stancer.core import AbstractObject
 from stancer.exceptions import InvalidCardExpirationMonthError
 from stancer.exceptions import InvalidCardExpirationYearError
 from stancer.exceptions import InvalidCardNumberError
 from stancer.exceptions import InvalidCardTokenizeError
+from stancer.exceptions import InvalidCardVerificationCodeError
 from stancer.exceptions import InvalidZipCodeError
+
 from .TestHelper import TestHelper
 
 
@@ -30,7 +31,10 @@ class TestCard(TestHelper):
 
         obj = Card(**{'number': number})
 
-        params = {'id': id(obj), 'last4': number[-4:]}
+        params = {
+            'id': id(obj),
+            'last4': number[-4:],
+        }
 
         assert repr(obj) == '<Card(last4="{last4}") at 0x{id:x}>'.format(**params)
 

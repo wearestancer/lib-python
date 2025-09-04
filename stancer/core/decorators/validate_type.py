@@ -5,7 +5,6 @@ from functools import wraps
 
 from ...config import Config
 
-
 # pylint: disable=too-many-branches, too-many-statements, too-many-locals
 
 
@@ -83,6 +82,7 @@ def validate_type(type_expected, **options):
                     message = f'You must provide a valid instance of {type_expected.__name__}.'
 
             if std_type and message is None:
+                must_be_msg = f'{name} must be'
                 if 'length' in options and length != options['length']:
                     message = f'{name} must have {options["length"]} characters.'
 
@@ -95,24 +95,11 @@ def validate_type(type_expected, **options):
                 if minimum is not None:
                     if maximum is not None:
                         if length < minimum or length > maximum:
-                            message = ' '.join(
-                                [
-                                    f'{name} must be',
-                                    f'between {minimum} and {maximum}{char_suffix}.',
-                                ]
-                            )
+                            message = f'{must_be_msg} between {minimum} and {maximum}{char_suffix}.'
                     elif length < minimum:
-                        message = ' '.join(
-                            [
-                                f'{name} must be',
-                                f'greater than or equal to {minimum}{char_suffix}.',
-                            ]
-                        )
-
+                        message = f'{must_be_msg} greater than or equal to {minimum}{char_suffix}.'
                 elif maximum is not None and length > maximum:
-                    message = ' '.join(
-                        [f'{name} must be', f'{maximum}{char_suffix} maximum.']
-                    )
+                    message = f'{must_be_msg} {maximum}{char_suffix} maximum.'
 
                 tmp_value = value
 

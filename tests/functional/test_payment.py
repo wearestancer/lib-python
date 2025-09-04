@@ -1,8 +1,9 @@
 """Functional tests for payment object"""
 
 import platform
-import pytest
 import uuid
+
+import pytest
 
 from stancer import Auth
 from stancer import AuthStatus
@@ -14,6 +15,7 @@ from stancer import Payment
 from stancer import PaymentStatus
 from stancer.exceptions import ConflictError
 from stancer.exceptions import NotFoundError
+
 from .TestHelper import TestHelper
 
 

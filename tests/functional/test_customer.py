@@ -1,10 +1,12 @@
 """Functional tests for customer object"""
 
-import pytest
 import uuid
+
+import pytest
 
 from stancer import Customer
 from stancer.exceptions import NotFoundError
+
 from .TestHelper import TestHelper
 
 

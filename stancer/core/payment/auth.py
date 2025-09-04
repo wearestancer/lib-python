@@ -2,13 +2,13 @@
 
 from typing import Union
 
-from ..decorators import populate_on_call
-from ..decorators import validate_type
 from ...auth import Auth
 from ...device import Device
-from ...exceptions import StancerException
 from ...exceptions import InvalidAuthError
 from ...exceptions import InvalidDeviceError
+from ...exceptions import StancerException
+from ..decorators import populate_on_call
+from ..decorators import validate_type
 
 
 def _coerce_auth(value: Union[Auth, str, bool]) -> Auth:

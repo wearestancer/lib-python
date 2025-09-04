@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from datetime import date
-from random import choice, randint
 import string
 
+
+# pylint: enable=missing-docstring
+from datetime import date
+from random import choice
+from random import randint
+
 from stancer import Config
-from stancer.exceptions import (
-    BadRequestError,
-    UnauthorizedError,
-    PaymentRequiredError,
-    ForbiddenError,
-    NotFoundError,
-    MethodNotAllowedError,
-    NotAcceptableError,
-    ProxyAuthenticationRequiredError,
-    RequestTimeoutError,
-    ConflictError,
-    GoneError,
-    InternalServerError,
-    StancerHTTPClientError,
-    StancerHTTPServerError,
-)
+from stancer.exceptions import BadRequestError
+from stancer.exceptions import ConflictError
+from stancer.exceptions import ForbiddenError
+from stancer.exceptions import GoneError
+from stancer.exceptions import InternalServerError
+from stancer.exceptions import MethodNotAllowedError
+from stancer.exceptions import NotAcceptableError
+from stancer.exceptions import NotFoundError
+from stancer.exceptions import PaymentRequiredError
+from stancer.exceptions import ProxyAuthenticationRequiredError
+from stancer.exceptions import RequestTimeoutError
+from stancer.exceptions import StancerHTTPClientError
+from stancer.exceptions import StancerHTTPServerError
+from stancer.exceptions import UnauthorizedError
 
 
 class TestHelper(object):

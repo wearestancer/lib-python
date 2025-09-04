@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ..exceptions import InvalidNameError
 from .decorators import populate_on_call
 from .decorators import validate_type
-from ..exceptions import InvalidNameError
 
 
 class AbstractName(object):  # pylint: disable=too-few-public-methods

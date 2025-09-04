@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 from os import path
-from setuptools import find_packages, setup
+
+from setuptools import find_packages
+from setuptools import setup
 
 py_min = 7
 py_max = 10
@@ -28,7 +30,7 @@ for index in range(py_min, py_max + 1):
 version_path = path.join(current_dir, 'stancer', 'version.py')
 
 with open(version_path, 'w', encoding='utf8') as f:
-    f.write('__version__ = \'%s\'\n' % version)
+    f.write("__version__ = '%s'\n" % version)
 
 
 # Add a long description

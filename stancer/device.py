@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from ipaddress import ip_address
 import os
+
+from ipaddress import ip_address
 from typing import TypeVar
 
 from .core import AbstractObject
@@ -9,7 +10,6 @@ from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidIpAddressError
 from .exceptions import InvalidPortError
-
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Device')
 

@@ -1,11 +1,13 @@
 """Functional tests for card object"""
 
 from datetime import datetime
+
 import pytest
 
 from stancer import Card
 from stancer.exceptions import ConflictError
 from stancer.exceptions import NotFoundError
+
 from .TestHelper import TestHelper
 
 
@@ -36,9 +38,8 @@ class TestFunctionalCard(TestHelper):
 
     def test_crud(self):
         month = self.random_integer(1, 12)
-        year = (
-            self.random_year() + 20
-        )  # To be sure we do not have a conflict with previous tests
+        year = self.random_year() + 20
+        # To be sure we do not have a conflict with previous tests
 
         cvc = str(self.random_integer(100, 999))
         name = 'Pickle Rick (' + self.random_string(10) + ')'

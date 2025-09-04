@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from abc import ABC
 from abc import abstractmethod
 from datetime import datetime
-import json
 from time import time
 from typing import TypeVar
 from typing import Union
 
-from .request import Request
 from ..exceptions import InvalidSearchFilter
 from ..exceptions import InvalidSearchResponse
 from ..exceptions import NotFoundError
+from .request import Request
 
 CurrentInstance = TypeVar('CurrentInstance')
 

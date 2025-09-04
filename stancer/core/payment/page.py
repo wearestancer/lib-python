@@ -3,13 +3,13 @@
 from typing import Optional
 from urllib.parse import urlencode
 
-from ..decorators import populate_on_call
-from ..decorators import validate_type
 from ...config import Config
 from ...exceptions import InvalidUrlError
 from ...exceptions import MissingApiKeyError
 from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
+from ..decorators import populate_on_call
+from ..decorators import validate_type
 
 
 def _valid_retur_url(value) -> Optional[str]:

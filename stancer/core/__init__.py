@@ -10,7 +10,7 @@ from .abstract_object import AbstractObject
 from .abstract_search import AbstractSearch
 from .request import Request
 
-__all__ = [
+__all__ = (
     'AbstractAmount',
     'AbstractCountry',
     'AbstractLast4',
@@ -18,4 +18,4 @@ __all__ = [
     'AbstractObject',
     'AbstractSearch',
     'Request',
-]
+)

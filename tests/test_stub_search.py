@@ -1,9 +1,10 @@
 """Test abstract object with search"""
 
 from inspect import isgenerator
+from time import time
+
 import pytest
 import responses
-from time import time
 
 from stancer.exceptions import InvalidSearchResponse
 

@@ -2,6 +2,7 @@
 
 from typing import Tuple
 from typing import TypeVar
+
 from requests import HTTPError
 from requests import Response
 
