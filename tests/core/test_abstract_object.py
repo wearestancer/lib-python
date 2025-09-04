@@ -36,14 +36,6 @@ class TestAbstractObject(TestHelper):
 
         obj = AbstractObject(**{key2: value2, key1: value1})
 
-        params = {
-            'id': id(obj),
-            'key1': key1,
-            'key2': key2,
-            'value1': value1,
-            'value2': value2,
-        }
-
         assert (
             repr(obj)
             == f'<AbstractObject({key1}="{value1}", {key2}={value2}) at 0x{id(obj):x}>'
@@ -62,20 +54,9 @@ class TestAbstractObject(TestHelper):
 
         obj = AbstractObject(uid, **{key2: value2, key1: value1})
 
-        params = {
-            'id': id(obj),
-            'key1': key1,
-            'key2': key2,
-            'uid': uid,
-            'value1': value1,
-            'value2': value2,
-        }
-
         assert (
             repr(obj)
-            == '<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id:x}>'.format(
-                **params
-            )
+            == f'<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id(obj):x}>'
         )
 
     def test_uri(self):
