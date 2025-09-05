@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from typing import Optional
+from typing import Type
 from typing import TypeVar
 
 from .card import Card
@@ -32,7 +34,13 @@ from .exceptions import StancerNotImplementedError
 from .sepa import Sepa
 from .status.payment import PaymentStatus
 
-BaseObject = (
+CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
+
+ORDER_ID_MAX_LEN = 36
+UNIQUE_ID_MAX_LEN = 36
+
+
+class Payment(
     AbstractObject,
     AbstractAmount,
     AbstractCountry,
@@ -40,14 +48,7 @@ BaseObject = (
     PaymentAuth,
     PaymentPage,
     PaymentRefund,
-)
-CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
-
-ORDER_ID_MAX_LEN = 36
-UNIQUE_ID_MAX_LEN = 36
-
-
-class Payment(*BaseObject):
+):
     """Representation of a payment."""
 
     _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
@@ -67,15 +68,15 @@ class Payment(*BaseObject):
     ]
 
     @property
-    def _init_card(self) -> Card:
+    def _init_card(self) -> Type[Card]:
         return Card
 
     @property
-    def _init_customer(self) -> Customer:
+    def _init_customer(self) -> Type[Customer]:
         return Customer
 
     @property
-    def _init_sepa(self) -> Sepa:
+    def _init_sepa(self) -> Type[Sepa]:
         return Sepa
 
     @property
@@ -365,7 +366,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def response_message(self) -> str:
+    def response_message(self) -> Optional[str]:
         """
         API response message.
 
@@ -385,7 +386,7 @@ class Payment(*BaseObject):
 
         return responses.get(response)
 
-    def send(self) -> CurrentInstance:
+    def send(self: CurrentInstance) -> CurrentInstance:
         """
         Create or update the payment.
 

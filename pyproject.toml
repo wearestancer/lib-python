@@ -1,13 +1,10 @@
 [project]
 name = "stancer-lib-python"
-dynamic =["version"]
+dynamic = ["version"]
 description = "Python SDK for the Stancer API"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = [
-
-    "requests ~=2.32.5",
-]
+dependencies = ["requests ~=2.32.5"]
 
 [build-system]
 requires = ["hatchling"]
@@ -36,6 +33,11 @@ dev = [
     "responses ~=0.25",
     "ruff ~=0.12",
     "types-pytz ~=2025.2.0",
+    "types-pexpect ~=4.9.0",
+    "types-pygments ~=2.19.0",
+    "types-pyyaml ~=6.0.12",
+    "types-requests ~=2.32.4",
+    "types-setuptools ~=80.9.0",
     "typing-extensions ~=4.15",
     "zipp ~=3.23",
 ]

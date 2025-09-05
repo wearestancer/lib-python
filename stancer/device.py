@@ -99,7 +99,7 @@ class Device(AbstractObject):
     def http_accept(self, value: str):
         self._data['http_accept'] = value
 
-    def hydrate_from_env(self) -> CurrentInstance:
+    def hydrate_from_env(self: CurrentInstance) -> CurrentInstance:
         """
         Hydrate the object using environment variables.
 
@@ -113,30 +113,25 @@ class Device(AbstractObject):
             InvalidPortError: If port is not present.
         """
 
-        if self.ip is None and os.getenv('SERVER_ADDR') is not None:
-            self.ip = os.getenv('SERVER_ADDR')
+        server_addr = os.getenv('SERVER_ADDR')
+        if self.ip is None and server_addr is not None:
+            self.ip = server_addr
 
-        if self.port is None and os.getenv('SERVER_PORT') is not None:
-            self.port = int(os.getenv('SERVER_PORT'))
+        server_port = os.getenv('SERVER_PORT')
+        if self.port is None and server_port is not None:
+            self.port = int(server_port)
 
-        if self.http_accept is None and os.getenv('HTTP_ACCEPT') is not None:
-            self.http_accept = os.getenv('HTTP_ACCEPT')
+        http_accept = os.getenv('HTTP_ACCEPT')
+        if self.http_accept is None and http_accept is not None:
+            self.http_accept = http_accept
 
-        tmp = [
-            self.languages is None,
-            os.getenv('HTTP_ACCEPT_LANGUAGE') is not None,
-        ]
+        http_accept_language = os.getenv('HTTP_ACCEPT_LANGUAGE')
+        if self.languages is None and http_accept_language is not None:
+            self.languages = http_accept_language
 
-        if all(tmp):
-            self.languages = os.getenv('HTTP_ACCEPT_LANGUAGE')
-
-        tmp = [
-            self.user_agent is None,
-            os.getenv('HTTP_USER_AGENT') is not None,
-        ]
-
-        if all(tmp):
-            self.user_agent = os.getenv('HTTP_USER_AGENT')
+        http_user_agent = os.getenv('HTTP_USER_AGENT')
+        if self.user_agent is None and http_user_agent is not None:
+            self.user_agent = http_user_agent
 
         if self.ip is None:
             raise InvalidIpAddressError()

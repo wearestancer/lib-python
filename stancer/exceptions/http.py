@@ -2,6 +2,7 @@
 
 from typing import Tuple
 from typing import TypeVar
+from typing import Union
 
 from requests import HTTPError
 from requests import Response
@@ -92,7 +93,7 @@ class StancerHTTPError(StancerException, HTTPError):
         return str(self.message or '')
 
     @classmethod
-    def _parse_message(cls, err) -> Tuple[str, str]:
+    def _parse_message(cls, err) -> Tuple[str, Union[str, None]]:
         message = err
         type_data = None
 

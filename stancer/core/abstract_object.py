@@ -3,8 +3,11 @@
 import json
 
 from datetime import datetime
+from typing import Any
+from typing import Optional
 from typing import Set
 from typing import TypeVar
+from typing import Union
 
 from ..config import Config
 from .decorators import populate_on_call
@@ -18,15 +21,15 @@ CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
 class AbstractObject(object):
     """Manage common code between API object."""
 
-    _ENDPOINT = None  # pylint: disable=invalid-name
-    _allowed_attributes = []
-    _datetime_property = [
+    _ENDPOINT: Union[None, str] = None  # pylint: disable=invalid-name
+    _allowed_attributes: list[Any] = []
+    _datetime_property: list[str] = [
         'created',
     ]
-    _default_values = {}
-    _repr_ignore = set()
+    _default_values: dict[str, Any] = {}
+    _repr_ignore: set[Any] = set()
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, uid: Union[str, None] = None, **kwargs):
         """
         Create or get an API object.
 
@@ -46,12 +49,12 @@ class AbstractObject(object):
             An instance of the current object.
         """
         self._id = uid
-        self._data = {}
+        self._data: Any = {}
         self._bypass = False
         self._populated = True
 
         # init modified flags
-        self.__modified = None
+        self.__modified: Union[Set, None] = None
         del self._modified
 
         self.hydrate(**self._default_values)
@@ -134,12 +137,15 @@ class AbstractObject(object):
         return allowed
 
     @property
-    def _modified(self) -> Set[str]:
+    def _modified(self) -> Union[Set, None]:
         return self.__modified
 
     @_modified.setter
     def _modified(self, value: str):
-        self.__modified.add(value)
+        if self.__modified is None:
+            self.__modified = {value}
+        else:
+            self.__modified.add(value)
 
     @_modified.deleter
     def _modified(self):
@@ -164,7 +170,7 @@ class AbstractObject(object):
                 obj._populated = value
 
     @property
-    def id(self) -> str:
+    def id(self) -> Optional[str]:
         """
         Return current object ID.
 
@@ -423,7 +429,7 @@ class AbstractObject(object):
         """
         return self._data.get('live_mode')
 
-    def populate(self) -> CurrentInstance:
+    def populate(self: CurrentInstance) -> CurrentInstance:
         """
         Populate the current object.
 
@@ -443,7 +449,7 @@ class AbstractObject(object):
 
         return self
 
-    def send(self) -> CurrentInstance:
+    def send(self: CurrentInstance) -> CurrentInstance:
         """
         Save the current object.
 
@@ -487,7 +493,7 @@ class AbstractObject(object):
         Returns:
             A JSON still as a dictionnary.
         """
-        representation = {}
+        representation: dict[str, Any] = {}
 
         if self.id is not None and self.is_not_modified:
             representation = self.id

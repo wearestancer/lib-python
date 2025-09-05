@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from typing import Optional
 from typing import Union
 
 from ...auth import Auth
@@ -11,7 +12,7 @@ from ..decorators import populate_on_call
 from ..decorators import validate_type
 
 
-def _coerce_auth(value: Union[Auth, str, bool]) -> Auth:
+def _coerce_auth(value: Union[Auth, str, bool]) -> Optional[Auth]:
     if isinstance(value, str):
         return Auth(return_url=value)
 

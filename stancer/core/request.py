@@ -20,7 +20,7 @@ class Request(object):
         """Initialize"""
         self._conf = Config()
 
-    def delete(self, obj: AbstractObject) -> CurrentInstance:
+    def delete(self: CurrentInstance, obj: AbstractObject) -> CurrentInstance:
         """
         Send a DELETE HTTP request.
 
@@ -33,7 +33,7 @@ class Request(object):
         return self._request('delete', obj)
 
     def get(
-        self,
+        self: CurrentInstance,
         obj: AbstractObject,
         update: bool = True,
         **kwargs,
@@ -51,7 +51,7 @@ class Request(object):
         """
         return self._request('get', obj, update, **kwargs)
 
-    def patch(self, obj: AbstractObject) -> CurrentInstance:
+    def patch(self: CurrentInstance, obj: AbstractObject) -> CurrentInstance:
         """
         Send a POST HTTP request.
 
@@ -63,7 +63,7 @@ class Request(object):
         """
         return self._request('patch', obj)
 
-    def post(self, obj: AbstractObject) -> CurrentInstance:
+    def post(self: CurrentInstance, obj: AbstractObject) -> CurrentInstance:
         """
         Send a POST HTTP request.
 
@@ -76,7 +76,7 @@ class Request(object):
         return self._request('post', obj)
 
     def _request(
-        self,
+        self: CurrentInstance,
         method: str,
         obj: AbstractObject,
         update: bool = True,

@@ -3,6 +3,7 @@
 import re
 
 from datetime import datetime
+from typing import Optional
 from typing import Union
 
 from .core import AbstractCountry
@@ -76,7 +77,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         self._data['date_mandate'] = value
 
     @property
-    def formatted_iban(self) -> str:
+    def formatted_iban(self) -> Optional[str]:
         """
         IBAN in readeable format.
 

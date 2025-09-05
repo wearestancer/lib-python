@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+
 from datetime import datetime
+from typing import Optional
+from typing import Type
 from typing import TypeVar
+from typing import Union
 
 from .core import AbstractAmount
 from .core import AbstractObject
@@ -24,7 +28,7 @@ class Refund(AbstractObject, AbstractAmount):
         'date_refund',
     ]
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, uid: Union[str, None] = None, **kwargs):
         """
         Create or get a Refund object.
 
@@ -47,12 +51,12 @@ class Refund(AbstractObject, AbstractAmount):
         self._modified = 'payment'
 
     @property
-    def _init_payment(self) -> Payment:
+    def _init_payment(self) -> Type[Payment]:
         return Payment
 
     @property
     @populate_on_call
-    def date_bank(self) -> datetime:
+    def date_bank(self) -> Optional[datetime]:
         """
         Value date.
 
@@ -63,7 +67,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def date_refund(self) -> datetime:
+    def date_refund(self) -> Optional[datetime]:
         """
         Date when the refund is sent to the bank.
 
@@ -74,7 +78,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def payment(self) -> Payment:
+    def payment(self) -> Optional[Payment]:
         """
         Original payment.
 
@@ -85,7 +89,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def status(self) -> str:
+    def status(self) -> Optional[str]:
         """
         Refund status.
 

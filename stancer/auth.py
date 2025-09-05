@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from typing import Optional
+
 from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
@@ -20,7 +22,7 @@ class Auth(AbstractObject):
 
     @property
     @populate_on_call
-    def redirect_url(self) -> str:
+    def redirect_url(self) -> Optional[str]:
         """
         Redirect URL.
 
@@ -31,7 +33,7 @@ class Auth(AbstractObject):
 
     @property
     @populate_on_call
-    def return_url(self) -> str:
+    def return_url(self) -> Optional[str]:
         """
         Return URL.
 
@@ -56,7 +58,7 @@ class Auth(AbstractObject):
 
     @property
     @populate_on_call
-    def status(self) -> str:
+    def status(self) -> Optional[str]:
         """
         Current status.
 

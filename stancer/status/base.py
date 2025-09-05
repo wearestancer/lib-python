@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from enum import Enum
+from typing import Any
 
 
 class BaseStatus(Enum):
     """Base class for status."""
 
-    def __eq__(self, value: str) -> bool:
+    def __eq__(self: 'BaseStatus', value: Any) -> bool:
         """Test if a status equals a value."""
-        return str(self) == value
+        return str(self) == str(value)
 
     def __str__(self) -> str:
         """Return a string representation of status."""

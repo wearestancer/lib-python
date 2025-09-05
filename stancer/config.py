@@ -117,7 +117,7 @@ class Config(Singleton):
 
     @keys.setter
     def keys(self, value: Union[List[str], str]):
-        keychain = value
+        keychain: Union[list[str], str, tuple[str]] = value
 
         if isinstance(value, str):
             keychain = (value,)
@@ -206,7 +206,7 @@ class Config(Singleton):
         self._port = value
 
     @port.deleter
-    def port(self) -> str:
+    def port(self):
         self._port = None
 
     @property

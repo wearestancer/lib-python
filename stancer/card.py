@@ -274,7 +274,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def tokenize(self) -> CurrentInstance:
+    def tokenize(self: CurrentInstance) -> CurrentInstance:
         """
         Indicate if the card can be reuse later.
 

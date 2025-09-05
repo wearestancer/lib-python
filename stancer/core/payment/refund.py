@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import Any
 
 from ...exceptions import InvalidAmountError
 from ...status.refund import RefundStatus
@@ -9,7 +10,7 @@ from ..decorators import validate_type
 class PaymentRefund(object):
     """Specific property and method for payment refunds."""
 
-    _allowed_attributes = []
+    _allowed_attributes: list[str] = []
 
     def __init__(self):
         """Init internal data."""
@@ -49,7 +50,7 @@ class PaymentRefund(object):
         from ...refund import Refund  # pylint: disable=import-outside-toplevel
 
         refund = Refund()
-        params = {
+        params: dict[str, Any] = {
             'payment': self,
         }
 

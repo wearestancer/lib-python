@@ -36,7 +36,7 @@ class AbstractSearch(ABC):
         return {}
 
     @abstractmethod
-    def hydrate(self, **params) -> CurrentInstance:
+    def hydrate(self: CurrentInstance, **params) -> CurrentInstance:
         """
         Hydrate current object.
 
@@ -51,9 +51,9 @@ class AbstractSearch(ABC):
     @classmethod
     def list(
         cls,
-        created: Union[int, datetime] = None,
-        limit: int = None,
-        start: int = None,
+        created: Union[int, float, datetime, None] = None,
+        limit: Union[int, None] = None,
+        start: Union[int, None] = None,
         **kwargs,
     ):
         """
