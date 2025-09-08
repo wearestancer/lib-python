@@ -921,11 +921,6 @@ name = "stancer-lib-python"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
-    { name = "types-pexpect" },
-    { name = "types-pygments" },
-    { name = "types-pyyaml" },
-    { name = "types-requests" },
-    { name = "types-setuptools" },
 ]
 
 [package.dev-dependencies]
@@ -943,20 +938,18 @@ dev = [
     { name = "pytz" },
     { name = "responses" },
     { name = "ruff" },
+    { name = "types-pexpect" },
+    { name = "types-pygments" },
     { name = "types-pytz" },
+    { name = "types-pyyaml" },
+    { name = "types-requests" },
+    { name = "types-setuptools" },
     { name = "typing-extensions" },
     { name = "zipp" },
 ]
 
 [package.metadata]
-requires-dist = [
-    { name = "requests", specifier = "~=2.32.5" },
-    { name = "types-pexpect", specifier = ">=4.9.0.20250809" },
-    { name = "types-pygments", specifier = ">=2.19.0.20250809" },
-    { name = "types-pyyaml", specifier = ">=6.0.12.20250822" },
-    { name = "types-requests", specifier = ">=2.32.4.20250809" },
-    { name = "types-setuptools", specifier = ">=80.9.0.20250822" },
-]
+requires-dist = [{ name = "requests", specifier = "~=2.32.5" }]
 
 [package.metadata.requires-dev]
 dev = [
@@ -974,7 +967,12 @@ dev = [
     { name = "pytz", specifier = "~=2025.2" },
     { name = "responses", specifier = "~=0.25" },
     { name = "ruff", specifier = "~=0.12" },
+    { name = "types-pexpect", specifier = "~=4.9.0" },
+    { name = "types-pygments", specifier = "~=2.19.0" },
     { name = "types-pytz", specifier = "~=2025.2.0" },
+    { name = "types-pyyaml", specifier = "~=6.0.12" },
+    { name = "types-requests", specifier = "~=2.32.4" },
+    { name = "types-setuptools", specifier = "~=80.9.0" },
     { name = "typing-extensions", specifier = "~=4.15" },
     { name = "zipp", specifier = "~=3.23" },
 ]

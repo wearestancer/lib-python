@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from typing import Any
 from typing import TypeVar
 from typing import Union
 
@@ -10,7 +11,6 @@ from ..exceptions import StancerHTTPError
 from ..exceptions import StancerValueError
 
 CurrentInstance = TypeVar('CurrentInstance', bound='Request')
-AbstractObject = TypeVar('AbstractObject', bound='AbstractObject')
 
 
 class Request(object):
@@ -20,7 +20,7 @@ class Request(object):
         """Initialize"""
         self._conf = Config()
 
-    def delete(self: CurrentInstance, obj: AbstractObject) -> CurrentInstance:
+    def delete(self: CurrentInstance, obj) -> Union[CurrentInstance, str]:
         """
         Send a DELETE HTTP request.
 
@@ -34,7 +34,7 @@ class Request(object):
 
     def get(
         self: CurrentInstance,
-        obj: AbstractObject,
+        obj,
         update: bool = True,
         **kwargs,
     ) -> Union[CurrentInstance, str]:
@@ -51,7 +51,7 @@ class Request(object):
         """
         return self._request('get', obj, update, **kwargs)
 
-    def patch(self: CurrentInstance, obj: AbstractObject) -> CurrentInstance:
+    def patch(self: CurrentInstance, obj) -> Union[CurrentInstance, str]:
         """
         Send a POST HTTP request.
 
@@ -63,7 +63,7 @@ class Request(object):
         """
         return self._request('patch', obj)
 
-    def post(self: CurrentInstance, obj: AbstractObject) -> CurrentInstance:
+    def post(self: CurrentInstance, obj) -> Union[CurrentInstance, str]:
         """
         Send a POST HTTP request.
 
@@ -78,10 +78,10 @@ class Request(object):
     def _request(
         self: CurrentInstance,
         method: str,
-        obj: AbstractObject,
+        obj: Any,
         update: bool = True,
         **kwargs,
-    ) -> CurrentInstance:
+    ) -> Union[CurrentInstance, str]:
         """Handle "delete", "get", "patch" and "post" method."""
 
         if method not in ['delete', 'get', 'patch', 'post']:

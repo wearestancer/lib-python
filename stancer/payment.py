@@ -51,7 +51,7 @@ class Payment(
 ):
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
+    _ENDPOINT = 'checkout'
 
     _allowed_attributes = [
         'capture',

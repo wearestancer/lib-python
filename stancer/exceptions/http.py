@@ -37,16 +37,16 @@ class StancerHTTPError(StancerException, HTTPError):
         if response.status_code >= 400:
             exc_class = StancerHTTPClientError
 
-            for tmp in StancerHTTPClientError.__subclasses__():
-                if tmp.status_code == response.status_code:
-                    exc_class = tmp
+            for tmpClient in StancerHTTPClientError.__subclasses__():
+                if tmpClient.status_code == response.status_code:
+                    exc_class = tmpClient
 
         if response.status_code >= 500:
             exc_class = StancerHTTPServerError
 
-            for tmp in StancerHTTPServerError.__subclasses__():
-                if tmp.status_code == response.status_code:
-                    exc_class = tmp
+            for tmpServer in StancerHTTPServerError.__subclasses__():
+                if tmpServer.status_code == response.status_code:
+                    exc_class = tmpServer
 
         return super().__new__(exc_class, response, *args, **kwargs)
 

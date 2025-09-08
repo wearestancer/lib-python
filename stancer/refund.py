@@ -98,7 +98,7 @@ class Refund(AbstractObject, AbstractAmount):
         """
         return self._data.get('status')
 
-    def to_json_repr(self) -> dict:
+    def to_json_repr(self) -> Union[dict, str]:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -108,6 +108,6 @@ class Refund(AbstractObject, AbstractAmount):
         representation = super().to_json_repr()
 
         if isinstance(self.payment, Payment):
-            representation['payment'] = self.payment.id
+            representation['payment'] = self.payment.id  # type: ignore
 
         return representation

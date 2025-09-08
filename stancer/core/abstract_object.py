@@ -194,7 +194,7 @@ class AbstractObject(object):
         """
         return self._data.get('created')
 
-    def delete(self) -> CurrentInstance:
+    def delete(self: CurrentInstance) -> CurrentInstance:
         """
         Delete the current object.
 
@@ -250,7 +250,7 @@ class AbstractObject(object):
 
         return new_values
 
-    def hydrate(self, **params) -> CurrentInstance:
+    def hydrate(self: CurrentInstance, **params) -> CurrentInstance:
         """
         Hydrate current object.
 
@@ -320,7 +320,7 @@ class AbstractObject(object):
                 applied = False
 
                 try:
-                    prop = dict(self.__class__.__dict__).get(key)
+                    prop = self.__class__.__dict__.get(key)  # type: ignore
 
                     if prop is not None and prop.fset is not None:
                         prop.fset(self, value)
@@ -357,7 +357,7 @@ class AbstractObject(object):
         Returns
             Was it modified ?
         """
-        if len(self._modified) > 0:
+        if self._modified is not None and len(self._modified) > 0:
             return True
 
         for key, value in self._data.items():
@@ -486,7 +486,7 @@ class AbstractObject(object):
         """
         return json.dumps(self.to_json_repr(), separators=(',', ':'))
 
-    def to_json_repr(self) -> dict:
+    def to_json_repr(self) -> Union[dict, str]:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -496,27 +496,26 @@ class AbstractObject(object):
         representation: dict[str, Any] = {}
 
         if self.id is not None and self.is_not_modified:
-            representation = self.id
-        else:
-            items = {
-                k: v
-                for k, v in self._data.items()
-                if k in self._get_allowed_attributes()
-                and v is not None
-                and (
-                    k in self._modified
-                    or (isinstance(v, AbstractObject) and v.is_modified)
-                )
-            }
+            return self.id
 
-            for key, value in items.items():
-                if hasattr(value, 'to_json_repr'):
-                    val = value.to_json_repr()
+        items = {
+            k: v
+            for k, v in self._data.items()
+            if k in self._get_allowed_attributes()
+            and v is not None
+            and (
+                (self._modified is not None and k in self._modified)
+                or (isinstance(v, AbstractObject) and v.is_modified)
+            )
+        }
+        for key, value in items.items():
+            if hasattr(value, 'to_json_repr'):
+                val = value.to_json_repr()
 
-                    if val:
-                        representation[key] = val
-                else:
-                    representation[key] = value
+                if val:
+                    representation[key] = val
+            else:
+                representation[key] = value
 
         return representation
 
