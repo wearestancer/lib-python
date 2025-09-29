@@ -23,7 +23,7 @@ class TestDevice(TestHelper):
         obj.city = city
 
         assert obj.city == city
-        assert obj.to_json().find('"city":"{}"'.format(city)) > 0
+        assert obj.to_json().find(f'"city":"{city}"') > 0
 
     def test_country(self):
         obj = Device()
@@ -34,7 +34,7 @@ class TestDevice(TestHelper):
         obj.country = country
 
         assert obj.country == country
-        assert obj.to_json().find('"country":"{}"'.format(country)) > 0
+        assert obj.to_json().find(f'"country":"{country}"') > 0
 
     def test_http_accept(self):
         obj = Device()
@@ -45,7 +45,7 @@ class TestDevice(TestHelper):
         obj.http_accept = http_accept
 
         assert obj.http_accept == http_accept
-        assert obj.to_json().find('"http_accept":"{}"'.format(http_accept)) > 0
+        assert obj.to_json().find(f'"http_accept":"{http_accept}"') > 0
 
     def test_hydrate_from_env(self, monkeypatch):
         obj = Device()
@@ -67,11 +67,11 @@ class TestDevice(TestHelper):
 
         exported = obj.to_json()
 
-        assert exported.find('"ip":"{}"'.format(ip)) > 0
-        assert exported.find('"port":{}'.format(port)) > 0
-        assert exported.find('"http_accept":"{}"'.format(accept)) > 0
-        assert exported.find('"languages":"{}"'.format(languages)) > 0
-        assert exported.find('"user_agent":"{}"'.format(agent)) > 0
+        assert exported.find(f'"ip":"{ip}"') > 0
+        assert exported.find(f'"port":{port}') > 0
+        assert exported.find(f'"http_accept":"{accept}"') > 0
+        assert exported.find(f'"languages":"{languages}"') > 0
+        assert exported.find(f'"user_agent":"{agent}"') > 0
 
         # Assert a valid IP address is mandatory
         monkeypatch.delenv('SERVER_ADDR', raising=False)
@@ -115,21 +115,21 @@ class TestDevice(TestHelper):
 
         exported = obj.to_json()
 
-        assert exported.find('"ip":"{}"'.format(ip)) > 0
-        assert exported.find('"port":{}'.format(port)) > 0
-        assert exported.find('"http_accept":"{}"'.format(accept)) > 0
-        assert exported.find('"languages":"{}"'.format(languages)) > 0
-        assert exported.find('"user_agent":"{}"'.format(agent)) > 0
+        assert exported.find(f'"ip":"{ip}"') > 0
+        assert exported.find(f'"port":{port}') > 0
+        assert exported.find(f'"http_accept":"{accept}"') > 0
+        assert exported.find(f'"languages":"{languages}"') > 0
+        assert exported.find(f'"user_agent":"{agent}"') > 0
 
         assert obj.hydrate_from_env() == obj
 
         exported = obj.to_json()
 
-        assert exported.find('"ip":"{}"'.format(ip)) > 0
-        assert exported.find('"port":{}'.format(port)) > 0
-        assert exported.find('"http_accept":"{}"'.format(accept)) > 0
-        assert exported.find('"languages":"{}"'.format(languages)) > 0
-        assert exported.find('"user_agent":"{}"'.format(agent)) > 0
+        assert exported.find(f'"ip":"{ip}"') > 0
+        assert exported.find(f'"port":{port}') > 0
+        assert exported.find(f'"http_accept":"{accept}"') > 0
+        assert exported.find(f'"languages":"{languages}"') > 0
+        assert exported.find(f'"user_agent":"{agent}"') > 0
 
     def test_ip(self):
         obj = Device()
@@ -143,7 +143,7 @@ class TestDevice(TestHelper):
             obj.ip = ip
 
             assert obj.ip == ip
-            assert obj.to_json().find('"ip":"{}"'.format(ip)) > 0
+            assert obj.to_json().find(f'"ip":"{ip}"') > 0
 
     def test_languages(self):
         obj = Device()
@@ -154,7 +154,7 @@ class TestDevice(TestHelper):
         obj.languages = languages
 
         assert obj.languages == languages
-        assert obj.to_json().find('"languages":"{}"'.format(languages)) > 0
+        assert obj.to_json().find(f'"languages":"{languages}"') > 0
 
     def test_port(self):
         obj = Device()
@@ -165,7 +165,7 @@ class TestDevice(TestHelper):
         obj.port = port
 
         assert obj.port == port
-        assert obj.to_json().find('"port":{}'.format(port)) > 0
+        assert obj.to_json().find(f'"port":{port}') > 0
 
         with pytest.raises(InvalidPortError):
             obj.port = self.random_integer(65536, 70000)
@@ -179,4 +179,4 @@ class TestDevice(TestHelper):
         obj.user_agent = user_agent
 
         assert obj.user_agent == user_agent
-        assert obj.to_json().find('"user_agent":"{}"'.format(user_agent)) > 0
+        assert obj.to_json().find(f'"user_agent":"{user_agent}"') > 0

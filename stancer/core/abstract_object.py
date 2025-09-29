@@ -90,7 +90,8 @@ class AbstractObject(object):
         Returns:
             Nothing.
         """
-        raise ValueError(value + " cannot be added to our dataModel")
+        raise ValueError(value + ' cannot be added to our dataModel')
+
     def __repr__(self) -> str:
         args = []
 

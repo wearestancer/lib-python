@@ -673,33 +673,31 @@ class TestPayment(TestHelper):
 
         host = config.host.replace('api', 'payment')
 
-        url = 'https://{}/{}/{}'.format(host, config.ptest, obj.id)
+        url = f'https://{host}/{config.ptest}/{obj.id}'
 
         assert obj.payment_page_url() == url
 
         # With lang parameter
         lang = self.random_string(10)
-        url = 'https://{}/{}/{}?lang={}'.format(host, config.ptest, obj.id, lang)
+        url = f'https://{host}/{config.ptest}/{obj.id}?lang={lang}'
 
         assert obj.payment_page_url(lang=lang) == url
 
         # With bad parameter (ignored)
-        url = 'https://{}/{}/{}'.format(host, config.ptest, obj.id)
+        url = f'https://{host}/{config.ptest}/{obj.id}'
 
         assert obj.payment_page_url(unknown=lang) == url
 
         # With a port
         config.port = self.random_integer(1000, 65535)
-        url = 'https://{}:{}/{}/{}'.format(host, config.port, config.ptest, obj.id)
+        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}'
 
         assert obj.payment_page_url() == url
 
         # With non ascii chars
         input = self.random_string(2) + ' ' + self.random_string(2)
         encoded = input.replace(' ', '+')
-        url = 'https://{}:{}/{}/{}?lang={}'.format(
-            host, config.port, config.ptest, obj.id, encoded
-        )
+        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}?lang={encoded}'
 
         assert obj.payment_page_url(lang=input) == url
 
@@ -755,9 +753,9 @@ class TestPayment(TestHelper):
             obj.refund(paid)
 
         assert str(err.value) == (
-            'You are trying to refund ({0:.2f} {2}) more than possible ({1:.2f} {2}).'
-        ).format(paid / 100, refund2_amount / 100, obj.currency.upper())
-
+            f'You are trying to refund ({paid / 100:.2f} {obj.currency.upper()}) more than possible '
+            f'({refund2_amount / 100:.2f} {obj.currency.upper()}).'
+        )
         refund2 = obj.refund()
 
         assert isinstance(refund2, Refund)
@@ -1790,7 +1788,7 @@ class TestPayment(TestHelper):
         obj.status = status
 
         assert obj.status == status
-        assert obj.to_json().find('"status":"{}"'.format(status)) > 0
+        assert obj.to_json().find(f'"status":"{status}"') > 0
 
         with pytest.raises(
             InvalidStatusError,

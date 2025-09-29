@@ -46,7 +46,7 @@ class TestAuth(TestHelper):
         exported = obj.to_json()
 
         assert isinstance(exported, str)
-        assert exported.find('"return_url":"{}"'.format(return_url)) > 0
+        assert exported.find(f'"return_url":"{return_url}"') > 0
 
     def test_status(self):
         obj = Auth()
@@ -56,7 +56,7 @@ class TestAuth(TestHelper):
         exported = obj.to_json()
 
         assert isinstance(exported, str)
-        assert exported.find('"status":"{}"'.format(AuthStatus.REQUEST)) > 0
+        assert exported.find(f'"status":"{AuthStatus.REQUEST}"') > 0
 
         with pytest.raises(AttributeError):
             obj.status = self.random_string(10)

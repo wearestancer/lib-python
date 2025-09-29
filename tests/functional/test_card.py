@@ -17,7 +17,7 @@ class TestFunctionalCard(TestHelper):
             obj = Card(self.random_string(29))
             obj.name
 
-        assert error.value.message == 'No such card {}'.format(obj.id)
+        assert error.value.message == f'No such card {obj.id}'
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
@@ -98,6 +98,6 @@ class TestFunctionalCard(TestHelper):
 
         with pytest.raises(
             NotFoundError,
-            match='No such card {}'.format(card_id),
+            match=f'No such card {card_id}',
         ):
             Card(card_id).name

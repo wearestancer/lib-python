@@ -156,8 +156,7 @@ class TestConfig(TestHelper):
         bad_key = self.random_string(30)
 
         with pytest.raises(
-            StancerValueError,
-            match='"{}" is not a valid API key.'.format(bad_key),
+            StancerValueError, match=f'"{bad_key}" is not a valid API key.'
         ):
             obj.keys = bad_key
 

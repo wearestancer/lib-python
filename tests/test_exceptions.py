@@ -357,9 +357,7 @@ class TestExceptions(TestHelper):
                 },
             },
         }
-        expected = '{} ({})'.format(
-            content['error']['message']['error'], content['error']['message']['id']
-        )
+        expected = f'{content["error"]["message"]["error"]} ({content["error"]["message"]["id"]})'
 
         res.json = lambda: content
 

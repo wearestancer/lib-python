@@ -16,7 +16,7 @@ class TestFunctionalCustomer(TestHelper):
             obj = Customer(self.random_string(29))
             obj.name
 
-        assert error.value.message == 'No such customer {}'.format(obj.id)
+        assert error.value.message == f'No such customer {obj.id}'
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
@@ -31,8 +31,8 @@ class TestFunctionalCustomer(TestHelper):
         obj = Customer()
 
         tmp = self.random_string(5)
-        name = 'John Doe ({})'.format(tmp)
-        email = 'john.doe+{}@example.com'.format(tmp)
+        name = f'John Doe ({tmp})'
+        email = f'john.doe+{tmp}@example.com'
         external_id = uuid.uuid4()
         mobile = self.random_mobile()
 
@@ -60,8 +60,8 @@ class TestFunctionalCustomer(TestHelper):
         obj = Customer()
 
         tmp = self.random_string(5)
-        name = 'John Doe ({})'.format(tmp)
-        email = 'john.doe+{}@example.com'.format(tmp)
+        name = f'John Doe ({tmp})'
+        email = f'john.doe+{tmp}@example.com'
 
         obj.name = name
         obj.email = email
@@ -86,8 +86,8 @@ class TestFunctionalCustomer(TestHelper):
         obj = Customer()
 
         tmp = self.random_string(5)
-        name = 'John Doe ({})'.format(tmp)
-        email = 'john.doe+{}@example.com'.format(tmp)
+        name = f'John Doe ({tmp})'
+        email = f'john.doe+{tmp}@example.com'
         mobile = self.random_mobile()
 
         obj.mobile = mobile

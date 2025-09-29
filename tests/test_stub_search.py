@@ -18,7 +18,7 @@ class TestStubSearch(TestHelper):
         obj = StubSearch()
 
         created = int(time()) - self.random_integer(1_000, 2_000)
-        location = '{}?created={}'.format(obj.uri, created)
+        location = f'{obj.uri}?created={created}'
 
         responses.add(responses.GET, location, body='[')
 
@@ -87,9 +87,9 @@ class TestStubSearch(TestHelper):
         assert api_call.request.body is None
 
         assert api_call.request.url.startswith(obj.uri)
-        assert 'created={}'.format(created) in api_call.request.url
-        assert 'limit={}'.format(limit) in api_call.request.url
-        assert 'start={}'.format(start) in api_call.request.url
+        assert f'created={created}' in api_call.request.url
+        assert f'limit={limit}' in api_call.request.url
+        assert f'start={start}' in api_call.request.url
 
     @responses.activate
     def test_list(self):
@@ -124,10 +124,10 @@ class TestStubSearch(TestHelper):
         assert api_call.request.body is None
 
         assert api_call.request.url.startswith(obj.uri)
-        assert 'created={}'.format(created) in api_call.request.url
-        assert 'limit={}'.format(limit) in api_call.request.url
-        assert 'start={}'.format(start) in api_call.request.url
-        assert 'foo={}'.format(foo) in api_call.request.url
+        assert f'created={created}' in api_call.request.url
+        assert f'limit={limit}' in api_call.request.url
+        assert f'start={start}' in api_call.request.url
+        assert f'foo={foo}' in api_call.request.url
         assert 'foobar' not in api_call.request.url
 
         item = next(results)
@@ -150,10 +150,8 @@ class TestStubSearch(TestHelper):
         assert api_call.request.body is None
 
         assert api_call.request.url.startswith(obj.uri)
-        assert 'created={}'.format(created) in api_call.request.url
-        assert 'limit={}'.format(limit) in api_call.request.url
-        assert (
-            'start={}'.format(2) in api_call.request.url
-        )  # 2 => start + limit in response
-        assert 'foo={}'.format(foo) in api_call.request.url
+        assert f'created={created}' in api_call.request.url
+        assert f'limit={limit}' in api_call.request.url
+        assert f'start={2}' in api_call.request.url  # 2 => start + limit in response
+        assert f'foo={foo}' in api_call.request.url
         assert 'foobar' not in api_call.request.url

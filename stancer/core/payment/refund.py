@@ -57,12 +57,9 @@ class PaymentRefund(object):
         if amount:
             if amount > self.refundable_amount:
                 message = (
-                    'You are trying to refund ({amount:.2f} {currency}) '
-                    'more than possible ({max:.2f} {currency}).'
-                ).format(
-                    amount=amount / 100,
-                    currency=self.currency.upper(),
-                    max=self.refundable_amount / 100,
+                    f'You are trying to refund ({amount / 100:.2f} {self.currency.upper()}) '
+                    f'more than possible ({self.refundable_amount / 100:.2f} '
+                    f'{self.currency.upper()}).'
                 )
 
                 raise InvalidAmountError(message)

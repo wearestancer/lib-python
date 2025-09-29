@@ -99,8 +99,8 @@ class TestStubWithDefault(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
-        assert result.find('"string1":"{}"'.format(params['string1'])) > 0
-        assert result.find('"integer1":{}'.format(params['integer1'])) > 0
+        assert result.find(f'"string1":"{params["string1"]}"') > 0
+        assert result.find(f'"integer1":{params["integer1"]}') > 0
         assert result.find('"created"') == -1
 
         # Only export modified properties

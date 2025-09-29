@@ -146,7 +146,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 
@@ -175,7 +175,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 
@@ -209,7 +209,7 @@ class TestRequest(TestHelper):
         api_call = responses.calls[0]
 
         assert api_call.request.method == 'GET'
-        assert api_call.request.url == '{}?{}={}'.format(obj.uri, key, value)
+        assert api_call.request.url == f'{obj.uri}?{key}={value}'
         assert api_call.request.body is None
 
     @responses.activate
@@ -240,7 +240,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 
@@ -281,7 +281,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 

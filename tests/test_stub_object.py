@@ -414,10 +414,10 @@ class TestStubObject(TestHelper):
         sprod = 'sprod_' + self.random_string(24)
 
         phead = base64.b64encode((sprod + ':').encode())
-        pheader = 'Basic {}'.format(phead.decode())
+        pheader = f'Basic {phead.decode()}'
 
         thead = base64.b64encode((stest + ':').encode())
-        theader = 'Basic {}'.format(thead.decode())
+        theader = f'Basic {thead.decode()}'
 
         conf.keys = (sprod, stest)
 
@@ -489,9 +489,9 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
-        assert result.find('"string1":"{}"'.format(params['string1'])) > 0
-        assert result.find('"integer1":{}'.format(params['integer1'])) > 0
-        assert result.find('"card1":{{"number":"{}"}}'.format(card1.number)) > 0
+        assert result.find(f'"string1":"{params["string1"]}"') > 0
+        assert result.find(f'"integer1":{params["integer1"]}') > 0
+        assert result.find(f'"card1":{{"number":"{card1.number}"}}') > 0
         assert result.find('"created"') == -1
         assert result.find('"card2"') == -1
 
@@ -501,7 +501,7 @@ class TestStubObject(TestHelper):
 
         result = obj.to_json()
 
-        assert result.find('"card2":"{}"'.format(card2.id)) > 0
+        assert result.find(f'"card2":"{card2.id}"') > 0
 
         # Only export modified properties
         obj.reset_modified()
@@ -519,7 +519,7 @@ class TestStubObject(TestHelper):
 
         result = obj.to_json()
 
-        assert result == '"{}"'.format(uid)
+        assert result == f'"{uid}"'
 
         # Unless it was modified
         obj.string2 = self.random_string(20)
@@ -545,7 +545,7 @@ class TestStubObject(TestHelper):
 
         assert isinstance(result, str)
         assert result.find('"card1"') == -1
-        assert result.find('"card2":{{"cvc":"{}"}}'.format(card2.cvc)) > 0
+        assert result.find(f'"card2":{{"cvc":"{card2.cvc}"}}') > 0
 
         # Do not export empty object
         obj.card2 = Card()

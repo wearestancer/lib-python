@@ -149,8 +149,8 @@ class TestRefund(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
-        assert result.find('"amount":{}'.format(params['amount'])) > 0
-        assert result.find('"payment":"{}"'.format(payment.id)) > 0
+        assert result.find(f'"amount":{params["amount"]}') > 0
+        assert result.find(f'"payment":"{payment.id}"') > 0
 
         obj = Refund()
 
@@ -164,4 +164,4 @@ class TestRefund(TestHelper):
 
         assert isinstance(result, str)
         assert result.find('"amount":') == -1
-        assert result.find('"payment":"{}"'.format(payment.id)) > 0
+        assert result.find(f'"payment":"{payment.id}"') > 0
