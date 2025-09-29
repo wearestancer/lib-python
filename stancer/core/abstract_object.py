@@ -82,6 +82,15 @@ class AbstractObject(object):
 
         return representation
 
+    @__dict__.setter
+    def __dict__(self, value: Any):
+        """
+        We don't modify the dict as our model fields aren't dynamic.
+
+        Returns:
+            Nothing.
+        """
+        raise ValueError(value + " cannot be added to our dataModel")
     def __repr__(self) -> str:
         args = []
 

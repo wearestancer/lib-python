@@ -89,7 +89,7 @@ ruff:
       codequality: ruff-report.json
 
 mypy:
-  extends: .python::base
+  extends: .python::current-versions
 
   stage: lint
   script:
