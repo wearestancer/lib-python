@@ -58,13 +58,13 @@ bandit:
     reports:
       codequality: results.json
 
-pytest:
+unit_test:
   extends: .python::current-versions
 
   stage: test
 
   script:
-    - uv run pytest --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
+    - uv run pytest --ignore=tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
 
   artifacts:
     reports:
@@ -72,6 +72,24 @@ pytest:
         coverage_format: cobertura
         path: cobertura.xml
       junit: junit.xml
+
+
+functional_test:
+  extends: .python::current-versions
+
+  stage: test
+
+  script:
+    - uv run pytest tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
+
+  allow_failure: true
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
+
 
 ruff:
   extends: .python::base
@@ -95,7 +113,6 @@ mypy:
   script:
     - uv run mypy . --pretty --cobertura-xml-report ./ --junit-xml junit.xml
 
-  allow_failure: true # This job is just indicative for now.
   artifacts:
     reports:
       coverage_report:
