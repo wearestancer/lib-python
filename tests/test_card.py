@@ -6,7 +6,6 @@ import pytest
 import responses
 
 from stancer import Card
-from stancer import Customer
 from stancer.core import AbstractCountry
 from stancer.core import AbstractName
 from stancer.core import AbstractObject
@@ -17,7 +16,6 @@ from stancer.exceptions import InvalidCardExpirationYearError
 from stancer.exceptions import InvalidCardExternalIdError
 from stancer.exceptions import InvalidCardNumberError
 from stancer.exceptions import InvalidCardTokenizeError
-from stancer.exceptions import InvalidCustomerError
 from stancer.exceptions import InvalidZipCodeError
 
 from .TestHelper import TestHelper
@@ -83,41 +81,6 @@ class TestCard(TestHelper):
         responses.add(responses.GET, obj.uri, json=params)
 
         assert obj.brandname == brand[1]
-        assert obj.is_populated
-        assert len(responses.calls) == 1
-
-    @responses.activate
-    def test_customer(self):
-        obj = Card()
-        customer = Customer()
-
-        assert obj.customer is None
-
-        obj.customer = customer
-
-        assert obj.customer == customer
-        with pytest.raises(
-            InvalidCustomerError,
-            match='You must provide a valid instance of Customer.',
-        ):
-            obj.customer = self.random_integer(2)
-
-        with pytest.raises(
-            InvalidCustomerError,
-            match='You must provide a valid instance of Customer.',
-        ):
-            obj.customer = self.random_string(2)
-
-        obj = Card(self.random_string(29))
-
-        params = {
-            'customer': self.random_string(50),
-        }
-
-        responses.add(responses.GET, obj.uri, json=params)
-
-        assert isinstance(obj.customer, Customer)
-        assert obj.customer.id == params['customer']
         assert obj.is_populated
         assert len(responses.calls) == 1
 

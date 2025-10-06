@@ -3,7 +3,6 @@
 import re
 
 
-from .customer import Customer
 from .core import AbstractCountry
 from .core import AbstractDeleted
 from .core import AbstractLast4
@@ -18,7 +17,6 @@ from .exceptions import InvalidCardExpirationYearError
 from .exceptions import InvalidCardExternalIdError
 from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
-from .exceptions import InvalidCustomerError
 from .exceptions import InvalidZipCodeError
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -44,7 +42,6 @@ class Card(
 
     _allowed_attributes = [
         'cvc',
-        'customer' #only available in V2
         'exp_month',
         'exp_year',
         'external_id',
@@ -54,9 +51,6 @@ class Card(
     ]
     _repr_ignore = {"number"}
 
-    @property
-    def _init_customer(self) -> type[Customer]:
-        return Customer
 
     @property
     @populate_on_call
@@ -129,28 +123,6 @@ class Card(
 
     @property
     @populate_on_call
-    def customer(self) -> type[Customer]:
-        """
-        Customer who owns the Card.
-
-        Args:
-            value (Customer): A valid `Customer` object.
-
-        Returns:
-            Customer: Customer who owns the Card.
-
-        Raises:
-            InvalidCustomerError: When customer is invalid.
-        """
-        return self._data.get('customer')
-
-    @customer.setter
-    @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer):
-        self._data['customer'] = value
-
-    @property
-    @populate_on_call
     def exp_month(self) -> int | None:
         """
         Expiration month.
@@ -207,18 +179,18 @@ class Card(
     @populate_on_call
     def external_id(self) -> str | None:
         """
-        Customer's external ID.
+        Card's external ID.
 
-        External for the API, you can store your customer's identifier here.
+        External for the API, you can store your card's identifier here.
 
         Args:
             value (str): New ID, must be between 36 characters max.
 
         Returns:
-            str: Customer's external ID.
+            str: Card's external ID.
 
         Raises:
-            InvalidCustomerExternalIdError: When external ID is invalid.
+            InvalidCardExternalIdError: When external ID is invalid.
         """
         return self._data.get('external_id')
 

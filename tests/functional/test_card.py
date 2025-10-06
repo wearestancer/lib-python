@@ -6,7 +6,6 @@ import pytest
 import uuid
 
 from stancer import Card
-from stancer import Customer
 from stancer.core.enum import Version
 from stancer.exceptions import NotFoundError, ConflictError
 
@@ -138,7 +137,6 @@ class TestFunctionalCard(FunctionalTestHelper):
     def test_complete_crud_card(self,version):
         self.conf.version = version
         card = Card()
-        customer = Customer('cust_G0uu2QXOWwZLU2xliZaovBuV')
         cvc = str(self.random_integer(100, 999))
         exp_month = self.random_integer(1, 12)
         exp_year = self.random_year() + 20
@@ -150,8 +148,6 @@ class TestFunctionalCard(FunctionalTestHelper):
 
         last4 = number[-4:]
 
-        if self.conf.version != Version.API_V1:
-            card.customer = customer
         card.cvc = cvc
         card.exp_month = exp_month
         card.exp_year = exp_year
@@ -167,8 +163,6 @@ class TestFunctionalCard(FunctionalTestHelper):
         assert card.send() == card
         assert card.id is not None
 
-        if self.conf.version != Version.API_V1:
-            assert card.customer == customer
         assert card.cvc == cvc
         assert not card.deleted
         assert card.exp_month == exp_month
@@ -203,9 +197,6 @@ class TestFunctionalCard(FunctionalTestHelper):
 
         assert card2.brand is not None
         assert card2.country is not None
-        if self.conf.version != Version.API_V1:
-            # We have the same customer but not the same object
-            assert card2.customer is not None
         assert card2.created is not None
         assert card2.funding is not None
         assert card2.nature is not None
@@ -237,9 +228,6 @@ class TestFunctionalCard(FunctionalTestHelper):
 
         assert card2.brand is not None
         assert card2.country is not None
-        assert (
-            card2.customer is not None
-        )  # We have the same customer but not the same object
         assert card2.created is not None
         assert not card2.deleted
         assert card2.funding is not None
@@ -262,9 +250,6 @@ class TestFunctionalCard(FunctionalTestHelper):
         assert card2.brand is not None
         assert card2.country is not None
         assert card2.created is not None
-        assert (
-            card2.customer is not None
-        )  # We have the same customer but not the same object
         assert card2.funding is not None
         assert card2.nature is not None
         assert card2.network is not None
