@@ -7,11 +7,11 @@ from typing import TYPE_CHECKING
 from ...auth import Auth
 from ...device import Device
 from ...exceptions import InvalidAuthError
-from ...exceptions import InvalidUrlError
 from ...exceptions import InvalidDeviceError
+from ...exceptions import InvalidUrlError
 from ...exceptions import StancerException
-from ..decorators import populate_on_call
-from ..decorators import validate_type
+from ..decorators.populate_on_call import populate_on_call
+from ..decorators.validate_type import validate_type
 from .payment_protocol import PaymentProtocol
 
 if TYPE_CHECKING:
@@ -36,8 +36,8 @@ class PaymentAuth(ABC, PaymentProtocol):
     """Specific auth property and method for payment."""
 
     _allowed_attributes = [
-        "auth",
-        "device",
+        'auth',
+        'device',
     ]
 
     @abstractmethod
@@ -59,7 +59,7 @@ class PaymentAuth(ABC, PaymentProtocol):
         Raises:
             InvalidAuthError: When auth is invalid.
         """
-        return self._data.get("auth")
+        return self._data.get('auth')
 
     @auth.setter
     @validate_type(
@@ -68,7 +68,7 @@ class PaymentAuth(ABC, PaymentProtocol):
         coerce=_coerce_auth,
     )
     def auth(self, value: Auth) -> None:
-        self._data["auth"] = value
+        self._data['auth'] = value
 
     @property
     @populate_on_call
@@ -85,15 +85,15 @@ class PaymentAuth(ABC, PaymentProtocol):
         Raises:
             InvalidDeviceError: When device is invalid.
         """
-        return self._data.get("device")
+        return self._data.get('device')
 
     @device.setter
     @validate_type(Device, throws=InvalidDeviceError)
     def device(self, value: Device) -> None:
-        self._data["device"] = value
+        self._data['device'] = value
 
     # Auth must be implemented by payment.
-    def _create_device(self: "Payment") -> "Payment":  # type: ignore # (see above)
+    def _create_device(self: 'Payment') -> 'Payment':  # type: ignore # (see above)
         """
         Create and populate device.
 

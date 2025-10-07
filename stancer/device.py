@@ -4,9 +4,9 @@ import os
 
 from ipaddress import ip_address
 
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
 from .exceptions import InvalidIpAddressError
 from .exceptions import InvalidPortError
 
@@ -17,7 +17,7 @@ try:
 except ImportError:
     from typing import TypeVar
 
-    Self = TypeVar("Self", bound="Device")  # type: ignore
+    Self = TypeVar('Self', bound='Device')  # type: ignore
 
 
 def ip_validation(value):
@@ -30,7 +30,7 @@ def ip_validation(value):
     try:
         ip_address(value)
     except ValueError:
-        return f"This IP address seems invalid ({value})"
+        return f'This IP address seems invalid ({value})'
 
     return None
 
@@ -39,13 +39,13 @@ class Device(AbstractObject):
     """Representation of a device."""
 
     _allowed_attributes = [
-        "city",
-        "country",
-        "http_accept",
-        "ip",
-        "languages",
-        "port",
-        "user_agent",
+        'city',
+        'country',
+        'http_accept',
+        'ip',
+        'languages',
+        'port',
+        'user_agent',
     ]
 
     @property
@@ -60,12 +60,12 @@ class Device(AbstractObject):
         Returns:
             Customer's city.
         """
-        return self._data.get("city")
+        return self._data.get('city')
 
     @city.setter
     @validate_type(str)
     def city(self, value: str) -> None:
-        self._data["city"] = value
+        self._data['city'] = value
 
     @property
     @populate_on_call
@@ -79,12 +79,12 @@ class Device(AbstractObject):
         Returns:
             Customer's country.
         """
-        return self._data.get("country")
+        return self._data.get('country')
 
     @country.setter
     @validate_type(str)
     def country(self, value: str) -> None:
-        self._data["country"] = value
+        self._data['country'] = value
 
     @property
     @populate_on_call
@@ -98,12 +98,12 @@ class Device(AbstractObject):
         Returns:
             Customer's browser acceptance.
         """
-        return self._data.get("http_accept")
+        return self._data.get('http_accept')
 
     @http_accept.setter
     @validate_type(str)
     def http_accept(self, value: str) -> None:
-        self._data["http_accept"] = value
+        self._data['http_accept'] = value
 
     def hydrate_from_env(self: Self) -> Self:
         """
@@ -119,27 +119,27 @@ class Device(AbstractObject):
             InvalidPortError: If port is not present.
         """
 
-        if self.ip is None and (server_addr := os.getenv("SERVER_ADDR")) is not None:
+        if self.ip is None and (server_addr := os.getenv('SERVER_ADDR')) is not None:
             self.ip = server_addr
 
-        if self.port is None and (server_port := os.getenv("SERVER_PORT")) is not None:
+        if self.port is None and (server_port := os.getenv('SERVER_PORT')) is not None:
             self.port = int(server_port)
 
         if (
             self.http_accept is None
-            and (http_accept := os.getenv("HTTP_ACCEPT")) is not None
+            and (http_accept := os.getenv('HTTP_ACCEPT')) is not None
         ):
             self.http_accept = http_accept
 
         if (
             self.languages is None
-            and (http_accept_language := os.getenv("HTTP_ACCEPT_LANGUAGE")) is not None
+            and (http_accept_language := os.getenv('HTTP_ACCEPT_LANGUAGE')) is not None
         ):
             self.languages = http_accept_language
 
         if (
             self.user_agent is None
-            and (http_user_agent := os.getenv("HTTP_USER_AGENT")) is not None
+            and (http_user_agent := os.getenv('HTTP_USER_AGENT')) is not None
         ):
             self.user_agent = http_user_agent
 
@@ -165,7 +165,7 @@ class Device(AbstractObject):
         Returns:
             Customer's IP address.
         """
-        return self._data.get("ip")
+        return self._data.get('ip')
 
     @ip.setter
     @validate_type(
@@ -174,7 +174,7 @@ class Device(AbstractObject):
         throws=InvalidIpAddressError,
     )
     def ip(self, value: str) -> None:
-        self._data["ip"] = value
+        self._data['ip'] = value
 
     @property
     @populate_on_call
@@ -188,12 +188,12 @@ class Device(AbstractObject):
         Returns:
             Customer's browser accepted languages.
         """
-        return self._data.get("languages")
+        return self._data.get('languages')
 
     @languages.setter
     @validate_type(str)
     def languages(self, value: str) -> None:
-        self._data["languages"] = value
+        self._data['languages'] = value
 
     @property
     @populate_on_call
@@ -207,7 +207,7 @@ class Device(AbstractObject):
         Returns:
             Customer's port.
         """
-        return self._data.get("port")
+        return self._data.get('port')
 
     @port.setter
     @validate_type(
@@ -216,7 +216,7 @@ class Device(AbstractObject):
         throws=InvalidPortError,
     )
     def port(self, value: int) -> None:
-        self._data["port"] = value
+        self._data['port'] = value
 
     @property
     @populate_on_call
@@ -230,9 +230,9 @@ class Device(AbstractObject):
         Returns:
             Customer's browser user agent.
         """
-        return self._data.get("user_agent")
+        return self._data.get('user_agent')
 
     @user_agent.setter
     @validate_type(str)
     def user_agent(self, value: str) -> None:
-        self._data["user_agent"] = value
+        self._data['user_agent'] = value

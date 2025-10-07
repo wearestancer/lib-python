@@ -14,6 +14,7 @@ variables:
   DOCKER_REGISTRY: docker.io/wearestancer
   VERSION: 3.12
 
+
 .python::base:
   image: ${DOCKER_REGISTRY}/python:$VERSION-uv
   before_script:
@@ -23,6 +24,7 @@ variables:
     - uv sync --locked
     - uv tree
     - section_end install
+
 
 .python::current-versions:
   extends:
@@ -41,17 +43,18 @@ variables:
           - "3.13"
           - "3.14rc"
 
+
 pylint:
   extends: .python::base
 
   stage: lint
 
   script:
-    - uv add pylint-gitlab pylint-quotes
     - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
   artifacts:
     reports:
       codequality: codequality.json
+
 
 bandit:
   extends: .python::base
@@ -65,6 +68,7 @@ bandit:
   artifacts:
     reports:
       codequality: results.json
+
 
 unit_test:
   extends: .python::current-versions
@@ -82,6 +86,7 @@ unit_test:
         coverage_format: cobertura
         path: cobertura.xml
       junit: junit.xml
+
 
 functional_test:
   extends: .python::current-versions
@@ -117,6 +122,7 @@ ruff:
   artifacts:
     reports:
       codequality: ruff-report.json
+
 
 mypy:
   extends: .python::current-versions

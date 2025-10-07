@@ -1,6 +1,6 @@
 """Test payment object"""
 
-from stancer import RefundStatus
+from stancer.status.refund import RefundStatus
 
 from .TestHelper import TestHelper
 

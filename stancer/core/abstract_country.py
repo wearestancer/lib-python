@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .decorators import populate_on_call
+from .decorators.populate_on_call import populate_on_call
 
 
 class AbstractCountry:

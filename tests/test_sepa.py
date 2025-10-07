@@ -11,14 +11,14 @@ import responses
 
 from pytz import timezone as tz
 
-from stancer import Sepa
-from stancer.core import AbstractCountry
-from stancer.core import AbstractName
-from stancer.core import AbstractObject
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_name import AbstractName
+from stancer.core.abstract_object import AbstractObject
 from stancer.exceptions import InvalidBicError
 from stancer.exceptions import InvalidDateMandateError
 from stancer.exceptions import InvalidIbanError
 from stancer.exceptions import InvalidMandateError
+from stancer.sepa import Sepa
 
 from .TestHelper import TestHelper
 
@@ -308,12 +308,12 @@ class TestSepa(TestHelper):
         assert obj.mandate == params['mandate']
         assert obj.is_populated
         assert len(responses.calls) == 1
-    @pytest.mark.parametrize('version',TestHelper.version_provider())
-    def test_uri(self,version):
+
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, version):
         self.conf.version = version
         obj = Sepa()
         uid = self.random_string(29)
-
 
         assert obj.uri == f'https://{self.conf.host}/v{version}/sepa/'
 

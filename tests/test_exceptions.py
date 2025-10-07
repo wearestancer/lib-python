@@ -4,8 +4,6 @@ import pytest
 
 from requests import Response
 
-from requests import Response
-
 from stancer.exceptions import BadRequestError
 from stancer.exceptions import ConflictError
 from stancer.exceptions import ForbiddenError
@@ -188,66 +186,66 @@ class TestExceptions(TestHelper):
     def test_bad_request_error(self):
         assert issubclass(BadRequestError, StancerHTTPClientError)
         assert BadRequestError.status_code == 400
-        assert BadRequestError.reason == "Bad Request"
+        assert BadRequestError.reason == 'Bad Request'
 
     def test_not_authorized_error(self):
         assert issubclass(UnauthorizedError, StancerHTTPClientError)
         assert UnauthorizedError.status_code == 401
-        assert UnauthorizedError.reason == "Unauthorized"
+        assert UnauthorizedError.reason == 'Unauthorized'
 
     def test_payment_required_error(self):
         assert issubclass(PaymentRequiredError, StancerHTTPClientError)
         assert PaymentRequiredError.status_code == 402
-        assert PaymentRequiredError.reason == "Payment Required"
+        assert PaymentRequiredError.reason == 'Payment Required'
 
     def test_forbidden_error(self):
         assert issubclass(ForbiddenError, StancerHTTPClientError)
         assert ForbiddenError.status_code == 403
-        assert ForbiddenError.reason == "Forbidden"
+        assert ForbiddenError.reason == 'Forbidden'
 
     def test_not_found_error(self):
         assert issubclass(NotFoundError, StancerHTTPClientError)
         assert NotFoundError.status_code == 404
-        assert NotFoundError.reason == "Not Found"
+        assert NotFoundError.reason == 'Not Found'
 
     def test_method_not_allowed_error(self):
         assert issubclass(MethodNotAllowedError, StancerHTTPClientError)
         assert MethodNotAllowedError.status_code == 405
-        assert MethodNotAllowedError.reason == "Method Not Allowed"
+        assert MethodNotAllowedError.reason == 'Method Not Allowed'
 
     def test_not_acceptable_error(self):
         assert issubclass(NotAcceptableError, StancerHTTPClientError)
         assert NotAcceptableError.status_code == 406
-        assert NotAcceptableError.reason == "Not Acceptable"
+        assert NotAcceptableError.reason == 'Not Acceptable'
 
     def test_proxy_authentication_required_error(self):
         assert issubclass(ProxyAuthenticationRequiredError, StancerHTTPClientError)
         assert ProxyAuthenticationRequiredError.status_code == 407
         assert (
-            ProxyAuthenticationRequiredError.reason == "Proxy Authentication Required"
+            ProxyAuthenticationRequiredError.reason == 'Proxy Authentication Required'
         )
 
     def test_request_timeout_error(self):
         assert issubclass(RequestTimeoutError, StancerHTTPClientError)
         assert RequestTimeoutError.status_code == 408
-        assert RequestTimeoutError.reason == "Request Timeout"
+        assert RequestTimeoutError.reason == 'Request Timeout'
 
     def test_conflict_error(self):
         assert issubclass(ConflictError, StancerHTTPClientError)
         assert ConflictError.status_code == 409
-        assert ConflictError.reason == "Conflict"
+        assert ConflictError.reason == 'Conflict'
 
     def test_gone_error(self):
         assert issubclass(GoneError, StancerHTTPClientError)
         assert GoneError.status_code == 410
-        assert GoneError.reason == "Gone"
+        assert GoneError.reason == 'Gone'
 
     def test_internal_server_error(self):
         assert issubclass(InternalServerError, StancerHTTPServerError)
         assert InternalServerError.status_code == 500
-        assert InternalServerError.reason == "Internal Server Error"
+        assert InternalServerError.reason == 'Internal Server Error'
 
-    @pytest.mark.parametrize("status_code, cls", TestHelper.http_code_provider())
+    @pytest.mark.parametrize('status_code, cls', TestHelper.http_code_provider())
     def test_factory(self, status_code, cls):
         res = Response()
         res.status_code = status_code
@@ -256,9 +254,9 @@ class TestExceptions(TestHelper):
         res.request = req
 
         content = {
-            "error": {
-                "type": self.random_string(10),
-                "message": self.random_string(10),
+            'error': {
+                'type': self.random_string(10),
+                'message': self.random_string(10),
             },
         }
 
@@ -267,12 +265,12 @@ class TestExceptions(TestHelper):
         obj = StancerHTTPError(res)
 
         assert isinstance(obj, cls)
-        assert str(obj) == content["error"]["message"]
-        assert obj.message == content["error"]["message"]
+        assert str(obj) == content['error']['message']
+        assert obj.message == content['error']['message']
         assert obj.request == req
         assert obj.response == res
         assert obj.status_code == status_code
-        assert obj.type == content["error"]["type"]
+        assert obj.type == content['error']['type']
 
     def test_message(self):
         res = Response()
@@ -285,8 +283,8 @@ class TestExceptions(TestHelper):
         obj = StancerHTTPError(res)
 
         assert isinstance(obj, BadRequestError)
-        assert str(obj) == "Bad Request"
-        assert obj.message == "Bad Request"
+        assert str(obj) == 'Bad Request'
+        assert obj.message == 'Bad Request'
 
         # With a string
 
@@ -295,15 +293,15 @@ class TestExceptions(TestHelper):
         obj = StancerHTTPError(res)
 
         assert isinstance(obj, BadRequestError)
-        assert str(obj) == "Bad Request"
-        assert obj.message == "Bad Request"
+        assert str(obj) == 'Bad Request'
+        assert obj.message == 'Bad Request'
 
         # With a JSON without error
 
         content = {
-            "string": self.random_string(10),
+            'string': self.random_string(10),
         }
-        expected = "Bad Request"
+        expected = 'Bad Request'
 
         res.json = lambda: content
 
@@ -316,11 +314,11 @@ class TestExceptions(TestHelper):
         # With message
 
         content = {
-            "error": {
-                "message": self.random_string(10),
+            'error': {
+                'message': self.random_string(10),
             },
         }
-        expected = content["error"]["message"]
+        expected = content['error']['message']
 
         res.json = lambda: content
 
@@ -333,13 +331,13 @@ class TestExceptions(TestHelper):
         # With error
 
         content = {
-            "error": {
-                "message": {
-                    "error": self.random_string(10),
+            'error': {
+                'message': {
+                    'error': self.random_string(10),
                 },
             },
         }
-        expected = content["error"]["message"]["error"]
+        expected = content['error']['message']['error']
 
         res.json = lambda: content
 
@@ -352,10 +350,10 @@ class TestExceptions(TestHelper):
         # With error and id
 
         content = {
-            "error": {
-                "message": {
-                    "error": self.random_string(10),
-                    "id": self.random_string(10),
+            'error': {
+                'message': {
+                    'error': self.random_string(10),
+                    'id': self.random_string(10),
                 },
             },
         }
@@ -372,13 +370,13 @@ class TestExceptions(TestHelper):
         # With only an id
 
         content = {
-            "error": {
-                "message": {
-                    "id": self.random_integer(1, 10),
+            'error': {
+                'message': {
+                    'id': self.random_integer(1, 10),
                 },
             },
         }
-        expected = str(content["error"]["message"]["id"])
+        expected = str(content['error']['message']['id'])
 
         res.json = lambda: content
 
@@ -397,8 +395,8 @@ class TestExceptions(TestHelper):
         obj = StancerHTTPError(res)
 
         assert isinstance(obj, StancerHTTPClientError)
-        assert str(obj) == "Client error"
-        assert obj.message == "Client error"
+        assert str(obj) == 'Client error'
+        assert obj.message == 'Client error'
 
         # With unknown server exception
 
@@ -409,8 +407,8 @@ class TestExceptions(TestHelper):
         obj = StancerHTTPError(res)
 
         assert isinstance(obj, StancerHTTPServerError)
-        assert str(obj) == "Server error"
-        assert obj.message == "Server error"
+        assert str(obj) == 'Server error'
+        assert obj.message == 'Server error'
 
         # With unknown other exception
 
@@ -421,5 +419,5 @@ class TestExceptions(TestHelper):
         obj = StancerHTTPError(res)
 
         assert isinstance(obj, StancerHTTPError)
-        assert str(obj) == "HTTP error"
-        assert obj.message == "HTTP error"
+        assert str(obj) == 'HTTP error'
+        assert obj.message == 'HTTP error'

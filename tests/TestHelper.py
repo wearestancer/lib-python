@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-import string
 import os
 import re
+import string
+
 
 # pylint: enable=missing-docstring
 from datetime import date
 from random import choice
 from random import randint
 
-from stancer import Config
-from stancer.core.enum import Version
+from stancer.config import Config
+from stancer.core.enum.version import Version
 from stancer.exceptions import BadRequestError
-from stancer.exceptions import StancerValueError
 from stancer.exceptions import ConflictError
 from stancer.exceptions import ForbiddenError
 from stancer.exceptions import GoneError
@@ -26,6 +26,7 @@ from stancer.exceptions import ProxyAuthenticationRequiredError
 from stancer.exceptions import RequestTimeoutError
 from stancer.exceptions import StancerHTTPClientError
 from stancer.exceptions import StancerHTTPServerError
+from stancer.exceptions import StancerValueError
 from stancer.exceptions import UnauthorizedError
 
 
@@ -36,7 +37,7 @@ class TestHelper:
         self.conf = Config()
 
         self.conf.keys = f'stest_{self.random_string(24)}'
-        self.conf.version = os.getenv('API_VERSION') or 1
+        self.conf.version = Version[f'API_V{os.getenv("API_VERSION", 1)}']
         del self.conf.default_timezone
 
     def random_integer(self, min, max=0):
@@ -107,9 +108,6 @@ class TestHelper:
 
     def random_year(self):
         return self.random_integer(1, 20) + self.current_year
-
-    def api_version(self):
-        return self.conf.version
 
     @property
     def current_year(self):
@@ -300,6 +298,5 @@ class TestHelper:
         return [
             'api.stancer.com',
             'api.dev.stancer.com',
-            Config().host
-
+            Config().host,
         ]

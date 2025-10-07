@@ -29,9 +29,9 @@ from .invalid_value import InvalidCardExternalIdError
 from .invalid_value import InvalidCardNumberError
 from .invalid_value import InvalidCardVerificationCodeError
 from .invalid_value import InvalidCurrencyError
+from .invalid_value import InvalidCustomerDateBirthError
 from .invalid_value import InvalidCustomerEmailError
 from .invalid_value import InvalidCustomerError
-from .invalid_value import InvalidCustomerDateBirthError
 from .invalid_value import InvalidCustomerExternalIdError
 from .invalid_value import InvalidCustomerLegalIdError
 from .invalid_value import InvalidCustomerMobileError

@@ -2,7 +2,8 @@
 
 import pytest
 
-from stancer.core import AbstractDeleted
+from stancer.core.abstract_deleted import AbstractDeleted
+
 from ..TestHelper import TestHelper
 
 

@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from .decorators import populate_on_call
+from .decorators.populate_on_call import populate_on_call
 
 
 class AbstractLast4:

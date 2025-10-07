@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-import json
-from typing import Optional
 
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
-from .core.enum import Version
-from .exceptions import InvalidUrlError
-from .status import AuthStatus
+from typing import Any
+
 from .config import Config
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.enum.version import Version
+from .exceptions import InvalidUrlError
+from .status.auth import AuthStatus
 
 
 class Auth(AbstractObject):
@@ -72,7 +72,7 @@ class Auth(AbstractObject):
         """
         return self._data.get('status')
 
-    def to_api_request(self) -> dict[str, Any] | str| bool:
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
         if Config().version == Version.API_V1:
-            return super().to_api_request()
-        return json.dumps(True)
+            return super().to_json_repr()
+        return True

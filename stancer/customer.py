@@ -2,18 +2,18 @@
 
 import datetime
 
-from .core import AbstractCountry
-from .core import AbstractDeleted
-from .core import AbstractName
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
-from .core.helpers import coerce_uuid
+from .core.abstract_country import AbstractCountry
+from .core.abstract_deleted import AbstractDeleted
+from .core.abstract_name import AbstractName
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.helpers.coerce_uuid import coerce_uuid
+from .exceptions import InvalidCustomerDateBirthError
 from .exceptions import InvalidCustomerEmailError
 from .exceptions import InvalidCustomerExternalIdError
-from .exceptions import InvalidCustomerMobileError
-from .exceptions import InvalidCustomerDateBirthError
 from .exceptions import InvalidCustomerLegalIdError
+from .exceptions import InvalidCustomerMobileError
 
 
 class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):

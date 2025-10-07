@@ -1,13 +1,15 @@
 """Functional tests for card object"""
 
+import uuid
+
 from datetime import datetime
 
 import pytest
-import uuid
 
-from stancer import Card
-from stancer.core.enum import Version
-from stancer.exceptions import NotFoundError, ConflictError
+from stancer.card import Card
+from stancer.core.enum.version import Version
+from stancer.exceptions import ConflictError
+from stancer.exceptions import NotFoundError
 
 from .FunctionalTestHelper import FunctionalTestHelper
 
@@ -17,8 +19,9 @@ class TestFunctionalCard(FunctionalTestHelper):
         if self.conf.version == Version.API_V1:
             return 'personnal'
         return 'personal'
-    @pytest.mark.parametrize('version',FunctionalTestHelper.version_provider())
-    def test_get(self,version):
+
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_get(self, version):
         self.conf.version = version
         with pytest.raises(NotFoundError) as error:
             obj = Card(f'card_{self.random_string(24)}')
@@ -42,7 +45,7 @@ class TestFunctionalCard(FunctionalTestHelper):
         assert isinstance(card.created, datetime)
         assert card.created.timestamp() == 1759503504
 
-    @pytest.mark.parametrize('version',FunctionalTestHelper.version_provider())
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
     def test_minimum_crud(self, version):
         self.conf.version = version
         month = self.random_integer(1, 11)
@@ -71,7 +74,7 @@ class TestFunctionalCard(FunctionalTestHelper):
             assert card.id == card_id
         else:
             with pytest.raises(ConflictError):
-                     card.send()
+                card.send()
         # Update The Date
 
         card = Card(card_id)
@@ -133,8 +136,8 @@ class TestFunctionalCard(FunctionalTestHelper):
         with pytest.raises(NotFoundError, match=f'Card `{card.id}` not found'):
             card.send()
 
-    @pytest.mark.parametrize('version',FunctionalTestHelper.version_provider())
-    def test_complete_crud_card(self,version):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_complete_crud_card(self, version):
         self.conf.version = version
         card = Card()
         cvc = str(self.random_integer(100, 999))
@@ -240,6 +243,15 @@ class TestFunctionalCard(FunctionalTestHelper):
         assert card2.exp_month == exp_month2
         assert card2.exp_year == exp_year2
         assert card2.external_id == str(external_id2)
+
+        # WARNING conditional in test,
+        # API V1 doesn't handle well the deletion of objects, such as card.
+        if self.conf.version == Version.API_V1:
+            assert card2.deleted is None
+            assert card2.id is None
+            with pytest.raises(NotFoundError, match=f'No such card {card.id}'):
+                Card(card.id).name
+            return
         assert card2.deleted
         assert card2.id == card.id
         assert card2.last4 == last4

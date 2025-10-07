@@ -2,8 +2,8 @@
 
 import pytest
 
-from stancer import Device
-from stancer.core import AbstractObject
+from stancer.core.abstract_object import AbstractObject
+from stancer.device import Device
 from stancer.exceptions import InvalidIpAddressError
 from stancer.exceptions import InvalidPortError
 

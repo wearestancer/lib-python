@@ -2,20 +2,22 @@
 
 import json
 import uuid
+
 import pytest
 import responses
 
-from stancer import Card
-from stancer.core import AbstractCountry
-from stancer.core import AbstractName
-from stancer.core import AbstractObject
-from stancer.core import AbstractDeleted
-from stancer.exceptions import InvalidCardVerificationCodeError
+from stancer.card import Card
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_deleted import AbstractDeleted
+from stancer.core.abstract_name import AbstractName
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.enum.version import Version
 from stancer.exceptions import InvalidCardExpirationMonthError
 from stancer.exceptions import InvalidCardExpirationYearError
 from stancer.exceptions import InvalidCardExternalIdError
 from stancer.exceptions import InvalidCardNumberError
 from stancer.exceptions import InvalidCardTokenizeError
+from stancer.exceptions import InvalidCardVerificationCodeError
 from stancer.exceptions import InvalidZipCodeError
 
 from .TestHelper import TestHelper
@@ -141,8 +143,13 @@ class TestCard(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_deleted(self):
+    def test_deleted_V2(self, version =Version.API_V2):
+        """
+        This is only available for API V2
+        The deletion in V1 is not handle in the same way.
+        """
         obj = Card()
+        self.conf.version =version
 
         assert obj.deleted is None
 
@@ -514,7 +521,6 @@ class TestCard(TestHelper):
         assert obj.tokenize == params['tokenize']
         assert obj.is_populated
         assert len(responses.calls) == 1
-
 
     @pytest.mark.parametrize('host', TestHelper.host_provider())
     @pytest.mark.parametrize('version', TestHelper.version_provider())

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from typing import Optional
-from .decorators import populate_on_call
+
+from .decorators.populate_on_call import populate_on_call
 
 
 class AbstractDeleted:

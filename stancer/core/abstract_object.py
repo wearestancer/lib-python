@@ -5,9 +5,9 @@ import json
 from datetime import datetime
 from typing import Any
 
-from .enum import Version
 from ..config import Config
-from .decorators import populate_on_call
+from .decorators.populate_on_call import populate_on_call
+from .enum.version import Version
 from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -17,7 +17,7 @@ try:
 except ImportError:
     from typing import TypeVar
 
-    Self = TypeVar("Self", bound="AbstractObject")  # type: ignore
+    Self = TypeVar('Self', bound='AbstractObject')  # type: ignore
 
 # pylint: disable=too-many-branches
 
@@ -30,7 +30,7 @@ class AbstractObject:
     _allowed_attributes: list[str] = []
     _flat_attributes: list[str] = []
     _datetime_property: list[str] = [
-        "created",
+        'created',
     ]
     _default_values: dict[str, Any] = {}
     _repr_ignore: set[str] = set()
@@ -81,7 +81,7 @@ class AbstractObject:
         representation = {}
 
         if self.id is not None:
-            representation["id"] = self.id
+            representation['id'] = self.id
 
         for key, value in self._data.items():
             representation[key] = value
@@ -111,13 +111,13 @@ class AbstractObject:
             value = self._data.get(key)
 
             if isinstance(value, int):
-                args.append(f"{key}={value}")
+                args.append(f'{key}={value}')
             else:
                 args.append(f'{key}="{value}"')
 
         name = type(self).__name__
 
-        return f"<{name}({', '.join(args)}) at 0x{id(self):02x}>"
+        return f'<{name}({", ".join(args)}) at 0x{id(self):02x}>'
 
     @property
     def _bypass(self) -> bool:
@@ -137,7 +137,7 @@ class AbstractObject:
         allowed = set()
 
         for parent in cls.mro():
-            if hasattr(parent, "_allowed_attributes"):
+            if hasattr(parent, '_allowed_attributes'):
                 allowed.update(parent._allowed_attributes)  # pylint: disable=protected-access
 
         return allowed
@@ -147,7 +147,7 @@ class AbstractObject:
         allowed = set()
 
         for parent in cls.mro():
-            if hasattr(parent, "_datetime_property"):
+            if hasattr(parent, '_datetime_property'):
                 allowed.update(parent._datetime_property)  # pylint: disable=protected-access
 
         return allowed
@@ -208,7 +208,7 @@ class AbstractObject:
         Returns:
             Creation date and time (into the API) during server side creation.
         """
-        return self._data.get("created")
+        return self._data.get('created')
 
     def delete(self: Self) -> Self:
         """
@@ -223,16 +223,13 @@ class AbstractObject:
         Request().delete(self)
 
         # Force modified to allow sending it again to the API
-        self._modified = "id"
+        self._modified = 'id'
 
         return self
 
-    def get_config(self):
-        return Config()
-
     def _hydrate_list(self, key: str, value: Any) -> list:
         tmp = getattr(self, key)
-        init_method = "_init_" + key
+        init_method = f'_init_{key}'
         new_values = []
 
         for current_value in value:
@@ -245,7 +242,7 @@ class AbstractObject:
             elif isinstance(current_value, AbstractObject):
                 uid = current_value.id
             else:
-                uid = current_value.get("id")
+                uid = current_value.get('id')
 
             for obj in tmp:
                 if obj.id == uid:
@@ -290,7 +287,7 @@ class AbstractObject:
 
             if hasattr(self, key):
                 tmp = getattr(self, key)
-                init_method = "_init_" + key
+                init_method = f'_init_{key}'
 
                 if (
                     isinstance(tmp, list)
@@ -320,7 +317,7 @@ class AbstractObject:
                 elif isinstance(tmp, AbstractObject) and not isinstance(
                     value, AbstractObject
                 ):
-                    val = {"id": value} if not isinstance(value, dict) else value
+                    val = {'id': value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access
 
@@ -333,7 +330,7 @@ class AbstractObject:
             if key in self._get_datetime_property() and isinstance(value, int):
                 value = datetime.fromtimestamp(value, tz=config.default_timezone)
 
-            if key == "id":
+            if key == 'id':
                 self._id = value
             else:
                 applied = False
@@ -448,7 +445,7 @@ class AbstractObject:
         Returns:
             Are we in live mode ?
         """
-        return self._data.get("live_mode")
+        return self._data.get('live_mode')
 
     def populate(self: Self) -> Self:
         """
@@ -493,31 +490,6 @@ class AbstractObject:
 
         return self
 
-    def to_api_request(self) -> str:
-        """
-        Return a JSON representation of the object, processable by our API
-
-        It will return all object data if no ID is present or
-        if the current object is tagged as `modified`.
-
-        Unless that, it will return a JSON with only the `id` key.
-
-        It must be overridden if the object representation isn't the same as the API request
-        Returns:
-            A JSON representation of the current object.
-        """
-        if Config().version != Version.API_V1:
-            send_object = [
-                v
-                for k,v in self._data.items()
-                if k in self._flat_attributes
-                and v is not None
-                and v.is_modified
-            ]
-            for api_object in send_object:
-                api_object.send()
-        return self.to_json()
-
     def to_json(self) -> str:
         """
         Return a JSON representation of the current object.
@@ -530,9 +502,9 @@ class AbstractObject:
         Returns:
             A JSON representation of the current object.
         """
-        return json.dumps(self.to_json_repr(), separators=(",", ":"))
+        return json.dumps(self.to_json_repr(), separators=(',', ':'))
 
-    def to_json_repr(self) -> dict[str, Any] | str:
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -555,6 +527,9 @@ class AbstractObject:
             )
         }
         for key, value in items.items():
+            if key in self._flat_attributes and Config().version != Version.API_V1:
+                representation[key] = value.send().id
+                continue
             if hasattr(value, 'to_json_repr'):
                 val = value.to_json_repr()
 
@@ -580,12 +555,12 @@ class AbstractObject:
             Uniform Resource Identifier.
         """
         conf = Config()
-        port = ""
+        port = ''
 
         if conf.port is not None:
-            port = f":{conf.port}"
+            port = f':{conf.port}'
 
-        location = f"https://{conf.host}{port}/v{conf.version}"
+        location = f'https://{conf.host}{port}/v{conf.version}'
 
         if len(self._DEPRECATED_ENDPOINT) == 2 and conf.version <= int(
             self._DEPRECATED_ENDPOINT[0]

@@ -2,19 +2,21 @@
 
 import pytest
 
-from stancer import Card
-from stancer import Customer
-from stancer import Payment
-from stancer import PaymentStatus
-from stancer import Refund
+from stancer.card import Card
+from stancer.customer import Customer
 from stancer.exceptions import ConflictError
+from stancer.payment import Payment
+from stancer.refund import Refund
+from stancer.status.payment import PaymentStatus
 
-from .FunctionalTestHelper import  FunctionalTestHelper
+from .FunctionalTestHelper import FunctionalTestHelper
 
 
 class TestFunctionalRefund(FunctionalTestHelper):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
-    def test_single_refund(self, currency):
+    def test_single_refund(self, currency, version):
+        self.conf.version = version
         amount = self.random_integer(100, 10000)
         desc = f'Refund test, {amount / 100:.2f} {currency.upper()}'
 
@@ -64,8 +66,10 @@ class TestFunctionalRefund(FunctionalTestHelper):
 
         assert payment.status == PaymentStatus.CANCELED
 
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
-    def test_multiple_refund(self, currency):
+    def test_multiple_refund(self, currency, version):
+        self.conf.version = version
         amount = self.random_integer(200, 100000)
         refund_amount1 = self.random_integer(50, amount // 4)
         refund_amount2 = self.random_integer(50, amount // 4)

@@ -4,12 +4,12 @@ import re
 
 from datetime import datetime
 
-from .core import AbstractCountry
-from .core import AbstractLast4
-from .core import AbstractName
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
+from .core.abstract_country import AbstractCountry
+from .core.abstract_last4 import AbstractLast4
+from .core.abstract_name import AbstractName
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
 from .exceptions import InvalidBicError
 from .exceptions import InvalidDateMandateError
 from .exceptions import InvalidIbanError
@@ -47,13 +47,13 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         return self._data.get('bic')
 
     @bic.setter
-    @validate_type(str, name="BIC", throws=InvalidBicError)
+    @validate_type(str, name='BIC', throws=InvalidBicError)
     def bic(self, value: str):
         if len(value) != 8 and len(value) != 11:
             # Poorly test but I have nothing more to test
             raise InvalidBicError(f'"{value}" is not a valid BIC.')
 
-        self._data["bic"] = value
+        self._data['bic'] = value
 
     @property
     @populate_on_call
@@ -67,7 +67,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         Returns:
             datetime: Mandate signature date.
         """
-        return self._data.get("date_mandate")
+        return self._data.get('date_mandate')
 
     @date_mandate.setter
     @validate_type(datetime, throws=InvalidDateMandateError)
@@ -89,7 +89,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         if iban is None:
             return None
 
-        return re.sub(r"(.{,4})", "\\1 ", iban).strip()
+        return re.sub(r'(.{,4})', '\\1 ', iban).strip()
 
     @property
     @populate_on_call
@@ -107,7 +107,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         Returns:
             str: Sanitized IBAN.
         """
-        return self._data.get("iban")
+        return self._data.get('iban')
 
     @iban.setter
     @validate_type(str, name='IBAN', throws=InvalidIbanError)
@@ -124,9 +124,9 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         if int(code) % 97 != 1:
             raise InvalidIbanError(f'"{value}" is not a valid IBAN.')
 
-        self._data["iban"] = iban
-        self._data["last4"] = iban[-4:]
-        self._data["country"] = iban[0:2].lower()
+        self._data['iban'] = iban
+        self._data['last4'] = iban[-4:]
+        self._data['country'] = iban[0:2].lower()
 
     @property
     def is_complete(self) -> bool:
@@ -159,7 +159,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         Returns:
             str: Mandate.
         """
-        return self._data.get("mandate")
+        return self._data.get('mandate')
 
     @mandate.setter
     @validate_type(str, min=3, max=35, throws=InvalidMandateError)

@@ -2,7 +2,7 @@
 
 import pytest
 
-from stancer.core import AbstractName
+from stancer.core.abstract_name import AbstractName
 from stancer.exceptions import InvalidNameError
 
 from ..TestHelper import TestHelper

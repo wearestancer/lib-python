@@ -1,22 +1,22 @@
 """Test customer object"""
 
+import uuid
+
 from datetime import datetime
 
-import uuid
 import pytest
 import responses
 
-
-from stancer import Customer
-from stancer.core import AbstractCountry
-from stancer.core import AbstractName
-from stancer.core import AbstractObject
-from stancer.core import AbstractDeleted
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_deleted import AbstractDeleted
+from stancer.core.abstract_name import AbstractName
+from stancer.core.abstract_object import AbstractObject
+from stancer.customer import Customer
+from stancer.exceptions import InvalidCustomerDateBirthError
 from stancer.exceptions import InvalidCustomerEmailError
 from stancer.exceptions import InvalidCustomerExternalIdError
-from stancer.exceptions import InvalidCustomerMobileError
-from stancer.exceptions import InvalidCustomerDateBirthError
 from stancer.exceptions import InvalidCustomerLegalIdError
+from stancer.exceptions import InvalidCustomerMobileError
 
 from .TestHelper import TestHelper
 
@@ -53,7 +53,6 @@ class TestCustomer(TestHelper):
             obj.date_birth = 'a very long string'
 
         # If the string is not a isoformated dateTime we get a generic error
-        # TODO: We could create a coerce_date_birth but i don't think it's usefull
         with pytest.raises(ValueError):
             obj.date_birth = '1234567890'
 
@@ -320,8 +319,8 @@ class TestCustomer(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-    @pytest.mark.parametrize('host',TestHelper.host_provider())
-    @pytest.mark.parametrize('version',TestHelper.version_provider())
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
     def test_uri(self, host, version):
         obj = Customer()
         uid = self.random_string(29)

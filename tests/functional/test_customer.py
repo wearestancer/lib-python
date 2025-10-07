@@ -1,31 +1,38 @@
 """Functional tests for customer object"""
 
-from datetime import datetime
-import pytest
+import datetime
 import uuid
 
-from stancer import Customer
+import pytest
+
+from stancer.core.enum.version import Version
+from stancer.customer import Customer
 from stancer.exceptions import NotFoundError
 
-from .FunctionalTestHelper import TestHelper
+from .FunctionalTestHelper import FunctionalTestHelper
 
 
-class TestFunctionalCustomer(TestHelper):
-    def test_get(self):
+class TestFunctionalCustomer(FunctionalTestHelper):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_get(self, version):
+        self.conf.version = version
         with pytest.raises(NotFoundError) as error:
             customer = Customer(f'cust_{self.random_string(24)}')
+            assert customer.name
 
         assert error.value.message == self.get_not_found_message(customer)
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
 
-        customer = Customer('cust_9y1U3mHPd1yPvbx07VBRqd9C')
+        customer = Customer('cust_iUkhjL9K2bTb436NdKSdqCYv')
 
         assert customer.name == 'John Doe'
         assert customer.email == 'john.doe@example.com'
         assert customer.mobile == '+33666172730'  # Random generated number
 
-    def test_send(self):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_send(self, version):
+        self.conf.version = version
         customer = Customer()
 
         tmp = self.random_string(5)
@@ -33,11 +40,12 @@ class TestFunctionalCustomer(TestHelper):
         email = f'john.doe+{tmp}@example.com'
         external_id = uuid.uuid4()
         mobile = self.random_mobile()
-
+        date_birth = datetime.date(1993, 10, 25)
         customer.name = name
         customer.email = email
         customer.external_id = external_id
         customer.mobile = mobile
+        customer.date_birth = date_birth
 
         assert customer.id is None
         assert customer.send() == customer
@@ -53,6 +61,7 @@ class TestFunctionalCustomer(TestHelper):
         assert customer.email == email
         assert customer.external_id == str(external_id)
         assert customer.mobile == mobile
+        assert customer.date_birth == date_birth
 
         # External ID does not prevent duplication
         customer = Customer()
@@ -122,11 +131,19 @@ class TestFunctionalCustomer(TestHelper):
         # # Clean
         for uid in (uid1, uid2, uid3):
             customer = Customer(uid)
+            id = customer.id
             assert customer.delete()
-            assert customer.id in (uid1, uid2, uid3)
-            assert customer.deleted
+            assert id in (uid1, uid2, uid3)
+            # Warning conditional in test. when we delete a customer in V1 we just delete and cannot access it anymore
+            assert (
+                customer.deleted is None
+                if self.conf.version == Version.API_V1
+                else True
+            )
 
-    def test_update_delete(self):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_update_delete(self, version):
+        self.conf.version = version
         customer = Customer()
 
         tmp = self.random_string(5)
@@ -163,14 +180,16 @@ class TestFunctionalCustomer(TestHelper):
 
         # Clean it
         assert customer.delete()
-        assert customer.id == id
-        assert customer.name == name
-        assert customer.email == email
-        assert customer.mobile == mobile2
+        # Warning conditional in test, Deletion in V1 cannot be retrieve.
+        if self.conf.version != Version.API_V1:
+            assert customer.id == id
+            assert customer.name == name
+            assert customer.email == email
+            assert customer.mobile == mobile2
 
-        with pytest.raises(NotFoundError) as error:
-            customer.send()
+            with pytest.raises(NotFoundError) as error:
+                customer.send()
 
-        assert error.value.message == self.get_not_found_message(customer)
-        assert error.value.reason == 'Not Found'
-        assert error.value.status_code == 404
+            assert error.value.message == self.get_not_found_message(customer)
+            assert error.value.reason == 'Not Found'
+            assert error.value.status_code == 404

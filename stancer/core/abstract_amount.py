@@ -3,8 +3,8 @@ from typing import Any
 
 from ..exceptions import InvalidAmountError
 from ..exceptions import InvalidCurrencyError
-from .decorators import populate_on_call
-from .decorators import validate_type
+from .decorators.populate_on_call import populate_on_call
+from .decorators.validate_type import validate_type
 
 
 class AbstractAmount:

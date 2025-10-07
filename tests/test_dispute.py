@@ -3,11 +3,11 @@
 import pytest
 import responses
 
-from stancer import Dispute
-from stancer import Payment
-from stancer.core import AbstractAmount
-from stancer.core import AbstractObject
-from stancer.core import AbstractSearch
+from stancer.core.abstract_amount import AbstractAmount
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.abstract_search import AbstractSearch
+from stancer.dispute import Dispute
+from stancer.payment import Payment
 
 from .TestHelper import TestHelper
 
@@ -82,7 +82,7 @@ class TestDispute(TestHelper):
 
     @pytest.mark.parametrize('host', TestHelper.host_provider())
     @pytest.mark.parametrize('version', TestHelper.version_provider())
-    def test_uri(self,host,version):
+    def test_uri(self, host, version):
         self.conf.version = version
         self.conf.host = host
         obj = Dispute()

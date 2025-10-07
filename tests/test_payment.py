@@ -13,24 +13,19 @@ import responses
 
 from pytz import timezone as tz
 
-from stancer import Auth
-from stancer import AuthStatus
-from stancer import Card
-from stancer import Config
-from stancer import Customer
-from stancer import Device
-from stancer import Payment
-from stancer import PaymentStatus
-from stancer import Refund
-from stancer import Sepa
-from stancer.core import AbstractAmount
-from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
-from stancer.core import AbstractSearch
-from stancer.core.enum import Version
-from stancer.core.payment import PaymentPage
-from stancer.core.payment import PaymentRefund
+from stancer.auth import Auth
+from stancer.card import Card
+from stancer.config import Config
+from stancer.core.abstract_amount import AbstractAmount
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.abstract_search import AbstractSearch
+from stancer.core.enum.version import Version
 from stancer.core.payment.auth import PaymentAuth
+from stancer.core.payment.page import PaymentPage
+from stancer.core.payment.refund import PaymentRefund
+from stancer.customer import Customer
+from stancer.device import Device
 from stancer.exceptions import InvalidAmountError
 from stancer.exceptions import InvalidAuthError
 from stancer.exceptions import InvalidCardError
@@ -52,13 +47,18 @@ from stancer.exceptions import MissingPaymentIdError
 from stancer.exceptions import MissingPaymentMethodError
 from stancer.exceptions import MissingReturnUrlError
 from stancer.exceptions import StancerNotImplementedError
-from stancer.status import RefundStatus
+from stancer.payment import Payment
+from stancer.refund import Refund
+from stancer.sepa import Sepa
+from stancer.status.auth import AuthStatus
+from stancer.status.payment import PaymentStatus
+from stancer.status.refund import RefundStatus
 
 from .TestHelper import TestHelper
 
 
 class TestPayment(TestHelper):
-#region mixed
+    # region mixed
     def test_class(self):
         assert issubclass(Payment, AbstractAmount)
         assert issubclass(Payment, AbstractCountry)
@@ -86,96 +86,14 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            "amount": self.random_integer(50, 999999),
+            'amount': self.random_integer(50, 999999),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.amount == params["amount"]
+        assert obj.amount == params['amount']
         assert obj.is_populated
         assert len(responses.calls) == 1
-
-    def test_auth_v1(self):
-        payment = Payment()
-        auth = Auth()
-        self.conf.version = Version.API_V1
-        assert payment.auth is None
-        payment.auth = auth
-        assert payment.auth == auth
-
-        with pytest.raises(
-            InvalidAuthError,
-            match="You must provide a valid instance of Auth",
-        ):
-            payment.auth = self.random_integer(2)
-
-        with pytest.raises(InvalidUrlError):
-            payment.auth = self.random_string(2)
-
-        return_url = f"https://www.example.org/?{self.random_string(15)}"
-        payment.auth = return_url
-
-        assert isinstance(payment.auth, Auth)
-        assert payment.auth.return_url == return_url
-        assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == payment.auth.to_json()
-
-        payment.auth = True
-
-        assert isinstance(payment.auth, Auth)
-        assert payment.auth.return_url is None
-        assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == payment.auth.to_json()
-
-        payment.auth = False
-
-        assert isinstance(payment.auth, Auth)
-        assert payment.auth.return_url is None
-        assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == payment.auth.to_json()
-
-    def test_auth_v2(self):
-        payment = Payment()
-        auth = Auth()
-        self.conf.version = Version.API_V2
-
-        assert payment.auth is None
-
-        payment.auth = auth
-
-        assert payment.auth.to_api_request() == 'true'
-
-        # Now everything except false send an auth
-        with pytest.raises(
-            InvalidAuthError,
-            match='You must provide a valid instance of Auth',
-        ):
-            payment.auth = self.random_integer(2)
-
-        with pytest.raises(InvalidUrlError):
-            payment.auth = self.random_string(2)
-
-        payment = Payment()
-        return_url = 'https://www.example.org/?' + self.random_string(15)
-        payment.auth = return_url
-
-        assert isinstance(payment.auth, Auth)
-        assert payment.auth.return_url == return_url
-        assert payment.auth.status == AuthStatus.REQUEST
-        payment = Payment()
-        payment.auth = True
-
-        assert isinstance(payment.auth, Auth)
-        assert payment.auth.return_url is None
-        assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == 'true'
-
-        payment.auth = False
-
-        assert isinstance(payment.auth, Auth)
-        assert payment.auth.return_url is None
-        assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == 'true'
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
@@ -195,24 +113,24 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidPaymentCaptureError,
-            match="Capture must be a boolean",
+            match='Capture must be a boolean',
         ):
             obj.capture = self.random_integer(2)
 
         with pytest.raises(
             InvalidPaymentCaptureError,
-            match="Capture must be a boolean",
+            match='Capture must be a boolean',
         ):
             obj.capture = self.random_string(2)
 
         obj = Payment(self.random_string(29))
         params = {
-            "capture": True,
+            'capture': True,
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.capture == params["capture"]
+        assert obj.capture == params['capture']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -229,30 +147,30 @@ class TestPayment(TestHelper):
         obj.card = card
 
         assert obj.card == card
-        assert obj.method == "card"
+        assert obj.method == 'card'
 
         with pytest.raises(
             InvalidCardError,
-            match="You must provide a valid instance of Card",
+            match='You must provide a valid instance of Card',
         ):
             obj.card = self.random_integer(2)
 
         with pytest.raises(
             InvalidCardError,
-            match="You must provide a valid instance of Card",
+            match='You must provide a valid instance of Card',
         ):
             obj.card = self.random_string(2)
 
         obj = Payment(self.random_string(29))
 
         params = {
-            "card": self.random_string(50),
+            'card': self.random_string(50),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
         assert isinstance(obj.card, Card)
-        assert obj.card.id == params["card"]
+        assert obj.card.id == params['card']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -271,68 +189,42 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidCustomerError,
-            match="You must provide a valid instance of Customer.",
+            match='You must provide a valid instance of Customer.',
         ):
             obj.customer = self.random_integer(2)
 
         with pytest.raises(
             InvalidCustomerError,
-            match="You must provide a valid instance of Customer.",
+            match='You must provide a valid instance of Customer.',
         ):
             obj.customer = self.random_string(2)
 
         obj = Payment(self.random_string(29))
 
         params = {
-            "customer": self.random_string(50),
+            'customer': self.random_string(50),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
         assert isinstance(obj.customer, Customer)
-        assert obj.customer.id == params["customer"]
-        assert obj.is_populated
-        assert len(responses.calls) == 1
-
-    @responses.activate
-    @pytest.mark.parametrize("currency", TestHelper.currency_provider())
-    def test_currency(self, currency):
-        # More test on test_abstract_amount
-        # Here we are just testing the modified flag and auto population
-
-        obj = Payment()
-
-        assert obj.is_not_modified
-
-        obj.currency = currency
-
-        assert obj.currency == currency
-        assert obj.is_modified
-
-        obj = Payment(self.random_string(29))
-        params = {
-            "currency": currency,
-        }
-
-        responses.add(responses.GET, obj.uri, json=params)
-
-        assert obj.currency == params["currency"]
+        assert obj.customer.id == params['customer']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
-    def test_date_bank(self,version):
+    def test_date_bank(self, version):
         self.conf.version = version
         obj = Payment()
         config = Config()
-        zone = "Europe/Paris"
+        zone = 'Europe/Paris'
         timestamp = self.random_integer(1500000000, 1600000000)
 
         assert obj.date_bank is None
 
         params = {
-            "date_bank": timestamp,
+            'date_bank': timestamp,
         }
 
         obj.hydrate(**params)
@@ -352,19 +244,19 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            "date_bank": self.random_integer(1500000000, 1600000000),
+            'date_bank': self.random_integer(1500000000, 1600000000),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
         assert isinstance(obj.date_bank, datetime)
-        assert obj.date_bank.timestamp() == params["date_bank"]
+        assert obj.date_bank.timestamp() == params['date_bank']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
-    def test_description(self,version):
+    def test_description(self, version):
         self.conf.version = version
         obj = Payment()
         description = self.random_string(3, 64)
@@ -377,43 +269,43 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidPaymentDescriptionError,
-            match="Description must be a string.",
+            match='Description must be a string.',
         ):
             obj.description = self.random_integer(20)
 
         with pytest.raises(
             InvalidPaymentDescriptionError,
-            match="Description must be between 3 and 64 characters.",
+            match='Description must be between 3 and 64 characters.',
         ):
             obj.description = self.random_string(2)
 
         with pytest.raises(
             InvalidPaymentDescriptionError,
-            match="Description must be between 3 and 64 characters.",
+            match='Description must be between 3 and 64 characters.',
         ):
             obj.description = self.random_string(65)
 
         obj = Payment(self.random_string(29))
         params = {
-            "description": self.random_string(3, 64),
+            'description': self.random_string(3, 64),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.description == params["description"]
+        assert obj.description == params['description']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
-    def test_delete(self,version):
+    def test_delete(self, version):
         self.conf.version = version
         obj = Payment(self.random_string(29))
 
         with pytest.raises(
             StancerNotImplementedError,
             match=(
-                "You are not allowed to delete a payment, "
-                "you need to refund it instead."
+                'You are not allowed to delete a payment, '
+                'you need to refund it instead.'
             ),
         ):
             obj.delete()
@@ -459,13 +351,13 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidDeviceError,
-            match="You must provide a valid instance of Device",
+            match='You must provide a valid instance of Device',
         ):
             obj.device = self.random_integer(2)
 
         with pytest.raises(
             InvalidDeviceError,
-            match="You must provide a valid instance of Device",
+            match='You must provide a valid instance of Device',
         ):
             obj.device = self.random_string(2)
 
@@ -482,12 +374,12 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            "fee": self.random_integer(1, 50),
+            'fee': self.random_integer(1, 50),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.fee == params["fee"]
+        assert obj.fee == params['fee']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -499,45 +391,45 @@ class TestPayment(TestHelper):
 
         params = Payment.filter_list_params(order_id=order_id, unique_id=unique_id)
 
-        assert "order_id" in params
-        assert params["order_id"] == order_id
+        assert 'order_id' in params
+        assert params['order_id'] == order_id
 
-        assert "unique_id" in params
-        assert params["unique_id"] == unique_id
+        assert 'unique_id' in params
+        assert params['unique_id'] == unique_id
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="A valid order ID must be between 1 and 36 characters.",
+            match='A valid order ID must be between 1 and 36 characters.',
         ):
-            Payment.filter_list_params(order_id="")
+            Payment.filter_list_params(order_id='')
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="A valid order ID must be between 1 and 36 characters.",
+            match='A valid order ID must be between 1 and 36 characters.',
         ):
             Payment.filter_list_params(order_id=self.random_string(37))
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="Order ID must be a string.",
+            match='Order ID must be a string.',
         ):
             Payment.filter_list_params(order_id=self.random_integer(10))
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="A valid unique ID must be between 1 and 36 characters.",
+            match='A valid unique ID must be between 1 and 36 characters.',
         ):
-            Payment.filter_list_params(unique_id="")
+            Payment.filter_list_params(unique_id='')
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="A valid unique ID must be between 1 and 36 characters.",
+            match='A valid unique ID must be between 1 and 36 characters.',
         ):
             Payment.filter_list_params(unique_id=self.random_string(37))
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="Unique ID must be a string.",
+            match='Unique ID must be a string.',
         ):
             Payment.filter_list_params(unique_id=self.random_integer(10))
 
@@ -547,9 +439,9 @@ class TestPayment(TestHelper):
         obj = Payment()
 
         params = {
-            "card": {},
-            "customer": {},
-            "sepa": {},
+            'card': {},
+            'customer': {},
+            'sepa': {},
         }
 
         assert obj.hydrate(**params) == obj
@@ -559,28 +451,28 @@ class TestPayment(TestHelper):
         assert obj.sepa is None
 
         params = {
-            "card": self.random_string(29),
-            "customer": self.random_string(29),
-            "sepa": self.random_string(29),
+            'card': self.random_string(29),
+            'customer': self.random_string(29),
+            'sepa': self.random_string(29),
         }
 
         assert obj.hydrate(**params) == obj
 
         assert isinstance(obj.card, Card)
-        assert obj.card.id == params["card"]
+        assert obj.card.id == params['card']
 
         assert isinstance(obj.customer, Customer)
-        assert obj.customer.id == params["customer"]
+        assert obj.customer.id == params['customer']
 
         assert isinstance(obj.sepa, Sepa)
-        assert obj.sepa.id == params["sepa"]
+        assert obj.sepa.id == params['sepa']
 
         params = {
-            "refunds": [
+            'refunds': [
                 {
-                    "amount": self.random_integer(100, 10000),
-                    "currency": "eur",
-                    "status": RefundStatus.TO_REFUND,
+                    'amount': self.random_integer(100, 10000),
+                    'currency': 'eur',
+                    'status': RefundStatus.TO_REFUND,
                 },
             ],
         }
@@ -593,9 +485,9 @@ class TestPayment(TestHelper):
         refund = obj.refunds[0]
 
         assert isinstance(refund, Refund)
-        assert refund.amount == params["refunds"][0]["amount"]
-        assert refund.currency == params["refunds"][0]["currency"]
-        assert refund.status == params["refunds"][0]["status"]
+        assert refund.amount == params['refunds'][0]['amount']
+        assert refund.currency == params['refunds'][0]['currency']
+        assert refund.status == params['refunds'][0]['status']
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     def test_is_success(self, version):
@@ -681,12 +573,12 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            "method": self.random_string(4),
+            'method': self.random_string(4),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.method == params["method"]
+        assert obj.method == params['method']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -705,24 +597,24 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidPaymentOrderIdError,
-            match="Order id must be a string.",
+            match='Order id must be a string.',
         ):
             obj.order_id = self.random_integer(20)
 
         with pytest.raises(
             InvalidPaymentOrderIdError,
-            match="Order id must be 36 characters maximum.",
+            match='Order id must be 36 characters maximum.',
         ):
             obj.order_id = self.random_string(37, 50)
 
         obj = Payment(self.random_string(29))
         params = {
-            "order_id": self.random_string(1, 36),
+            'order_id': self.random_string(1, 36),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.order_id == params["order_id"]
+        assert obj.order_id == params['order_id']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -737,154 +629,6 @@ class TestPayment(TestHelper):
 
         assert obj.order_id == str(order_id)
 
-    @responses.activate
-    def test_payment_page_url_V1(self):
-        obj = Payment(
-            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
-        )
-
-        return_url = f"https://www.example.org/?{self.random_string(10)}"
-
-        with open("./tests/fixtures/payment/create-no-method-auth.json") as opened_file:
-            content = opened_file.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        with pytest.raises(
-            MissingReturnUrlError,
-            match="You must provide a return URL before going to the payment page.",
-        ):
-            obj.payment_page_url()
-
-        obj.return_url = return_url
-
-        with pytest.raises(
-            MissingPaymentIdError,
-            match="A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.",
-        ):
-            obj.payment_page_url()
-
-        obj.send()
-        with pytest.raises(
-            MissingApiKeyError,
-            match="A public API key is needed to obtain a payment page URL.",
-        ):
-            obj.payment_page_url()
-
-        config = Config()
-        config.version = Version.API_V1
-        keys = config.keys
-        config.keys = f"ptest_{self.random_string(24)}"
-
-        host = config.host.replace("api", "payment")
-
-        url = f"https://{host}/{config.ptest}/{obj.id}"
-
-        assert obj.payment_page_url() == url
-
-        # With lang parameter
-        lang = self.random_string(10)
-        url = f"https://{host}/{config.ptest}/{obj.id}?lang={lang}"
-
-        assert obj.payment_page_url(lang=lang) == url
-
-        # With bad parameter (ignored)
-        url = f"https://{host}/{config.ptest}/{obj.id}"
-
-        assert obj.payment_page_url(unknown=lang) == url
-
-        # With a port
-        config.port = self.random_integer(1000, 65535)
-        url = f"https://{host}:{config.port}/{config.ptest}/{obj.id}"
-
-        assert obj.payment_page_url() == url
-
-        # With non ascii chars
-        input = self.random_string(2) + ' ' + self.random_string(2)
-        encoded = input.replace(' ', '+')
-        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}?lang={encoded}'
-
-        assert obj.payment_page_url(lang=input) == url
-
-        del config.keys
-        del config.port
-
-        config.keys = keys
-
-    @responses.activate
-    def test_payment_page_url_V2(self):
-        obj = Payment(
-            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
-        )
-
-        return_url = 'https://www.example.org/?' + self.random_string(10)
-
-        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
-            content = opened_file.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        with pytest.raises(
-            MissingReturnUrlError,
-            match='You must provide a return URL before going to the payment page.',
-        ):
-            obj.payment_page_url()
-
-        obj.return_url = return_url
-
-        with pytest.raises(
-            MissingPaymentIdError,
-            match='A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.',
-        ):
-            obj.payment_page_url()
-
-        obj.send()
-
-        config = Config()
-        config.version = Version.API_V2
-        keys = config.keys
-
-        host = config.host.replace('api', 'payment')
-
-        url = (
-            f'https://{host}/{config.ptest}/{obj.id}'
-            if self.conf.version == Version.API_V1
-            else f'https://{host}/{obj.id}'
-        )
-
-        assert obj.payment_page_url() == url
-
-        # With lang parameter
-        lang = self.random_string(10)
-        url = f'https://{host}/{obj.id}?lang={lang}'
-
-        assert obj.payment_page_url(lang=lang) == url
-
-        # With bad parameter (ignored)
-        url = f'https://{host}/{obj.id}'
-
-        assert obj.payment_page_url(unknown=lang) == url
-
-        # With a port
-        config.port = self.random_integer(1000, 65535)
-        url = f'https://{host}:{config.port}/{obj.id}'
-
-        assert obj.payment_page_url() == url
-
-        # With non ascii chars
-        input = self.random_string(2) + ' ' + self.random_string(2)
-        encoded = input.replace(' ', '+')
-        url = f'https://{host}:{config.port}/{obj.id}?lang={encoded}'
-
-        assert obj.payment_page_url(lang=input) == url
-
-        del config.keys
-        del config.port
-
-        config.keys = keys
-
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
     def test_refund(self, version):
@@ -892,18 +636,18 @@ class TestPayment(TestHelper):
         with open('./tests/fixtures/payment/read-no-card.json') as opened_file:
             payment_content = json.load(opened_file)
 
-        with open("./tests/fixtures/refund/read.json") as opened_file:
+        with open('./tests/fixtures/refund/read.json') as opened_file:
             refund1_content = json.load(opened_file)
 
-        with open("./tests/fixtures/refund/read.json") as opened_file:
+        with open('./tests/fixtures/refund/read.json') as opened_file:
             refund2_content = json.load(opened_file)
 
-        obj = Payment(payment_content["id"])
+        obj = Payment(payment_content['id'])
 
-        paid = payment_content["amount"]
+        paid = payment_content['amount']
 
         refund1_amount = self.random_integer(50, paid - 50)
-        refund1_content["amount"] = refund1_amount
+        refund1_content['amount'] = refund1_amount
         ref = Refund()
 
         refund2_amount = paid - refund1_amount
@@ -926,7 +670,7 @@ class TestPayment(TestHelper):
 
         assert isinstance(obj.refunds, list)
         assert len(obj.refunds) == 1
-        assert refund1.id == refund1_content["id"]
+        assert refund1.id == refund1_content['id']
         assert refund1.amount == refund1_amount
         assert obj.refunds[0] == refund1
 
@@ -944,9 +688,9 @@ class TestPayment(TestHelper):
 
         assert isinstance(obj.refunds, list)
         assert len(obj.refunds) == 2
-        assert refund1.id == refund1_content["id"]
+        assert refund1.id == refund1_content['id']
         assert refund1.amount == refund1_amount
-        assert refund2.id == refund2_content["id"]
+        assert refund2.id == refund2_content['id']
         assert refund2.amount == refund2_amount
         assert obj.refunds[0] == refund1
         assert obj.refunds[1] == refund2
@@ -960,15 +704,15 @@ class TestPayment(TestHelper):
         with open('./tests/fixtures/payment/read.json') as opened_file:
             payment_content = json.load(opened_file)
 
-        with open("./tests/fixtures/refund/read.json") as opened_file:
+        with open('./tests/fixtures/refund/read.json') as opened_file:
             refund_content = json.load(opened_file)
 
-        obj = Payment(payment_content["id"])
+        obj = Payment(payment_content['id'])
 
-        paid = payment_content["amount"]
+        paid = payment_content['amount']
 
         refund_amount = self.random_integer(50, paid - 50)
-        refund_content["amount"] = refund_amount
+        refund_content['amount'] = refund_amount
         ref = Refund()
 
         responses.reset()
@@ -983,136 +727,20 @@ class TestPayment(TestHelper):
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
-    def test_send_auth_return_url(self, monkeypatch, version: Version):
-        obj = Payment()
-        card = Card()
-        self.conf.version =version
-
-        with open('./tests/fixtures/payment/create-card-auth.json') as opened:
-            content = opened.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        amount = self.random_integer(50, 999999)
-        currency = 'eur'
-        cvc = self.random_string(3)
-        exp_month = self.random_integer(1, 12)
-        exp_year = self.random_year()
-        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
-        number = '4111111111111111'
-        port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
-
-        obj.amount = amount
-        obj.auth = return_url
-        obj.currency = currency
-        obj.card = card
-
-        card.cvc = cvc
-        card.exp_month = exp_month
-        card.exp_year = exp_year
-        card.number = number
-
-        with pytest.raises(InvalidIpAddressError):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
-        monkeypatch.setenv('SERVER_ADDR', ip)
-
-        with pytest.raises(InvalidPortError):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
-        monkeypatch.setenv('SERVER_PORT', str(port))
-        assert obj.send() == obj
-        assert len(responses.calls) == 1
-
-        # Data sent
-        body = json.loads(responses.calls[0].request.body)
-
-        assert 'amount' in body
-        assert body.get('amount') == amount
-        assert 'currency' in body
-        assert body.get('currency') == currency
-
-
-        assert 'auth' in body
-        assert isinstance(body.get('auth'), dict)
-        assert 'return_url' in body.get('auth')
-        assert body.get('auth').get('return_url') == return_url
-        assert 'status' in body.get('auth')
-        assert body.get('auth').get('status') == AuthStatus.REQUEST
-
-        assert 'card' in body
-        assert isinstance(body.get('card'), dict)
-        assert 'cvc' in body.get('card')
-        assert body.get('card').get('cvc') == cvc
-        assert 'exp_month' in body.get('card')
-        assert body.get('card').get('exp_month') == exp_month
-        assert 'exp_year' in body.get('card')
-        assert body.get('card').get('exp_year') == exp_year
-        assert 'number' in body.get('card')
-        assert body.get('card').get('number') == number
-
-        assert 'device' in body
-        assert isinstance(body.get('device'), dict)
-        assert 'ip' in body.get('device')
-        assert body.get('device').get('ip') == ip
-        assert 'port' in body.get('device')
-        assert body.get('device').get('port') == port
-
-        # Data from fixture
-        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
-        assert isinstance(obj.created, date)
-        assert obj.created.timestamp() == 1567094428
-        assert obj.amount == 1337
-        assert obj.capture is True
-        assert obj.card == card
-        assert obj.currency == 'eur'
-        assert obj.description == 'Auth test'
-        assert obj.method == 'card'
-        assert obj.order_id is None
-        assert obj.sepa is None
-
-        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
-        assert card.brand == 'mastercard'
-        assert card.country == 'US'
-        assert card.exp_month == 2
-        assert card.exp_year == 2020
-        assert card.last4 == '4444'
-        assert card.name is None
-        # Number is unchanged in send process
-        assert card.number == '4111111111111111'
-        assert card.zip_code is None
-
-        assert isinstance(obj.auth, Auth)
-        assert obj.auth.return_url == 'https://www.free.fr'
-        assert obj.auth.status == AuthStatus.AVAILABLE
-
-        assert isinstance(obj.device, Device)
-        assert obj.device.http_accept == 'text/html'
-        assert obj.device.ip == '212.27.48.10'
-        assert obj.device.languages is None
-        assert obj.device.port == 1337
-        assert obj.device.user_agent is None
-
-    @responses.activate
-    def test_refunded_amount(self):
-        with open("./tests/fixtures/payment/read.json") as opened_file:
+    def test_refunded_amount(self, version):
+        self.conf.version = version
+        with open('./tests/fixtures/payment/read.json') as opened_file:
             payment_content = json.load(opened_file)
 
-        with open("./tests/fixtures/refund/read.json") as opened_file:
+        with open('./tests/fixtures/refund/read.json') as opened_file:
             refund_content = json.load(opened_file)
 
-        obj = Payment(payment_content["id"])
+        obj = Payment(payment_content['id'])
 
-        paid = payment_content["amount"]
+        paid = payment_content['amount']
 
         refund_amount = self.random_integer(50, paid - 50)
-        refund_content["amount"] = refund_amount
+        refund_content['amount'] = refund_amount
         ref = Refund()
 
         responses.reset()
@@ -1138,12 +766,12 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            "response": self.random_string(2),
+            'response': self.random_string(2),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.response == params["response"]
+        assert obj.response == params['response']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -1160,12 +788,12 @@ class TestPayment(TestHelper):
 
         obj = Payment(self.random_string(29))
         params = {
-            "response": self.random_string(2),
+            'response': self.random_string(2),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.response == params["response"]
+        assert obj.response == params['response']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -1174,7 +802,7 @@ class TestPayment(TestHelper):
     def test_return_url(self, version):
         self.conf.version = version
         obj = Payment()
-        return_url = f"https://www.example.org/?{self.random_string(20)}"
+        return_url = f'https://www.example.org/?{self.random_string(20)}'
 
         assert obj.return_url is None
 
@@ -1184,22 +812,22 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidUrlError,
-            match="Return URL must be a string.",
+            match='Return URL must be a string.',
         ):
             obj.return_url = self.random_integer(20)
 
         with pytest.raises(
             InvalidUrlError,
-            match="Return URL must use HTTPS protocol.",
+            match='Return URL must use HTTPS protocol.',
         ):
-            obj.return_url = f"http://www.example.org/?{self.random_string(20)}"
+            obj.return_url = f'http://www.example.org/?{self.random_string(20)}'
 
         obj = Payment(self.random_string(29))
-        params = {"return_url": f"https://www.example.org/?{self.random_string(20)}"}
+        params = {'return_url': f'https://www.example.org/?{self.random_string(20)}'}
 
         responses.add(responses.GET, obj.uri, json=params)
 
-        assert obj.return_url == params["return_url"]
+        assert obj.return_url == params['return_url']
         assert obj.is_populated
         assert len(responses.calls) == 1
 
@@ -1256,17 +884,21 @@ class TestPayment(TestHelper):
         assert 'currency' in body
         assert body.get('currency') == currency
 
-        # Here we confronted with a problem with the api v2 changes.
-        #
-        # We cannot construct a response that emulates correctly the api response
-        # because we have overrided the json representation of the auth object (as the api only accept booleans)
-        # Therefore We cannot properly test the response body as it is built by the json method of our SDK
-
         assert 'auth' in body
-        assert isinstance(body.get('auth'), dict)
-        assert 'return_url' not in body.get('auth')
-        assert 'status' in body.get('auth')
-        assert body.get('auth').get('status') == AuthStatus.REQUEST
+        # WARNING conditional in test body different in API V1 an V2
+        if self.conf.version == Version.API_V1:
+            assert isinstance(body.get('auth'), dict)
+            assert 'return_url' not in body.get('auth')
+            assert 'status' in body.get('auth')
+            assert body.get('auth').get('status') == AuthStatus.REQUEST
+        else:
+            assert 'auth' in body
+            assert body.get('auth') is True
+            assert isinstance(obj.auth, AbstractObject)
+            assert hasattr(obj.auth, 'return_url')
+            assert obj.auth.return_url is None
+            assert hasattr(obj.auth, 'status')
+            assert obj.auth.status == AuthStatus.REQUESTED  # from fixtures
 
         assert 'card' not in body
         assert 'sepa' not in body
@@ -1285,7 +917,6 @@ class TestPayment(TestHelper):
         assert obj.order_id is None
         assert obj.sepa is None
 
-
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
     def test_send_with_card(self, version):
@@ -1296,10 +927,10 @@ class TestPayment(TestHelper):
 
         customer = Customer()
         customer.name = self.random_string(15)
-        customer.email = f"{self.random_string(15)}@example.org"
+        customer.email = f'{self.random_string(15)}@example.org'
         customer.mobile = self.random_mobile()
 
-        with open("./tests/fixtures/payment/create-card.json") as opened_file:
+        with open('./tests/fixtures/payment/create-card.json') as opened_file:
             content = opened_file.read()
 
         # Save response
@@ -1318,7 +949,7 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidAmountError,
-            match="You must provide an amount before sending a payment.",
+            match='You must provide an amount before sending a payment.',
         ):
             obj.send()
 
@@ -1328,19 +959,19 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidCurrencyError,
-            match="You must provide a currency before sending a payment.",
+            match='You must provide a currency before sending a payment.',
         ):
             obj.send()
 
         assert len(responses.calls) == 0
 
-        obj.currency = "eur"
+        obj.currency = 'eur'
         obj.card = card
         obj.customer = customer
 
         with pytest.raises(
             MissingPaymentMethodError,
-            match="Your card is incomplete.",
+            match='Your card is incomplete.',
         ):
             obj.send()
 
@@ -1349,7 +980,7 @@ class TestPayment(TestHelper):
         card.cvc = self.random_string(3)
         card.exp_month = self.random_integer(1, 12)
         card.exp_year = self.random_year()
-        card.number = "4111111111111111"
+        card.number = '4111111111111111'
 
         assert obj.send() == obj
         # As we send customer and sepa beforehand, we have 3 API calls instead of 1 in API V1
@@ -1358,31 +989,31 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1 if api_is_v1 else 3
 
         # Data from fixture
-        assert obj.id == "paym_KIVaaHi7G8QAYMQpQOYBrUQE"
+        assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
         assert isinstance(obj.created, date)
         assert obj.created.timestamp() == 1538564253
         assert obj.amount == 100
         assert obj.capture is True
         assert obj.card == card
-        assert obj.currency == "eur"
+        assert obj.currency == 'eur'
         assert obj.customer == customer
-        assert obj.description == "le test restfull v1"
-        assert obj.method == "card"
+        assert obj.description == 'le test restfull v1'
+        assert obj.method == 'card'
         assert obj.order_id is None
         assert obj.sepa is None
 
-        assert card.id == "card_xognFbZs935LMKJYeHyCAYUd"
-        assert card.brand == "mastercard"
-        assert card.country == "US"
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
         assert card.exp_month == 2
         assert card.exp_year == 2020
-        assert card.last4 == "4444"
+        assert card.last4 == '4444'
         assert card.name is None
         # Number is unchanged in send process
-        assert card.number == "4111111111111111"
+        assert card.number == '4111111111111111'
         assert card.zip_code is None
 
-        assert customer.id == "cust_9Cle7TXKkjhwqcWx4Kl5cQYk"
+        assert customer.id == 'cust_9Cle7TXKkjhwqcWx4Kl5cQYk'
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
@@ -1394,10 +1025,10 @@ class TestPayment(TestHelper):
 
         customer = Customer()
         customer.name = self.random_string(15)
-        customer.email = f"{self.random_string(15)}@example.org"
+        customer.email = f'{self.random_string(15)}@example.org'
         customer.mobile = self.random_mobile()
 
-        with open("./tests/fixtures/payment/create-sepa.json") as opened_file:
+        with open('./tests/fixtures/payment/create-sepa.json') as opened_file:
             content = opened_file.read()
 
         # Save response
@@ -1414,7 +1045,7 @@ class TestPayment(TestHelper):
             responses.add(responses.POST, customer.uri, body=content)
             with pytest.raises(
                 InvalidAmountError,
-                match="You must provide an amount before sending a payment.",
+                match='You must provide an amount before sending a payment.',
             ):
                 payment.send()
 
@@ -1424,26 +1055,26 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidCurrencyError,
-            match="You must provide a currency before sending a payment.",
+            match='You must provide a currency before sending a payment.',
         ):
             payment.send()
 
         assert len(responses.calls) == 0
 
-        payment.currency = "eur"
+        payment.currency = 'eur'
         payment.sepa = sepa
         payment.customer = customer
 
         with pytest.raises(
             MissingPaymentMethodError,
-            match="Your SEPA account is incomplete.",
+            match='Your SEPA account is incomplete.',
         ):
             payment.send()
 
         assert len(responses.calls) == 0
 
-        sepa.bic = "DEUTDEFF"  # Thx Wikipedia
-        sepa.iban = "DE91 1000 0000 0123 4567 89"  # Thx Wikipedia
+        sepa.bic = 'DEUTDEFF'  # Thx Wikipedia
+        sepa.iban = 'DE91 1000 0000 0123 4567 89'  # Thx Wikipedia
 
         assert payment.send() == payment
         # As we send customer and sepa beforehand, we have 3 API calls instead of 1 in API V1
@@ -1452,27 +1083,27 @@ class TestPayment(TestHelper):
         assert len(responses.calls) == 1 if api_is_v1 else 3
 
         # Data from fixture
-        assert payment.id == "paym_5IptC9R1Wu2wKBR5cjM2so7k"
+        assert payment.id == 'paym_5IptC9R1Wu2wKBR5cjM2so7k'
         assert isinstance(payment.created, date)
         assert payment.created.timestamp() == 1538564504
         assert payment.amount == 100
         assert payment.card is None
         assert payment.capture is True
-        assert payment.currency == "eur"
+        assert payment.currency == 'eur'
         assert payment.customer == customer
-        assert payment.description == "le test restfull v1"
+        assert payment.description == 'le test restfull v1'
         assert payment.live_mode is False
-        assert payment.method == "sepa"
+        assert payment.method == 'sepa'
         assert payment.order_id is None
 
-        assert sepa.id == "sepa_oazGliEo6BuqUlyCzE42hcNp"
-        assert sepa.bic == "ILADFRPP"
+        assert sepa.id == 'sepa_oazGliEo6BuqUlyCzE42hcNp'
+        assert sepa.bic == 'ILADFRPP'
         # Iban is unchanged in send process
-        assert sepa.iban == "DE91100000000123456789"
-        assert sepa.last4 == "2606"
-        assert sepa.name == "David Coaster"
+        assert sepa.iban == 'DE91100000000123456789'
+        assert sepa.last4 == '2606'
+        assert sepa.name == 'David Coaster'
 
-        assert customer.id == "cust_9Cle7TXKkjhwqcWx4Kl5cQYk"
+        assert customer.id == 'cust_9Cle7TXKkjhwqcWx4Kl5cQYk'
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
@@ -1593,12 +1224,13 @@ class TestPayment(TestHelper):
         obj.unique_id = unique_id
 
         assert obj.unique_id == str(unique_id)
-#endregion
 
-#region V1
+    # endregion
+
+    # region V1
     # The auth is sent as a bool in V2 but as an object in V1
     # This is a big change so we need two separate test
-    def test_auth_v1(self, version = Version.API_V1):
+    def test_auth_v1(self, version=Version.API_V1):
         payment = Payment()
         auth = Auth()
         self.conf.version = version
@@ -1621,26 +1253,24 @@ class TestPayment(TestHelper):
         assert isinstance(payment.auth, Auth)
         assert payment.auth.return_url == return_url
         assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == payment.auth.to_json()
 
         payment.auth = True
 
         assert isinstance(payment.auth, Auth)
         assert payment.auth.return_url is None
         assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == payment.auth.to_json()
 
         payment.auth = False
 
         assert isinstance(payment.auth, Auth)
         assert payment.auth.return_url is None
         assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == payment.auth.to_json()
 
     # API V2 doesn't need public key to create a payment page
     # This is a big change so we need two separate test
     @responses.activate
-    def test_payment_page_url_v1(self, version = Version.API_V1):
+    def test_payment_page_url_v1(self, version=Version.API_V1):
+        self.conf.version = version
         obj = Payment(
             amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
         )
@@ -1716,28 +1346,28 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auth_and_device_object_v1(self, version = Version.API_V1):
+    def test_send_auth_and_device_object_v1(self, version=Version.API_V1):
         obj = Payment()
         card = Card()
         auth = Auth()
         device = Device()
         self.conf.version = version
 
-        with open("./tests/fixtures/payment/create-card-auth.json") as opened:
+        with open('./tests/fixtures/payment/create-card-auth.json') as opened:
             content = opened.read()
 
         # Save response
         responses.add(responses.POST, obj.uri, body=content)
 
         amount = self.random_integer(50, 999999)
-        currency = "eur"
+        currency = 'eur'
         cvc = self.random_string(3)
         exp_month = self.random_integer(1, 12)
         exp_year = self.random_year()
-        ip = ".".join([str(self.random_integer(1, 254)) for _ in range(4)])
-        number = "4111111111111111"
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = f"https://www.example.org/?f{self.random_string(50)}"
+        return_url = f'https://www.example.org/?f{self.random_string(50)}'
 
         obj.amount = amount
         obj.auth = auth
@@ -1772,184 +1402,68 @@ class TestPayment(TestHelper):
         # Data sent
         body = json.loads(responses.calls[0].request.body)
 
-        assert "amount" in body
-        assert body.get("amount") == amount
-        assert "currency" in body
-        assert body.get("currency") == currency
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
 
-        assert "auth" in body
-        assert isinstance(body.get("auth"), dict)
-        assert "return_url" in body.get("auth")
-        assert body.get("auth").get("return_url") == return_url
-        assert "status" in body.get("auth")
-        assert body.get("auth").get("status") == AuthStatus.REQUEST
+        assert 'auth' in body
+        assert isinstance(body.get('auth'), dict)
+        assert 'return_url' in body.get('auth')
+        assert body.get('auth').get('return_url') == return_url
+        assert 'status' in body.get('auth')
+        assert body.get('auth').get('status') == AuthStatus.REQUEST
 
-        assert "card" in body
-        assert isinstance(body.get("card"), dict)
-        assert "cvc" in body.get("card")
-        assert body.get("card").get("cvc") == cvc
-        assert "exp_month" in body.get("card")
-        assert body.get("card").get("exp_month") == exp_month
-        assert "exp_year" in body.get("card")
-        assert body.get("card").get("exp_year") == exp_year
-        assert "number" in body.get("card")
-        assert body.get("card").get("number") == number
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
 
-        assert "device" in body
-        assert isinstance(body.get("device"), dict)
-        assert "ip" in body.get("device")
-        assert body.get("device").get("ip") == ip
-        assert "port" in body.get("device")
-        assert body.get("device").get("port") == port
+        assert 'device' in body
+        assert isinstance(body.get('device'), dict)
+        assert 'ip' in body.get('device')
+        assert body.get('device').get('ip') == ip
+        assert 'port' in body.get('device')
+        assert body.get('device').get('port') == port
 
         # Data from fixture
-        assert obj.id == "paym_RMLytyx2xLkdXkATKSxHOlvC"
+        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
         assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.auth == auth
         assert obj.capture is True
         assert obj.card == card
-        assert obj.currency == "eur"
-        assert obj.description == "Auth test"
-        assert obj.method == "card"
+        assert obj.currency == 'eur'
+        assert obj.description == 'Auth test'
+        assert obj.method == 'card'
         assert obj.order_id is None
         assert obj.sepa is None
 
-        assert card.id == "card_xognFbZs935LMKJYeHyCAYUd"
-        assert card.brand == "mastercard"
-        assert card.country == "US"
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
         assert card.exp_month == 2
         assert card.exp_year == 2020
-        assert card.last4 == "4444"
+        assert card.last4 == '4444'
         assert card.name is None
         # Number is unchanged in send process
-        assert card.number == "4111111111111111"
+        assert card.number == '4111111111111111'
         assert card.zip_code is None
 
         assert isinstance(obj.auth, Auth)
-        assert obj.auth.return_url == "https://www.free.fr"
+        assert obj.auth.return_url == 'https://www.free.fr'
         assert obj.auth.status == AuthStatus.AVAILABLE
 
         assert isinstance(obj.device, Device)
-        assert obj.device.http_accept == "text/html"
-        assert obj.device.ip == "212.27.48.10"
-        assert obj.device.languages is None
-        assert obj.device.port == 1337
-        assert obj.device.user_agent is None
-
-    @responses.activate
-    def test_send_auth_return_url(self, monkeypatch):
-        obj = Payment()
-        card = Card()
-
-        with open("./tests/fixtures/payment/create-card-auth.json") as opened:
-            content = opened.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        amount = self.random_integer(50, 999999)
-        currency = "eur"
-        cvc = self.random_string(3)
-        exp_month = self.random_integer(1, 12)
-        exp_year = self.random_year()
-        ip = ".".join([str(self.random_integer(1, 254)) for _ in range(4)])
-        number = "4111111111111111"
-        port = self.random_integer(1, 65535)
-        return_url = f"https://www.example.org/?{self.random_string(50)}"
-
-        obj.amount = amount
-        obj.auth = return_url
-        obj.currency = currency
-        obj.card = card
-
-        card.cvc = cvc
-        card.exp_month = exp_month
-        card.exp_year = exp_year
-        card.number = number
-
-        with pytest.raises(InvalidIpAddressError):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
-        monkeypatch.setenv("SERVER_ADDR", ip)
-
-        with pytest.raises(InvalidPortError):
-            obj.send()
-
-        assert len(responses.calls) == 0
-
-        monkeypatch.setenv("SERVER_PORT", str(port))
-
-        assert obj.send() == obj
-        assert len(responses.calls) == 1
-
-        # Data sent
-        body = json.loads(responses.calls[0].request.body)
-
-        assert "amount" in body
-        assert body.get("amount") == amount
-        assert "currency" in body
-        assert body.get("currency") == currency
-
-        assert "auth" in body
-        assert isinstance(body.get("auth"), dict)
-        assert "return_url" in body.get("auth")
-        assert body.get("auth").get("return_url") == return_url
-        assert "status" in body.get("auth")
-        assert body.get("auth").get("status") == AuthStatus.REQUEST
-
-        assert "card" in body
-        assert isinstance(body.get("card"), dict)
-        assert "cvc" in body.get("card")
-        assert body.get("card").get("cvc") == cvc
-        assert "exp_month" in body.get("card")
-        assert body.get("card").get("exp_month") == exp_month
-        assert "exp_year" in body.get("card")
-        assert body.get("card").get("exp_year") == exp_year
-        assert "number" in body.get("card")
-        assert body.get("card").get("number") == number
-
-        assert "device" in body
-        assert isinstance(body.get("device"), dict)
-        assert "ip" in body.get("device")
-        assert body.get("device").get("ip") == ip
-        assert "port" in body.get("device")
-        assert body.get("device").get("port") == port
-
-        # Data from fixture
-        assert obj.id == "paym_RMLytyx2xLkdXkATKSxHOlvC"
-        assert isinstance(obj.created, date)
-        assert obj.created.timestamp() == 1567094428
-        assert obj.amount == 1337
-        assert obj.capture is True
-        assert obj.card == card
-        assert obj.currency == "eur"
-        assert obj.description == "Auth test"
-        assert obj.method == "card"
-        assert obj.order_id is None
-        assert obj.sepa is None
-
-        assert card.id == "card_xognFbZs935LMKJYeHyCAYUd"
-        assert card.brand == "mastercard"
-        assert card.country == "US"
-        assert card.exp_month == 2
-        assert card.exp_year == 2020
-        assert card.last4 == "4444"
-        assert card.name is None
-        # Number is unchanged in send process
-        assert card.number == "4111111111111111"
-        assert card.zip_code is None
-
-        assert isinstance(obj.auth, Auth)
-        assert obj.auth.return_url == "https://www.free.fr"
-        assert obj.auth.status == AuthStatus.AVAILABLE
-
-        assert isinstance(obj.device, Device)
-        assert obj.device.http_accept == "text/html"
-        assert obj.device.ip == "212.27.48.10"
+        assert obj.device.http_accept == 'text/html'
+        assert obj.device.ip == '212.27.48.10'
         assert obj.device.languages is None
         assert obj.device.port == 1337
         assert obj.device.user_agent is None
@@ -1957,7 +1471,7 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auth_return_url_v1(self, monkeypatch, version = Version.API_V1):
+    def test_send_auth_return_url_v1(self, monkeypatch, version=Version.API_V1):
         self.conf.version = version
         obj = Payment()
         card = Card()
@@ -2076,28 +1590,27 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auth_object_v1(self, monkeypatch, version = Version.API_V1):
+    def test_send_auth_object_v1(self, monkeypatch, version=Version.API_V1):
         self.conf.version = version
         obj = Payment()
         card = Card()
         auth = Auth()
 
-
-        with open("./tests/fixtures/payment/create-card-auth.json") as opened:
+        with open('./tests/fixtures/payment/create-card-auth.json') as opened:
             content = opened.read()
 
         # Save response
         responses.add(responses.POST, obj.uri, body=content)
 
         amount = self.random_integer(50, 999999)
-        currency = "eur"
+        currency = 'eur'
         cvc = self.random_string(3)
         exp_month = self.random_integer(1, 12)
         exp_year = self.random_year()
-        ip = ".".join([str(self.random_integer(1, 254)) for _ in range(4)])
-        number = "4111111111111111"
+        ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
+        number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = f"https://www.example.org/?{self.random_string(50)}"
+        return_url = f'https://www.example.org/?{self.random_string(50)}'
 
         obj.amount = amount
         obj.auth = auth
@@ -2128,11 +1641,10 @@ class TestPayment(TestHelper):
 
         # Data sent
         body = json.loads(responses.calls[0].request.body)
-
-        assert "amount" in body
-        assert body.get("amount") == amount
-        assert "currency" in body
-        assert body.get("currency") == currency
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
 
         assert 'auth' in body
         assert isinstance(body.get('auth'), dict)
@@ -2141,56 +1653,56 @@ class TestPayment(TestHelper):
         assert 'status' in body.get('auth')
         assert body.get('auth').get('status') == AuthStatus.REQUEST
 
-        assert "card" in body
-        assert isinstance(body.get("card"), dict)
-        assert "cvc" in body.get("card")
-        assert body.get("card").get("cvc") == cvc
-        assert "exp_month" in body.get("card")
-        assert body.get("card").get("exp_month") == exp_month
-        assert "exp_year" in body.get("card")
-        assert body.get("card").get("exp_year") == exp_year
-        assert "number" in body.get("card")
-        assert body.get("card").get("number") == number
+        assert 'card' in body
+        assert isinstance(body.get('card'), dict)
+        assert 'cvc' in body.get('card')
+        assert body.get('card').get('cvc') == cvc
+        assert 'exp_month' in body.get('card')
+        assert body.get('card').get('exp_month') == exp_month
+        assert 'exp_year' in body.get('card')
+        assert body.get('card').get('exp_year') == exp_year
+        assert 'number' in body.get('card')
+        assert body.get('card').get('number') == number
 
-        assert "device" in body
-        assert isinstance(body.get("device"), dict)
-        assert "ip" in body.get("device")
-        assert body.get("device").get("ip") == ip
-        assert "port" in body.get("device")
-        assert body.get("device").get("port") == port
+        assert 'device' in body
+        assert isinstance(body.get('device'), dict)
+        assert 'ip' in body.get('device')
+        assert body.get('device').get('ip') == ip
+        assert 'port' in body.get('device')
+        assert body.get('device').get('port') == port
 
         # Data from fixture
-        assert obj.id == "paym_RMLytyx2xLkdXkATKSxHOlvC"
+        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
         assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
         assert obj.auth == auth
         assert obj.capture is True
         assert obj.card == card
-        assert obj.currency == "eur"
-        assert obj.description == "Auth test"
-        assert obj.method == "card"
+        assert obj.currency == 'eur'
+        assert obj.description == 'Auth test'
+        assert obj.method == 'card'
         assert obj.order_id is None
         assert obj.sepa is None
 
-        assert card.id == "card_xognFbZs935LMKJYeHyCAYUd"
-        assert card.brand == "mastercard"
-        assert card.country == "US"
+        assert card.id == 'card_xognFbZs935LMKJYeHyCAYUd'
+        assert card.brand == 'mastercard'
+        assert card.country == 'US'
         assert card.exp_month == 2
         assert card.exp_year == 2020
-        assert card.last4 == "4444"
+        assert card.last4 == '4444'
         assert card.name is None
         # Number is unchanged in send process
-        assert card.number == "4111111111111111"
+        assert card.number == '4111111111111111'
         assert card.zip_code is None
 
         assert isinstance(obj.auth, Auth)
-        assert obj.auth.return_url == "https://www.free.fr"
+        assert obj.auth.return_url == 'https://www.free.fr'
         assert obj.auth.status == AuthStatus.AVAILABLE
 
         assert isinstance(obj.device, Device)
-        assert obj.device.http_accept == "text/html"
-        assert obj.device.ip == "212.27.48.10"
+        assert obj.device.http_accept == 'text/html'
+        assert obj.device.ip == '212.27.48.10'
         assert obj.device.languages is None
         assert obj.device.port == 1337
         assert obj.device.user_agent is None
@@ -2198,7 +1710,7 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auto_create_device_v1(self, monkeypatch, version = Version.API_V1):
+    def test_send_auto_create_device_v1(self, monkeypatch, version=Version.API_V1):
         self.conf.version = version
         obj = Payment()
         card = Card()
@@ -2292,7 +1804,7 @@ class TestPayment(TestHelper):
     # we also make many check on calls, if we made one test it would have been less readable
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_delayed_capture_v1(self, version = Version.API_V1):
+    def test_send_delayed_capture_v1(self, version=Version.API_V1):
         self.conf.version = version
         obj = Payment()
 
@@ -2374,13 +1886,13 @@ class TestPayment(TestHelper):
     # We check that the payment.customer sent is the same as the payment.customer received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_without_method_v1(self, version =Version.API_V1):
+    def test_send_without_method_v1(self, version=Version.API_V1):
         self.conf.version = version
         obj = Payment()
 
         amount = self.random_integer(50, 999999)
-        currency = "eur"
-        email = f"{self.random_string(15)}@example.org"
+        currency = 'eur'
+        email = f'{self.random_string(15)}@example.org'
         mobile = self.random_mobile()
         name = self.random_string(15)
 
@@ -2391,7 +1903,7 @@ class TestPayment(TestHelper):
 
         obj.customer = customer
 
-        with open("./tests/fixtures/payment/create-no-method.json") as opened_file:
+        with open('./tests/fixtures/payment/create-no-method.json') as opened_file:
             content = opened_file.read()
 
         # Save response
@@ -2399,7 +1911,7 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidAmountError,
-            match="You must provide an amount before sending a payment.",
+            match='You must provide an amount before sending a payment.',
         ):
             obj.send()
 
@@ -2409,7 +1921,7 @@ class TestPayment(TestHelper):
 
         with pytest.raises(
             InvalidCurrencyError,
-            match="You must provide a currency before sending a payment.",
+            match='You must provide a currency before sending a payment.',
         ):
             obj.send()
 
@@ -2423,43 +1935,43 @@ class TestPayment(TestHelper):
         # Data sent
         body = json.loads(responses.calls[0].request.body)
 
-        assert "amount" in body
-        assert body.get("amount") == amount
-        assert "currency" in body
-        assert body.get("currency") == currency
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
 
-        assert "card" not in body
-        assert "sepa" not in body
+        assert 'card' not in body
+        assert 'sepa' not in body
 
-        assert "customer" in body
-        assert isinstance(body.get("customer"), dict)
-        assert "email" in body.get("customer")
-        assert body.get("customer").get("email") == email
-        assert "mobile" in body.get("customer")
-        assert body.get("customer").get("mobile") == mobile
-        assert "name" in body.get("customer")
-        assert body.get("customer").get("name") == name
+        assert 'customer' in body
+        assert isinstance(body.get('customer'), dict)
+        assert 'email' in body.get('customer')
+        assert body.get('customer').get('email') == email
+        assert 'mobile' in body.get('customer')
+        assert body.get('customer').get('mobile') == mobile
+        assert 'name' in body.get('customer')
+        assert body.get('customer').get('name') == name
 
         # Data from fixture
-        assert obj.id == "paym_pia9ossoqujuFFbX0HdS3FLi"
+        assert obj.id == 'paym_pia9ossoqujuFFbX0HdS3FLi'
         assert isinstance(obj.created, date)
         assert obj.created.timestamp() == 1562085759
         assert obj.amount == 10000
         assert obj.card is None
-        assert obj.currency == "eur"
+        assert obj.currency == 'eur'
         assert obj.customer == customer
-        assert obj.description == "Test payment without any card or sepa account"
+        assert obj.description == 'Test payment without any card or sepa account'
         assert obj.live_mode is False
         assert obj.method is None
         assert obj.order_id is None
         assert obj.sepa is None
 
-        assert customer.id == "cust_IYsHodYTugeBndSIOdm6rnBA"
+        assert customer.id == 'cust_IYsHodYTugeBndSIOdm6rnBA'
 
     # The endpoint is not the same in V1 and V2 this is a big change so we separate the two test
-    @pytest.mark.parametrize('host',TestHelper.host_provider())
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
     @responses.activate
-    def test_uri_v1(self, host, version = Version.API_V1):
+    def test_uri_v1(self, host, version=Version.API_V1):
         self.conf.version = version
         self.conf.host = host
         obj = Payment()
@@ -2468,16 +1980,19 @@ class TestPayment(TestHelper):
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == f'https://{self.conf.host}/v{self.conf.version}/checkout/{uid}'
+        assert (
+            obj.uri == f'https://{self.conf.host}/v{self.conf.version}/checkout/{uid}'
+        )
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
-#endregion
 
-#region V2
+    # endregion
+
+    # region V2
     # The auth is sent as a bool in V2 but as an object in V1
     # This is a big change so we need two separate test
-    def test_auth_v2(self, version = Version.API_V2):
+    def test_auth_v2(self, version=Version.API_V2):
         payment = Payment()
         auth = Auth()
         self.conf.version = version
@@ -2486,7 +2001,8 @@ class TestPayment(TestHelper):
 
         payment.auth = auth
 
-        assert payment.auth.to_api_request() == 'true'
+        assert payment.auth.to_json() == 'true'
+        assert payment.auth.to_json_repr()
 
         # Now everything except false send an auth
         with pytest.raises(
@@ -2503,27 +2019,30 @@ class TestPayment(TestHelper):
         payment.auth = return_url
 
         assert isinstance(payment.auth, Auth)
+        assert payment.auth.to_json_repr() is True
         assert payment.auth.return_url == return_url
         assert payment.auth.status == AuthStatus.REQUEST
         payment = Payment()
         payment.auth = True
 
         assert isinstance(payment.auth, Auth)
+        assert payment.auth.to_json_repr() is True
         assert payment.auth.return_url is None
         assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == 'true'
+        assert payment.auth.to_json() == 'true'
 
         payment.auth = False
 
         assert isinstance(payment.auth, Auth)
+        assert payment.auth.to_json_repr() is True
         assert payment.auth.return_url is None
         assert payment.auth.status == AuthStatus.REQUEST
-        assert payment.auth.to_api_request() == 'true'
+        assert payment.auth.to_json() == 'true'
 
     # API V2 doesn't need public key to create a payment page
     # This is a big change so we need two separate test
     @responses.activate
-    def test_payment_page_url_v2(self, version = Version.API_V2):
+    def test_payment_page_url_v2(self, version=Version.API_V2):
         obj = Payment(
             amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
         )
@@ -2592,7 +2111,7 @@ class TestPayment(TestHelper):
         config.keys = keys
 
     @responses.activate
-    def test_send_auth_and_device_object_v2(self, version = Version.API_V2):
+    def test_send_auth_and_device_object_v2(self, version=Version.API_V2):
         obj = Payment()
         card = Card()
         auth = Auth()
@@ -2618,7 +2137,7 @@ class TestPayment(TestHelper):
         ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
         number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
+        return_url = 'https://www.free.fr'  # from fixtures
 
         obj.amount = amount
         obj.auth = auth
@@ -2663,27 +2182,28 @@ class TestPayment(TestHelper):
         # Data sent
         body = json.loads(responses.calls[1].request.body)
 
-        assert "amount" in body
-        assert body.get("amount") == amount
-        assert "currency" in body
-        assert body.get("currency") == currency
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
 
         assert 'auth' in body
-        assert isinstance(body.get('auth'), dict)
-        assert 'return_url' in body.get('auth')
-        assert body.get('auth').get('return_url') == return_url
-        assert 'status' in body.get('auth')
-        assert body.get('auth').get('status') == AuthStatus.REQUEST
+        assert body.get('auth') is True
+        assert isinstance(obj.auth, AbstractObject)
+        assert hasattr(obj.auth, 'return_url')
+        assert obj.auth.return_url == return_url
+        assert hasattr(obj.auth, 'status')
+        assert obj.auth.status == AuthStatus.AVAILABLE  # from fixtures
 
         assert 'card' in body
         assert isinstance(body.get('card'), str)
 
-        assert "device" in body
-        assert isinstance(body.get("device"), dict)
-        assert "ip" in body.get("device")
-        assert body.get("device").get("ip") == ip
-        assert "port" in body.get("device")
-        assert body.get("device").get("port") == port
+        assert 'device' in body
+        assert isinstance(body.get('device'), dict)
+        assert 'ip' in body.get('device')
+        assert body.get('device').get('ip') == ip
+        assert 'port' in body.get('device')
+        assert body.get('device').get('port') == port
 
         # Data from fixture
         assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
@@ -2704,10 +2224,10 @@ class TestPayment(TestHelper):
         assert card.country == 'US'
         assert card.exp_month == 2
         assert card.exp_year == 2020
-        assert card.last4 == "4444"
+        assert card.last4 == '4444'
         assert card.name is None
         # Number is unchanged in send process
-        assert card.number == "4111111111111111"
+        assert card.number == '4111111111111111'
         assert card.zip_code is None
 
         assert isinstance(obj.auth, Auth)
@@ -2724,7 +2244,7 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auth_return_url_v2(self, monkeypatch, version = Version.API_V2):
+    def test_send_auth_return_url_v2(self, monkeypatch, version=Version.API_V2):
         self.conf.version = version
         obj = Payment()
         card = Card()
@@ -2749,7 +2269,7 @@ class TestPayment(TestHelper):
         ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
         number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
+        return_url = 'https://www.free.fr'  # from fixtures
 
         obj.amount = amount
         obj.auth = return_url
@@ -2766,14 +2286,14 @@ class TestPayment(TestHelper):
 
         assert len(responses.calls) == 0
 
-        monkeypatch.setenv("SERVER_ADDR", ip)
+        monkeypatch.setenv('SERVER_ADDR', ip)
 
         with pytest.raises(InvalidPortError):
             obj.send()
 
         assert len(responses.calls) == 0
 
-        monkeypatch.setenv("SERVER_PORT", str(port))
+        monkeypatch.setenv('SERVER_PORT', str(port))
 
         assert obj.send() == obj
         assert len(responses.calls) == 2
@@ -2792,20 +2312,19 @@ class TestPayment(TestHelper):
 
         body = json.loads(responses.calls[1].request.body)
         assert 'card' in body
-        assert isinstance(body.get('card'),str)
+        assert isinstance(body.get('card'), str)
         assert 'amount' in body
         assert body.get('amount') == amount
         assert 'currency' in body
         assert body.get('currency') == currency
 
         assert 'auth' in body
-        assert isinstance(body.get('auth'), dict)
-        assert 'return_url' in body.get('auth')
-        assert body.get('auth').get('return_url') == return_url
-        assert 'status' in body.get('auth')
-        assert body.get('auth').get('status') == AuthStatus.REQUEST
-
-
+        assert body.get('auth') is True
+        assert isinstance(obj.auth, AbstractObject)
+        assert hasattr(obj.auth, 'return_url')
+        assert obj.auth.return_url == return_url
+        assert hasattr(obj.auth, 'status')
+        assert obj.auth.status == AuthStatus.AVAILABLE  # from fixtures
 
         assert 'device' in body
         assert isinstance(body.get('device'), dict)
@@ -2852,7 +2371,7 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auth_object_v2(self, monkeypatch, version = Version.API_V2):
+    def test_send_auth_object_v2(self, monkeypatch, version=Version.API_V2):
         self.conf.version = version
         obj = Payment()
         card = Card()
@@ -2878,7 +2397,7 @@ class TestPayment(TestHelper):
         ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
         number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
+        return_url = 'https://www.free.fr'  # from fixtures
 
         obj.amount = amount
         obj.auth = auth
@@ -2891,7 +2410,6 @@ class TestPayment(TestHelper):
         card.exp_month = exp_month
         card.exp_year = exp_year
         card.number = number
-
 
         with pytest.raises(InvalidIpAddressError):
             obj.send()
@@ -2922,17 +2440,18 @@ class TestPayment(TestHelper):
 
         body = json.loads(responses.calls[1].request.body)
 
-        assert "amount" in body
-        assert body.get("amount") == amount
-        assert "currency" in body
-        assert body.get("currency") == currency
+        assert 'amount' in body
+        assert body.get('amount') == amount
+        assert 'currency' in body
+        assert body.get('currency') == currency
 
         assert 'auth' in body
-        assert isinstance(body.get('auth'), dict)
-        assert 'return_url' in body.get('auth')
-        assert body.get('auth').get('return_url') == return_url
-        assert 'status' in body.get('auth')
-        assert body.get('auth').get('status') == AuthStatus.REQUEST
+        assert body.get('auth') is True
+        assert isinstance(obj.auth, AbstractObject)
+        assert hasattr(obj.auth, 'return_url')
+        assert obj.auth.return_url == return_url
+        assert hasattr(obj.auth, 'status')
+        assert obj.auth.status == AuthStatus.AVAILABLE  # From fixtures
 
         assert 'card' in body
         assert isinstance(body.get('card'), str)
@@ -2945,15 +2464,10 @@ class TestPayment(TestHelper):
         assert body.get('device').get('port') == port
 
         # Data from fixture
-        assert obj.id == "paym_RMLytyx2xLkdXkATKSxHOlvC"
+        assert obj.id == 'paym_RMLytyx2xLkdXkATKSxHOlvC'
         assert isinstance(obj.created, date)
         assert obj.created.timestamp() == 1567094428
         assert obj.amount == 1337
-        assert obj.card is None
-        assert obj.currency == "eur"
-        assert obj.description == "Auth test"
-        assert obj.live_mode is False
-        assert obj.method is None
         assert obj.auth == auth
         assert obj.capture is True
         assert obj.card == card
@@ -2988,7 +2502,7 @@ class TestPayment(TestHelper):
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_auto_create_device_v2(self, monkeypatch, version = Version.API_V2):
+    def test_send_auto_create_device_v2(self, monkeypatch, version=Version.API_V2):
         self.conf.version = version
         obj = Payment()
         card = Card()
@@ -3090,13 +2604,13 @@ class TestPayment(TestHelper):
     # This is not how the API v2 work so we need two separate test
     # we also make many check on calls, if we made one test it would have been less readable
     @responses.activate
-    def test_send_delayed_capture_v2(self, version = Version.API_V2):
+    def test_send_delayed_capture_v2(self, version=Version.API_V2):
         self.conf.version = version
         obj = Payment()
 
         # Prepare responses
         with open(
-            "./tests/fixtures/payment/create-card-status-null-no-method.json"
+            './tests/fixtures/payment/create-card-status-null-no-method.json'
         ) as opened:
             fixture = opened.read()
         responses.add(responses.POST, obj.uri, body=fixture)
@@ -3104,17 +2618,17 @@ class TestPayment(TestHelper):
         uri = f'{obj.uri}{payment_id}'
 
         with open(
-            "./tests/fixtures/payment/create-card-status-null-with-card.json"
+            './tests/fixtures/payment/create-card-status-null-with-card.json'
         ) as opened:
             responses.add(responses.PATCH, uri, body=opened.read())
 
         with open(
-            "./tests/fixtures/payment/create-card-status-to-capture.json"
+            './tests/fixtures/payment/create-card-status-to-capture.json'
         ) as opened:
             responses.add(responses.PATCH, uri, body=opened.read())
 
         obj.amount = self.random_integer(50, 999999)
-        obj.currency = "eur"
+        obj.currency = 'eur'
 
         # Payment creation
 
@@ -3129,7 +2643,7 @@ class TestPayment(TestHelper):
         cvc = self.random_string(3)
         exp_month = self.random_integer(1, 12)
         exp_year = self.random_year()
-        number = "4242424242424242"
+        number = '4242424242424242'
 
         obj.card = Card()
         obj.card.cvc = cvc
@@ -3137,9 +2651,7 @@ class TestPayment(TestHelper):
         obj.card.exp_year = exp_year
         obj.card.number = number
         # We create the card object directly in our payment we want to be sure this will still send the card correctly
-        with open(
-            './tests/fixtures/card/create-card.json'
-        ) as opened:
+        with open('./tests/fixtures/card/create-card.json') as opened:
             responses.add(responses.POST, obj.card.uri, body=opened.read())
 
         assert obj.send() == obj
@@ -3160,16 +2672,8 @@ class TestPayment(TestHelper):
 
         assert len(body.keys()) == 1
 
-        assert "card" in body
-        assert isinstance(body.get("card"), dict)
-        assert "cvc" in body.get("card")
-        assert body.get("card").get("cvc") == cvc
-        assert "exp_month" in body.get("card")
-        assert body.get("card").get("exp_month") == exp_month
-        assert "exp_year" in body.get("card")
-        assert body.get("card").get("exp_year") == exp_year
-        assert "number" in body.get("card")
-        assert body.get("card").get("number") == number
+        assert 'card' in body
+        assert isinstance(body.get('card'), str)
 
         # Change status
 
@@ -3182,13 +2686,13 @@ class TestPayment(TestHelper):
 
         assert len(body.keys()) == 1
 
-        assert "status" in body
-        assert body.get("status") == PaymentStatus.CAPTURE
+        assert 'status' in body
+        assert body.get('status') == PaymentStatus.CAPTURE
 
     # We check that the payment.customer sent is the same as the payment.customer received in V1
     # This is not how the API v2 work so we need two separate test
     @responses.activate
-    def test_send_without_method_v2(self, version =Version.API_V2):
+    def test_send_without_method_v2(self, version=Version.API_V2):
         self.conf.version = version
         obj = Payment()
 
@@ -3236,7 +2740,7 @@ class TestPayment(TestHelper):
         obj.currency = currency
 
         assert obj.send() == obj
-        assert len(responses.calls) ==  2
+        assert len(responses.calls) == 2
 
         # Data sent
         print(responses.calls[0].request.body)
@@ -3280,9 +2784,9 @@ class TestPayment(TestHelper):
         assert customer.id == 'cust_IYsHodYTugeBndSIOdm6rnBA'
 
     # The endpoint is not the same in V1 and V2 this is a big change so we separate the two test
-    @pytest.mark.parametrize('host',TestHelper.host_provider())
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
     @responses.activate
-    def test_uri_v2(self, host, version = Version.API_V2):
+    def test_uri_v2(self, host, version=Version.API_V2):
         self.conf.version = version
         self.conf.host = host
         obj = Payment()
@@ -3291,8 +2795,12 @@ class TestPayment(TestHelper):
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == f'https://{self.conf.host}/v{self.conf.version}/payments/{uid}'
+        assert (
+            obj.uri == f'https://{self.conf.host}/v{self.conf.version}/payments/{uid}'
+        )
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
-#endregion
+
+
+# endregion

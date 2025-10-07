@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .core import AbstractAmount
-from .core import AbstractObject
-from .core import AbstractSearch
-from .core.decorators import populate_on_call
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_object import AbstractObject
+from .core.abstract_search import AbstractSearch
+from .core.decorators.populate_on_call import populate_on_call
 from .payment import Payment
 
 

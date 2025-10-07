@@ -865,12 +865,12 @@ dev = [
     { name = "pytz" },
     { name = "responses", specifier = "~=0.25" },
     { name = "ruff", specifier = "~=0.12" },
-    { name = "types-pexpect", specifier = "~=4.9.0" },
-    { name = "types-pygments", specifier = "~=2.19.0" },
+    { name = "types-pexpect", specifier = "~=4.9" },
+    { name = "types-pygments", specifier = "~=2.19" },
     { name = "types-pytz" },
-    { name = "types-pyyaml", specifier = "~=6.0.12" },
-    { name = "types-requests", specifier = "~=2.32.4" },
-    { name = "types-setuptools", specifier = "~=80.9.0" },
+    { name = "types-pyyaml", specifier = "~=6.0" },
+    { name = "types-requests", specifier = "~=2.32" },
+    { name = "types-setuptools", specifier = "~=80.9" },
 ]
 
 [[package]]

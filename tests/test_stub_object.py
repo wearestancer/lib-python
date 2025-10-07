@@ -13,8 +13,8 @@ import responses
 
 from pytz import timezone as tz
 
-from stancer import Card
-from stancer import Config
+from stancer.card import Card
+from stancer.config import Config
 
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
@@ -456,7 +456,7 @@ class TestStubObject(TestHelper):
 
         conf.mode = Config.LIVE_MODE
 
-        responses.add(responses.PATCH, f'{location}/{uid}', json={'id': uid})
+        responses.add(responses.PATCH, f'{location}{uid}', json={'id': uid})
 
         # Modified object allows new calls
         obj.string2 = self.random_string(20)
@@ -494,7 +494,6 @@ class TestStubObject(TestHelper):
         assert result.find(f'"card1":{{"number":"{card1.number}"}}') > 0
         assert result.find('"created"') == -1
         assert result.find('"card2"') == -1
-        assert obj.to_api_request() == result
 
         # Inner object may send their ID
         card2 = Card(self.random_string(29))
@@ -521,7 +520,7 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert result == f'"{uid}"'
-        assert obj.to_api_request() == result
+        assert obj.to_json() == result
 
         # Unless it was modified
         obj.string2 = self.random_string(20)
@@ -529,7 +528,7 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
-        assert obj.to_api_request() == result
+        assert obj.to_json() == result
 
         result = json.loads(result)
 
@@ -549,7 +548,6 @@ class TestStubObject(TestHelper):
         assert isinstance(result, str)
         assert result.find('"card1"') == -1
         assert result.find(f'"card2":{{"cvc":"{card2.cvc}"}}') > 0
-        assert obj.to_api_request() == result
 
         # Do not export empty object
         obj.card2 = Card()
@@ -559,4 +557,3 @@ class TestStubObject(TestHelper):
         assert isinstance(result, str)
         assert result.find('"card1"') == -1
         assert result.find('"card2"') == -1
-        assert obj.to_api_request() == result

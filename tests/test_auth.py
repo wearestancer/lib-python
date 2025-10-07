@@ -1,16 +1,14 @@
 """Test auth object"""
 
+import json
+
 import pytest
 
-import json
-from stancer import Auth
-from stancer import AuthStatus
-from stancer.core import AbstractObject
-from stancer.core.enum import Version
+from stancer.auth import Auth
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.enum.version import Version
 from stancer.exceptions import InvalidUrlError
-
-from .TestHelper import TestHelper
-from stancer.exceptions import InvalidUrlError
+from stancer.status.auth import AuthStatus
 
 from .TestHelper import TestHelper
 
@@ -25,14 +23,14 @@ class TestAuth(TestHelper):
         assert auth.redirect_url is None
 
         with pytest.raises(AttributeError):
-            auth.redirect_url = f"https://{self.random_string(15)}"
+            auth.redirect_url = f'https://{self.random_string(15)}'
 
         params = {
-            "redirect_url": f"https://{self.random_string(50)}",
+            'redirect_url': f'https://{self.random_string(50)}',
         }
         auth.hydrate(**params)
 
-        assert auth.redirect_url == params["redirect_url"]
+        assert auth.redirect_url == params['redirect_url']
 
     def test_return_url_v1(self):
         auth = Auth()
@@ -45,8 +43,7 @@ class TestAuth(TestHelper):
 
         assert auth.return_url == return_url
 
-        exported = auth.to_api_request()
-        assert exported == auth.to_json()
+        exported = auth.to_json()
 
         assert isinstance(exported, str)
         # As the api V2 only accept boolean, even thought we have a Auth object, our json will only be a bool.
@@ -55,8 +52,8 @@ class TestAuth(TestHelper):
     def test_return_url_v2(self):
         auth = Auth()
         self.conf.version = Version.API_V2
-        bad_url = f"http://{self.random_string(50)}"
-        return_url = f"https://{self.random_string(50)}"
+        bad_url = f'http://{self.random_string(50)}'
+        return_url = f'https://{self.random_string(50)}'
 
         with pytest.raises(InvalidUrlError):
             auth.return_url = bad_url
@@ -67,22 +64,20 @@ class TestAuth(TestHelper):
 
         assert auth.return_url == return_url
 
-        exported = auth.to_api_request()
-        assert exported != auth.to_json()
+        exported = auth.to_json()
 
         assert isinstance(exported, str)
         result = json.loads(exported)
         # As the api V2 only accept boolean, even thought we have a Auth object, our json will only be a bool.
         assert result is True
-        assert auth.to_json().find(f'"return_url":"{return_url}"') > 0
+        assert auth.to_json_repr() is True
 
     def test_status_v1(self):
         auth = Auth()
         self.conf.version = Version.API_V1
         assert auth.status == AuthStatus.REQUEST
 
-        exported = auth.to_api_request()
-        assert exported == auth.to_json()
+        exported = auth.to_json()
 
         assert isinstance(exported, str)
         assert exported.find('status') > 0
@@ -95,11 +90,10 @@ class TestAuth(TestHelper):
         self.conf.version = Version.API_V2
         assert auth.status == AuthStatus.REQUEST
 
-        exported = auth.to_api_request()
-        assert exported != auth.to_json()
+        exported = auth.to_json()
 
         assert isinstance(exported, str)
-        assert auth.to_json().find('status') > 0
+        assert auth.to_json_repr() is True
 
         result = json.loads(exported)
         assert result is True

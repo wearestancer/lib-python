@@ -5,8 +5,8 @@ import random
 
 import pytest
 
-from stancer import Config
-from stancer.core.enum import Version
+from stancer.config import Config
+from stancer.core.enum.version import Version
 
 from ..TestHelper import TestHelper
 
@@ -77,5 +77,6 @@ class FunctionalTestHelper(TestHelper):
         name = str(tested_object.__class__.__name__)
         return (
             f'No such {name.lower()} {format(tested_object.id)}'
-            if self.conf.version == Version.API_V1 else
-            f'{name.capitalize()} `{format(tested_object.id)}` not found')
+            if self.conf.version == Version.API_V1
+            else f'{name.capitalize()} `{format(tested_object.id)}` not found'
+        )
