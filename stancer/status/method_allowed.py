@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .base import BaseStatus
+from stancer.status.base import BaseStatus
 
 
 class MethodAllowed(BaseStatus):

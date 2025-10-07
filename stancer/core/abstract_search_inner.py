@@ -1,17 +1,16 @@
-from typing import TYPE_CHECKING
-from .abstract_search import AbstractSearch
+from typing import Type
 
-if TYPE_CHECKING:
-    from . import InnerSearchObject
-    from . import AbstractObject
+from stancer.core import AbstractObject
+from stancer.core import AbstractSearch
+from stancer.core import InnerSearchObject
 
 
 class AbstractSearchInner(AbstractSearch):
     def list_inner(
         self,
-        inner_search_object: "InnerSearchObject",
-        searched_class: "AbstractObject",
-        **kwargs
+        inner_search_object: InnerSearchObject,
+        searched_class: Type[AbstractObject],
+        **kwargs,
     ):
         """
         List searched_class elements, linked to our instance.
@@ -31,6 +30,7 @@ class AbstractSearchInner(AbstractSearch):
         Returns:
             Generator.
         """
-        params = searched_class.get_param(**kwargs)
-
-        return self._create_generator(inner_search_object, searched_class, **params)
+        if hasattr(searched_class, 'get_param'):
+            params = searched_class.get_param(**kwargs)
+            return self._create_generator(inner_search_object, searched_class, **params)
+        return self._create_generator(inner_search_object, searched_class)

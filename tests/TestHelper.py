@@ -32,15 +32,6 @@ from stancer.exceptions import UnauthorizedError
 class TestHelper:
     """Add some helper for tests."""
 
-    @pytest.fixture
-    def version_1(self):
-        self.conf.version = 1
-
-    @pytest.fixture
-    def version_2(self):
-        self.conf.version = 2
-
-
     def setup_method(self, method):
         self.conf = Config()
 
@@ -299,9 +290,4 @@ class TestHelper:
 
     @classmethod
     def host_provider(cls):
-        return [
-            'api.stancer.com',
-            'api.dev.stancer.com',
-            Config().host
-
-        ]
+        return ['api.stancer.com', 'api.dev.stancer.com', Config().host]

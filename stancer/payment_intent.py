@@ -3,10 +3,13 @@
 import datetime
 import re
 from typing import Generator
-from typing import Optional
 from typing import TypeVar
-
+from typing import Type
+from typing import Any
 from stancer.exceptions.invalid_value import InvalidSearchFilter
+from .core.enum import Version
+from .core.payment import PaymentCard
+from .core.payment import PaymentCustomer
 
 from .core.request import Request
 
@@ -20,10 +23,9 @@ from .core import AbstractSearchInner
 from .core import InnerSearchObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
-from .core.helpers import coerce_methods_allowed, coerce_status
-from .exceptions import InvalidAmountError
-from .exceptions import InvalidCardError
-from .exceptions import InvalidCustomerError
+from .core.helpers import coerce_methods_allowed
+from .core.helpers import coerce_status
+from .exceptions import InvalidAmountError, MissingPaymentMethodError
 from .exceptions import InvalidPaymentIntentCaptureError
 from .exceptions import InvalidPaymentIntentDescriptionError
 from .exceptions import InvalidPaymentIntentOrderIdError
@@ -34,43 +36,42 @@ from .exceptions import InvalidUrlError
 from .exceptions import StancerNotImplementedError
 from .exceptions import MissingPaymentIdError
 
-CurrentInstance = TypeVar("CurrentInstance", bound="PaymentIntent")
+CurrentInstance = TypeVar('CurrentInstance', bound='PaymentIntent')
 
 ORDER_ID_MAX_LEN = 36
 
 
-class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
+class PaymentIntent(
+    AbstractObject, AbstractAmount, AbstractSearchInner, PaymentCard, PaymentCustomer
+):
+    _ENDPOINT = 'payment_intents'
 
-    _ENDPOINT = "payment_intents"  # pylint: disable=invalid-name
-
-    _version = 2
+    _version = Version.API_V2
 
     _allowed_attributes = [
-        "capture",
-        "card",
-        "customer",
-        "created_at",
-        "description",
-        "metadata",
-        "methods_allowed",
-        "order_id",
-        "return_url",
-        "sepa",
-        "status",
-        "threeds",
-        "url",
+        'capture',
+        'created_at',
+        'description',
+        'metadata',
+        'methods_allowed',
+        'order_id',
+        'return_url',
+        'sepa',
+        'status',
+        'threeds',
+        'url',
     ]
 
     @property
-    def _init_sepa(self) -> Sepa:
+    def _init_sepa(self) -> Type[Sepa]:
         return Sepa
 
     @property
-    def _init_card(self) -> Card:
+    def _init_card(self) -> Type[Card]:
         return Card
 
     @property
-    def _init_customer(self) -> Customer:
+    def _init_customer(self) -> Type[Customer]:
         return Customer
 
     @property
@@ -85,76 +86,72 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Returns:
             bool: If the Payment intent must be captured or not.
         """
-        return self._data.get("capture")
+        return self._data.get('capture')
 
     @capture.setter
     @validate_type(bool, throws=InvalidPaymentIntentCaptureError)
     def capture(self, value: bool):
-        self._data["capture"] = value
+        self._data['capture'] = value
+
+    # @property
+    # @populate_on_call
+    # def card(self) -> Optional[Card]:
+    #     """
+    #     Source card for the payment intent.
+    #
+    #     Args:
+    #         value (Card): A valid `Card` object.
+    #
+    #     Returns:
+    #         Card: Card used for the payment intent.
+    #
+    #     Raises:
+    #         InvalidCardError: When card is invalid.
+    #     """
+    #     if self._data.get("card") is None:
+    #         return None
+    #
+    #     return Card(self._data.get("card"))
+    #
+    # @card.setter
+    # @validate_type(Card, throws=InvalidCardError)
+    # def card(self, value: Card):
+    #     if value.is_not_complete:
+    #         message = "You must provide a complete Card."
+    #         raise InvalidCardError(message)
+    #     self._data["card"] = value.id
+    #
+    # @property
+    # @populate_on_call
+    # def customer(self) -> Optional[Customer]:
+    #     """
+    #     Customer handling the payment.
+    #
+    #     Args:
+    #         value (Customer): A valid `Customer` object.
+    #
+    #     Returns:
+    #         Customer: Customer handling the payment.
+    #
+    #     Raises:
+    #         InvalidCustomerError: When customer is invalid.
+    #     """
+    #     if self._data.get("customer") is None:
+    #         return None
+    #     return Customer(self._data.get("customer"))
+    #
+    # @customer.setter
+    # @validate_type(Customer, throws=InvalidCustomerError)
+    # def customer(self, value: Customer):
+    #     if value.is_not_complete:
+    #         message = "You must provide a complete Customer."
+    #         raise InvalidCustomerError(message)
+    #     self._data["customer"] = value
 
     @property
     @populate_on_call
-    def card(self) -> Optional[Card]:
-        """
-        Source card for the payment intent.
-
-        Args:
-            value (Card): A valid `Card` object.
-
-        Returns:
-            Card: Card used for the payment intent.
-
-        Raises:
-            InvalidCardError: When card is invalid.
-        """
-        if self._data.get("card") is None:
-            return None
-
-        return Card(self._data.get("card"))
-
-    @card.setter
-    @validate_type(Card, throws=InvalidCardError)
-    def card(self, value: Card):
-        if value.is_not_complete:
-            message = "You must provide a complete Card."
-            raise InvalidCardError(message)
-        if value.id is None:
-            value.send()
-        self._data["card"] = value.id
-
-    @property
-    @populate_on_call
-    def customer(self) -> Optional[Customer]:
-        """
-        Customer handling the payment.
-
-        Args:
-            value (Customer): A valid `Customer` object.
-
-        Returns:
-            Customer: Customer handling the payment.
-
-        Raises:
-            InvalidCustomerError: When customer is invalid.
-        """
-        if self._data.get("customer") is None:
-            return None
-        return Customer(self._data.get("customer"))
-
-    @customer.setter
-    @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer):
-        if value.is_not_complete:
-            message = "You must provide a complete Customer."
-            raise InvalidCustomerError(message)
-        if value.id is None:
-            value.send()
-        self._data["customer"] = value.id
-
-    @property
-    @populate_on_call
-    def created_at(self) -> datetime:
-        return self._data.get("created_at")
+    def created_at(self) -> datetime.datetime:
+        return self._data.get('created_at')
 
     # We overwrite created.
     @property
@@ -171,8 +168,8 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
                 delete, refund it.
         """
         message = (
-            "You are not allowed to delete a payment intent, "
-            "you need to refund it instead."
+            'You are not allowed to delete a payment intent, '
+            'you need to refund it instead.'
         )
 
         raise StancerNotImplementedError(message)
@@ -192,12 +189,12 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Raises:
             InvalidPaymentIntentDescriptionError: When the description is invalid.
         """
-        return self._data.get("description")
+        return self._data.get('description')
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentIntentDescriptionError)
     def description(self, value: str):
-        self._data["description"] = value
+        self._data['description'] = value
 
     @classmethod
     def filter_list_params(cls, **kwargs) -> dict:
@@ -213,39 +210,39 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
             Filtered arguments.
         """
         params = {}
-        base_message = "A valid {} must be between {} and {} characters."
+        base_message = 'A valid {} must be between {} and {} characters.'
 
-        if "order_id" in kwargs:
-            params["order_id"] = cls.validate_order_id_params(
-                kwargs["order_id"], ORDER_ID_MAX_LEN, base_message
+        if 'order_id' in kwargs:
+            params['order_id'] = cls.validate_order_id_params(
+                kwargs['order_id'], ORDER_ID_MAX_LEN, base_message
             )
-        if "order" in kwargs:
-            params["order"] = cls.validate_order_params(kwargs["order"])
+        if 'order' in kwargs:
+            params['order'] = cls.validate_order_params(kwargs['order'])
 
-        if "card" in kwargs:
-            card = kwargs["card"]
+        if 'card' in kwargs:
+            card = kwargs['card']
             if isinstance(card, Card) and card.id is not None:
                 card = card.id
-            if not (isinstance(card, str) and re.match("^card_[a-zA-Z0-9]{24}$", card)):
-                raise InvalidSearchFilter("Card must be a card ID.")
-            params["card"] = card
+            if not (isinstance(card, str) and re.match('^card_[a-zA-Z0-9]{24}$', card)):
+                raise InvalidSearchFilter('Card must be a card ID.')
+            params['card'] = card
 
-        if "sepa" in kwargs:
-            sepa = kwargs["sepa"]
+        if 'sepa' in kwargs:
+            sepa = kwargs['sepa']
             if isinstance(sepa, Sepa) and sepa.id is not None:
                 sepa = sepa.id
-            if not (isinstance(sepa, str) and re.match("^sepa_[a-zA-Z0-9]{24}$", sepa)):
-                raise InvalidSearchFilter("Sepa must be a sepa ID.")
-            params["sepa"] = sepa
+            if not (isinstance(sepa, str) and re.match('^sepa_[a-zA-Z0-9]{24}$', sepa)):
+                raise InvalidSearchFilter('Sepa must be a sepa ID.')
+            params['sepa'] = sepa
 
-        if "field" in kwargs:
+        if 'field' in kwargs:
             if not (
-                isinstance(kwargs["field"], str)
-                and (kwargs["field"] in ("created", "due"))
+                isinstance(kwargs['field'], str)
+                and (kwargs['field'] in ('created', 'due'))
             ):
                 raise InvalidSearchFilter("Field must be 'created' or 'due'.")
 
-            params["field"] = kwargs["field"]
+            params['field'] = kwargs['field']
 
         return params
 
@@ -262,19 +259,19 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
 
         if self.id is None:
             raise MissingPaymentIdError(
-                "you need an Id to acess inner route <id>/payments"
+                'you need an Id to acess inner route <id>/payments'
             )
 
         payments = self.list_inner(
             searched_class=Payment,
-            inner_search_object=InnerSearchObject(self, inner_route="payments"),
-            **kwargs
+            inner_search_object=InnerSearchObject(self, inner_route='payments'),
+            **kwargs,
         )
         return payments
 
     @property
     @populate_on_call
-    def metadata(self) -> any:
+    def metadata(self) -> Any:
         """
         Metadata for this payment intent.
 
@@ -285,11 +282,11 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
             any: The metadata for this payment intent.
 
         """
-        return self._data.get("metadata")
+        return self._data.get('metadata')
 
     @metadata.setter
-    def metadata(self, value: any):
-        self._data["metadata"] = value
+    def metadata(self, value: Any):
+        self._data['metadata'] = value
 
     @property
     @populate_on_call
@@ -306,14 +303,14 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Raises:
             InvalidPaymentIntentMethodAllowed: when the list of payment methods is invalid.
         """
-        return self._data.get("methods_allowed")
+        return self._data.get('methods_allowed')
 
     @methods_allowed.setter
     @validate_type(
         list, coerce=coerce_methods_allowed, throws=InvalidPaymentIntentMethodsAllowed
     )
     def methods_allowed(self, value: list):
-        self._data["methods_allowed"] = value
+        self._data['methods_allowed'] = value
 
     @property
     @populate_on_call
@@ -330,12 +327,12 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Raises:
             InvalidPaymentIntentOrderId: when the order ID is invalid.
         """
-        return self._data.get("order_id")
+        return self._data.get('order_id')
 
     @order_id.setter
     @validate_type(str, min=1, max=36, throws=InvalidPaymentIntentOrderIdError)
     def order_id(self, value: str):
-        self._data["order_id"] = value
+        self._data['order_id'] = value
 
     @property
     @populate_on_call
@@ -352,20 +349,20 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Raises:
             InvalidUrlError: when the url is not valid (or not secure http).
         """
-        return self._data.get("return_url")
+        return self._data.get('return_url')
 
     @return_url.setter
     @validate_type(
         str,
         validation=lambda v: (
-            None if v.startswith("https://") else "Must be an HTTPS URL"
+            None if v.startswith('https://') else 'Must be an HTTPS URL'
         ),
         throws=InvalidUrlError,
     )
     def return_url(self, value: str):
-        self._data["return_url"] = value
+        self._data['return_url'] = value
 
-    def send(self) -> CurrentInstance:
+    def send(self: CurrentInstance) -> CurrentInstance:
         """
         Create or Update the payment.
 
@@ -381,12 +378,20 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
                 (you may have forgotten the card number).
         """
         if self.amount is None:
-            message = "You must provide an amount before sending a payment."
+            message = 'You must provide an amount before sending a payment.'
             raise InvalidAmountError(message)
+
+        if self.card is not None and self.card.is_not_complete:
+            message = 'Your card is incomplete.'
+            raise MissingPaymentMethodError(message)
+
+        if self.sepa is not None and self.sepa.is_not_complete:
+            message = 'Your SEPA account is incomplete.'
+            raise MissingPaymentMethodError(message)
 
         return super().send()
 
-    def send_capture(self) -> CurrentInstance:
+    def send_capture(self: CurrentInstance) -> CurrentInstance:
         """
         A method to capture the payment intent manually.
 
@@ -397,10 +402,10 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         """
         if self.id is None:
             raise MissingPaymentIdError(
-                "you need an Id to acess inner route <id>/capture"
+                'you need an Id to acess inner route <id>/capture'
             )
 
-        Request().post(self, inner_route="/capture")
+        Request().post(self, inner_route='/capture')
         return self
 
     @property
@@ -418,20 +423,12 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Raises:
             InvalidSepaError: When sepa is invalid.
         """
-        if self._data.get("sepa") is None:
-            return None
-
-        return Sepa(self._data.get("sepa"))
+        return self._data.get('sepa')
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
     def sepa(self, value: Sepa):
-        if value.is_not_complete:
-            message = "You must provide a complete Sepa."
-            raise InvalidSepaError(message)
-        if value.id is None:
-            value.send()
-        self._data["sepa"] = value.id
+        self._data['sepa'] = value
 
     @property
     @populate_on_call
@@ -448,7 +445,7 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Raises:
             InvalidPaymentIntentStatus: When the payment intent status is invalid.
         """
-        return self._data.get("status")
+        return self._data.get('status')
 
     @property
     @populate_on_call
@@ -464,12 +461,12 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
             ThreedsStatus : The status of the threeds .
 
         """
-        return self._data.get("threeds")
+        return self._data.get('threeds')
 
     @threeds.setter
     @validate_type(str, coerce=coerce_status, throws=InvalidThreedsStatusError)
     def threeds(self, value: str):
-        self._data["threeds"] = value
+        self._data['threeds'] = value
 
     @property
     @populate_on_call
@@ -480,4 +477,4 @@ class PaymentIntent(AbstractObject, AbstractAmount, AbstractSearchInner):
         Returns:
             Url: The url of the payment page
         """
-        return self._data.get("url")
+        return self._data.get('url')

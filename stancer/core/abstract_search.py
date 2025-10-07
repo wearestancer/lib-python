@@ -83,7 +83,6 @@ class AbstractSearch(ABC):
 
         return order
 
-
     @abstractmethod
     def hydrate(self: Self, **params) -> Self:
         """
@@ -152,7 +151,7 @@ class AbstractSearch(ABC):
         return params
 
     @staticmethod
-    def _create_generator(obj, searched_class, **kwargs) -> Callable[[],Generator]:
+    def _create_generator(obj, searched_class, **kwargs) -> Callable[[], Generator]:
         """
         Create a generator that will iterate on all the object on a given route.
 
@@ -203,7 +202,7 @@ class AbstractSearch(ABC):
         limit: int = None,
         start: int = None,
         **kwargs,
-    ) -> Callable[[],Generator] :
+    ) -> Callable[[], Generator]:
         """
         List elements.
 

@@ -108,7 +108,7 @@ class Request:
 
         response = requests.request(
             method,
-            f'{obj.uri}{kwargs.pop("inner_route","")}',
+            f'{obj.uri}{kwargs.pop("inner_route", "")}',
             auth=(username, ''),
             data=body,
             params=kwargs,

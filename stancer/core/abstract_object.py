@@ -61,11 +61,10 @@ class AbstractObject:
         self._data: dict[str, Any] = {}
         self._bypass = False
         self._populated = True
-        self._config = config
         # init modified flags
         self.__modified: set[str] | None = None
         del self._modified
-        if self._version > self._config.version:
+        if self._version > Config().version:
             raise StancerApiVersionError
         self.hydrate(**self._default_values)
 
@@ -135,6 +134,16 @@ class AbstractObject:
                 allowed.update(parent._allowed_attributes)  # pylint: disable=protected-access
 
         return allowed
+
+    @classmethod
+    def _get_flat_attributes(cls) -> set[str]:
+        flat_attributes = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_flat_attributes'):
+                flat_attributes.update(parent._flat_attributes)  # pylint: disable=protected-access
+
+        return flat_attributes
 
     @classmethod
     def _get_datetime_property(cls) -> set[str]:
@@ -308,7 +317,9 @@ class AbstractObject:
                     else:
                         value = tmp(value)
 
-                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
+                elif isinstance(tmp, AbstractObject) and not isinstance(
+                    value, AbstractObject
+                ):
                     val = {'id': value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access

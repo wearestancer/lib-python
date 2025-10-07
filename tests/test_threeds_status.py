@@ -1,6 +1,6 @@
 """Test payment object"""
 
-from stancer import ThreedsStatus
+from stancer.status import ThreedsStatus
 from .TestHelper import TestHelper
 
 
@@ -14,4 +14,3 @@ class TestThreedsStatus(TestHelper):
         assert ThreedsStatus.REQUIRED == 'required'
         assert ThreedsStatus.has_member('REQUIRED')
         assert ThreedsStatus.has_value('required')
-
