@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from typing import Union
 from typing import TYPE_CHECKING
 
 import requests
@@ -66,13 +65,14 @@ class Request:
 
         Args:
             obj: Target object.
+            kwargs: Arbitrary keyword arguments.
 
         Returns:
             Current instance of Request.
         """
         return self._request('patch', obj)
 
-    def post(self: Self, obj: 'AbstractObject') -> Self | str:
+    def post(self: Self, obj: 'AbstractObject', **kwargs) -> Self | str:
         """
         Send a POST HTTP request.
 

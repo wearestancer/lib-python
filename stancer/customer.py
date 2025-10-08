@@ -40,7 +40,7 @@ def validate_birth_date(value: str | date) -> date:
     try:
         return date.fromisoformat(value)
     except ValueError as exc:
-        raise InvalidCustomerDateBirthError from exc
+        raise InvalidCustomerDateBirthError() from exc
 
 
 class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):

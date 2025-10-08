@@ -1,7 +1,5 @@
-from typing import Optional
-
-from stancer.core.decorators import populate_on_call
-from stancer.core.decorators import validate_type
+from stancer.core.decorators.populate_on_call import populate_on_call
+from stancer.core.decorators.validate_type import validate_type
 from stancer.customer import Customer
 from stancer.exceptions import InvalidCustomerError
 
@@ -16,15 +14,14 @@ class PaymentCustomer:
         'customer',
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init internal data."""
-        self._data = {}
-        self.id = None
+        self._data: dict = {}
         self.method = None
 
     @property
     @populate_on_call
-    def customer(self) -> Optional[Customer]:
+    def customer(self) -> Customer | None:
         """
         Customer handling the payment.
 
@@ -41,5 +38,5 @@ class PaymentCustomer:
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer):
+    def customer(self, value: Customer) -> None:
         self._data['customer'] = value

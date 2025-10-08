@@ -1,6 +1,7 @@
 """Test payment object"""
 
 from stancer.status import PaymentIntentStatus
+
 from .TestHelper import TestHelper
 
 

@@ -48,7 +48,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @bic.setter
     @validate_type(str, name='BIC', throws=InvalidBicError)
-    def bic(self, value: str):
+    def bic(self, value: str) -> None:
         if len(value) != 8 and len(value) != 11:
             # Poorly test but I have nothing more to test
             raise InvalidBicError(f'"{value}" is not a valid BIC.')

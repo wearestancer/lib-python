@@ -6,10 +6,9 @@ from datetime import datetime
 from typing import Any
 
 from ..config import Config
+from ..exceptions import StancerApiVersionError
 from .decorators.populate_on_call import populate_on_call
 from .enum.version import Version
-from ..exceptions import StancerApiVersionError
-from .decorators import populate_on_call
 from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -27,18 +26,17 @@ except ImportError:
 class AbstractObject:
     """Manage common code between API object."""
 
-    _DEPRECATED_ENDPOINT: list[Union[str, int]] = []  # pylint: disable=invalid-name
-    _ENDPOINT: Union[None, str] = None  # pylint: disable=invalid-name
+    _DEPRECATED_ENDPOINT: dict[str, Any] = {}  # pylint: disable=invalid-name
+    _ENDPOINT: str | None = None  # pylint: disable=invalid-name
+    _allowed_attributes: list[str] = []
     _version = Version.API_V1
-    _allowed_attributes: list[Any] = []
-    _flat_attributes: list[Any] = []
     _datetime_property: list[str] = [
         'created',
     ]
     _default_values: dict[str, Any] = {}
-    _repr_ignore: set[Any] = set()
+    _repr_ignore: set[str] = set()
 
-    def __init__(self, uid: Union[str, None] = None, **kwargs):
+    def __init__(self, uid: str | None = None, **kwargs):
         """
         Create or get an API object.
 
@@ -65,7 +63,9 @@ class AbstractObject:
         self.__modified: set[str] | None = None
         del self._modified
         if self._version > Config().version:
-            raise StancerApiVersionError
+            raise StancerApiVersionError(
+                f'{self.__class__} is not implement on API V{Config().version}'
+            )
         self.hydrate(**self._default_values)
 
         if kwargs:
@@ -90,6 +90,16 @@ class AbstractObject:
             representation[key] = value
 
         return representation
+
+    @__dict__.setter
+    def __dict__(self, value: Any):
+        """
+        We don't modify the dict as our model fields aren't dynamic.
+
+        Returns:
+            Nothing.
+        """
+        raise ValueError(f'{value} cannot be added to our dataModel')
 
     def __repr__(self) -> str:
         args = []
@@ -189,7 +199,7 @@ class AbstractObject:
                 obj._populated = value
 
     @property
-    def id(self) -> str | None:  # pylint: disable=invalid-name
+    def id(self) -> str | None:
         """
         Return current object ID.
 
@@ -212,6 +222,17 @@ class AbstractObject:
             Creation date and time (into the API) during server side creation.
         """
         return self._data.get('created')
+
+    @property
+    @populate_on_call
+    def created_at(self) -> datetime | None:
+        """
+        Return the creation date and time of the current object.
+
+        Returns:
+            Creation date and time (into the API) during server side creation.
+        """
+        return self._data.get('created_at')
 
     def delete(self: Self) -> Self:
         """
@@ -345,9 +366,9 @@ class AbstractObject:
                     if prop is not None and prop.fset is not None:
                         prop.fset(self, value)
                         applied = True
-                except ValueError:
+                except ValueError as exc:
                     if not self._bypass:
-                        raise
+                        raise exc
 
                 if not applied:
                     self._data[key] = value
@@ -529,7 +550,10 @@ class AbstractObject:
             )
         }
         for key, value in items.items():
-            if key in self._flat_attributes and Config().version != Version.API_V1:
+            if (
+                key in self._get_flat_attributes()
+                and Config().version != Version.API_V1
+            ):
                 representation[key] = value.send().id
                 continue
             if hasattr(value, 'to_json_repr'):

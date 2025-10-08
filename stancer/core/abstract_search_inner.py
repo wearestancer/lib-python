@@ -1,8 +1,10 @@
+from typing import Callable
+from typing import Generator
 from typing import Type
 
-from stancer.core import AbstractObject
-from stancer.core import AbstractSearch
-from stancer.core import InnerSearchObject
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.abstract_search import AbstractSearch
+from stancer.core.inner_search_object import InnerSearchObject
 
 
 class AbstractSearchInner(AbstractSearch):
@@ -11,7 +13,7 @@ class AbstractSearchInner(AbstractSearch):
         inner_search_object: InnerSearchObject,
         searched_class: Type[AbstractObject],
         **kwargs,
-    ):
+    ) -> Callable[[], Generator]:
         """
         List searched_class elements, linked to our instance.
 

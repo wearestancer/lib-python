@@ -1,49 +1,95 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 import re
-from typing import Generator
-from typing import TypeVar
-from typing import Type
-from typing import Any
-from stancer.exceptions.invalid_value import InvalidSearchFilter
-from .core.enum import Version
-from .core.payment import PaymentCard
-from .core.payment import PaymentCustomer
 
-from .core.request import Request
+from typing import Any
+from typing import Callable
+from typing import Generator
+from typing import Type
+from typing import TypeVar
+
+from stancer.exceptions.invalid_value import InvalidSearchFilter
+from stancer.status.method_allowed import MethodAllowed
 
 from .card import Card
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_object import AbstractObject
+from .core.abstract_search_inner import AbstractSearchInner
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.enum.version import Version
+from .core.helpers.coerce_status import coerce_status
+from .core.inner_search_object import InnerSearchObject
+from .core.payment.card import PaymentCard
+from .core.payment.customer import PaymentCustomer
+from .core.payment.sepa import PaymentSepa
+from .core.request import Request
 from .customer import Customer
-from .payment import Payment
-from .sepa import Sepa
-from .core import AbstractAmount
-from .core import AbstractObject
-from .core import AbstractSearchInner
-from .core import InnerSearchObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
-from .core.helpers import coerce_methods_allowed
-from .core.helpers import coerce_status
-from .exceptions import InvalidAmountError, MissingPaymentMethodError
+from .exceptions import InvalidAmountError
 from .exceptions import InvalidPaymentIntentCaptureError
 from .exceptions import InvalidPaymentIntentDescriptionError
-from .exceptions import InvalidPaymentIntentOrderIdError
 from .exceptions import InvalidPaymentIntentMethodsAllowed
-from .exceptions import InvalidSepaError
+from .exceptions import InvalidPaymentIntentOrderIdError
 from .exceptions import InvalidThreedsStatusError
 from .exceptions import InvalidUrlError
-from .exceptions import StancerNotImplementedError
 from .exceptions import MissingPaymentIdError
+from .exceptions import MissingPaymentMethodError
+from .exceptions import StancerNotImplementedError
+from .payment import Payment
+from .sepa import Sepa
 
+try:
+    from typing import Never  # type: ignore
+except ImportError:
+    from typing import NoReturn as Never
 CurrentInstance = TypeVar('CurrentInstance', bound='PaymentIntent')
 
 ORDER_ID_MAX_LEN = 36
 
 
+def coerce_methods_allowed(
+    value: list[str | MethodAllowed] | str | MethodAllowed | None,
+) -> list[str | None]:
+    """
+    Transform a list of enum instance into a list string.
+
+    Args:
+        value: Value to coerce.
+
+    Returns:
+        Transformed string list if value was an enum, otherwise the list directly.
+    """
+    if not value or value is None:
+        raise InvalidPaymentIntentMethodsAllowed()
+
+    # Coerce is called before type validation.
+    # If we don't check the type first we can have a type error when we try to iterate
+    if not isinstance(value, list):
+        value = [value]
+
+    if not value or len(
+        list(
+            filter(
+                lambda tested_value: isinstance(tested_value, MethodAllowed)
+                or MethodAllowed.has_value(str(tested_value)),
+                value,
+            )
+        )
+    ) != len(value):
+        raise InvalidPaymentIntentMethodsAllowed()
+
+    return list(map(coerce_status, value))
+
+
 class PaymentIntent(
-    AbstractObject, AbstractAmount, AbstractSearchInner, PaymentCard, PaymentCustomer
-):
+    AbstractObject,
+    AbstractAmount,
+    AbstractSearchInner,
+    PaymentCard,
+    PaymentCustomer,
+    PaymentSepa,
+):  # pylint: disable='too-many-ancestors'
+    # our way of building object imposes many ancestors
     _ENDPOINT = 'payment_intents'
 
     _version = Version.API_V2
@@ -56,7 +102,6 @@ class PaymentIntent(
         'methods_allowed',
         'order_id',
         'return_url',
-        'sepa',
         'status',
         'threeds',
         'url',
@@ -76,7 +121,7 @@ class PaymentIntent(
 
     @property
     @populate_on_call
-    def capture(self) -> bool:
+    def capture(self) -> bool | None:
         """
         Does the payment need to be captured or not.
 
@@ -90,76 +135,10 @@ class PaymentIntent(
 
     @capture.setter
     @validate_type(bool, throws=InvalidPaymentIntentCaptureError)
-    def capture(self, value: bool):
+    def capture(self, value: bool) -> None:
         self._data['capture'] = value
 
-    # @property
-    # @populate_on_call
-    # def card(self) -> Optional[Card]:
-    #     """
-    #     Source card for the payment intent.
-    #
-    #     Args:
-    #         value (Card): A valid `Card` object.
-    #
-    #     Returns:
-    #         Card: Card used for the payment intent.
-    #
-    #     Raises:
-    #         InvalidCardError: When card is invalid.
-    #     """
-    #     if self._data.get("card") is None:
-    #         return None
-    #
-    #     return Card(self._data.get("card"))
-    #
-    # @card.setter
-    # @validate_type(Card, throws=InvalidCardError)
-    # def card(self, value: Card):
-    #     if value.is_not_complete:
-    #         message = "You must provide a complete Card."
-    #         raise InvalidCardError(message)
-    #     self._data["card"] = value.id
-    #
-    # @property
-    # @populate_on_call
-    # def customer(self) -> Optional[Customer]:
-    #     """
-    #     Customer handling the payment.
-    #
-    #     Args:
-    #         value (Customer): A valid `Customer` object.
-    #
-    #     Returns:
-    #         Customer: Customer handling the payment.
-    #
-    #     Raises:
-    #         InvalidCustomerError: When customer is invalid.
-    #     """
-    #     if self._data.get("customer") is None:
-    #         return None
-    #     return Customer(self._data.get("customer"))
-    #
-    # @customer.setter
-    # @validate_type(Customer, throws=InvalidCustomerError)
-    # def customer(self, value: Customer):
-    #     if value.is_not_complete:
-    #         message = "You must provide a complete Customer."
-    #         raise InvalidCustomerError(message)
-    #     self._data["customer"] = value
-
-    @property
-    @populate_on_call
-    def created_at(self) -> datetime.datetime:
-        return self._data.get('created_at')
-
-    # We overwrite created.
-    @property
-    @populate_on_call
-    def created(self) -> None:
-        return None
-
-    def delete(self):
+    def delete(self) -> Never:
         """
         Delete the current object.
 
@@ -176,7 +155,7 @@ class PaymentIntent(
 
     @property
     @populate_on_call
-    def description(self) -> str:
+    def description(self) -> str | None:
         """
         Open description for your uses
 
@@ -193,7 +172,7 @@ class PaymentIntent(
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentIntentDescriptionError)
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self._data['description'] = value
 
     @classmethod
@@ -246,7 +225,7 @@ class PaymentIntent(
 
         return params
 
-    def get_payment_list(self, **kwargs) -> Generator:
+    def get_payment_list(self, **kwargs) -> Callable[[], Generator]:
         """
         Get A generator on the list of payment linked to the payment intent.
 
@@ -290,7 +269,7 @@ class PaymentIntent(
 
     @property
     @populate_on_call
-    def methods_allowed(self) -> list:
+    def methods_allowed(self) -> list | None:
         """
         Methods allowed for this payment intent.
 
@@ -309,12 +288,12 @@ class PaymentIntent(
     @validate_type(
         list, coerce=coerce_methods_allowed, throws=InvalidPaymentIntentMethodsAllowed
     )
-    def methods_allowed(self, value: list):
+    def methods_allowed(self, value: list) -> None:
         self._data['methods_allowed'] = value
 
     @property
     @populate_on_call
-    def order_id(self) -> str:
+    def order_id(self) -> str | None:
         """
         External Order Id linked to the payment Intent (not unique).
 
@@ -331,12 +310,12 @@ class PaymentIntent(
 
     @order_id.setter
     @validate_type(str, min=1, max=36, throws=InvalidPaymentIntentOrderIdError)
-    def order_id(self, value: str):
+    def order_id(self, value: str) -> None:
         self._data['order_id'] = value
 
     @property
     @populate_on_call
-    def return_url(self) -> str:
+    def return_url(self) -> str | None:
         """
         Return URL.
 
@@ -359,7 +338,7 @@ class PaymentIntent(
         ),
         throws=InvalidUrlError,
     )
-    def return_url(self, value: str):
+    def return_url(self, value: str) -> None:
         self._data['return_url'] = value
 
     def send(self: CurrentInstance) -> CurrentInstance:
@@ -410,29 +389,7 @@ class PaymentIntent(
 
     @property
     @populate_on_call
-    def sepa(self) -> Sepa:
-        """
-        Source SEPA account for the payment intent.
-
-        Args:
-            value (Sepa): A valid `Sepa` object.
-
-        Returns:
-            Sepa: SEPA used for the payment intent.
-
-        Raises:
-            InvalidSepaError: When sepa is invalid.
-        """
-        return self._data.get('sepa')
-
-    @sepa.setter
-    @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value: Sepa):
-        self._data['sepa'] = value
-
-    @property
-    @populate_on_call
-    def status(self) -> str:
+    def status(self) -> str | None:
         """
         The status of the payment intent
 
@@ -449,7 +406,7 @@ class PaymentIntent(
 
     @property
     @populate_on_call
-    def threeds(self) -> str:
+    def threeds(self) -> str | None:
         """
         The status of the 3ds either 'required' if required or 'none' if not
         Threeds status is not auth status !
@@ -470,7 +427,7 @@ class PaymentIntent(
 
     @property
     @populate_on_call
-    def url(self) -> str:
+    def url(self) -> str | None:
         """
         The payment Page Url, to pay the Payment Intent
 

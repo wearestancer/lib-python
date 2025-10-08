@@ -2,8 +2,8 @@
 
 """API statuses"""
 
-from .method_allowed import MethodAllowed
 from .auth import AuthStatus
+from .method_allowed import MethodAllowed
 from .payment import PaymentStatus
 from .payment_intent import PaymentIntentStatus
 from .refund import RefundStatus

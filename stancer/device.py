@@ -20,7 +20,7 @@ except ImportError:
     Self = TypeVar('Self', bound='Device')  # type: ignore
 
 
-def ip_validation(value):
+def ip_validation(value) -> str | None:
     """
     IP address validation helper.
 

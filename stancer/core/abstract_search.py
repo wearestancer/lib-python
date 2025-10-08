@@ -6,6 +6,9 @@ from abc import ABC
 from abc import abstractmethod
 from datetime import datetime
 from time import time
+from typing import Any
+from typing import Callable
+from typing import Generator
 
 from ..exceptions import InvalidSearchFilter
 from ..exceptions import InvalidSearchResponse
@@ -41,19 +44,22 @@ class AbstractSearch(ABC):
         return {}
 
     @classmethod
-    def validate_order_id_params(cls,order_id: any, max_length: int, base_message: str) -> str:
+    def validate_order_id_params(
+        cls,
+        order_id: Any,
+        max_length: int,
+        base_message: str,
+    ) -> str:
         """
         Filter Order ids.
-        as it is a common params we add it to not reimplement it on all class
-
         Args:
-            order_id: A string representing order_id
+            order_id: A string representing order_id.
 
         Returns:
-            The validated order_id
+            The validated order_id.
 
         Raises:
-            InvalidSearchFilter if the order_id isn't a valid order_id
+            InvalidSearchFilter if the order_id isn't a valid order_id.
         """
         if not isinstance(order_id, str):
             raise InvalidSearchFilter('Order ID must be a string.')
@@ -65,7 +71,7 @@ class AbstractSearch(ABC):
         return order_id
 
     @classmethod
-    def validate_order_params(cls,order:any) -> str:
+    def validate_order_params(cls, order: Any) -> str:
         """
         Filter Order parameter.
 
@@ -78,10 +84,14 @@ class AbstractSearch(ABC):
         Raises:
             InvalidSearchFilter if the order isn't either asc or desc
         """
-        if not ( isinstance(order, str) and order in ('asc', 'desc' )):
+        if not isinstance(order, str):
+            raise InvalidSearchFilter('Order must be a string.')
+
+        tmp = order.lower()
+        if tmp not in ('asc', 'desc'):
             raise InvalidSearchFilter("Order must be 'desc' or 'asc'.")
 
-        return order
+        return tmp
 
     @abstractmethod
     def hydrate(self: Self, **params) -> Self:
@@ -128,26 +138,26 @@ class AbstractSearch(ABC):
                 created = int(created)
 
             if not isinstance(created, int) or created < 0:
-                message = "Created must be a position integer or a DateTime object."
+                message = 'Created must be a position integer or a DateTime object.'
 
                 raise InvalidSearchFilter(message)
 
             if created > time():
-                raise InvalidSearchFilter("Created must be in the past.")
+                raise InvalidSearchFilter('Created must be in the past.')
 
-            params["created"] = created
+            params['created'] = created
 
         if limit is not None:
             if not isinstance(limit, int) or limit < 1 or limit > 100:
-                raise InvalidSearchFilter("Limit must be between 1 and 100.")
+                raise InvalidSearchFilter('Limit must be between 1 and 100.')
 
-            params["limit"] = limit
+            params['limit'] = limit
 
         if start is not None:
             if not isinstance(start, int) or start < 0:
-                raise InvalidSearchFilter("Start must be a positive integer.")
+                raise InvalidSearchFilter('Start must be a positive integer.')
 
-            params["start"] = start
+            params['start'] = start
         return params
 
     @staticmethod
@@ -171,15 +181,15 @@ class AbstractSearch(ABC):
                 try:
                     response = json.loads(request.get(obj, update=False, **kwargs))
 
-                    keys = list(response.keys() - ["live_mode", "range"])
+                    keys = list(response.keys() - ['live_mode', 'range'])
 
                     if len(keys) != 1:
-                        raise InvalidSearchResponse("Results not found.")
+                        raise InvalidSearchResponse('Results not found.')
 
                     key = keys[0]
-                    has_more = response["range"]["has_more"]
-                    kwargs["start"] = (
-                        response["range"]["start"] + response["range"]["limit"]
+                    has_more = response['range']['has_more']
+                    kwargs['start'] = (
+                        response['range']['start'] + response['range']['limit']
                     )
 
                     for item in response[key]:
@@ -191,16 +201,16 @@ class AbstractSearch(ABC):
                 except json.JSONDecodeError as err:
                     has_more = False
 
-                    raise InvalidSearchResponse("Invalid results.") from err
+                    raise InvalidSearchResponse('Invalid results.') from err
 
         return gen()
 
     @classmethod
     def list(
         cls,
-        created: int | datetime = None,
-        limit: int = None,
-        start: int = None,
+        created: int | datetime | None = None,
+        limit: int | None = None,
+        start: int | None = None,
         **kwargs,
     ) -> Callable[[], Generator]:
         """
@@ -222,6 +232,6 @@ class AbstractSearch(ABC):
         params = cls.get_param(created, limit, start, **kwargs)
 
         if not params:
-            raise InvalidSearchFilter("Invalid search filters.")
+            raise InvalidSearchFilter('Invalid search filters.')
 
         return cls._create_generator(cls(), cls, **params)

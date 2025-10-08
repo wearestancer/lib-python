@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 import json
+
 from typing import Generator
 from uuid import uuid4
 
 import pytest
 import responses
 
-from stancer.core.enum.version import Version
+from stancer import Card
 from stancer import Customer
 from stancer import Payment
-from stancer import Card
 from stancer import PaymentIntent
 from stancer import Sepa
-from stancer.core import AbstractAmount
+from stancer.core.abstract_amount import AbstractAmount
+from stancer.core.enum.version import Version
 from stancer.exceptions import InvalidAmountError
 from stancer.exceptions import InvalidCardError
 from stancer.exceptions import InvalidCustomerError
@@ -24,14 +25,14 @@ from stancer.exceptions import InvalidPaymentIntentOrderIdError
 from stancer.exceptions import InvalidSepaError
 from stancer.exceptions import InvalidThreedsStatusError
 from stancer.exceptions import InvalidUrlError
+from stancer.exceptions import MissingPaymentIdError
 from stancer.exceptions import StancerApiVersionError
 from stancer.exceptions import StancerNotImplementedError
 from stancer.exceptions import StancerValueError
-from stancer.exceptions import MissingPaymentIdError
 from stancer.exceptions.invalid_value import InvalidSearchFilter
 from stancer.status import MethodAllowed
-from stancer.status import ThreedsStatus
 from stancer.status import PaymentIntentStatus
+from stancer.status import ThreedsStatus
 
 from .TestHelper import TestHelper
 
@@ -309,7 +310,7 @@ class TestPaymentIntent(TestHelper):
 
         with pytest.raises(
             InvalidSearchFilter,
-            match="Order must be 'desc' or 'asc'.",
+            match='Order must be a string.',
         ):
             PaymentIntent.filter_list_params(order=self.random_integer(10))
 
@@ -453,7 +454,7 @@ class TestPaymentIntent(TestHelper):
         assert payment_intent.is_modified
 
         payment_intent2 = PaymentIntent()
-        methods_allowed2 = ['apple_pay']
+        methods_allowed2 = ['sepa']
 
         payment_intent2.methods_allowed = methods_allowed2
 

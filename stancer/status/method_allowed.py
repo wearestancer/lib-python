@@ -8,4 +8,3 @@ class MethodAllowed(BaseStatus):
 
     CARD = 'card'
     SEPA = 'sepa'
-    APPLE_PAY = 'apple_pay'

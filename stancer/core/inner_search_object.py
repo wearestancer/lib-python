@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import AbstractObject
+from .abstract_object import AbstractObject
 
 
 class InnerSearchObject(AbstractObject):
@@ -9,9 +9,9 @@ class InnerSearchObject(AbstractObject):
         self.uri = f'{base_object.uri}/{inner_route}'
 
     @property
-    def uri(self):
+    def uri(self) -> str:
         return self._uri
 
     @uri.setter
-    def uri(self, value):
+    def uri(self, value) -> None:
         self._uri = value

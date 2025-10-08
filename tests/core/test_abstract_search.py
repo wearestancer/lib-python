@@ -3,8 +3,6 @@
 from datetime import datetime
 from datetime import timedelta
 from time import time
-import pytest
-
 
 import pytest
 

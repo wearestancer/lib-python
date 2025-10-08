@@ -15,6 +15,7 @@ class PaymentProtocol(Protocol):
 
     _allowed_attributes: list[str]
     _data: dict[str, Any]
+    _flat_attributes: list[str]
     _populated: bool
     amount: int | None
     currency: str | None
