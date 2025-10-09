@@ -1,7 +1,5 @@
 """Stub abstract object"""
 
-from typing import Type
-
 from stancer import Card
 from stancer.core import AbstractObject
 from stancer.core.decorators import populate_on_call
@@ -59,7 +57,7 @@ class StubObject(AbstractObject):
         return self._data.get('card1')
 
     @property
-    def _init_card1(self) -> Type[Card]:
+    def _init_card1(self) -> type[Card]:
         return Card
 
     @property
@@ -72,7 +70,7 @@ class StubObject(AbstractObject):
         self._data['card2'] = value
 
     @property
-    def _init_card2(self) -> Type[Card]:
+    def _init_card2(self) -> type[Card]:
         return Card
 
     @property
@@ -81,5 +79,5 @@ class StubObject(AbstractObject):
         return self._data.get('cards', [])
 
     @property
-    def _init_cards(self) -> Type[Card]:
+    def _init_cards(self) -> type[Card]:
         return Card

@@ -55,9 +55,7 @@ class TestFunctionalPayment(TestHelper):
         payment1 = Payment()
         payment1.amount = amount1
         payment1.currency = currency1
-        payment1.description = (
-            f'Automatic test for payments list, {amount1 / 100} {currency1.upper()}, 1/2',
-        )
+        payment1.description = f'Automatic test for payments list, {amount1 / 100} {currency1.upper()}, 1/2'
         payment1.order_id = order_id
         payment1.unique_id = unique_id
 

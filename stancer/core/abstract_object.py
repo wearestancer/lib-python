@@ -4,32 +4,34 @@ import json
 
 from datetime import datetime
 from typing import Any
-from typing import Optional
-from typing import Set
-from typing import TypeVar
-from typing import Union
 
 from ..config import Config
 from .decorators import populate_on_call
 from .request import Request
 
-CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='AbstractObject')  # type: ignore
 
 # pylint: disable=too-many-branches
 
 
-class AbstractObject(object):
+class AbstractObject:
     """Manage common code between API object."""
 
-    _ENDPOINT: Union[None, str] = None  # pylint: disable=invalid-name
-    _allowed_attributes: list[Any] = []
+    _ENDPOINT: str | None = None  # pylint: disable=invalid-name
+    _allowed_attributes: list[str] = []
     _datetime_property: list[str] = [
         'created',
     ]
     _default_values: dict[str, Any] = {}
-    _repr_ignore: set[Any] = set()
+    _repr_ignore: set[str] = set()
 
-    def __init__(self, uid: Union[str, None] = None, **kwargs):
+    def __init__(self, uid: str | None = None, **kwargs):
         """
         Create or get an API object.
 
@@ -49,12 +51,12 @@ class AbstractObject(object):
             An instance of the current object.
         """
         self._id = uid
-        self._data: Any = {}
+        self._data: dict[str, Any] = {}
         self._bypass = False
         self._populated = True
 
         # init modified flags
-        self.__modified: Union[Set, None] = None
+        self.__modified: set[str] | None = None
         del self._modified
 
         self.hydrate(**self._default_values)
@@ -90,7 +92,7 @@ class AbstractObject(object):
         Returns:
             Nothing.
         """
-        raise ValueError(value + ' cannot be added to our dataModel')
+        raise ValueError(f'{value} cannot be added to our dataModel')
 
     def __repr__(self) -> str:
         args = []
@@ -118,7 +120,7 @@ class AbstractObject(object):
         return self.__bypass
 
     @_bypass.setter
-    def _bypass(self, value: bool):
+    def _bypass(self, value: bool) -> None:
         self.__bypass = value
 
         for obj in self._data.values():
@@ -127,7 +129,7 @@ class AbstractObject(object):
                 obj._bypass = value
 
     @classmethod
-    def _get_allowed_attributes(cls) -> Set[str]:
+    def _get_allowed_attributes(cls) -> set[str]:
         allowed = set()
 
         for parent in cls.mro():
@@ -137,7 +139,7 @@ class AbstractObject(object):
         return allowed
 
     @classmethod
-    def _get_datetime_property(cls) -> Set[str]:
+    def _get_datetime_property(cls) -> set[str]:
         allowed = set()
 
         for parent in cls.mro():
@@ -147,18 +149,18 @@ class AbstractObject(object):
         return allowed
 
     @property
-    def _modified(self) -> Union[Set, None]:
+    def _modified(self) -> set[str] | None:
         return self.__modified
 
     @_modified.setter
-    def _modified(self, value: str):
+    def _modified(self, value: str) -> None:
         if self.__modified is None:
             self.__modified = {value}
         else:
             self.__modified.add(value)
 
     @_modified.deleter
-    def _modified(self):
+    def _modified(self) -> None:
         self.__modified = set()
 
         for obj in self._data.values():
@@ -171,7 +173,7 @@ class AbstractObject(object):
         return self.__populated
 
     @_populated.setter
-    def _populated(self, value: bool):
+    def _populated(self, value: bool) -> None:
         self.__populated = value
 
         for obj in self._data.values():
@@ -180,7 +182,7 @@ class AbstractObject(object):
                 obj._populated = value
 
     @property
-    def id(self) -> Optional[str]:
+    def id(self) -> str | None:
         """
         Return current object ID.
 
@@ -190,12 +192,12 @@ class AbstractObject(object):
         return self._id
 
     @id.deleter
-    def id(self):
+    def id(self) -> None:
         self._id = None
 
     @property
     @populate_on_call
-    def created(self) -> datetime:
+    def created(self) -> datetime | None:
         """
         Return the creation date and time of the current object.
 
@@ -204,7 +206,7 @@ class AbstractObject(object):
         """
         return self._data.get('created')
 
-    def delete(self: CurrentInstance) -> CurrentInstance:
+    def delete(self: Self) -> Self | None:
         """
         Delete the current object.
 
@@ -221,7 +223,7 @@ class AbstractObject(object):
 
         return self
 
-    def _hydrate_list(self, key, value):
+    def _hydrate_list(self, key: str, value: Any) -> list:
         tmp = getattr(self, key)
         init_method = '_init_' + key
         new_values = []
@@ -231,7 +233,7 @@ class AbstractObject(object):
             val = current_value
 
             if isinstance(current_value, str):
-                uid = current_value
+                uid: str | None = current_value
                 val = {}
             elif isinstance(current_value, AbstractObject):
                 uid = current_value.id
@@ -260,7 +262,7 @@ class AbstractObject(object):
 
         return new_values
 
-    def hydrate(self: CurrentInstance, **params) -> CurrentInstance:
+    def hydrate(self: Self, **params) -> Self:
         """
         Hydrate current object.
 
@@ -428,7 +430,7 @@ class AbstractObject(object):
 
     @property
     @populate_on_call
-    def live_mode(self) -> bool:
+    def live_mode(self) -> bool | None:
         """
         Indicate if we are in live or test mode.
 
@@ -439,7 +441,7 @@ class AbstractObject(object):
         """
         return self._data.get('live_mode')
 
-    def populate(self: CurrentInstance) -> CurrentInstance:
+    def populate(self: Self) -> Self:
         """
         Populate the current object.
 
@@ -459,7 +461,7 @@ class AbstractObject(object):
 
         return self
 
-    def send(self: CurrentInstance) -> CurrentInstance:
+    def send(self: Self) -> Self:
         """
         Save the current object.
 
@@ -496,7 +498,7 @@ class AbstractObject(object):
         """
         return json.dumps(self.to_json_repr(), separators=(',', ':'))
 
-    def to_json_repr(self) -> Union[dict, str]:
+    def to_json_repr(self) -> dict[str, Any] | str:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -509,13 +511,13 @@ class AbstractObject(object):
             return self.id
 
         items = {
-            k: v
-            for k, v in self._data.items()
-            if k in self._get_allowed_attributes()
-            and v is not None
+            key: value
+            for key, value in self._data.items()
+            if key in self._get_allowed_attributes()
+            and value is not None
             and (
-                (self._modified is not None and k in self._modified)
-                or (isinstance(v, AbstractObject) and v.is_modified)
+                (self._modified is not None and key in self._modified)
+                or (isinstance(value, AbstractObject) and value.is_modified)
             )
         }
         for key, value in items.items():

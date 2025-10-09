@@ -5,7 +5,7 @@ from .decorators import populate_on_call
 from .decorators import validate_type
 
 
-class AbstractName(object):  # pylint: disable=too-few-public-methods
+class AbstractName:  # pylint: disable=too-few-public-methods
     """Commun name management."""
 
     _allowed_attributes = [
@@ -31,6 +31,11 @@ class AbstractName(object):  # pylint: disable=too-few-public-methods
         return self._data.get('name')
 
     @name.setter
-    @validate_type(str, min=4, max=64, throws=InvalidNameError)
-    def name(self, value: str):
+    @validate_type(
+        str,
+        min=4,
+        max=64,
+        throws=InvalidNameError,
+    )
+    def name(self, value: str) -> None:
         self._data['name'] = value

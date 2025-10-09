@@ -26,7 +26,7 @@ from stancer.exceptions import StancerHTTPServerError
 from stancer.exceptions import UnauthorizedError
 
 
-class TestHelper(object):
+class TestHelper:
     """Add some helper for tests."""
 
     def setup_method(self, method):

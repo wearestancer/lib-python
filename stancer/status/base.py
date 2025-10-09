@@ -3,11 +3,19 @@
 from enum import Enum
 from typing import Any
 
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='BaseStatus')  # type: ignore
+
 
 class BaseStatus(Enum):
     """Base class for status."""
 
-    def __eq__(self: 'BaseStatus', value: Any) -> bool:
+    def __eq__(self: Self, value: Any) -> bool:
         """Test if a status equals a value."""
         return str(self) == str(value)
 

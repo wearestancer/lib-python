@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional
 
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -22,7 +21,7 @@ class Auth(AbstractObject):
 
     @property
     @populate_on_call
-    def redirect_url(self) -> Optional[str]:
+    def redirect_url(self) -> str | None:
         """
         Redirect URL.
 
@@ -33,7 +32,7 @@ class Auth(AbstractObject):
 
     @property
     @populate_on_call
-    def return_url(self) -> Optional[str]:
+    def return_url(self) -> str | None:
         """
         Return URL.
 
@@ -53,12 +52,12 @@ class Auth(AbstractObject):
         else 'Must be an HTTPS URL',
         throws=InvalidUrlError,
     )
-    def return_url(self, value: str):
+    def return_url(self, value: str) -> None:
         self._data['return_url'] = value
 
     @property
     @populate_on_call
-    def status(self) -> Optional[str]:
+    def status(self) -> str | None:
         """
         Current status.
 

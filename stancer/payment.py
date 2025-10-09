@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from typing import Optional
-from typing import Type
-from typing import TypeVar
+from typing import Any
 
 from .card import Card
 from .core import AbstractAmount
@@ -34,9 +32,17 @@ from .exceptions import StancerNotImplementedError
 from .sepa import Sepa
 from .status.payment import PaymentStatus
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
+
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='Payment')  # type: ignore
 
 ORDER_ID_MAX_LEN = 36
+
 UNIQUE_ID_MAX_LEN = 36
 
 
@@ -46,8 +52,8 @@ class Payment(
     AbstractCountry,
     AbstractSearch,
     PaymentAuth,
-    PaymentPage,
     PaymentRefund,
+    PaymentPage,
 ):
     """Representation of a payment."""
 
@@ -68,20 +74,20 @@ class Payment(
     ]
 
     @property
-    def _init_card(self) -> Type[Card]:
+    def _init_card(self) -> type[Card]:
         return Card
 
     @property
-    def _init_customer(self) -> Type[Customer]:
+    def _init_customer(self) -> type[Customer]:
         return Customer
 
     @property
-    def _init_sepa(self) -> Type[Sepa]:
+    def _init_sepa(self) -> type[Sepa]:
         return Sepa
 
     @property
     @populate_on_call
-    def capture(self) -> bool:
+    def capture(self) -> bool | None:
         """
         Do we need to capture the payment ?
 
@@ -106,7 +112,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def card(self) -> Card:
+    def card(self) -> Card | None:
         """
         Source card for the payment.
 
@@ -129,7 +135,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def customer(self) -> Customer:
+    def customer(self) -> Customer | None:
         """
         Customer handling the payment.
 
@@ -146,12 +152,12 @@ class Payment(
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer):
+    def customer(self, value: Customer) -> None:
         self._data['customer'] = value
 
     @property
     @populate_on_call
-    def date_bank(self) -> datetime:
+    def date_bank(self) -> datetime | None:
         """
         Value date.
 
@@ -160,7 +166,7 @@ class Payment(
         """
         return self._data.get('date_bank')
 
-    def delete(self):
+    def delete(self) -> None:
         """
         Delete the current object.
 
@@ -176,7 +182,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def description(self) -> str:
+    def description(self) -> str | None:
         """
         Open description for your uses.
 
@@ -193,12 +199,12 @@ class Payment(
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self._data['description'] = value
 
     @property
     @populate_on_call
-    def fee(self) -> datetime:
+    def fee(self) -> str | None:
         """
         Fee applied at checkout.
 
@@ -208,7 +214,7 @@ class Payment(
         return self._data.get('fee')
 
     @classmethod
-    def filter_list_params(cls, **kwargs) -> dict:
+    def filter_list_params(cls, **kwargs) -> dict[str, Any]:
         """
         Filter for list method.
 
@@ -310,7 +316,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def method(self) -> str:
+    def method(self) -> str | None:  # type: ignore
         """
         Payment method used.
 
@@ -321,7 +327,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def order_id(self) -> str:
+    def order_id(self) -> str | None:
         """
         External order id.
 
@@ -347,12 +353,12 @@ class Payment(
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
-    def order_id(self, value: str):
+    def order_id(self, value: str) -> None:
         self._data['order_id'] = value
 
     @property
     @populate_on_call
-    def response(self) -> str:
+    def response(self) -> str | None:
         """
         API response code.
 
@@ -366,7 +372,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def response_message(self) -> Optional[str]:
+    def response_message(self) -> str | None:
         """
         API response message.
 
@@ -386,7 +392,7 @@ class Payment(
 
         return responses.get(response)
 
-    def send(self: CurrentInstance) -> CurrentInstance:
+    def send(self: Self) -> Self:
         """
         Create or update the payment.
 
@@ -424,7 +430,7 @@ class Payment(
 
     @property
     @populate_on_call
-    def sepa(self) -> Sepa:
+    def sepa(self) -> Sepa | None:
         """
         Source SEPA account for the payment.
 
@@ -441,13 +447,13 @@ class Payment(
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value: Sepa):
+    def sepa(self, value: Sepa) -> None:
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
 
     @property
     @populate_on_call
-    def status(self) -> str:
+    def status(self) -> str | None:
         """
         Payment status.
 
@@ -458,12 +464,12 @@ class Payment(
 
     @status.setter
     @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
-    def status(self, value: str):
+    def status(self, value: str) -> None:
         self._data['status'] = value
 
     @property
     @populate_on_call
-    def unique_id(self) -> str:
+    def unique_id(self) -> str | None:
         """
         External unique ID.
 
@@ -491,5 +497,5 @@ class Payment(
         name='Unique ID',
         throws=InvalidPaymentUniqueIdError,
     )
-    def unique_id(self, value: str):
+    def unique_id(self, value: str) -> None:
         self._data['unique_id'] = value

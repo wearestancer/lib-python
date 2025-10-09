@@ -1,24 +1,28 @@
 # -*- coding: utf-8 -*-
+from typing import TYPE_CHECKING
 from typing import Any
-
+from typing import Callable
 from ...exceptions import InvalidAmountError
 from ...status.refund import RefundStatus
 from ..decorators import populate_on_call
 from ..decorators import validate_type
 
+if TYPE_CHECKING:
+    from ...refund import Refund
 
-class PaymentRefund(object):
+
+class PaymentRefund:
     """Specific property and method for payment refunds."""
 
     _allowed_attributes: list[str] = []
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init internal data."""
-        self._data = {}
-        self.amount = None
-        self.currency = None
-        self.populate = lambda: None
-        self._populated = None
+        self._data: dict[str, Any] = {}
+        self.amount: int | None = None
+        self.currency: str | None = None
+        self.populate: Callable[[], None] = lambda: None
+        self._populated: Any = None
 
     @property
     def _init_refunds(self):
@@ -46,20 +50,19 @@ class PaymentRefund(object):
             InvalidAmountError: When trying to refund more than paid.
             InvalidAmountError: When the amount is invalid.
         """
-        # Prevent import loop
         from ...refund import Refund  # pylint: disable=import-outside-toplevel
 
         refund = Refund()
         params: dict[str, Any] = {
             'payment': self,
         }
-
         if amount:
             if amount > self.refundable_amount:
+                currency = self.currency.upper() if self.currency else ''
                 message = (
-                    f'You are trying to refund ({amount / 100:.2f} {self.currency.upper()}) '
+                    f'You are trying to refund ({amount / 100:.2f} {currency}) '
                     f'more than possible ({self.refundable_amount / 100:.2f} '
-                    f'{self.currency.upper()}).'
+                    f'{currency}).'
                 )
 
                 raise InvalidAmountError(message)
@@ -98,11 +101,13 @@ class PaymentRefund(object):
         Returns:
             int: Amount left to refund.
         """
+        if self.amount is None or self.refunded_amount is None:
+            raise InvalidAmountError
         return self.amount - self.refunded_amount
 
     @property
     @populate_on_call
-    def refunds(self):
+    def refunds(self) -> list['Refund']:
         """
         Returns refund's list.
 

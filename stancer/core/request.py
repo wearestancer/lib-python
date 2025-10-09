@@ -1,26 +1,32 @@
 # -*- coding: utf-8 -*-
 
-from typing import Any
-from typing import TypeVar
-from typing import Union
-
+from typing import TYPE_CHECKING
 import requests
 
 from ..config import Config
 from ..exceptions import StancerHTTPError
 from ..exceptions import StancerValueError
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Request')
+if TYPE_CHECKING:
+    from .abstract_object import AbstractObject
+
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='Request')  # type: ignore
 
 
-class Request(object):
+class Request:
     """API request manager."""
 
     def __init__(self):
         """Initialize"""
         self._conf = Config()
 
-    def delete(self: CurrentInstance, obj) -> Union[CurrentInstance, str]:
+    def delete(self: Self, obj: 'AbstractObject') -> Self | str:
         """
         Send a DELETE HTTP request.
 
@@ -33,11 +39,11 @@ class Request(object):
         return self._request('delete', obj)
 
     def get(
-        self: CurrentInstance,
+        self: Self,
         obj,
         update: bool = True,
         **kwargs,
-    ) -> Union[CurrentInstance, str]:
+    ) -> Self | str:
         """
         Send a GET HTTP request.
 
@@ -51,7 +57,7 @@ class Request(object):
         """
         return self._request('get', obj, update, **kwargs)
 
-    def patch(self: CurrentInstance, obj) -> Union[CurrentInstance, str]:
+    def patch(self: Self, obj: 'AbstractObject') -> Self | str:
         """
         Send a POST HTTP request.
 
@@ -63,7 +69,7 @@ class Request(object):
         """
         return self._request('patch', obj)
 
-    def post(self: CurrentInstance, obj) -> Union[CurrentInstance, str]:
+    def post(self: Self, obj: 'AbstractObject') -> Self | str:
         """
         Send a POST HTTP request.
 
@@ -76,12 +82,12 @@ class Request(object):
         return self._request('post', obj)
 
     def _request(
-        self: CurrentInstance,
+        self: Self,
         method: str,
-        obj: Any,
+        obj: 'AbstractObject',
         update: bool = True,
         **kwargs,
-    ) -> Union[CurrentInstance, str]:
+    ) -> Self | str:
         """Handle "delete", "get", "patch" and "post" method."""
 
         if method not in ['delete', 'get', 'patch', 'post']:

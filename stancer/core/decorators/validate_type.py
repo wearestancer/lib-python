@@ -72,7 +72,10 @@ def validate_type(type_expected, **options):
                 length = value
 
             if type_expected == datetime and isinstance(value, int):
-                value = datetime.fromtimestamp(value, tz=config.default_timezone)
+                value = datetime.fromtimestamp(
+                    value,
+                    tz=config.default_timezone,
+                )
 
             if not isinstance(value, type_expected):
                 message = f'{name} must be {type_name}.'

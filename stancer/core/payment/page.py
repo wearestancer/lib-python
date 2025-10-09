@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-
-from typing import Optional
 from urllib.parse import urlencode
+from typing import Any
 
 from ...config import Config
 from ...exceptions import InvalidUrlError
@@ -12,14 +11,14 @@ from ..decorators import populate_on_call
 from ..decorators import validate_type
 
 
-def _valid_retur_url(value) -> Optional[str]:
+def _valid_return_url(value) -> str | None:
     if value.startswith('https://'):
         return None
 
     return 'Return URL must use HTTPS protocol.'
 
 
-class PaymentPage(object):
+class PaymentPage:
     """Specific property and method for payment page."""
 
     _allowed_attributes = [
@@ -28,8 +27,8 @@ class PaymentPage(object):
 
     def __init__(self):
         """Init internal data."""
-        self._data = {}
-        self.id = None
+        self._data: dict[str, Any] = {}
+        self.id: str | None = None
 
     def payment_page_url(self, **kwargs) -> str:
         """
@@ -78,6 +77,10 @@ class PaymentPage(object):
 
             raise MissingApiKeyError(message)
 
+        if config.host is None:
+            message = 'You need to declare the API host'
+            raise InvalidUrlError(message)
+
         if config.port is None:
             pattern = 'https://{host}/{key}/{id}'
         else:
@@ -101,7 +104,7 @@ class PaymentPage(object):
 
     @property
     @populate_on_call
-    def return_url(self) -> Optional[str]:
+    def return_url(self) -> str | None:
         """
         URL used to return to your store when using the payment page.
 
@@ -120,8 +123,8 @@ class PaymentPage(object):
     @validate_type(
         str,
         name='Return URL',
-        validation=_valid_retur_url,
+        validation=_valid_return_url,
         throws=InvalidUrlError,
     )
-    def return_url(self, value: str):
+    def return_url(self, value: str) -> None:
         self._data['return_url'] = value

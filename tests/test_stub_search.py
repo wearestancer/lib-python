@@ -105,7 +105,11 @@ class TestStubSearch(TestHelper):
             responses.add(responses.GET, obj.uri, body=opened_file.read())
 
         results = StubSearch.list(
-            created=created, limit=limit, start=start, foo=foo, foobar=foobar
+            created=created,
+            limit=limit,
+            start=start,
+            foo=foo,
+            foobar=foobar,
         )
 
         assert isgenerator(results)

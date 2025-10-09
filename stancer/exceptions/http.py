@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from typing import Tuple
-from typing import TypeVar
-from typing import Union
 
 from requests import HTTPError
 from requests import Response
 
 from .base import StancerException
-
-CurrentInstance = TypeVar('CurrentInstance', bound='StancerHTTPError')
 
 
 class StancerHTTPError(StancerException, HTTPError):
@@ -50,7 +45,7 @@ class StancerHTTPError(StancerException, HTTPError):
 
         return super().__new__(exc_class, response, *args, **kwargs)
 
-    def __init__(self, response: Response, *args, **kwargs):
+    def __init__(self, response: Response, *args, **kwargs) -> None:
         message = type(self).reason
         type_data = None
 
@@ -93,7 +88,7 @@ class StancerHTTPError(StancerException, HTTPError):
         return str(self.message or '')
 
     @classmethod
-    def _parse_message(cls, err) -> Tuple[str, Union[str, None]]:
+    def _parse_message(cls, err) -> tuple[str, str | None]:
         message = err
         type_data = None
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional
-from typing import Union
+from typing import TYPE_CHECKING
 
 from ...auth import Auth
 from ...device import Device
@@ -11,8 +10,11 @@ from ...exceptions import StancerException
 from ..decorators import populate_on_call
 from ..decorators import validate_type
 
+if TYPE_CHECKING:
+    from ...payment import Payment
 
-def _coerce_auth(value: Union[Auth, str, bool]) -> Optional[Auth]:
+
+def _coerce_auth(value: Auth | str | bool) -> Auth | None:
     if isinstance(value, str):
         return Auth(return_url=value)
 
@@ -24,7 +26,7 @@ def _coerce_auth(value: Union[Auth, str, bool]) -> Optional[Auth]:
     return value
 
 
-class PaymentAuth(object):
+class PaymentAuth:
     """Specific auth property and method for payment."""
 
     _allowed_attributes = [
@@ -32,15 +34,15 @@ class PaymentAuth(object):
         'device',
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init internal data."""
-        self._data = {}
-        self.id = None
+        self._data: dict = {}
+        self.id: str | None = None
         self.method = None
 
     @property
     @populate_on_call
-    def auth(self) -> Auth:
+    def auth(self) -> Auth | None:
         """
         Authentication request.
 
@@ -61,12 +63,12 @@ class PaymentAuth(object):
         throws=InvalidAuthError,
         coerce=_coerce_auth,
     )
-    def auth(self, value: Auth):
+    def auth(self, value: Auth) -> None:
         self._data['auth'] = value
 
     @property
     @populate_on_call
-    def device(self) -> Device:
+    def device(self) -> Device | None:
         """
         Device handling the payment.
 
@@ -83,10 +85,10 @@ class PaymentAuth(object):
 
     @device.setter
     @validate_type(Device, throws=InvalidDeviceError)
-    def device(self, value: Device):
+    def device(self, value: Device) -> None:
         self._data['device'] = value
 
-    def _create_device(self):
+    def _create_device(self: 'Payment') -> 'Payment':  # type: ignore
         """
         Create and populate device.
 

@@ -6,7 +6,7 @@ from .decorators import populate_on_call
 from .decorators import validate_type
 
 
-class AbstractAmount(object):
+class AbstractAmount:
     """Common amount management."""
 
     _allowed_attributes = [
@@ -16,11 +16,11 @@ class AbstractAmount(object):
 
     def __init__(self):
         """Init internal data."""
-        self._data = {}
+        self._data: dict = {}
 
     @property
     @populate_on_call
-    def amount(self) -> int:
+    def amount(self) -> int | None:
         """
         Payment or refund amount.
 
@@ -39,12 +39,12 @@ class AbstractAmount(object):
 
     @amount.setter
     @validate_type(int, min=50, throws=InvalidAmountError)
-    def amount(self, value: int):
+    def amount(self, value: int) -> None:
         self._data['amount'] = value
 
     @property
     @populate_on_call
-    def currency(self) -> str:
+    def currency(self) -> str | None:
         """
         Payment or refund currency.
 
@@ -68,5 +68,5 @@ class AbstractAmount(object):
         lowercase=True,
         throws=InvalidCurrencyError,
     )
-    def currency(self, value: str):
+    def currency(self, value: str) -> None:
         self._data['currency'] = value

@@ -727,7 +727,7 @@ class TestPayment(TestHelper):
 
         refund2_amount = paid - refund1_amount
         refund2_content['amount'] = refund2_amount
-        refund2_content['id'] = 'refd_' + self.random_string(24)
+        refund2_content['id'] = f'refd_{self.random_string(24)}'
 
         responses.reset()
         responses.add(responses.GET, obj.uri, json=payment_content)

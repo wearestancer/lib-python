@@ -3,8 +3,11 @@ name = "stancer-lib-python"
 dynamic = ["version"]
 description = "Python SDK for the Stancer API"
 readme = "README.md"
-requires-python = ">=3.9"
-dependencies = ["requests ~=2.32.5"]
+requires-python = ">=3.10"
+dependencies = [
+    "requests ~=2.32.5",
+    "typing-extensions ~=4.15",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -19,9 +22,6 @@ packages = ["./stancer/"]
 [dependency-groups]
 dev = [
     "bandit ~=1.8",
-    "hatchling ~=1.27",
-    "importlib-metadata ~=8.7",
-    "mypy ~=1.17",
     "mypy[reports] ~=1.17",
     "pylint ~=3.3",
     "pylint-gitlab ~=2.0",
@@ -29,24 +29,22 @@ dev = [
     "pytest ~=8.4",
     "pytest-cov ~=6.2",
     "pytest-xdist ~=3.8",
-    "pytz ~=2025.2",
+    "pytz",
     "responses ~=0.25",
     "ruff ~=0.12",
-    "types-pytz ~=2025.2.0",
+    "types-pytz",
     "types-pexpect ~=4.9.0",
     "types-pygments ~=2.19.0",
     "types-pyyaml ~=6.0.12",
     "types-requests ~=2.32.4",
     "types-setuptools ~=80.9.0",
-    "typing-extensions ~=4.15",
-    "zipp ~=3.23",
 ]
 
-# REGION ruff
+
+#REGION ruff
 [tool.ruff]
 line-length = 88
 indent-width = 4
-
 
 [tool.ruff.format]
 docstring-code-format = true
@@ -61,24 +59,29 @@ length-sort = false
 lines-between-types = 1
 no-sections = false
 relative-imports-order = "furthest-to-closest"
-# ENDREGION
+#ENDREGION
 
-# REGION pytest
 
+#REGION pytest
 [tool.pytest.ini_options]
 looponfailroots = ["stancer", "tests"]
 testpaths = ["tests"]
 #ENDREGION
 
-# REGION mypy
 
+#REGION mypy
 [tool.mypy]
-python_version = "3.9"
-# ENDREGION mypy
+python_version = "3.10"
+exclude = [
+    "dist",
+]
+#ENDREGION mypy
 
 
-# REGION bandit
+#REGION bandit
 [tool.bandit]
-exclude_dirs = [".venv", "tests"]
-
-# ENDREGION
+exclude_dirs = [
+    ".venv",
+    "tests",
+]
+#ENDREGION
