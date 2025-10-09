@@ -25,7 +25,7 @@ class PaymentPage:
         'return_url',
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init internal data."""
         self._data: dict[str, Any] = {}
         self.id: str | None = None

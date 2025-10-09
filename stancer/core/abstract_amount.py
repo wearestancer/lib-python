@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from typing import Any
 from ..exceptions import InvalidAmountError
 from ..exceptions import InvalidCurrencyError
 from .decorators import populate_on_call
@@ -14,9 +14,9 @@ class AbstractAmount:
         'currency',
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init internal data."""
-        self._data: dict = {}
+        self._data: dict[str, Any] = {}
 
     @property
     @populate_on_call

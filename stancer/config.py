@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import timezone
-from datetime import tzinfo
-
 
 from .core.singleton import Singleton
 from .exceptions import StancerValueError
@@ -23,7 +21,7 @@ class Config(Singleton):
     LIVE_MODE = 'live'  # pylint: disable=invalid-name
     TEST_MODE = 'test'  # pylint: disable=invalid-name
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize configuration instance."""
         self._default_timezone = timezone.utc
         self._host: str | None = None
@@ -41,7 +39,7 @@ class Config(Singleton):
         del self.version
 
     @property
-    def default_timezone(self) -> tzinfo:
+    def default_timezone(self) -> timezone:
         """
         Will be used as default time zone for every datetime object created by the API.
 
@@ -54,7 +52,7 @@ class Config(Singleton):
         return self._default_timezone
 
     @default_timezone.setter
-    def default_timezone(self, zone: tzinfo) -> None:
+    def default_timezone(self, zone: timezone) -> None:
         self._default_timezone = zone
 
     @default_timezone.deleter
