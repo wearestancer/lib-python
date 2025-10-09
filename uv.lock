@@ -818,7 +818,7 @@ wheels = [
 ]
 
 [[package]]
-name = "stancer-lib-python"
+name = "stancer"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
@@ -848,7 +848,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "requests", specifier = "~=2.32.5" },
+    { name = "requests", specifier = "~=2.32" },
     { name = "typing-extensions", specifier = "~=4.15" },
 ]
 

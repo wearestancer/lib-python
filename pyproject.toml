@@ -1,23 +1,41 @@
 [project]
-name = "stancer-lib-python"
-dynamic = ["version"]
+name = "stancer"
 description = "Python SDK for the Stancer API"
-readme = "README.md"
+dynamic = ["version"]
+
 requires-python = ">=3.10"
+
 dependencies = [
-    "requests ~=2.32.5",
+    "requests ~=2.32",
     "typing-extensions ~=4.15",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+authors = [
+  { name = "Stancer", email = "floss@stancer.com" },
+]
+license = "MIT"
+readme = "README.md"
 
-[tool.hatch.version]
-path = "./stancer/version.py"
-
-[tool.hatch.build.targets.wheel]
-packages = ["./stancer/"]
+keywords = [
+    "payments",
+    "payment solution",
+    "payment gateway",
+    "credit cards",
+    "sepa",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Plugins",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 [dependency-groups]
 dev = [
@@ -39,6 +57,15 @@ dev = [
     "types-requests ~=2.32.4",
     "types-setuptools ~=80.9.0",
 ]
+
+#REGION build
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "./stancer/version.py"
+#ENDREGION
 
 
 #REGION ruff
