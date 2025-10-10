@@ -17,10 +17,12 @@ variables:
 .python::base:
   image: ${DOCKER_REGISTRY}/python:$VERSION-uv
   before_script:
+    - section_start --collapsed install "Package install"
     - uv --version
     - python --version
     - uv sync --locked
     - uv tree
+    - section_end install
 
 .python::current-versions:
   extends:

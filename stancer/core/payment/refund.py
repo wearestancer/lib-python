@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+from typing import Callable
 from typing import TYPE_CHECKING
 from typing import Any
-from typing import Callable
 from ...exceptions import InvalidAmountError
 from ...status.refund import RefundStatus
 from ..decorators import populate_on_call
 from ..decorators import validate_type
+from ..abstract_object import AbstractObject
 
 if TYPE_CHECKING:
     from ...refund import Refund
@@ -18,11 +19,14 @@ class PaymentRefund:
 
     def __init__(self) -> None:
         """Init internal data."""
+        if not isinstance(self, AbstractObject):
+            raise TypeError  # We must use Payment Refund in an Abstract Object
         self._data: dict[str, Any] = {}
         self.amount: int | None = None
         self.currency: str | None = None
-        self.populate: Callable[[], None] = lambda: None
-        self._populated: Any = None
+        # These attributes will be overridden by the populate and _populated attr in AbstractObject
+        self.populate: Callable[[], AbstractObject] = lambda: None  # type: ignore
+        self._populated: bool = None  # type: ignore
 
     @property
     def _init_refunds(self):

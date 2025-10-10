@@ -9,6 +9,7 @@ from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
 from ..decorators import populate_on_call
 from ..decorators import validate_type
+from .. import AbstractObject
 
 
 def _valid_return_url(value) -> str | None:
@@ -27,6 +28,8 @@ class PaymentPage:
 
     def __init__(self) -> None:
         """Init internal data."""
+        if not isinstance(self, AbstractObject):
+            raise TypeError  # We must use PaymentPage in an Abstract Object
         self._data: dict[str, Any] = {}
         self.id: str | None = None
 

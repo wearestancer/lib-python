@@ -9,6 +9,7 @@ from ...exceptions import InvalidDeviceError
 from ...exceptions import StancerException
 from ..decorators import populate_on_call
 from ..decorators import validate_type
+from .. import AbstractObject
 
 if TYPE_CHECKING:
     from ...payment import Payment
@@ -36,6 +37,8 @@ class PaymentAuth:
 
     def __init__(self) -> None:
         """Init internal data."""
+        if not isinstance(self, AbstractObject):
+            raise TypeError  # We must use PaymentAuth in an Abstract Object
         self._data: dict = {}
         self.id: str | None = None
         self.method = None
