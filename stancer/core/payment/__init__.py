@@ -1,9 +1,11 @@
-from .auth import Auth
+from .auth import PaymentAuth
 from .refund import PaymentRefund
 from .page import PaymentPage
+from .payment_protocol import PaymentProtocol
 
 __all__ = (
-    'Auth',
+    'PaymentAuth',
     'PaymentRefund',
     'PaymentPage',
+    'PaymentProtocol',
 )

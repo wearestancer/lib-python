@@ -12,9 +12,9 @@ from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .core.helpers import coerce_status
 from .core.helpers import coerce_uuid
-from .core.payment.auth import PaymentAuth
-from .core.payment.page import PaymentPage
-from .core.payment.refund import PaymentRefund
+from .core.payment import PaymentAuth
+from .core.payment import PaymentPage
+from .core.payment import PaymentRefund
 from .customer import Customer
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
@@ -54,7 +54,8 @@ class Payment(
     PaymentAuth,
     PaymentRefund,
     PaymentPage,
-):
+):  # pylint: disable='too-many-ancestors'
+    # our way of building object imposes many ancestors
     """Representation of a payment."""
 
     _ENDPOINT = 'checkout'

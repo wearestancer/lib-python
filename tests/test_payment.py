@@ -27,6 +27,9 @@ from stancer.core import AbstractAmount
 from stancer.core import AbstractCountry
 from stancer.core import AbstractObject
 from stancer.core import AbstractSearch
+from stancer.core.payment.auth import PaymentAuth
+from stancer.core.payment import PaymentPage
+from stancer.core.payment import PaymentRefund
 from stancer.exceptions import InvalidAmountError
 from stancer.exceptions import InvalidAuthError
 from stancer.exceptions import InvalidCardError
@@ -59,6 +62,9 @@ class TestPayment(TestHelper):
         assert issubclass(Payment, AbstractCountry)
         assert issubclass(Payment, AbstractObject)
         assert issubclass(Payment, AbstractSearch)
+        assert issubclass(Payment, PaymentAuth)
+        assert issubclass(Payment, PaymentPage)
+        assert issubclass(Payment, PaymentRefund)
 
     @responses.activate
     def test_amount(self):

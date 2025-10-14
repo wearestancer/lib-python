@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from abc import ABC
+from abc import abstractmethod
 from typing import TYPE_CHECKING
 
+from .payment_protocol import PaymentProtocol
 from ...auth import Auth
 from ...device import Device
 from ...exceptions import InvalidAuthError
@@ -9,7 +12,6 @@ from ...exceptions import InvalidDeviceError
 from ...exceptions import StancerException
 from ..decorators import populate_on_call
 from ..decorators import validate_type
-from .. import AbstractObject
 
 if TYPE_CHECKING:
     from ...payment import Payment
@@ -27,7 +29,7 @@ def _coerce_auth(value: Auth | str | bool) -> Auth | None:
     return value
 
 
-class PaymentAuth:
+class PaymentAuth(ABC, PaymentProtocol):
     """Specific auth property and method for payment."""
 
     _allowed_attributes = [
@@ -35,13 +37,9 @@ class PaymentAuth:
         'device',
     ]
 
+    @abstractmethod
     def __init__(self) -> None:
-        """Init internal data."""
-        if not isinstance(self, AbstractObject):
-            raise TypeError  # We must use PaymentAuth in an Abstract Object
-        self._data: dict = {}
-        self.id: str | None = None
-        self.method = None
+        pass
 
     @property
     @populate_on_call
@@ -91,6 +89,7 @@ class PaymentAuth:
     def device(self, value: Device) -> None:
         self._data['device'] = value
 
+    # Auth must be implemented by payment.
     def _create_device(self: 'Payment') -> 'Payment':  # type: ignore
         """
         Create and populate device.
