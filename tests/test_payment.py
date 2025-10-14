@@ -111,7 +111,7 @@ class TestPayment(TestHelper):
         with pytest.raises(InvalidUrlError):
             obj.auth = self.random_string(2)
 
-        return_url = 'https://www.example.org/?' + self.random_string(15)
+        return_url = f'https://www.example.org/?{self.random_string(15)}'
         obj.auth = return_url
 
         assert isinstance(obj.auth, Auth)
@@ -640,10 +640,11 @@ class TestPayment(TestHelper):
     @responses.activate
     def test_payment_page_url(self):
         obj = Payment(
-            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
+            amount=self.random_integer(50, 99999),
+            currency=self.currency_provider(True),
         )
 
-        return_url = 'https://www.example.org/?' + self.random_string(10)
+        return_url = f'https://www.example.org/?{self.random_string(10)}'
 
         with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
             content = opened_file.read()
@@ -675,7 +676,7 @@ class TestPayment(TestHelper):
 
         config = Config()
         keys = config.keys
-        config.keys = 'ptest_' + self.random_string(24)
+        config.keys = f'ptest_{self.random_string(24)}'
 
         host = config.host.replace('api', 'payment')
 
@@ -701,7 +702,7 @@ class TestPayment(TestHelper):
         assert obj.payment_page_url() == url
 
         # With non ascii chars
-        input = self.random_string(2) + ' ' + self.random_string(2)
+        input = f'{self.random_string(2)} {self.random_string(2)}'
         encoded = input.replace(' ', '+')
         url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}?lang={encoded}'
 
@@ -873,7 +874,7 @@ class TestPayment(TestHelper):
     @responses.activate
     def test_return_url(self):
         obj = Payment()
-        return_url = 'https://www.example.org/?' + self.random_string(20)
+        return_url = f'https://www.example.org/?{self.random_string(20)}'
 
         assert obj.return_url is None
 
@@ -891,12 +892,10 @@ class TestPayment(TestHelper):
             InvalidUrlError,
             match='Return URL must use HTTPS protocol.',
         ):
-            obj.return_url = 'http://www.example.org/?' + self.random_string(20)
+            obj.return_url = f'http://www.example.org/?{self.random_string(20)}'
 
         obj = Payment(self.random_string(29))
-        params = {
-            'return_url': 'https://www.example.org/?' + self.random_string(20),
-        }
+        params = {'return_url': f'https://www.example.org/?{self.random_string(20)}'}
 
         responses.add(responses.GET, obj.uri, json=params)
 
@@ -912,7 +911,7 @@ class TestPayment(TestHelper):
 
         customer = Customer()
         customer.name = self.random_string(15)
-        customer.email = self.random_string(15) + '@example.org'
+        customer.email = f'{self.random_string(15)}@example.org'
         customer.mobile = self.random_mobile()
 
         with open('./tests/fixtures/payment/create-card.json') as opened_file:
@@ -994,7 +993,7 @@ class TestPayment(TestHelper):
 
         customer = Customer()
         customer.name = self.random_string(15)
-        customer.email = self.random_string(15) + '@example.org'
+        customer.email = f'{self.random_string(15)}@example.org'
         customer.mobile = self.random_mobile()
 
         with open('./tests/fixtures/payment/create-sepa.json') as opened_file:
@@ -1082,7 +1081,7 @@ class TestPayment(TestHelper):
         ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
         number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
+        return_url = f'https://www.example.org/?f{self.random_string(50)}'
 
         obj.amount = amount
         obj.auth = auth
@@ -1201,7 +1200,7 @@ class TestPayment(TestHelper):
         ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
         number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
+        return_url = f'https://www.example.org/?{self.random_string(50)}'
 
         obj.amount = amount
         obj.auth = return_url
@@ -1319,7 +1318,7 @@ class TestPayment(TestHelper):
         ip = '.'.join([str(self.random_integer(1, 254)) for _ in range(4)])
         number = '4111111111111111'
         port = self.random_integer(1, 65535)
-        return_url = 'https://www.example.org/?' + self.random_string(50)
+        return_url = f'https://www.example.org/?{self.random_string(50)}'
 
         obj.amount = amount
         obj.auth = auth
@@ -1426,7 +1425,7 @@ class TestPayment(TestHelper):
 
         amount = self.random_integer(50, 999999)
         currency = 'eur'
-        email = self.random_string(15) + '@example.org'
+        email = f'{self.random_string(15)}@example.org'
         mobile = self.random_mobile()
         name = self.random_string(15)
 
@@ -1676,7 +1675,7 @@ class TestPayment(TestHelper):
         ) as opened:
             responses.add(responses.POST, obj.uri, body=opened.read())
 
-        uri = obj.uri + '/paym_a9LJ0xrGhhuT0M4crx0NEmXJ'  # Based on fixture
+        uri = f'{obj.uri}/paym_a9LJ0xrGhhuT0M4crx0NEmXJ'  # Based on fixture
 
         with open(
             './tests/fixtures/payment/create-card-status-null-with-card.json'
@@ -1821,7 +1820,7 @@ class TestPayment(TestHelper):
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == 'https://api.stancer.com/v1/checkout/' + uid
+        assert obj.uri == f'https://api.stancer.com/v1/checkout/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

@@ -262,7 +262,8 @@ class TestRequest(TestHelper):
         conf.mode = Config.TEST_MODE
 
         obj.hydrate(
-            string1=self.random_string(10, 20), integer1=self.random_integer(10, 999999)
+            string1=self.random_string(10, 20),
+            integer1=self.random_integer(10, 999999),
         )
 
         ret = {

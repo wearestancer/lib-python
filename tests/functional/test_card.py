@@ -42,7 +42,7 @@ class TestFunctionalCard(TestHelper):
         # To be sure we do not have a conflict with previous tests
 
         cvc = str(self.random_integer(100, 999))
-        name = 'Pickle Rick (' + self.random_string(10) + ')'
+        name = f'Pickle Rick ({self.random_string(10)})'
         number = self.get_card_number()
 
         last4 = number[-4:]

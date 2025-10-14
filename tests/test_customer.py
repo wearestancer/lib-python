@@ -234,7 +234,7 @@ class TestCustomer(TestHelper):
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == 'https://api.stancer.com/v1/customers/' + uid
+        assert obj.uri == f'https://api.stancer.com/v1/customers/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

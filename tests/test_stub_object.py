@@ -391,7 +391,7 @@ class TestStubObject(TestHelper):
         obj = StubObject(self.random_string(29))
         conf = Config()
 
-        conf.keys = 'stest_' + self.random_string(24)
+        conf.keys = f'stest_{self.random_string(24)}'
 
         params = {
             'string1': self.random_string(10),
@@ -410,8 +410,8 @@ class TestStubObject(TestHelper):
         obj = StubObject()
         conf = Config()
 
-        stest = 'stest_' + self.random_string(24)
-        sprod = 'sprod_' + self.random_string(24)
+        stest = f'stest_{self.random_string(24)}'
+        sprod = f'sprod_{self.random_string(24)}'
 
         phead = base64.b64encode((sprod + ':').encode())
         pheader = f'Basic {phead.decode()}'
@@ -456,7 +456,7 @@ class TestStubObject(TestHelper):
 
         conf.mode = Config.LIVE_MODE
 
-        responses.add(responses.PATCH, location + '/' + uid, json={'id': uid})
+        responses.add(responses.PATCH, f'{location}/{uid}', json={'id': uid})
 
         # Modified object allows new calls
         obj.string2 = self.random_string(20)

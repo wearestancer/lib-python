@@ -163,7 +163,7 @@ class TestFunctionalPayment(TestHelper):
     def test_send_with_authentification(self, currency):
         amount = self.random_integer(50, 99999)
         description = f'Automatic auth test for Python, {amount / 100:.2f} {currency}'
-        return_url = 'https://www.example.org/?' + self.random_string(30)
+        return_url = f'https://www.example.org/?{self.random_string(30)}'
 
         ip = self.ip_provider(True)
         port = self.random_integer(1, 65534)
@@ -199,7 +199,7 @@ class TestFunctionalPayment(TestHelper):
     def test_send_for_payment_page(self, currency):
         amount = self.random_integer(50, 99999)
         description = f'Payment page test for Python, {amount / 100:.2f} {currency}'
-        return_url = 'https://www.example.org/?' + self.random_string(30)
+        return_url = f'https://www.example.org/?{self.random_string(30)}'
 
         payment = Payment()
         payment.amount = amount
@@ -222,7 +222,7 @@ class TestFunctionalPayment(TestHelper):
         config = Config()
 
         keys = config.keys
-        fake_public_key = 'p' + config.secret_key[1:]
+        fake_public_key = f'p{config.secret_key[1:]}'
         config.keys = fake_public_key
 
         assert payment.payment_page_url() is not None

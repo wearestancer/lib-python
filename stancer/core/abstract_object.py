@@ -332,6 +332,8 @@ class AbstractObject:
                 applied = False
 
                 try:
+                    # because we override the __dict__ method,
+                    # mypy is a little lost on the correct type.
                     prop = self.__class__.__dict__.get(key)  # type: ignore
 
                     if prop is not None and prop.fset is not None:

@@ -20,10 +20,10 @@ class TestAuth(TestHelper):
         assert obj.redirect_url is None
 
         with pytest.raises(AttributeError):
-            obj.redirect_url = 'https://' + self.random_string(15)
+            obj.redirect_url = f'https://{self.random_string(15)}'
 
         params = {
-            'redirect_url': 'https://' + self.random_string(50),
+            'redirect_url': f'https://{self.random_string(50)}',
         }
         obj.hydrate(**params)
 
@@ -31,8 +31,8 @@ class TestAuth(TestHelper):
 
     def test_return_url(self):
         obj = Auth()
-        bad_url = 'http://' + self.random_string(50)
-        return_url = 'https://' + self.random_string(50)
+        bad_url = f'http://{self.random_string(50)}'
+        return_url = f'https://{self.random_string(50)}'
 
         with pytest.raises(InvalidUrlError):
             obj.return_url = bad_url

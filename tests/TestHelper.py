@@ -32,7 +32,7 @@ class TestHelper:
     def setup_method(self, method):
         conf = Config()
 
-        conf.keys = 'stest_' + self.random_string(24)
+        conf.keys = f'stest_{self.random_string(24)}'
 
         del conf.default_timezone
 
@@ -60,7 +60,7 @@ class TestHelper:
         first = self.random_integer(6, 7)
         counter = 4
 
-        mobile = '+33' + str(first)
+        mobile = f'+33{str(first)}'
 
         if first == 7:
             mobile += str(self.random_integer(30, 99)).zfill(2)

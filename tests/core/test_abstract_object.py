@@ -27,10 +27,10 @@ class TestAbstractObject(TestHelper):
     def test__repr(self):
         obj = AbstractObject()
 
-        assert repr(obj) == '<AbstractObject() at 0x%x>' % id(obj)
+        assert repr(obj) == f'<AbstractObject() at 0x{id(obj):x}>'
 
-        key1 = 'a' + self.random_string(10)
-        key2 = 'b' + self.random_string(10)
+        key1 = f'a{self.random_string(10)}'
+        key2 = f'b{self.random_string(10)}'
         value1 = self.random_string(10)
         value2 = self.random_integer(1, 10)
 
@@ -44,15 +44,21 @@ class TestAbstractObject(TestHelper):
         uid = self.random_string(29)
         obj = AbstractObject(uid)
 
-        assert repr(obj) == '<AbstractObject("%s") at 0x%x>' % (uid, id(obj))
+        assert repr(obj) == f'<AbstractObject("{uid}") at 0x{id(obj):x}>'
 
         uid = self.random_string(29)
-        key1 = 'a' + self.random_string(10)
-        key2 = 'b' + self.random_string(10)
+        key1 = f'a{self.random_string(10)}'
+        key2 = f'b{self.random_string(10)}'
         value1 = self.random_string(10)
         value2 = self.random_integer(1, 10)
 
-        obj = AbstractObject(uid, **{key2: value2, key1: value1})
+        obj = AbstractObject(
+            uid,
+            **{
+                key2: value2,
+                key1: value1,
+            },
+        )
 
         assert (
             repr(obj)
@@ -68,12 +74,12 @@ class TestAbstractObject(TestHelper):
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == 'https://api.stancer.com/v1/' + uid
+        assert obj.uri == f'https://api.stancer.com/v1/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
 
-        host = self.random_string(25) + '.' + self.random_string(3)
+        host = f'{self.random_string(25)}.{self.random_string(3)}'
         version = self.random_integer(1, 20)
         port = self.random_integer(100, 65535)
 
