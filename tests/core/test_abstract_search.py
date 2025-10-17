@@ -2,12 +2,14 @@
 
 from datetime import datetime
 from datetime import timedelta
-import pytest
 from time import time
+
+import pytest
 
 from stancer.core import AbstractObject
 from stancer.core import AbstractSearch
 from stancer.exceptions import InvalidSearchFilter
+
 from ..TestHelper import TestHelper
 
 

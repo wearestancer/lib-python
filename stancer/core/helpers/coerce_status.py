@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import Optional
-from typing import Union
-
 from ...status.base import BaseStatus
 
 
-def coerce_status(value: Optional[Union[BaseStatus, str]]) -> Optional[str]:
+def coerce_status(value: BaseStatus | str | None) -> str | None:
     """
     Transform a enum instance into string.
 

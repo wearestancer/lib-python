@@ -1,11 +1,13 @@
 """Functional tests for card object"""
 
 from datetime import datetime
+
 import pytest
 
 from stancer import Card
 from stancer.exceptions import ConflictError
 from stancer.exceptions import NotFoundError
+
 from .TestHelper import TestHelper
 
 
@@ -15,7 +17,7 @@ class TestFunctionalCard(TestHelper):
             obj = Card(self.random_string(29))
             obj.name
 
-        assert error.value.message == 'No such card {}'.format(obj.id)
+        assert error.value.message == f'No such card {obj.id}'
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
@@ -35,13 +37,12 @@ class TestFunctionalCard(TestHelper):
         assert card.created.timestamp() == 1579024205
 
     def test_crud(self):
-        obj = Card()
-
         month = self.random_integer(1, 12)
-        year = self.random_year() + 20  # To be sure we do not have a conflict with previous tests
+        year = self.random_year() + 20
+        # To be sure we do not have a conflict with previous tests
 
         cvc = str(self.random_integer(100, 999))
-        name = 'Pickle Rick (' + self.random_string(10) + ')'
+        name = f'Pickle Rick ({self.random_string(10)})'
         number = self.get_card_number()
 
         last4 = number[-4:]
@@ -97,6 +98,6 @@ class TestFunctionalCard(TestHelper):
 
         with pytest.raises(
             NotFoundError,
-            match='No such card {}'.format(card_id),
+            match=f'No such card {card_id}',
         ):
             Card(card_id).name
