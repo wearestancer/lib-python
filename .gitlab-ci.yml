@@ -51,6 +51,7 @@ pylint:
 
   script:
     - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
+
   artifacts:
     reports:
       codequality: codequality.json
@@ -78,6 +79,8 @@ unit_test:
   script:
     - uv run pytest --ignore=tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
 
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\.\d+%)/'
+
   artifacts:
     reports:
       coverage_report:
@@ -93,6 +96,8 @@ functional_test:
 
   script:
     - uv run pytest tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
+
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\.\d+%)/'
 
   allow_failure: true
   artifacts:
