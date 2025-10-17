@@ -1,19 +1,25 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from abc import ABC
 from abc import abstractmethod
 from datetime import datetime
-import json
 from time import time
-from typing import TypeVar
-from typing import Union
 
-from .request import Request
 from ..exceptions import InvalidSearchFilter
 from ..exceptions import InvalidSearchResponse
 from ..exceptions import NotFoundError
+from .request import Request
 
-CurrentInstance = TypeVar('CurrentInstance')
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='AbstractSearch')  # type: ignore
 
 
 class AbstractSearch(ABC):
@@ -35,7 +41,7 @@ class AbstractSearch(ABC):
         return {}
 
     @abstractmethod
-    def hydrate(self, **params) -> CurrentInstance:
+    def hydrate(self: Self, **params) -> Self:
         """
         Hydrate current object.
 
@@ -50,9 +56,9 @@ class AbstractSearch(ABC):
     @classmethod
     def list(
         cls,
-        created: Union[int, datetime] = None,
-        limit: int = None,
-        start: int = None,
+        created: int | float | datetime | None = None,
+        limit: int | None = None,
+        start: int | None = None,
         **kwargs,
     ):
         """
@@ -122,7 +128,9 @@ class AbstractSearch(ABC):
 
                     key = keys[0]
                     has_more = response['range']['has_more']
-                    params['start'] = response['range']['start'] + response['range']['limit']
+                    params['start'] = (
+                        response['range']['start'] + response['range']['limit']
+                    )
 
                     for item in response[key]:
                         yield cls().hydrate(**item)

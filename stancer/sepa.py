@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import re
-from typing import Union
+
+from datetime import datetime
 
 from .core import AbstractCountry
 from .core import AbstractLast4
@@ -11,8 +11,8 @@ from .core import AbstractObject
 from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .exceptions import InvalidBicError
-from .exceptions import InvalidIbanError
 from .exceptions import InvalidDateMandateError
+from .exceptions import InvalidIbanError
 from .exceptions import InvalidMandateError
 
 
@@ -32,7 +32,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def bic(self) -> str:
+    def bic(self) -> str | None:
         """
         Bank Identifier Code.
 
@@ -57,7 +57,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def date_mandate(self) -> datetime:
+    def date_mandate(self) -> datetime | None:
         """
         Mandate signature date.
 
@@ -71,11 +71,11 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @date_mandate.setter
     @validate_type(datetime, throws=InvalidDateMandateError)
-    def date_mandate(self, value: Union[int, datetime]):
+    def date_mandate(self, value: int | datetime) -> None:
         self._data['date_mandate'] = value
 
     @property
-    def formatted_iban(self) -> str:
+    def formatted_iban(self) -> str | None:
         """
         IBAN in readeable format.
 
@@ -93,7 +93,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def iban(self) -> str:
+    def iban(self) -> str | None:
         """
         International Bank Account Number.
 
@@ -111,7 +111,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @iban.setter
     @validate_type(str, name='IBAN', throws=InvalidIbanError)
-    def iban(self, value: str):
+    def iban(self, value: str) -> None:
         iban = re.sub(r'\s', '', value).upper()
         code = ''
 
@@ -149,7 +149,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def mandate(self) -> str:
+    def mandate(self) -> str | None:
         """
         Referring mandate.
 
@@ -163,5 +163,5 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @mandate.setter
     @validate_type(str, min=3, max=35, throws=InvalidMandateError)
-    def mandate(self, value: str):
+    def mandate(self, value: str) -> None:
         self._data['mandate'] = value

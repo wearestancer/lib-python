@@ -1,6 +1,7 @@
 """Test request object"""
 
 import base64
+
 import pytest
 import responses
 
@@ -8,6 +9,7 @@ from stancer import Config
 from stancer.core import Request
 from stancer.exceptions import StancerValueError
 from stancer.exceptions import UnauthorizedError
+
 from ..stub.stub_object import StubObject
 from ..TestHelper import TestHelper
 
@@ -144,7 +146,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 
@@ -173,7 +175,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 
@@ -207,7 +209,7 @@ class TestRequest(TestHelper):
         api_call = responses.calls[0]
 
         assert api_call.request.method == 'GET'
-        assert api_call.request.url == '{}?{}={}'.format(obj.uri, key, value)
+        assert api_call.request.url == f'{obj.uri}?{key}={value}'
         assert api_call.request.body is None
 
     @responses.activate
@@ -217,7 +219,10 @@ class TestRequest(TestHelper):
         conf = Config()
         conf.mode = Config.TEST_MODE
 
-        obj.hydrate(string1=self.random_string(10, 20), integer1=self.random_integer(10, 999999))
+        obj.hydrate(
+            string1=self.random_string(10, 20),
+            integer1=self.random_integer(10, 999999),
+        )
 
         ret = {
             'id': self.random_string(29),
@@ -235,7 +240,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 
@@ -256,7 +261,10 @@ class TestRequest(TestHelper):
         conf = Config()
         conf.mode = Config.TEST_MODE
 
-        obj.hydrate(string1=self.random_string(10, 20), integer1=self.random_integer(10, 999999))
+        obj.hydrate(
+            string1=self.random_string(10, 20),
+            integer1=self.random_integer(10, 999999),
+        )
 
         ret = {
             'id': self.random_string(29),
@@ -274,7 +282,7 @@ class TestRequest(TestHelper):
         assert len(responses.calls) == 1
 
         tmp = base64.b64encode((conf.stest + ':').encode())
-        auth = 'Basic {}'.format(tmp.decode())
+        auth = f'Basic {tmp.decode()}'
 
         api_call = responses.calls[0]
 

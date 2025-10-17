@@ -1,0 +1,117 @@
+[project]
+name = "stancer"
+description = "Python SDK for the Stancer API"
+dynamic = ["version"]
+
+requires-python = ">=3.10"
+
+dependencies = [
+    "requests ~=2.32",
+    "typing-extensions ~=4.15",
+]
+
+authors = [
+  { name = "Stancer", email = "floss@stancer.com" },
+]
+license = "MIT"
+readme = "README.md"
+
+keywords = [
+    "payments",
+    "payment solution",
+    "payment gateway",
+    "credit cards",
+    "sepa",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Plugins",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[dependency-groups]
+dev = [
+    "bandit ~=1.8",
+    "mypy[reports] ~=1.17",
+    "pylint ~=3.3",
+    "pylint-gitlab ~=2.0",
+    "pylint-quotes ~=0.2",
+    "pytest ~=8.4",
+    "pytest-cov ~=6.2",
+    "pytest-xdist ~=3.8",
+    "pytz",
+    "responses ~=0.25",
+    "ruff ~=0.12",
+    "types-pytz",
+    "types-pexpect ~=4.9",
+    "types-pygments ~=2.19",
+    "types-pyyaml ~=6.0",
+    "types-requests ~=2.32",
+    "types-setuptools ~=80.9",
+]
+
+#REGION build
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "./stancer/version.py"
+#ENDREGION
+
+
+#REGION ruff
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 20
+indent-style = "space"
+quote-style = "single"
+
+[tool.ruff.lint.isort]
+force-single-line = true
+from-first = false
+length-sort = false
+lines-between-types = 1
+no-sections = false
+relative-imports-order = "furthest-to-closest"
+#ENDREGION
+
+
+#REGION pytest
+[tool.pytest.ini_options]
+looponfailroots = [
+    "stancer",
+    "tests",
+]
+testpaths = ["tests"]
+#ENDREGION
+
+
+#REGION mypy
+[tool.mypy]
+exclude = [
+    "dist",
+]
+#ENDREGION mypy
+
+
+#REGION bandit
+[tool.bandit]
+exclude_dirs = [
+    ".venv",
+    "tests",
+]
+#ENDREGION

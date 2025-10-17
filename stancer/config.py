@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
-
 from datetime import timezone
-from datetime import tzinfo
-from typing import List
-from typing import TypeVar
-from typing import Union
 
 from .core.singleton import Singleton
 from .exceptions import StancerValueError
-
-
-CurrentInstance = TypeVar('CurrentInstance', bound='Config')
 
 
 class Config(Singleton):
@@ -29,15 +21,15 @@ class Config(Singleton):
     LIVE_MODE = 'live'  # pylint: disable=invalid-name
     TEST_MODE = 'test'  # pylint: disable=invalid-name
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize configuration instance."""
         self._default_timezone = timezone.utc
-        self._host = None
-        self._keys = []
-        self._mode = None
-        self._port = None
-        self._timeout = None
-        self._version = None
+        self._host: str | None = None
+        self._keys: dict[str, str | None] = {}
+        self._mode: str | None = None
+        self._port: int | None = None
+        self._timeout: int | None = None
+        self._version: int | None = None
 
         del self.host
         del self.keys
@@ -47,7 +39,7 @@ class Config(Singleton):
         del self.version
 
     @property
-    def default_timezone(self) -> tzinfo:
+    def default_timezone(self) -> timezone:
         """
         Will be used as default time zone for every datetime object created by the API.
 
@@ -60,15 +52,15 @@ class Config(Singleton):
         return self._default_timezone
 
     @default_timezone.setter
-    def default_timezone(self, zone: tzinfo):
+    def default_timezone(self, zone: timezone) -> None:
         self._default_timezone = zone
 
     @default_timezone.deleter
-    def default_timezone(self):
+    def default_timezone(self) -> None:
         self._default_timezone = timezone.utc
 
     @property
-    def host(self) -> str:
+    def host(self) -> str | None:
         """
         API host.
 
@@ -81,15 +73,15 @@ class Config(Singleton):
         return self._host
 
     @host.setter
-    def host(self, value: str):
+    def host(self, value: str) -> None:
         self._host = value
 
     @host.deleter
-    def host(self):
+    def host(self) -> None:
         self._host = 'api.stancer.com'
 
     @property
-    def keys(self) -> dict:
+    def keys(self) -> dict[str, str | None]:
         """
         API keychain.
 
@@ -117,8 +109,8 @@ class Config(Singleton):
         return self._keys
 
     @keys.setter
-    def keys(self, value: Union[List[str], str]):
-        keychain = value
+    def keys(self, value: list[str] | str):
+        keychain: list[str] | str | tuple[str, ...] = value
 
         if isinstance(value, str):
             keychain = (value,)
@@ -135,7 +127,7 @@ class Config(Singleton):
                 self._keys[key_prefix] = key
 
     @keys.deleter
-    def keys(self):
+    def keys(self) -> None:
         self._keys = {
             'pprod': None,
             'ptest': None,
@@ -144,7 +136,7 @@ class Config(Singleton):
         }
 
     @property
-    def mode(self) -> str:
+    def mode(self) -> str | None:
         """
         API mode.
 
@@ -160,12 +152,14 @@ class Config(Singleton):
         return self._mode
 
     @mode.setter
-    def mode(self, value: str):
+    def mode(self, value: str) -> None:
         if value not in (self.LIVE_MODE, self.TEST_MODE):
-            message = ' '.join([
-                f'Unknonw mode "{value}".',
-                'Please use class constant "LIVE_MODE" or "TEST_MODE".',
-            ])
+            message = ' '.join(
+                [
+                    f'Unknown mode "{value}".',
+                    'Please use class constant "LIVE_MODE" or "TEST_MODE".',
+                ]
+            )
 
             raise StancerValueError(message)
 
@@ -176,7 +170,7 @@ class Config(Singleton):
         self._mode = self.TEST_MODE
 
     @property
-    def pprod(self) -> str:
+    def pprod(self) -> str | None:
         """
         Public production API key.
 
@@ -186,7 +180,7 @@ class Config(Singleton):
         return self.keys['pprod']
 
     @property
-    def port(self) -> int:
+    def port(self) -> int | None:
         """
         API port.
 
@@ -201,15 +195,15 @@ class Config(Singleton):
         return self._port
 
     @port.setter
-    def port(self, value: int):
+    def port(self, value: int) -> None:
         self._port = value
 
     @port.deleter
-    def port(self) -> str:
+    def port(self) -> None:
         self._port = None
 
     @property
-    def ptest(self) -> str:
+    def ptest(self) -> str | None:
         """
         Public development API key.
 
@@ -219,7 +213,7 @@ class Config(Singleton):
         return self.keys['ptest']
 
     @property
-    def public_key(self) -> str:
+    def public_key(self) -> str | None:
         """
         Public API key.
 
@@ -232,7 +226,7 @@ class Config(Singleton):
         return self.ptest
 
     @property
-    def secret_key(self) -> str:
+    def secret_key(self) -> str | None:
         """
         Secret API key.
 
@@ -245,7 +239,7 @@ class Config(Singleton):
         return self.stest
 
     @property
-    def sprod(self) -> str:
+    def sprod(self) -> str | None:
         """
         Secret production API key.
 
@@ -255,7 +249,7 @@ class Config(Singleton):
         return self.keys['sprod']
 
     @property
-    def stest(self) -> str:
+    def stest(self) -> str | None:
         """
         Secret development API key.
 
@@ -265,7 +259,7 @@ class Config(Singleton):
         return self.keys['stest']
 
     @property
-    def timeout(self) -> int:
+    def timeout(self) -> int | None:
         """
         API timeout.
 
@@ -278,15 +272,15 @@ class Config(Singleton):
         return self._timeout
 
     @timeout.setter
-    def timeout(self, value: int):
+    def timeout(self, value: int) -> None:
         self._timeout = value
 
     @timeout.deleter
-    def timeout(self):
+    def timeout(self) -> None:
         self._timeout = None
 
     @property
-    def version(self) -> int:
+    def version(self) -> int | None:
         """
         API version.
 
@@ -301,9 +295,9 @@ class Config(Singleton):
         return self._version
 
     @version.setter
-    def version(self, value: int):
+    def version(self, value: int) -> None:
         self._version = value
 
     @version.deleter
-    def version(self):
+    def version(self) -> None:
         self._version = 1

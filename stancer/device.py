@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from ipaddress import ip_address
 import os
-from typing import TypeVar
+
+from ipaddress import ip_address
 
 from .core import AbstractObject
 from .core.decorators import populate_on_call
@@ -10,8 +10,14 @@ from .core.decorators import validate_type
 from .exceptions import InvalidIpAddressError
 from .exceptions import InvalidPortError
 
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Device')
+    Self = TypeVar('Self', bound='Device')  # type: ignore
 
 
 def ip_validation(value):
@@ -44,7 +50,7 @@ class Device(AbstractObject):
 
     @property
     @populate_on_call
-    def city(self) -> str:
+    def city(self) -> str | None:
         """
         Customer's city.
 
@@ -58,12 +64,12 @@ class Device(AbstractObject):
 
     @city.setter
     @validate_type(str)
-    def city(self, value: str):
+    def city(self, value: str) -> None:
         self._data['city'] = value
 
     @property
     @populate_on_call
-    def country(self) -> str:
+    def country(self) -> str | None:
         """
         Customer's country.
 
@@ -77,12 +83,12 @@ class Device(AbstractObject):
 
     @country.setter
     @validate_type(str)
-    def country(self, value: str):
+    def country(self, value: str) -> None:
         self._data['country'] = value
 
     @property
     @populate_on_call
-    def http_accept(self) -> str:
+    def http_accept(self) -> str | None:
         """
         Customer's browser acceptance.
 
@@ -96,10 +102,10 @@ class Device(AbstractObject):
 
     @http_accept.setter
     @validate_type(str)
-    def http_accept(self, value: str):
+    def http_accept(self, value: str) -> None:
         self._data['http_accept'] = value
 
-    def hydrate_from_env(self) -> CurrentInstance:
+    def hydrate_from_env(self: Self) -> Self:
         """
         Hydrate the object using environment variables.
 
@@ -113,30 +119,29 @@ class Device(AbstractObject):
             InvalidPortError: If port is not present.
         """
 
-        if self.ip is None and os.getenv('SERVER_ADDR') is not None:
-            self.ip = os.getenv('SERVER_ADDR')  # pylint: disable=invalid-name
+        if self.ip is None and (server_addr := os.getenv('SERVER_ADDR')) is not None:
+            self.ip = server_addr
 
-        if self.port is None and os.getenv('SERVER_PORT') is not None:
-            self.port = int(os.getenv('SERVER_PORT'))
+        if self.port is None and (server_port := os.getenv('SERVER_PORT')) is not None:
+            self.port = int(server_port)
 
-        if self.http_accept is None and os.getenv('HTTP_ACCEPT') is not None:
-            self.http_accept = os.getenv('HTTP_ACCEPT')
+        if (
+            self.http_accept is None
+            and (http_accept := os.getenv('HTTP_ACCEPT')) is not None
+        ):
+            self.http_accept = http_accept
 
-        tmp = [
-            self.languages is None,
-            os.getenv('HTTP_ACCEPT_LANGUAGE') is not None,
-        ]
+        if (
+            self.languages is None
+            and (http_accept_language := os.getenv('HTTP_ACCEPT_LANGUAGE')) is not None
+        ):
+            self.languages = http_accept_language
 
-        if all(tmp):
-            self.languages = os.getenv('HTTP_ACCEPT_LANGUAGE')
-
-        tmp = [
-            self.user_agent is None,
-            os.getenv('HTTP_USER_AGENT') is not None,
-        ]
-
-        if all(tmp):
-            self.user_agent = os.getenv('HTTP_USER_AGENT')
+        if (
+            self.user_agent is None
+            and (http_user_agent := os.getenv('HTTP_USER_AGENT')) is not None
+        ):
+            self.user_agent = http_user_agent
 
         if self.ip is None:
             raise InvalidIpAddressError()
@@ -148,7 +153,7 @@ class Device(AbstractObject):
 
     @property
     @populate_on_call
-    def ip(self) -> str:  # pylint: disable=invalid-name
+    def ip(self) -> str | None:
         """
         Customer's IP address.
 
@@ -168,12 +173,12 @@ class Device(AbstractObject):
         validation=ip_validation,
         throws=InvalidIpAddressError,
     )
-    def ip(self, value: str): # pylint: disable=invalid-name
+    def ip(self, value: str) -> None:
         self._data['ip'] = value
 
     @property
     @populate_on_call
-    def languages(self) -> str:
+    def languages(self) -> str | None:
         """
         Customer's browser accepted languages.
 
@@ -187,12 +192,12 @@ class Device(AbstractObject):
 
     @languages.setter
     @validate_type(str)
-    def languages(self, value: str):
+    def languages(self, value: str) -> None:
         self._data['languages'] = value
 
     @property
     @populate_on_call
-    def port(self) -> int:
+    def port(self) -> int | None:
         """
         Customer's port.
 
@@ -210,12 +215,12 @@ class Device(AbstractObject):
         max=65535,
         throws=InvalidPortError,
     )
-    def port(self, value: int):
+    def port(self, value: int) -> None:
         self._data['port'] = value
 
     @property
     @populate_on_call
-    def user_agent(self) -> str:
+    def user_agent(self) -> str | None:
         """
         Customer's browser user agent.
 
@@ -229,5 +234,5 @@ class Device(AbstractObject):
 
     @user_agent.setter
     @validate_type(str)
-    def user_agent(self, value: str):
+    def user_agent(self, value: str) -> None:
         self._data['user_agent'] = value

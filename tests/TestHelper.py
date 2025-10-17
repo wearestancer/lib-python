@@ -1,23 +1,38 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from datetime import date
-import pytest
-from random import choice, randint
 import string
 
+
+# pylint: enable=missing-docstring
+from datetime import date
+from random import choice
+from random import randint
+
 from stancer import Config
-from stancer.exceptions import *  # pylint: disable=wildcard-import
+from stancer.exceptions import BadRequestError
+from stancer.exceptions import ConflictError
+from stancer.exceptions import ForbiddenError
+from stancer.exceptions import GoneError
+from stancer.exceptions import InternalServerError
+from stancer.exceptions import MethodNotAllowedError
+from stancer.exceptions import NotAcceptableError
+from stancer.exceptions import NotFoundError
+from stancer.exceptions import PaymentRequiredError
+from stancer.exceptions import ProxyAuthenticationRequiredError
+from stancer.exceptions import RequestTimeoutError
+from stancer.exceptions import StancerHTTPClientError
+from stancer.exceptions import StancerHTTPServerError
+from stancer.exceptions import UnauthorizedError
 
 
-class TestHelper(object):
+class TestHelper:
     """Add some helper for tests."""
 
     def setup_method(self, method):
         conf = Config()
 
-        conf.keys = 'stest_' + self.random_string(24)
+        conf.keys = f'stest_{self.random_string(24)}'
 
         del conf.default_timezone
 
@@ -45,7 +60,7 @@ class TestHelper(object):
         first = self.random_integer(6, 7)
         counter = 4
 
-        mobile = '+33' + str(first)
+        mobile = f'+33{str(first)}'
 
         if first == 7:
             mobile += str(self.random_integer(30, 99)).zfill(2)
@@ -121,57 +136,46 @@ class TestHelper(object):
             '4532160583905253',
             '4103344114503410',
             '4716929813250776300',
-
             # MasterCard
             '5312580044202748',
             '2720995588028031',
             '5217849688268117',
-
             # American Express (AMEX)
             '370301138747716',
             '340563568138644',
             '371461161518951',
-
             # Discover
             '6011651456571367',
             '6011170656779399',
             '6011693048292929421',
-
             # JCB
             '3532433013111566',
             '3544337258139297',
             '3535502591342895821',
-
             # Diners Club - North America
             '5480649643931654',
             '5519243149714783',
             '5509141180527803',
-
             # Diners Club - Carte Blanche
             '30267133988393',
             '30089013015810',
             '30109478108973',
-
             # Diners Club - International
             '36052879958170',
             '36049904526204',
             '36768208048819',
-
             # Maestro
             '5893433915020244',
             '6759761854174320',
             '6759998953884124',
-
             # Visa Electron
             '4026291468019846',
             '4844059039871494',
             '4913054050962393',
-
             # InstaPayment
             '6385037148943057',
             '6380659492219803',
             '6381454097795863',
-
             # Classic one
             '4111111111111111',
             '4242424242424242',

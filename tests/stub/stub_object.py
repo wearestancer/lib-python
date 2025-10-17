@@ -57,7 +57,7 @@ class StubObject(AbstractObject):
         return self._data.get('card1')
 
     @property
-    def _init_card1(self) -> Card:
+    def _init_card1(self) -> type[Card]:
         return Card
 
     @property
@@ -70,7 +70,7 @@ class StubObject(AbstractObject):
         self._data['card2'] = value
 
     @property
-    def _init_card2(self) -> Card:
+    def _init_card2(self) -> type[Card]:
         return Card
 
     @property
@@ -79,5 +79,5 @@ class StubObject(AbstractObject):
         return self._data.get('cards', [])
 
     @property
-    def _init_cards(self) -> Card:
+    def _init_cards(self) -> type[Card]:
         return Card

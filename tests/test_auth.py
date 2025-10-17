@@ -5,6 +5,8 @@ import pytest
 from stancer import Auth
 from stancer import AuthStatus
 from stancer.core import AbstractObject
+from stancer.exceptions import InvalidUrlError
+
 from .TestHelper import TestHelper
 
 
@@ -18,10 +20,10 @@ class TestAuth(TestHelper):
         assert obj.redirect_url is None
 
         with pytest.raises(AttributeError):
-            obj.redirect_url = 'https://' + self.random_string(15)
+            obj.redirect_url = f'https://{self.random_string(15)}'
 
         params = {
-            'redirect_url': 'https://' + self.random_string(50),
+            'redirect_url': f'https://{self.random_string(50)}',
         }
         obj.hydrate(**params)
 
@@ -29,8 +31,11 @@ class TestAuth(TestHelper):
 
     def test_return_url(self):
         obj = Auth()
-        bad_url = 'http://' + self.random_string(50)
-        return_url = 'https://' + self.random_string(50)
+        bad_url = f'http://{self.random_string(50)}'
+        return_url = f'https://{self.random_string(50)}'
+
+        with pytest.raises(InvalidUrlError):
+            obj.return_url = bad_url
 
         assert obj.return_url is None
 
@@ -41,7 +46,7 @@ class TestAuth(TestHelper):
         exported = obj.to_json()
 
         assert isinstance(exported, str)
-        assert exported.find('"return_url":"{}"'.format(return_url)) > 0
+        assert exported.find(f'"return_url":"{return_url}"') > 0
 
     def test_status(self):
         obj = Auth()
@@ -51,7 +56,7 @@ class TestAuth(TestHelper):
         exported = obj.to_json()
 
         assert isinstance(exported, str)
-        assert exported.find('"status":"{}"'.format(AuthStatus.REQUEST)) > 0
+        assert exported.find(f'"status":"{AuthStatus.REQUEST}"') > 0
 
         with pytest.raises(AttributeError):
             obj.status = self.random_string(10)

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import os
-import pytest
 import random
 
+import pytest
+
 from stancer import Config
+
 from ..TestHelper import TestHelper as Helper
 
 

@@ -1,22 +1,26 @@
 """Test sepa object"""
 
+import re
+
 from datetime import datetime
 from datetime import timezone
 from datetime import tzinfo
+
 import pytest
-from pytz import timezone as tz
-import re
 import responses
+
+from pytz import timezone as tz
 
 from stancer import Config
 from stancer import Sepa
 from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
 from stancer.core import AbstractName
+from stancer.core import AbstractObject
 from stancer.exceptions import InvalidBicError
 from stancer.exceptions import InvalidDateMandateError
 from stancer.exceptions import InvalidIbanError
 from stancer.exceptions import InvalidMandateError
+
 from .TestHelper import TestHelper
 
 
@@ -30,19 +34,16 @@ class TestSepa(TestHelper):
     def test__repr(self, iban):
         obj = Sepa()
 
-        assert repr(obj) == '<Sepa() at 0x%x>' % id(obj)
+        assert repr(obj) == f'<Sepa() at 0x{id(obj):x}>'
 
-        obj = Sepa(**{ 'iban': iban })
+        obj = Sepa(**{'iban': iban})
 
         spaceless = re.sub(r'\s', '', iban)
 
-        params = {
-            'country': spaceless[0:2].lower(),
-            'id': id(obj),
-            'last4': spaceless[-4:],
-        }
-
-        assert repr(obj) == '<Sepa(country="{country}", last4="{last4}") at 0x{id:x}>'.format(**params)
+        assert (
+            repr(obj)
+            == f'<Sepa(country="{spaceless[0:2].lower()}", last4="{spaceless[-4:]}") at 0x{id(obj):x}>'
+        )
 
     @responses.activate
     def test_bic(self):
@@ -67,7 +68,7 @@ class TestSepa(TestHelper):
 
         with pytest.raises(
             InvalidBicError,
-            match='"{}" is not a valid BIC'.format(bad_bic),
+            match=f'"{bad_bic}" is not a valid BIC',
         ):
             obj.bic = bad_bic
 
@@ -202,7 +203,7 @@ class TestSepa(TestHelper):
 
         with pytest.raises(
             InvalidIbanError,
-            match='"{}" is not a valid IBAN.'.format(bad_iban),
+            match=f'"{bad_iban}" is not a valid IBAN.',
         ):
             obj.iban = bad_iban
 
@@ -218,7 +219,7 @@ class TestSepa(TestHelper):
         assert len(responses.calls) == 1
 
     def test_is_complete(self):
-        uid = 'sepa_{}'.format(self.random_string(24))
+        uid = f'sepa_{self.random_string(24)}'
         bic = self.random_string(8)
         iban = 'GB82WEST12345698765432'
 

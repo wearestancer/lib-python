@@ -1,8 +1,9 @@
 """Functional tests for payment object"""
 
 import platform
-import pytest
 import uuid
+
+import pytest
 
 from stancer import Auth
 from stancer import AuthStatus
@@ -14,6 +15,7 @@ from stancer import Payment
 from stancer import PaymentStatus
 from stancer.exceptions import ConflictError
 from stancer.exceptions import NotFoundError
+
 from .TestHelper import TestHelper
 
 
@@ -24,7 +26,7 @@ class TestFunctionalPayment(TestHelper):
             obj = Payment(self.random_string(29))
             obj.amount
 
-        assert error.value.message == 'No such payment {}'.format(obj.id)
+        assert error.value.message == f'No such payment {obj.id}'
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
         assert error.value.type == 'invalid_request_error'
@@ -53,7 +55,7 @@ class TestFunctionalPayment(TestHelper):
         payment1 = Payment()
         payment1.amount = amount1
         payment1.currency = currency1
-        payment1.description = 'Automatic test for payments list, {} {}, 1/2'.format(amount1 / 100, currency1.upper())
+        payment1.description = f'Automatic test for payments list, {amount1 / 100} {currency1.upper()}, 1/2'
         payment1.order_id = order_id
         payment1.unique_id = unique_id
 
@@ -71,7 +73,7 @@ class TestFunctionalPayment(TestHelper):
         payment2 = Payment()
         payment2.amount = amount2
         payment2.currency = currency2
-        payment2.description = 'Automatic test for payments list, {} {}, 2/2'.format(amount2 / 100, currency2.upper())
+        payment2.description = f'Automatic test for payments list, {amount2 / 100} {currency2.upper()}, 2/2'
         payment2.order_id = order_id
 
         payment2.card = Card()
@@ -121,11 +123,7 @@ class TestFunctionalPayment(TestHelper):
         obj = Payment()
 
         amount = self.random_integer(50, 10000)
-        desc = 'Python {} automatic test, {:.2f} {}'.format(
-            platform.python_version(),
-            amount / 100,
-            currency.upper(),
-        )
+        desc = f'Python {platform.python_version()} automatic test, {amount / 100:.2f} {currency.upper()}'
 
         card = Card()
         card.number = self.get_card_number()
@@ -164,8 +162,8 @@ class TestFunctionalPayment(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send_with_authentification(self, currency):
         amount = self.random_integer(50, 99999)
-        description = 'Automatic auth test for Python, {:.2f} {}'.format(amount / 100, currency)
-        return_url = 'https://www.example.org/?' + self.random_string(30)
+        description = f'Automatic auth test for Python, {amount / 100:.2f} {currency}'
+        return_url = f'https://www.example.org/?{self.random_string(30)}'
 
         ip = self.ip_provider(True)
         port = self.random_integer(1, 65534)
@@ -200,8 +198,8 @@ class TestFunctionalPayment(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send_for_payment_page(self, currency):
         amount = self.random_integer(50, 99999)
-        description = 'Payment page test for Python, {:.2f} {}'.format(amount / 100, currency)
-        return_url = 'https://www.example.org/?' + self.random_string(30)
+        description = f'Payment page test for Python, {amount / 100:.2f} {currency}'
+        return_url = f'https://www.example.org/?{self.random_string(30)}'
 
         payment = Payment()
         payment.amount = amount
@@ -224,7 +222,7 @@ class TestFunctionalPayment(TestHelper):
         config = Config()
 
         keys = config.keys
-        fake_public_key = 'p' + config.secret_key[1:]
+        fake_public_key = f'p{config.secret_key[1:]}'
         config.keys = fake_public_key
 
         assert payment.payment_page_url() is not None
@@ -237,7 +235,7 @@ class TestFunctionalPayment(TestHelper):
     @pytest.mark.parametrize('currency', TestHelper.currency_provider())
     def test_send_path_status(self, currency):
         amount = self.random_integer(50, 99999)
-        description = 'Patch status test for Python, {:.2f} {}'.format(amount / 100, currency)
+        description = f'Patch status test for Python, {amount / 100:.2f} {currency}'
 
         payment = Payment()
         payment.amount = amount
@@ -286,11 +284,7 @@ class TestFunctionalPayment(TestHelper):
         obj = Payment()
 
         amount = self.random_integer(50, 10000)
-        desc = 'Python {} automatic test for `unique_id`, {:.2f} {}'.format(
-            platform.python_version(),
-            amount / 100,
-            currency.upper(),
-        )
+        desc = f'Python {platform.python_version()} automatic test for `unique_id`, {amount / 100:.2f} {currency.upper()}'
         unique_id = uuid.uuid4()
 
         card = Card()

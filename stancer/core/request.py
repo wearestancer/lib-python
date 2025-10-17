@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from typing import TypeVar, Union
+from typing import TYPE_CHECKING
 
 import requests
 
@@ -8,19 +8,27 @@ from ..config import Config
 from ..exceptions import StancerHTTPError
 from ..exceptions import StancerValueError
 
+if TYPE_CHECKING:
+    from .abstract_object import AbstractObject
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Request')
-AbstractObject = TypeVar('AbstractObject', bound='AbstractObject')
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='Request')  # type: ignore
 
 
-class Request(object):
+class Request:
     """API request manager."""
 
     def __init__(self):
         """Initialize"""
         self._conf = Config()
 
-    def delete(self, obj: AbstractObject) -> CurrentInstance:
+    def delete(self: Self, obj: 'AbstractObject') -> Self | str:
         """
         Send a DELETE HTTP request.
 
@@ -33,11 +41,11 @@ class Request(object):
         return self._request('delete', obj)
 
     def get(
-        self,
-        obj: AbstractObject,
+        self: Self,
+        obj,
         update: bool = True,
         **kwargs,
-    ) -> Union[CurrentInstance, str]:
+    ) -> Self | str:
         """
         Send a GET HTTP request.
 
@@ -51,7 +59,7 @@ class Request(object):
         """
         return self._request('get', obj, update, **kwargs)
 
-    def patch(self, obj: AbstractObject) -> CurrentInstance:
+    def patch(self: Self, obj: 'AbstractObject') -> Self | str:
         """
         Send a POST HTTP request.
 
@@ -63,7 +71,7 @@ class Request(object):
         """
         return self._request('patch', obj)
 
-    def post(self, obj: AbstractObject) -> CurrentInstance:
+    def post(self: Self, obj: 'AbstractObject') -> Self | str:
         """
         Send a POST HTTP request.
 
@@ -76,12 +84,12 @@ class Request(object):
         return self._request('post', obj)
 
     def _request(
-        self,
+        self: Self,
         method: str,
-        obj: AbstractObject,
+        obj: 'AbstractObject',
         update: bool = True,
         **kwargs,
-    ) -> CurrentInstance:
+    ) -> Self | str:
         """Handle "delete", "get", "patch" and "post" method."""
 
         if method not in ['delete', 'get', 'patch', 'post']:

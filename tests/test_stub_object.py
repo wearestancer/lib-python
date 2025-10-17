@@ -1,19 +1,21 @@
 """Test abstract object"""
 
 import base64
+import json
+
 from datetime import datetime
 from datetime import timezone
 from datetime import tzinfo
-import json
-import pytest
-from pytz import timezone as tz
 from random import choice
-import requests
+
+import pytest
 import responses
+
+from pytz import timezone as tz
 
 from stancer import Card
 from stancer import Config
-from stancer.exceptions import StancerValueError
+
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
 
@@ -175,7 +177,6 @@ class TestStubObject(TestHelper):
 
     def test_hydrate(self):
         obj = StubObject()
-        config = Config()
         uid = self.random_string(29)
 
         params = {
@@ -390,7 +391,7 @@ class TestStubObject(TestHelper):
         obj = StubObject(self.random_string(29))
         conf = Config()
 
-        conf.keys = 'stest_' + self.random_string(24)
+        conf.keys = f'stest_{self.random_string(24)}'
 
         params = {
             'string1': self.random_string(10),
@@ -409,14 +410,14 @@ class TestStubObject(TestHelper):
         obj = StubObject()
         conf = Config()
 
-        stest = 'stest_' + self.random_string(24)
-        sprod = 'sprod_' + self.random_string(24)
+        stest = f'stest_{self.random_string(24)}'
+        sprod = f'sprod_{self.random_string(24)}'
 
         phead = base64.b64encode((sprod + ':').encode())
-        pheader = 'Basic {}'.format(phead.decode())
+        pheader = f'Basic {phead.decode()}'
 
         thead = base64.b64encode((stest + ':').encode())
-        theader = 'Basic {}'.format(thead.decode())
+        theader = f'Basic {thead.decode()}'
 
         conf.keys = (sprod, stest)
 
@@ -432,7 +433,6 @@ class TestStubObject(TestHelper):
 
         obj.hydrate(**params)
         obj.string2 = self.random_string(20)
-        card = obj.card1
 
         uid = self.random_string(29)
 
@@ -456,7 +456,7 @@ class TestStubObject(TestHelper):
 
         conf.mode = Config.LIVE_MODE
 
-        responses.add(responses.PATCH, location + '/' + uid, json={'id': uid})
+        responses.add(responses.PATCH, f'{location}/{uid}', json={'id': uid})
 
         # Modified object allows new calls
         obj.string2 = self.random_string(20)
@@ -489,9 +489,9 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
-        assert result.find('"string1":"{}"'.format(params['string1'])) > 0
-        assert result.find('"integer1":{}'.format(params['integer1'])) > 0
-        assert result.find('"card1":{{"number":"{}"}}'.format(card1.number)) > 0
+        assert result.find(f'"string1":"{params["string1"]}"') > 0
+        assert result.find(f'"integer1":{params["integer1"]}') > 0
+        assert result.find(f'"card1":{{"number":"{card1.number}"}}') > 0
         assert result.find('"created"') == -1
         assert result.find('"card2"') == -1
 
@@ -501,7 +501,7 @@ class TestStubObject(TestHelper):
 
         result = obj.to_json()
 
-        assert result.find('"card2":"{}"'.format(card2.id)) > 0
+        assert result.find(f'"card2":"{card2.id}"') > 0
 
         # Only export modified properties
         obj.reset_modified()
@@ -519,7 +519,7 @@ class TestStubObject(TestHelper):
 
         result = obj.to_json()
 
-        assert result == '"{}"'.format(uid)
+        assert result == f'"{uid}"'
 
         # Unless it was modified
         obj.string2 = self.random_string(20)
@@ -545,7 +545,7 @@ class TestStubObject(TestHelper):
 
         assert isinstance(result, str)
         assert result.find('"card1"') == -1
-        assert result.find('"card2":{{"cvc":"{}"}}'.format(card2.cvc)) > 0
+        assert result.find(f'"card2":{{"cvc":"{card2.cvc}"}}') > 0
 
         # Do not export empty object
         obj.card2 = Card()

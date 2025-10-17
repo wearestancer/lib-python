@@ -5,8 +5,8 @@ from functools import wraps
 
 from ...config import Config
 
-
 # pylint: disable=too-many-branches, too-many-statements, too-many-locals
+
 
 def validate_type(type_expected, **options):
     """
@@ -36,15 +36,15 @@ def validate_type(type_expected, **options):
         type_name = 'a ' + type_expected.__name__
         std_type = False
 
-        if type_expected == str:
+        if type_expected is str:
             type_name = 'a string'
             std_type = True
 
-        if type_expected == int:
+        if type_expected is int:
             type_name = 'an integer'
             std_type = True
 
-        if type_expected == bool:
+        if type_expected is bool:
             type_name = 'a boolean'
             std_type = True
 
@@ -72,7 +72,10 @@ def validate_type(type_expected, **options):
                 length = value
 
             if type_expected == datetime and isinstance(value, int):
-                value = datetime.fromtimestamp(value, tz=config.default_timezone)
+                value = datetime.fromtimestamp(
+                    value,
+                    tz=config.default_timezone,
+                )
 
             if not isinstance(value, type_expected):
                 message = f'{name} must be {type_name}.'
@@ -82,6 +85,7 @@ def validate_type(type_expected, **options):
                     message = f'You must provide a valid instance of {type_expected.__name__}.'
 
             if std_type and message is None:
+                must_be_msg = f'{name} must be'
                 if 'length' in options and length != options['length']:
                     message = f'{name} must have {options["length"]} characters.'
 
@@ -94,32 +98,28 @@ def validate_type(type_expected, **options):
                 if minimum is not None:
                     if maximum is not None:
                         if length < minimum or length > maximum:
-                            message = ' '.join([
-                                f'{name} must be',
-                                f'between {minimum} and {maximum}{char_suffix}.'
-                            ])
+                            message = f'{must_be_msg} between {minimum} and {maximum}{char_suffix}.'
                     elif length < minimum:
-                        message = ' '.join([
-                            f'{name} must be',
-                            f'greater than or equal to {minimum}{char_suffix}.',
-                        ])
-
+                        message = f'{must_be_msg} greater than or equal to {minimum}{char_suffix}.'
                 elif maximum is not None and length > maximum:
-                    message = ' '.join([
-                        f'{name} must be',
-                        f'{maximum}{char_suffix} maximum.'
-                    ])
+                    message = f'{must_be_msg} {maximum}{char_suffix} maximum.'
 
                 tmp_value = value
 
-                if 'lowercase' in options and options['lowercase'] and hasattr(value, 'lower'):
+                if (
+                    'lowercase' in options
+                    and options['lowercase']
+                    and hasattr(value, 'lower')
+                ):
                     tmp_value = value.lower()
 
                 if 'allowed' in options and tmp_value not in options['allowed']:
-                    message = ' '.join([
-                        f'"{value}" is not a valid {options.get("name", method.__name__)},',
-                        f'please use one of following: {", ".join(options["allowed"])}',
-                    ])
+                    message = ' '.join(
+                        [
+                            f'"{value}" is not a valid {options.get("name", method.__name__)},',
+                            f'please use one of following: {", ".join(options["allowed"])}',
+                        ]
+                    )
 
                 value = tmp_value
 

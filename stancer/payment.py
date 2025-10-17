@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from typing import TypeVar
+from typing import Any
 
 from .card import Card
-from .customer import Customer
-from .sepa import Sepa
 from .core import AbstractAmount
 from .core import AbstractCountry
 from .core import AbstractObject
@@ -14,10 +12,10 @@ from .core.decorators import populate_on_call
 from .core.decorators import validate_type
 from .core.helpers import coerce_status
 from .core.helpers import coerce_uuid
-from .core.payment.auth import PaymentAuth
-from .core.payment.page import PaymentPage
-from .core.payment.refund import PaymentRefund
-from .exceptions import StancerNotImplementedError
+from .core.payment import PaymentAuth
+from .core.payment import PaymentPage
+from .core.payment import PaymentRefund
+from .customer import Customer
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
@@ -30,28 +28,37 @@ from .exceptions import InvalidSearchFilter
 from .exceptions import InvalidSepaError
 from .exceptions import InvalidStatusError
 from .exceptions import MissingPaymentMethodError
+from .exceptions import StancerNotImplementedError
+from .sepa import Sepa
 from .status.payment import PaymentStatus
 
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
 
-BaseObject = (
+    Self = TypeVar('Self', bound='Payment')  # type: ignore
+
+ORDER_ID_MAX_LEN = 36
+
+UNIQUE_ID_MAX_LEN = 36
+
+
+class Payment(
     AbstractObject,
     AbstractAmount,
     AbstractCountry,
     AbstractSearch,
     PaymentAuth,
-    PaymentPage,
     PaymentRefund,
-)
-CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
-
-ORDER_ID_MAX_LEN = 36
-UNIQUE_ID_MAX_LEN = 36
-
-
-class Payment(*BaseObject):
+    PaymentPage,
+):  # pylint: disable='too-many-ancestors'
+    # our way of building object imposes many ancestors
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
+    _ENDPOINT = 'checkout'
 
     _allowed_attributes = [
         'capture',
@@ -68,20 +75,20 @@ class Payment(*BaseObject):
     ]
 
     @property
-    def _init_card(self) -> Card:
+    def _init_card(self) -> type[Card]:
         return Card
 
     @property
-    def _init_customer(self) -> Customer:
+    def _init_customer(self) -> type[Customer]:
         return Customer
 
     @property
-    def _init_sepa(self) -> Sepa:
+    def _init_sepa(self) -> type[Sepa]:
         return Sepa
 
     @property
     @populate_on_call
-    def capture(self) -> bool:
+    def capture(self) -> bool | None:
         """
         Do we need to capture the payment ?
 
@@ -106,7 +113,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def card(self) -> Card:
+    def card(self) -> Card | None:
         """
         Source card for the payment.
 
@@ -129,7 +136,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def customer(self) -> Customer:
+    def customer(self) -> Customer | None:
         """
         Customer handling the payment.
 
@@ -146,12 +153,12 @@ class Payment(*BaseObject):
 
     @customer.setter
     @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer):
+    def customer(self, value: Customer) -> None:
         self._data['customer'] = value
 
     @property
     @populate_on_call
-    def date_bank(self) -> datetime:
+    def date_bank(self) -> datetime | None:
         """
         Value date.
 
@@ -160,7 +167,8 @@ class Payment(*BaseObject):
         """
         return self._data.get('date_bank')
 
-    def delete(self):
+    # We raise an error before return so no need for type checking here.
+    def delete(self: Self) -> Self:  # type: ignore # see above
         """
         Delete the current object.
 
@@ -169,15 +177,14 @@ class Payment(*BaseObject):
                 delete, refund it.
         """
         message = (
-            'You are not allowed to delete a payment, '
-            'you need to refund it instead.'
+            'You are not allowed to delete a payment, you need to refund it instead.'
         )
 
         raise StancerNotImplementedError(message)
 
     @property
     @populate_on_call
-    def description(self) -> str:
+    def description(self) -> str | None:
         """
         Open description for your uses.
 
@@ -194,12 +201,12 @@ class Payment(*BaseObject):
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self._data['description'] = value
 
     @property
     @populate_on_call
-    def fee(self) -> datetime:
+    def fee(self) -> str | None:
         """
         Fee applied at checkout.
 
@@ -209,7 +216,7 @@ class Payment(*BaseObject):
         return self._data.get('fee')
 
     @classmethod
-    def filter_list_params(cls, **kwargs) -> dict:
+    def filter_list_params(cls, **kwargs) -> dict[str, Any]:
         """
         Filter for list method.
 
@@ -231,8 +238,10 @@ class Payment(*BaseObject):
 
             length = len(kwargs['order_id'])
 
-            if length > ORDER_ID_MAX_LEN or length == 0:
-                raise InvalidSearchFilter(base_message.format('order ID', 1, ORDER_ID_MAX_LEN))
+            if length > ORDER_ID_MAX_LEN or not length:
+                raise InvalidSearchFilter(
+                    base_message.format('order ID', 1, ORDER_ID_MAX_LEN)
+                )
 
             params['order_id'] = kwargs['order_id']
 
@@ -242,8 +251,10 @@ class Payment(*BaseObject):
 
             length = len(kwargs['unique_id'])
 
-            if length > UNIQUE_ID_MAX_LEN or length == 0:
-                raise InvalidSearchFilter(base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN))
+            if length > UNIQUE_ID_MAX_LEN or not length:
+                raise InvalidSearchFilter(
+                    base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN)
+                )
 
             params['unique_id'] = kwargs['unique_id']
 
@@ -307,7 +318,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def method(self) -> str:
+    def method(self) -> str | None:  # type: ignore
         """
         Payment method used.
 
@@ -318,7 +329,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def order_id(self) -> str:
+    def order_id(self) -> str | None:
         """
         External order id.
 
@@ -344,12 +355,12 @@ class Payment(*BaseObject):
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
-    def order_id(self, value: str):
+    def order_id(self, value: str) -> None:
         self._data['order_id'] = value
 
     @property
     @populate_on_call
-    def response(self) -> str:
+    def response(self) -> str | None:
         """
         API response code.
 
@@ -363,7 +374,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def response_message(self) -> str:
+    def response_message(self) -> str | None:
         """
         API response message.
 
@@ -383,7 +394,7 @@ class Payment(*BaseObject):
 
         return responses.get(response)
 
-    def send(self) -> CurrentInstance:
+    def send(self: Self) -> Self:
         """
         Create or update the payment.
 
@@ -421,7 +432,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def sepa(self) -> Sepa:
+    def sepa(self) -> Sepa | None:
         """
         Source SEPA account for the payment.
 
@@ -438,13 +449,13 @@ class Payment(*BaseObject):
 
     @sepa.setter
     @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value: Sepa):
+    def sepa(self, value: Sepa) -> None:
         self._data['sepa'] = value
         self._data['method'] = 'sepa'
 
     @property
     @populate_on_call
-    def status(self) -> str:
+    def status(self) -> str | None:
         """
         Payment status.
 
@@ -455,12 +466,12 @@ class Payment(*BaseObject):
 
     @status.setter
     @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
-    def status(self, value: str):
+    def status(self, value: str) -> None:
         self._data['status'] = value
 
     @property
     @populate_on_call
-    def unique_id(self) -> str:
+    def unique_id(self) -> str | None:
         """
         External unique ID.
 
@@ -488,5 +499,5 @@ class Payment(*BaseObject):
         name='Unique ID',
         throws=InvalidPaymentUniqueIdError,
     )
-    def unique_id(self, value: str):
+    def unique_id(self, value: str) -> None:
         self._data['unique_id'] = value

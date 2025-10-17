@@ -4,7 +4,7 @@
 class _Singleton(type):
     """A metaclass that creates a Singleton base class when called."""
 
-    _instances = {}
+    _instances: dict = {}
 
     def __call__(cls, *args, **kv):
         if cls not in cls._instances:
@@ -13,5 +13,5 @@ class _Singleton(type):
         return cls._instances[cls]
 
 
-class Singleton(_Singleton('SingletonMeta', (object,), {})):
+class Singleton(_Singleton('SingletonMeta', (object,), {})):  # type: ignore
     """Base class for using singleton."""
