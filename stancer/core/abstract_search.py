@@ -14,6 +14,7 @@ from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
 try:
+    # Self is available in Python 3.11
     from typing import Self  # type: ignore
 except ImportError:
     from typing import TypeVar

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from abc import ABC
 from abc import abstractmethod
-from typing import Any
 from typing import TYPE_CHECKING
+from typing import Any
 
-from .payment_protocol import PaymentProtocol
 from ...exceptions import InvalidAmountError
 from ...status.refund import RefundStatus
 from ..decorators import populate_on_call
 from ..decorators import validate_type
+from .payment_protocol import PaymentProtocol
 
 if TYPE_CHECKING:
     from ...refund import Refund

@@ -156,7 +156,7 @@ class Config(Singleton):
         if value not in (self.LIVE_MODE, self.TEST_MODE):
             message = ' '.join(
                 [
-                    f'Unknonw mode "{value}".',
+                    f'Unknown mode "{value}".',
                     'Please use class constant "LIVE_MODE" or "TEST_MODE".',
                 ]
             )

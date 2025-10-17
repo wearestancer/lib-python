@@ -11,6 +11,7 @@ from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
 try:
+    # Self is available in Python 3.11
     from typing import Self  # type: ignore
 except ImportError:
     from typing import TypeVar
@@ -206,7 +207,7 @@ class AbstractObject:
         """
         return self._data.get('created')
 
-    def delete(self: Self) -> Self | None:
+    def delete(self: Self) -> Self:
         """
         Delete the current object.
 
@@ -334,7 +335,7 @@ class AbstractObject:
                 try:
                     # because we override the __dict__ method,
                     # mypy is a little lost on the correct type.
-                    prop = self.__class__.__dict__.get(key)  # type: ignore
+                    prop = self.__class__.__dict__.get(key)  # type: ignore # (see above)
 
                     if prop is not None and prop.fset is not None:
                         prop.fset(self, value)

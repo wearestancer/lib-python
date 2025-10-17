@@ -4,7 +4,6 @@ from abc import ABC
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from .payment_protocol import PaymentProtocol
 from ...auth import Auth
 from ...device import Device
 from ...exceptions import InvalidAuthError
@@ -12,6 +11,7 @@ from ...exceptions import InvalidDeviceError
 from ...exceptions import StancerException
 from ..decorators import populate_on_call
 from ..decorators import validate_type
+from .payment_protocol import PaymentProtocol
 
 if TYPE_CHECKING:
     from ...payment import Payment
@@ -90,7 +90,7 @@ class PaymentAuth(ABC, PaymentProtocol):
         self._data['device'] = value
 
     # Auth must be implemented by payment.
-    def _create_device(self: 'Payment') -> 'Payment':  # type: ignore
+    def _create_device(self: 'Payment') -> 'Payment':  # type: ignore # (see above)
         """
         Create and populate device.
 

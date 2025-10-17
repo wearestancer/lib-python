@@ -14,6 +14,7 @@ variables:
   DOCKER_REGISTRY: docker.io/wearestancer
   VERSION: 3.12
 
+
 .python::base:
   image: ${DOCKER_REGISTRY}/python:$VERSION-uv
   before_script:
@@ -24,9 +25,15 @@ variables:
     - uv tree
     - section_end install
 
+
 .python::current-versions:
   extends:
     - .python::base
+  rules:
+    - if: $VERSION == "3.14rc"
+      allow_failure: true
+    - when: on_success
+
   parallel:
     matrix:
       - VERSION:
@@ -35,17 +42,19 @@ variables:
           - "3.12"
           - "3.13"
           - "3.14rc"
+
+
 pylint:
   extends: .python::base
 
   stage: lint
 
   script:
-    - uv add pylint-gitlab pylint-quotes
     - uv run pylint --output-format=pylint_gitlab.GitlabCodeClimateReporter:codequality.json,text --reports=y --score=y ${PYLINT_TARGET:-.}
   artifacts:
     reports:
       codequality: codequality.json
+
 
 bandit:
   extends: .python::base
@@ -59,6 +68,7 @@ bandit:
   artifacts:
     reports:
       codequality: results.json
+
 
 unit_test:
   extends: .python::current-versions
@@ -100,13 +110,15 @@ ruff:
 
   script:
     - uv run ruff --version
-    - uv run ruff check --exit-zero
+    - uv run ruff check --exit-zero --output-format=gitlab > ruff-report.json
     - uv run ruff format
-    - uv run ruff check --output-format=gitlab > ruff-report.json
+    - uv run ruff check
+    - uv run ruff check --select I
 
   artifacts:
     reports:
       codequality: ruff-report.json
+
 
 mypy:
   extends: .python::current-versions

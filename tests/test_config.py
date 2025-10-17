@@ -174,7 +174,7 @@ class TestConfig(TestHelper):
 
         assert obj.mode == Config.LIVE_MODE
 
-        message = f'Unknonw mode "{mode}". Please use class constant "LIVE_MODE" or "TEST_MODE".'
+        message = f'Unknown mode "{mode}". Please use class constant "LIVE_MODE" or "TEST_MODE".'
 
         with pytest.raises(
             StancerValueError,

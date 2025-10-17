@@ -52,11 +52,11 @@ dev = [
     "responses ~=0.25",
     "ruff ~=0.12",
     "types-pytz",
-    "types-pexpect ~=4.9.0",
-    "types-pygments ~=2.19.0",
-    "types-pyyaml ~=6.0.12",
-    "types-requests ~=2.32.4",
-    "types-setuptools ~=80.9.0",
+    "types-pexpect ~=4.9",
+    "types-pygments ~=2.19",
+    "types-pyyaml ~=6.0",
+    "types-requests ~=2.32",
+    "types-setuptools ~=80.9",
 ]
 
 #REGION build
@@ -92,7 +92,10 @@ relative-imports-order = "furthest-to-closest"
 
 #REGION pytest
 [tool.pytest.ini_options]
-looponfailroots = ["stancer", "tests"]
+looponfailroots = [
+    "stancer",
+    "tests",
+]
 testpaths = ["tests"]
 #ENDREGION
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Any
+
 from ..exceptions import InvalidAmountError
 from ..exceptions import InvalidCurrencyError
 from .decorators import populate_on_call

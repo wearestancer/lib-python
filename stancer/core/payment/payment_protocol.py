@@ -1,6 +1,14 @@
 from typing import Any
 from typing import Protocol
 
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='PaymentProtocol')  # type: ignore
+
 
 class PaymentProtocol(Protocol):
     """Protocol that define which attribute has to be implemented for Payment Objects"""
@@ -13,4 +21,4 @@ class PaymentProtocol(Protocol):
     id: str | None
     method: str | None
 
-    def populate(self: Any) -> Any: ...
+    def populate(self: Self) -> Self: ...

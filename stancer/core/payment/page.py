@@ -3,7 +3,6 @@ from abc import ABC
 from abc import abstractmethod
 from urllib.parse import urlencode
 
-from .payment_protocol import PaymentProtocol
 from ...config import Config
 from ...exceptions import InvalidUrlError
 from ...exceptions import MissingApiKeyError
@@ -11,6 +10,7 @@ from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
 from ..decorators import populate_on_call
 from ..decorators import validate_type
+from .payment_protocol import PaymentProtocol
 
 
 def _valid_return_url(value) -> str | None:

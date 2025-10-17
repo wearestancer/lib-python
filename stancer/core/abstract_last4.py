@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import Any
+
 from .decorators import populate_on_call
 
 

@@ -32,9 +32,9 @@ from .exceptions import StancerNotImplementedError
 from .sepa import Sepa
 from .status.payment import PaymentStatus
 
-
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
 try:
+    # Self is available in Python 3.11
     from typing import Self  # type: ignore
 except ImportError:
     from typing import TypeVar
@@ -167,7 +167,8 @@ class Payment(
         """
         return self._data.get('date_bank')
 
-    def delete(self) -> None:
+    # We raise an error before return so no need for type checking here.
+    def delete(self: Self) -> Self:  # type: ignore # see above
         """
         Delete the current object.
 
