@@ -25,7 +25,7 @@ except ImportError:
 class AbstractObject:
     """Manage common code between API object."""
 
-    _DEPRECATED_ENDPOINT: list[str | int] = []  # pylint: disable=invalid-name
+    _DEPRECATED_ENDPOINT: dict[str, Any] = {}  # pylint: disable=invalid-name
     _ENDPOINT: str | None = None  # pylint: disable=invalid-name
     _allowed_attributes: list[str] = []
     _flat_attributes: list[str] = []
@@ -532,7 +532,6 @@ class AbstractObject:
                 continue
             if hasattr(value, 'to_json_repr'):
                 val = value.to_json_repr()
-
                 if val:
                     representation[key] = val
             else:
@@ -563,16 +562,12 @@ class AbstractObject:
         location = f'https://{conf.host}{port}/v{conf.version}'
 
         if len(self._DEPRECATED_ENDPOINT) == 2 and conf.version <= int(
-            self._DEPRECATED_ENDPOINT[0]
+            self._DEPRECATED_ENDPOINT['version']
         ):
-            location += f'/{self._DEPRECATED_ENDPOINT[1]}'
+            location += f'/{self._DEPRECATED_ENDPOINT["route"]}'
         elif self._ENDPOINT is not None:
             location += f'/{self._ENDPOINT}'
 
-        if self.id is not None:
-            location_end = f'/{self.id}'
-        else:
-            location_end = '/'
-        location += location_end
+        location += f'/{self.id if self.id is not None else ""}'
 
         return location

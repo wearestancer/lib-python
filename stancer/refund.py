@@ -9,6 +9,11 @@ from .core.abstract_amount import AbstractAmount
 from .core.abstract_object import AbstractObject
 from .core.decorators.populate_on_call import populate_on_call
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 if TYPE_CHECKING:
     from .payment import Payment
 
@@ -98,6 +103,7 @@ class Refund(AbstractObject, AbstractAmount):
         """
         return self._data.get('status')
 
+    @override
     def to_json_repr(self) -> dict[str, Any] | str | bool:
         """
         Return a dictionnary which will be used to make a JSON representation.

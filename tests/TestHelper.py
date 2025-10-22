@@ -2,7 +2,6 @@
 # pylint: disable=missing-docstring
 
 import os
-import re
 import string
 
 
@@ -26,7 +25,6 @@ from stancer.exceptions import ProxyAuthenticationRequiredError
 from stancer.exceptions import RequestTimeoutError
 from stancer.exceptions import StancerHTTPClientError
 from stancer.exceptions import StancerHTTPServerError
-from stancer.exceptions import StancerValueError
 from stancer.exceptions import UnauthorizedError
 
 
@@ -39,6 +37,9 @@ class TestHelper:
         self.conf.keys = f'stest_{self.random_string(24)}'
         self.conf.version = Version[f'API_V{os.getenv("API_VERSION", 1)}']
         del self.conf.default_timezone
+
+    def random_bool(self) -> bool:
+        return bool(self.random_integer(0, 1))
 
     def random_integer(self, min, max=0):
         if max < min:
@@ -74,24 +75,14 @@ class TestHelper:
         if first == 6:
             first_number_duo = [
                 str(self.random_integer(0, 20)).zfill(2),
-                self.random_integer(40, 80),
+                str(self.random_integer(40, 80)),
+                f'3{self.random_integer(0, 8)}',
+                f'9{choice([5, 8, 9])}',
             ]
-            first_number_duo.append(f'3{self.random_integer(0, 8)}')
-            nine_list = [
-                5,
-                8,
-                9,
-            ]
-            first_number_duo.append(f'9{nine_list[randint(0, 2)]}')
-            mobile += str(first_number_duo[randint(0, 3)])
+            mobile += choice(first_number_duo)
 
         for idx in range(counter):
             mobile += str(self.random_integer(0, 99)).zfill(2)
-
-        regex = r'(?:6(?:[0-24-8]\d|3[0-8]|9[589])|7[3-9]\d)\d{6}'
-        match = re.fullmatch(regex, mobile)
-        if match is None:
-            raise StancerValueError
 
         return f'+33{mobile}'
 

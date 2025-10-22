@@ -3,6 +3,7 @@
 import pytest
 
 from stancer.core.abstract_deleted import AbstractDeleted
+from stancer.exceptions.attribute import DeleteSetterError
 
 from ..TestHelper import TestHelper
 
@@ -12,5 +13,5 @@ class TestAbstractDeleted(TestHelper):
         obj = AbstractDeleted()
         assert obj.deleted is None
 
-        with pytest.raises(AttributeError):
+        with pytest.raises(DeleteSetterError):
             obj.deleted = True

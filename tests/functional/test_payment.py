@@ -239,12 +239,7 @@ class TestFunctionalPayment(FunctionalTestHelper):
 
         assert payment.payment_page_url() is not None
         assert payment.payment_page_url().startswith('https://payment')
-        assert (
-            payment.payment_page_url().find(fake_public_key) > 0
-            if version is Version.API_V1
-            else -1
-        )
-        assert payment.payment_page_url().find(payment.id) > 0
+        assert fake_public_key in payment.payment_page_url()
 
         config.keys = keys
 

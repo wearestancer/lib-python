@@ -96,14 +96,12 @@ class TestFunctionalCustomer(FunctionalTestHelper):
 
         # We can create a fully completed customer. Except Country
         customer3 = Customer()
-        date_birth3 = str(
-            datetime(
-                year=self.random_year() - 50,
-                month=self.random_integer(1, 12),
-                day=self.random_integer(1, 28),
-            ).date()
-        )
-        email3 = f'john.doe+{tmp}@example.com'
+        date_birth3 = datetime.datetime(
+            year=self.random_year() - 50,
+            month=self.random_integer(1, 12),
+            day=self.random_integer(1, 28),
+        ).date()
+        email3 = f'john.doe+{tmp}3@example.com'
         external_id3 = uuid.uuid4()
         legal_id3 = self.random_string(16)
         mobile3 = self.random_mobile()
@@ -119,7 +117,7 @@ class TestFunctionalCustomer(FunctionalTestHelper):
         assert customer3.id is None
         assert customer3.send() == customer3
         assert customer3.id is not None
-        assert customer3.date_birth == str(date_birth3)
+        assert customer3.date_birth == date_birth3
         assert customer3.email == email3
         assert customer3.external_id == str(external_id3)
         assert not customer3.deleted

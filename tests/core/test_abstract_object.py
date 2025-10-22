@@ -64,8 +64,8 @@ class TestAbstractObject(TestHelper):
             == f'<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id(obj):x}>'
         )
 
-    @pytest.mark.parametrize('version',TestHelper.version_provider())
-    def test_uri(self,version):
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, version):
         self.conf.version = version
         obj = AbstractObject()
         uid = self.random_string(29)

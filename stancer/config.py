@@ -30,7 +30,7 @@ class Config(Singleton):
         self._mode: str | None = None
         self._port: int | None = None
         self._timeout: int | None = None
-        self._version: Version = Version.API_V1
+        self._version: Version = Version.DEFAULT
 
         del self.host
         del self.keys
@@ -299,4 +299,4 @@ class Config(Singleton):
 
     @version.deleter
     def version(self) -> None:
-        self._version = Version.API_V1
+        self._version = Version.DEFAULT

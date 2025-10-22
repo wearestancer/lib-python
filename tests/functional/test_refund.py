@@ -15,6 +15,7 @@ from .FunctionalTestHelper import FunctionalTestHelper
 class TestFunctionalRefund(FunctionalTestHelper):
     @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.future
     def test_single_refund(self, currency, version):
         self.conf.version = version
         amount = self.random_integer(100, 10000)
@@ -68,6 +69,7 @@ class TestFunctionalRefund(FunctionalTestHelper):
 
     @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.future
     def test_multiple_refund(self, currency, version):
         self.conf.version = version
         amount = self.random_integer(200, 100000)

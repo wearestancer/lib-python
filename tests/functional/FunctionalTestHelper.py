@@ -55,7 +55,7 @@ class FunctionalTestHelper(TestHelper):
             '4000003800000008',
             '4000004420000006',
             '4000005280000002',
-            # '4000005780000007', This card as a probleme with there country
+            '4000005780000007',  # This card might have a problem with its country
             '4000006200000007',
             '4000006430000009',
             '4000007240000007',
@@ -67,7 +67,7 @@ class FunctionalTestHelper(TestHelper):
             '4000003440000004',
             '4000003920000003',
             '3530111333300000',
-            # '4000005540000008', # This card create a lot of refused auth
+            '4000005540000008',  # This card might create a lot of refused auth
             '4000007020000003',
         ]
 

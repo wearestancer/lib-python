@@ -5,7 +5,8 @@ import json
 from datetime import datetime
 from datetime import timezone
 
-from stancer.core.enum.version import Version
+import pytest
+
 from stancer.dispute import Dispute
 from stancer.payment import Payment
 
@@ -13,8 +14,10 @@ from .FunctionalTestHelper import FunctionalTestHelper
 
 
 class TestFunctionalDispute(FunctionalTestHelper):
-    def test_list_v1(self, version= Version.API_V1):
-        """ Testing V2 lists imply some workaround:
+    @pytest.mark.future
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_list(self, version):
+        """Testing V2 lists imply some workaround:
         Either adding an until to our listing, or an asc/desc param
         """
         self.conf.version = version
@@ -33,7 +36,6 @@ class TestFunctionalDispute(FunctionalTestHelper):
             assert dispute.response == expected[index]['response']
 
             assert isinstance(dispute.created, datetime)
-            # assert dispute.created == expected[index]['created']
             assert dispute.created == datetime.fromtimestamp(
                 expected[index]['created'], timezone.utc
             )

@@ -59,7 +59,7 @@ class Payment(
     # our way of building object imposes many ancestors
     """Representation of a payment."""
 
-    _DEPRECATED_ENDPOINT = [Version.API_V1, 'checkout']
+    _DEPRECATED_ENDPOINT = {'version': Version.API_V1, 'route': 'checkout'}
     _ENDPOINT = 'payments'
 
     _allowed_attributes = [

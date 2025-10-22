@@ -833,6 +833,80 @@ class TestPayment(TestHelper):
 
     @pytest.mark.parametrize('version', TestHelper.version_provider())
     @responses.activate
+    def test_payment_page_url(self, version):
+        self.conf.version = version
+        obj = Payment(
+            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
+        )
+
+        return_url = 'https://www.example.org/?' + self.random_string(10)
+
+        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
+            content = opened_file.read()
+
+        # Save response
+        responses.add(responses.POST, obj.uri, body=content)
+
+        with pytest.raises(
+            MissingReturnUrlError,
+            match='You must provide a return URL before going to the payment page.',
+        ):
+            obj.payment_page_url()
+
+        obj.return_url = return_url
+
+        with pytest.raises(
+            MissingPaymentIdError,
+            match='A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.',
+        ):
+            obj.payment_page_url()
+
+        obj.send()
+        with pytest.raises(
+            MissingApiKeyError,
+            match='A public API key is needed to obtain a payment page URL.',
+        ):
+            obj.payment_page_url()
+
+        config = Config()
+        config.version = version
+        config.keys = 'ptest_' + self.random_string(24)
+
+        host = config.host.replace('api', 'payment')
+
+        url = f'https://{host}/{config.ptest}/{obj.id}'
+
+        assert obj.payment_page_url() == url
+
+        # With lang parameter
+        lang = self.random_string(10)
+        url = f'https://{host}/{config.ptest}/{obj.id}?lang={lang}'
+
+        assert obj.payment_page_url(lang=lang) == url
+
+        # With bad parameter (ignored)
+        url = f'https://{host}/{config.ptest}/{obj.id}'
+
+        assert obj.payment_page_url(unknown=lang) == url
+
+        # With a port
+        config.port = self.random_integer(1000, 65535)
+        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}'
+
+        assert obj.payment_page_url() == url
+
+        # With non ascii chars
+        input = self.random_string(2) + ' ' + self.random_string(2)
+        encoded = input.replace(' ', '+')
+        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}?lang={encoded}'
+
+        assert obj.payment_page_url(lang=input) == url
+
+        del config.keys
+        del config.port
+
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    @responses.activate
     def test_send_with_auth_for_payment_page(self, monkeypatch, version):
         self.conf.version = version
         obj = Payment()
@@ -1265,83 +1339,6 @@ class TestPayment(TestHelper):
         assert isinstance(payment.auth, Auth)
         assert payment.auth.return_url is None
         assert payment.auth.status == AuthStatus.REQUEST
-
-    # API V2 doesn't need public key to create a payment page
-    # This is a big change so we need two separate test
-    @responses.activate
-    def test_payment_page_url_v1(self, version=Version.API_V1):
-        self.conf.version = version
-        obj = Payment(
-            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
-        )
-
-        return_url = 'https://www.example.org/?' + self.random_string(10)
-
-        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
-            content = opened_file.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        with pytest.raises(
-            MissingReturnUrlError,
-            match='You must provide a return URL before going to the payment page.',
-        ):
-            obj.payment_page_url()
-
-        obj.return_url = return_url
-
-        with pytest.raises(
-            MissingPaymentIdError,
-            match='A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.',
-        ):
-            obj.payment_page_url()
-
-        obj.send()
-        with pytest.raises(
-            MissingApiKeyError,
-            match='A public API key is needed to obtain a payment page URL.',
-        ):
-            obj.payment_page_url()
-
-        config = Config()
-        config.version = version
-        keys = config.keys
-        config.keys = 'ptest_' + self.random_string(24)
-
-        host = config.host.replace('api', 'payment')
-
-        url = f'https://{host}/{config.ptest}/{obj.id}'
-
-        assert obj.payment_page_url() == url
-
-        # With lang parameter
-        lang = self.random_string(10)
-        url = f'https://{host}/{config.ptest}/{obj.id}?lang={lang}'
-
-        assert obj.payment_page_url(lang=lang) == url
-
-        # With bad parameter (ignored)
-        url = f'https://{host}/{config.ptest}/{obj.id}'
-
-        assert obj.payment_page_url(unknown=lang) == url
-
-        # With a port
-        config.port = self.random_integer(1000, 65535)
-        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}'
-
-        assert obj.payment_page_url() == url
-
-        # With non ascii chars
-        input = self.random_string(2) + ' ' + self.random_string(2)
-        encoded = input.replace(' ', '+')
-        url = f'https://{host}:{config.port}/{config.ptest}/{obj.id}?lang={encoded}'
-
-        assert obj.payment_page_url(lang=input) == url
-
-        del config.keys
-        del config.port
-        config.keys = keys
 
     # We check that the payment.card sent is the same as the payment.card received in V1
     # This is not how the API v2 work so we need two separate test
@@ -2038,77 +2035,6 @@ class TestPayment(TestHelper):
         assert payment.auth.return_url is None
         assert payment.auth.status == AuthStatus.REQUEST
         assert payment.auth.to_json() == 'true'
-
-    # API V2 doesn't need public key to create a payment page
-    # This is a big change so we need two separate test
-    @responses.activate
-    def test_payment_page_url_v2(self, version=Version.API_V2):
-        obj = Payment(
-            amount=self.random_integer(50, 99999), currency=self.currency_provider(True)
-        )
-
-        return_url = 'https://www.example.org/?' + self.random_string(10)
-
-        with open('./tests/fixtures/payment/create-no-method-auth.json') as opened_file:
-            content = opened_file.read()
-
-        # Save response
-        responses.add(responses.POST, obj.uri, body=content)
-
-        with pytest.raises(
-            MissingReturnUrlError,
-            match='You must provide a return URL before going to the payment page.',
-        ):
-            obj.payment_page_url()
-
-        obj.return_url = return_url
-
-        with pytest.raises(
-            MissingPaymentIdError,
-            match='A payment ID is mandatory to obtain a payment page URL. Maybe you forgot to send the payment.',
-        ):
-            obj.payment_page_url()
-
-        obj.send()
-
-        config = Config()
-        config.version = version
-        keys = config.keys
-
-        host = config.host.replace('api', 'payment')
-
-        url = f'https://{host}/{obj.id}'
-
-        assert obj.payment_page_url() == url
-
-        # With lang parameter
-        lang = self.random_string(10)
-        url = f'https://{host}/{obj.id}?lang={lang}'
-
-        assert obj.payment_page_url(lang=lang) == url
-
-        # With bad parameter (ignored)
-        url = f'https://{host}/{obj.id}'
-
-        assert obj.payment_page_url(unknown=lang) == url
-
-        # With a port
-        config.port = self.random_integer(1000, 65535)
-        url = f'https://{host}:{config.port}/{obj.id}'
-
-        assert obj.payment_page_url() == url
-
-        # With non ascii chars
-        input = self.random_string(2) + ' ' + self.random_string(2)
-        encoded = input.replace(' ', '+')
-        url = f'https://{host}:{config.port}/{obj.id}?lang={encoded}'
-
-        assert obj.payment_page_url(lang=input) == url
-
-        del config.keys
-        del config.port
-
-        config.keys = keys
 
     @responses.activate
     def test_send_auth_and_device_object_v2(self, version=Version.API_V2):

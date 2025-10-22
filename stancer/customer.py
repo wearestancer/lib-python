@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+from datetime import date
+from typing import Any
 
 from .core.abstract_country import AbstractCountry
 from .core.abstract_deleted import AbstractDeleted
@@ -14,6 +15,32 @@ from .exceptions import InvalidCustomerEmailError
 from .exceptions import InvalidCustomerExternalIdError
 from .exceptions import InvalidCustomerLegalIdError
 from .exceptions import InvalidCustomerMobileError
+
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
+
+def validate_birth_date(value: str | date) -> date:
+    """
+    Transform the value in a valid date.
+
+    Args:
+        value: a date or a string that could be an invalid date.
+
+    Return:
+        A valid date object.
+
+    Raises:
+        InvalidCustomerDateBirthError: when the dateBirth is invalid.
+    """
+    if isinstance(value, date):
+        return value
+    try:
+        return date.fromisoformat(value)
+    except ValueError as exc:
+        raise InvalidCustomerDateBirthError from exc
 
 
 class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
@@ -31,18 +58,29 @@ class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
 
     @property
     @populate_on_call
-    def date_birth(self) -> str | None:
+    def date_birth(self) -> date | None:
         """
         Customer's birthdate.
 
-        Return the birthdate of the customer
+        Args:
+            value: Birthdate, must be a valid date.
+
+        Return:
+            The birthdate of the customer.
+
+        Raises:
+            InvalidCustomerDateBirthError: when the dateBirth is invalid.
         """
         return self._data.get('date_birth')
 
     @date_birth.setter
-    @validate_type(str, min=10, max=10, throws=InvalidCustomerDateBirthError)
-    def date_birth(self, value: str):
-        self._data['date_birth'] = str(datetime.date.fromisoformat(value))
+    @validate_type(
+        date,
+        throws=InvalidCustomerDateBirthError,
+        coerce=validate_birth_date,
+    )
+    def date_birth(self, value: date) -> None:
+        self._data['date_birth'] = value
 
     @property
     @populate_on_call
@@ -75,7 +113,7 @@ class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
         External for the API, you can store your customer's identifier here.
 
         Args:
-            value (str): New ID, must be between 36 characters max.
+            value (str): New ID, must be 36 characters max.
 
         Returns:
             str: Customer's external ID.
@@ -115,14 +153,20 @@ class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
         """
         Customer's legal identification ( SIREN, CBE, KVK, ...).
 
+        Args:
+            value: Customer's legal ID.
+
         Returns:
-            The legal Id of the customer
+            The legal ID of the customer.
+
+        Raises:
+            InvalidCustomerLegalIdError: When legal ID is too long.
         """
         return self._data.get('legal_id')
 
     @legal_id.setter
     @validate_type(str, max=16, name='Legal ID', throws=InvalidCustomerLegalIdError)
-    def legal_id(self, value: str):
+    def legal_id(self, value: str) -> None:
         self._data['legal_id'] = value
 
     @property
@@ -152,3 +196,14 @@ class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
     )
     def mobile(self, value: str) -> None:
         self._data['mobile'] = value
+
+    @override
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
+        representation = super().to_json_repr()
+        if (
+            isinstance(representation, dict)
+            and 'date_birth' in representation
+            and isinstance(representation['date_birth'], date)
+        ):
+            representation['date_birth'] = representation['date_birth'].isoformat()
+        return representation

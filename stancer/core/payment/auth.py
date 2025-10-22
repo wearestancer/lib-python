@@ -26,7 +26,7 @@ def _coerce_auth(value: Auth | str | bool) -> Auth | None:
             raise InvalidUrlError()
         return Auth(return_url=value)
 
-    if isinstance(value, bool):
+    if value is True:
         return Auth()
 
     return value

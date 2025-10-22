@@ -62,7 +62,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         Mandate signature date.
 
         Args:
-            valuz (datetime|int): New date. Maybe be a datetime object or a timestamp.
+            value (datetime|int): New date. Maybe be a datetime object or a timestamp.
 
         Returns:
             datetime: Mandate signature date.

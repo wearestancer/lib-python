@@ -19,6 +19,7 @@ from stancer.exceptions import InvalidCardNumberError
 from stancer.exceptions import InvalidCardTokenizeError
 from stancer.exceptions import InvalidCardVerificationCodeError
 from stancer.exceptions import InvalidZipCodeError
+from stancer.exceptions.attribute import DeleteSetterError
 
 from .TestHelper import TestHelper
 
@@ -143,22 +144,22 @@ class TestCard(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
-    def test_deleted_V2(self, version =Version.API_V2):
+    def test_deleted_v2(self, version=Version.API_V2):
         """
         This is only available for API V2
         The deletion in V1 is not handle in the same way.
         """
         obj = Card()
-        self.conf.version =version
+        self.conf.version = version
 
         assert obj.deleted is None
 
-        with pytest.raises(AttributeError):
+        with pytest.raises(DeleteSetterError):
             obj.deleted = True
 
         obj = Card(f'card_{self.random_string(24)}')
         params = {
-            'deleted': bool(self.random_integer(0, 1)),
+            'deleted': self.random_bool(),
         }
 
         responses.add(responses.GET, obj.uri, json=params)
@@ -569,18 +570,19 @@ class TestCard(TestHelper):
         assert loaded_result['external_id'] == params['external_id']
         assert loaded_result['zip_code'] == params['zip_code']
 
+        # brand can only be obtained from API
         with pytest.raises(KeyError):
-            assert loaded_result['brand'] == params['brand']
+            assert loaded_result['brand']
 
+        # created can only be obtained from API
         with pytest.raises(KeyError):
-            assert loaded_result['country'] == params['brand']
+            assert loaded_result['created']
 
+        # last4 can only be obtained from API
         with pytest.raises(KeyError):
-            assert loaded_result['created'] == params['created']
+            assert loaded_result['last4']
 
-        with pytest.raises(KeyError):
-            assert loaded_result['last4'] == params['last4']
-
+        # deleted can only be obtained from API
         with pytest.raises(KeyError):
             assert loaded_result['deleted'] == params['deleted']
 

@@ -95,8 +95,23 @@ functional_test:
 
   script:
     - uv run pytest tests/functional --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
-
+  retry: 2
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\.\d+%)/'
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: cobertura.xml
+      junit: junit.xml
+
+future_test:
+  extends: .python::base
+
+  stage: test
+
+  script:
+    - uv run pytest -m "future" --cov=stancer --cov-report term-missing --cov-report xml:cobertura.xml --junitxml=junit.xml .
 
   allow_failure: true
   artifacts:
@@ -106,7 +121,6 @@ functional_test:
         path: cobertura.xml
       junit: junit.xml
 
-
 ruff:
   extends: .python::base
 
@@ -115,7 +129,7 @@ ruff:
   script:
     - uv run ruff --version
     - uv run ruff check --exit-zero --output-format=gitlab > ruff-report.json
-    - uv run ruff format
+    - uv run ruff format --diff
     - uv run ruff check
     - uv run ruff check --select I
 

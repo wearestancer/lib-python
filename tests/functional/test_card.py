@@ -51,7 +51,7 @@ class TestFunctionalCard(FunctionalTestHelper):
         month = self.random_integer(1, 11)
         year = (
             self.random_year() + 20
-        )  # To be sure we do not have a conflict with previous tests
+        )  # We add 20 years to be sure we do not have a conflict with previous tests
         number = self.get_card_number()
 
         last4 = number[-4:]
@@ -114,27 +114,27 @@ class TestFunctionalCard(FunctionalTestHelper):
 
             with pytest.raises(NotFoundError, match=f'No such card {card_id}'):
                 Card(card_id).name
-            return
-        assert card.id == card_id
-        assert card.cvc is None  # CVC can not be obtain
-        assert card.exp_month == month2
-        assert card.exp_year == year2
-        assert card.number is None  # Number can not be obtain
-        assert card.last4 == last4  # But last 4 digits can
+        else:
+            assert card.id == card_id
+            assert card.cvc is None  # CVC can not be obtain
+            assert card.exp_month == month2
+            assert card.exp_year == year2
+            assert card.number is None  # Number can not be obtain
+            assert card.last4 == last4  # But last 4 digits can
 
-        # We can not valid values here
-        assert card.funding is not None
-        assert card.nature is not None
-        assert card.network is not None
-        assert card.deleted
+            # We can not valid values here
+            assert card.funding is not None
+            assert card.nature is not None
+            assert card.network is not None
+            assert card.deleted
 
-        # We cannot Patch a Deleted Card
+            # We cannot Patch a Deleted Card
 
-        card = Card(card_id)
-        card.exp_year = year2 + 1
+            card = Card(card_id)
+            card.exp_year = year2 + 1
 
-        with pytest.raises(NotFoundError, match=f'Card `{card.id}` not found'):
-            card.send()
+            with pytest.raises(NotFoundError, match=f'Card `{card.id}` not found'):
+                card.send()
 
     @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
     def test_complete_crud_card(self, version):
@@ -146,7 +146,7 @@ class TestFunctionalCard(FunctionalTestHelper):
         external_id = uuid.uuid4()
         name = "John's Card"
         number = self.get_card_number()
-        tokenize = bool(self.random_integer(0, 1))
+        tokenize = bool(self.random_bool())
         zip_code = str(self.random_integer(10, 1000))
 
         last4 = number[-4:]
@@ -251,17 +251,17 @@ class TestFunctionalCard(FunctionalTestHelper):
             assert card2.id is None
             with pytest.raises(NotFoundError, match=f'No such card {card.id}'):
                 Card(card.id).name
-            return
-        assert card2.deleted
-        assert card2.id == card.id
-        assert card2.last4 == last4
-        assert card2.name == name
-        assert card2.number is None  # We cannot retrieve card number
-        assert card2.zip_code == zip_code2
+        else:
+            assert card2.deleted
+            assert card2.id == card.id
+            assert card2.last4 == last4
+            assert card2.name == name
+            assert card2.number is None  # We cannot retrieve card number
+            assert card2.zip_code == zip_code2
 
-        assert card2.brand is not None
-        assert card2.country is not None
-        assert card2.created is not None
-        assert card2.funding is not None
-        assert card2.nature is not None
-        assert card2.network is not None
+            assert card2.brand is not None
+            assert card2.country is not None
+            assert card2.created is not None
+            assert card2.funding is not None
+            assert card2.nature is not None
+            assert card2.network is not None

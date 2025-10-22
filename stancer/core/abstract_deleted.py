@@ -2,6 +2,7 @@
 
 from typing import Optional
 
+from ..exceptions.attribute import DeleteSetterError
 from .decorators.populate_on_call import populate_on_call
 
 
@@ -16,9 +17,13 @@ class AbstractDeleted:
     @populate_on_call
     def deleted(self) -> Optional[bool]:
         """
-        If the object has been Deleted.
+        Is the object deleted?
 
         Returns:
-            True if the object have been deleted, False otherwise
+            True is the object have been deleted, False otherwise
         """
         return self._data.get('deleted')
+
+    @deleted.setter
+    def deleted(self, value: None) -> None:
+        raise DeleteSetterError

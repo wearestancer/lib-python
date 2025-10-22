@@ -10,7 +10,6 @@ from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
 from ..decorators.populate_on_call import populate_on_call
 from ..decorators.validate_type import validate_type
-from ..enum.version import Version
 from .payment_protocol import PaymentProtocol
 
 
@@ -73,33 +72,20 @@ class PaymentPage(ABC, PaymentProtocol):
 
             raise MissingPaymentIdError(message)
 
-        tmp: dict[str, str | int | None] = {}
-        if config.version == Version.API_V1:
-            if config.public_key is None:
-                message = 'A public API key is needed to obtain a payment page URL.'
+        if config.public_key is None:
+            message = 'A public API key is needed to obtain a payment page URL.'
 
-                raise MissingApiKeyError(message)
-            tmp['key'] = config.public_key
+            raise MissingApiKeyError(message)
 
         if config.host is None:
             message = 'You need to declare the API host'
+
             raise InvalidUrlError(message)
 
-        tmp.update(
-            {
-                'host': config.host.replace('api', 'payment'),
-                'id': self.id,
-                'port': config.port,
-            }
-        )
-        pattern = 'https://{host}'
-        if config.port is not None:
-            pattern += ':{port}'
-        if config.version == Version.API_V1:
-            pattern += '/{key}'
-        pattern += '/{id}'
+        host = config.host.replace('api', 'payment')
+        port = f':{config.port}' if config.port else ''
 
-        url = pattern.format(**tmp)
+        url = f'https://{host}{port}/{config.public_key}/{self.id}'
 
         allowed = ('lang',)
         params = {k: v for k, v in kwargs.items() if k in allowed}
