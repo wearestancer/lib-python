@@ -8,8 +8,8 @@ from ...exceptions import InvalidUrlError
 from ...exceptions import MissingApiKeyError
 from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
-from ..decorators import populate_on_call
-from ..decorators import validate_type
+from ..decorators.populate_on_call import populate_on_call
+from ..decorators.validate_type import validate_type
 from .payment_protocol import PaymentProtocol
 
 
@@ -57,6 +57,7 @@ class PaymentPage(ABC, PaymentProtocol):
                 your keychain.
         """
 
+        config = Config()
         if self.return_url is None:
             message = 'You must provide a return URL before going to the payment page.'
 
@@ -71,8 +72,6 @@ class PaymentPage(ABC, PaymentProtocol):
 
             raise MissingPaymentIdError(message)
 
-        config = Config()
-
         if config.public_key is None:
             message = 'A public API key is needed to obtain a payment page URL.'
 
@@ -80,26 +79,19 @@ class PaymentPage(ABC, PaymentProtocol):
 
         if config.host is None:
             message = 'You need to declare the API host'
+
             raise InvalidUrlError(message)
 
-        if config.port is None:
-            pattern = 'https://{host}/{key}/{id}'
-        else:
-            pattern = 'https://{host}:{port}/{key}/{id}'
+        host = config.host.replace('api', 'payment')
+        port = f':{config.port}' if config.port else ''
 
-        tmp = {
-            'host': config.host.replace('api', 'payment'),
-            'id': self.id,
-            'key': config.public_key,
-            'port': config.port,
-        }
-        url = pattern.format(**tmp)
+        url = f'https://{host}{port}/{config.public_key}/{self.id}'
 
         allowed = ('lang',)
         params = {k: v for k, v in kwargs.items() if k in allowed}
 
         if params:
-            return url + '?' + urlencode(params)
+            return f'{url}?{urlencode(params)}'
 
         return url
 

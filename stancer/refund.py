@@ -5,9 +5,14 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 from typing import Any
 
-from .core import AbstractAmount
-from .core import AbstractObject
-from .core.decorators import populate_on_call
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
 
 if TYPE_CHECKING:
     from .payment import Payment
@@ -98,7 +103,8 @@ class Refund(AbstractObject, AbstractAmount):
         """
         return self._data.get('status')
 
-    def to_json_repr(self) -> dict[str, Any] | str:
+    @override
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -107,8 +113,8 @@ class Refund(AbstractObject, AbstractAmount):
         """
         representation = super().to_json_repr()
 
-        if isinstance(self.payment, AbstractObject) and not isinstance(
-            representation, str
+        if isinstance(self.payment, AbstractObject) and isinstance(
+            representation, dict
         ):
             representation['payment'] = self.payment.id
 

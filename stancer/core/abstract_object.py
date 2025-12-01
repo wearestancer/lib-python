@@ -6,7 +6,8 @@ from datetime import datetime
 from typing import Any
 
 from ..config import Config
-from .decorators import populate_on_call
+from .decorators.populate_on_call import populate_on_call
+from .enum.version import Version
 from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -24,8 +25,10 @@ except ImportError:
 class AbstractObject:
     """Manage common code between API object."""
 
+    _DEPRECATED_ENDPOINT: dict[str, Any] = {}  # pylint: disable=invalid-name
     _ENDPOINT: str | None = None  # pylint: disable=invalid-name
     _allowed_attributes: list[str] = []
+    _flat_attributes: list[str] = []
     _datetime_property: list[str] = [
         'created',
     ]
@@ -226,7 +229,7 @@ class AbstractObject:
 
     def _hydrate_list(self, key: str, value: Any) -> list:
         tmp = getattr(self, key)
-        init_method = '_init_' + key
+        init_method = f'_init_{key}'
         new_values = []
 
         for current_value in value:
@@ -284,7 +287,7 @@ class AbstractObject:
 
             if hasattr(self, key):
                 tmp = getattr(self, key)
-                init_method = '_init_' + key
+                init_method = f'_init_{key}'
 
                 if (
                     isinstance(tmp, list)
@@ -501,7 +504,7 @@ class AbstractObject:
         """
         return json.dumps(self.to_json_repr(), separators=(',', ':'))
 
-    def to_json_repr(self) -> dict[str, Any] | str:
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -524,9 +527,11 @@ class AbstractObject:
             )
         }
         for key, value in items.items():
+            if key in self._flat_attributes and Config().version != Version.API_V1:
+                representation[key] = value.send().id
+                continue
             if hasattr(value, 'to_json_repr'):
                 val = value.to_json_repr()
-
                 if val:
                     representation[key] = val
             else:
@@ -556,10 +561,13 @@ class AbstractObject:
 
         location = f'https://{conf.host}{port}/v{conf.version}'
 
-        if self._ENDPOINT is not None:
-            location += '/' + self._ENDPOINT
+        if len(self._DEPRECATED_ENDPOINT) == 2 and conf.version <= int(
+            self._DEPRECATED_ENDPOINT['version']
+        ):
+            location += f'/{self._DEPRECATED_ENDPOINT["route"]}'
+        elif self._ENDPOINT is not None:
+            location += f'/{self._ENDPOINT}'
 
-        if self.id is not None:
-            location += '/' + self.id
+        location += f'/{self.id if self.id is not None else ""}'
 
         return location

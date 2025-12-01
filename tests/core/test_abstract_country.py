@@ -2,7 +2,7 @@
 
 import pytest
 
-from stancer.core import AbstractCountry
+from stancer.core.abstract_country import AbstractCountry
 
 from ..TestHelper import TestHelper
 

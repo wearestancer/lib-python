@@ -2,14 +2,17 @@
 
 import re
 
-from .core import AbstractCountry
-from .core import AbstractLast4
-from .core import AbstractName
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
+from .core.abstract_country import AbstractCountry
+from .core.abstract_deleted import AbstractDeleted
+from .core.abstract_last4 import AbstractLast4
+from .core.abstract_name import AbstractName
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.helpers.coerce_uuid import coerce_uuid
 from .exceptions import InvalidCardExpirationMonthError
 from .exceptions import InvalidCardExpirationYearError
+from .exceptions import InvalidCardExternalIdError
 from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
 from .exceptions import InvalidCardVerificationCodeError
@@ -25,7 +28,13 @@ except ImportError:
     Self = TypeVar('Self', bound='Card')  # type: ignore
 
 
-class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
+class Card(
+    AbstractObject,
+    AbstractName,
+    AbstractCountry,
+    AbstractLast4,
+    AbstractDeleted,
+):
     """Representation of a card."""
 
     _ENDPOINT = 'cards'
@@ -34,6 +43,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         'cvc',
         'exp_month',
         'exp_year',
+        'external_id',
         'number',
         'tokenize',
         'zip_code',
@@ -162,6 +172,36 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
     )
     def exp_year(self, value: int) -> None:
         self._data['exp_year'] = value
+
+    @property
+    @populate_on_call
+    def external_id(self) -> str | None:
+        """
+        Card's external ID.
+
+        External for the API, you can store your card's identifier here.
+
+        Args:
+            value (str): New ID, must be between 36 characters max.
+
+        Returns:
+            str: Card's external ID.
+
+        Raises:
+            InvalidCardExternalIdError: When external ID is invalid.
+        """
+        return self._data.get('external_id')
+
+    @external_id.setter
+    @validate_type(
+        str,
+        coerce=coerce_uuid,
+        max=36,
+        name='External ID',
+        throws=InvalidCardExternalIdError,
+    )
+    def external_id(self, value: str) -> None:
+        self._data['external_id'] = value
 
     @property
     @populate_on_call

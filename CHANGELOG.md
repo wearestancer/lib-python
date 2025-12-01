@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Compatibility with API V2 (CMS-134)
 - Developers tools for better code quality (CMS-388)
 
 

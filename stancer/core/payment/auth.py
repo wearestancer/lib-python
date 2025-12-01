@@ -8,9 +8,10 @@ from ...auth import Auth
 from ...device import Device
 from ...exceptions import InvalidAuthError
 from ...exceptions import InvalidDeviceError
+from ...exceptions import InvalidUrlError
 from ...exceptions import StancerException
-from ..decorators import populate_on_call
-from ..decorators import validate_type
+from ..decorators.populate_on_call import populate_on_call
+from ..decorators.validate_type import validate_type
 from .payment_protocol import PaymentProtocol
 
 if TYPE_CHECKING:
@@ -18,13 +19,15 @@ if TYPE_CHECKING:
 
 
 def _coerce_auth(value: Auth | str | bool) -> Auth | None:
+    if value is False:
+        return None
     if isinstance(value, str):
+        if not value:
+            raise InvalidUrlError()
         return Auth(return_url=value)
 
-    if isinstance(value, bool):
-        if value:
-            return Auth()
-        return None
+    if value is True:
+        return Auth()
 
     return value
 
@@ -107,7 +110,7 @@ class PaymentAuth(ABC, PaymentProtocol):
 
         device = Device()
 
-        if self.auth and self.auth.return_url:
+        if self.auth and (hasattr(self.auth, 'return_url') and self.auth.return_url):
             device.hydrate_from_env()
             self.device = device
         else:

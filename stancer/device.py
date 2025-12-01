@@ -4,9 +4,9 @@ import os
 
 from ipaddress import ip_address
 
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
 from .exceptions import InvalidIpAddressError
 from .exceptions import InvalidPortError
 

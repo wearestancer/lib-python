@@ -13,8 +13,8 @@ import responses
 
 from pytz import timezone as tz
 
-from stancer import Card
-from stancer import Config
+from stancer.card import Card
+from stancer.config import Config
 
 from .stub.stub_object import StubObject
 from .TestHelper import TestHelper
@@ -456,7 +456,7 @@ class TestStubObject(TestHelper):
 
         conf.mode = Config.LIVE_MODE
 
-        responses.add(responses.PATCH, f'{location}/{uid}', json={'id': uid})
+        responses.add(responses.PATCH, f'{location}{uid}', json={'id': uid})
 
         # Modified object allows new calls
         obj.string2 = self.random_string(20)
@@ -520,6 +520,7 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert result == f'"{uid}"'
+        assert obj.to_json() == result
 
         # Unless it was modified
         obj.string2 = self.random_string(20)
@@ -527,6 +528,7 @@ class TestStubObject(TestHelper):
         result = obj.to_json()
 
         assert isinstance(result, str)
+        assert obj.to_json() == result
 
         result = json.loads(result)
 

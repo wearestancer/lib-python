@@ -4,12 +4,12 @@ import re
 
 from datetime import datetime
 
-from .core import AbstractCountry
-from .core import AbstractLast4
-from .core import AbstractName
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
+from .core.abstract_country import AbstractCountry
+from .core.abstract_last4 import AbstractLast4
+from .core.abstract_name import AbstractName
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
 from .exceptions import InvalidBicError
 from .exceptions import InvalidDateMandateError
 from .exceptions import InvalidIbanError
@@ -62,7 +62,7 @@ class Sepa(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         Mandate signature date.
 
         Args:
-            valuz (datetime|int): New date. Maybe be a datetime object or a timestamp.
+            value (datetime|int): New date. Maybe be a datetime object or a timestamp.
 
         Returns:
             datetime: Mandate signature date.

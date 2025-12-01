@@ -2,8 +2,7 @@
 
 import pytest
 
-from stancer import Config
-from stancer.core import AbstractObject
+from stancer.core.abstract_object import AbstractObject
 
 from ..TestHelper import TestHelper
 
@@ -65,16 +64,17 @@ class TestAbstractObject(TestHelper):
             == f'<AbstractObject("{uid}", {key1}="{value1}", {key2}={value2}) at 0x{id(obj):x}>'
         )
 
-    def test_uri(self):
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, version):
+        self.conf.version = version
         obj = AbstractObject()
-        conf = Config()
         uid = self.random_string(29)
 
-        assert obj.uri == 'https://api.stancer.com/v1'
+        assert obj.uri == f'https://api.stancer.com/v{version}/'
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == f'https://api.stancer.com/v1/{uid}'
+        assert obj.uri == f'https://api.stancer.com/v{version}/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)
@@ -83,31 +83,31 @@ class TestAbstractObject(TestHelper):
         version = self.random_integer(1, 20)
         port = self.random_integer(100, 65535)
 
-        old_host = conf.host
-        old_version = conf.version
+        old_host = self.conf.host
+        old_version = self.conf.version
 
-        conf.host = host
-        conf.version = version
+        self.conf.host = host
+        self.conf.version = version
 
         assert obj.uri == f'https://{host}/v{version}/{uid}'
         assert obj.uri != f'https://{old_host}/v{old_version}/{uid}'
 
         pattern = 'https://{}:{}/v{}/{}'
 
-        conf.port = port
+        self.conf.port = port
 
         assert obj.uri == pattern.format(host, port, version, uid)
 
         # If defined 433 port will be shown (no exception)
-        conf.port = 433
+        self.conf.port = 433
 
         assert obj.uri == pattern.format(host, 433, version, uid)
 
         # If defined 80 port will be shown (no exception)
-        conf.port = 80
+        self.conf.port = 80
 
         assert obj.uri == pattern.format(host, 80, version, uid)
 
-        del conf.host
-        del conf.port
-        del conf.version
+        del self.conf.host
+        del self.conf.port
+        del self.conf.version

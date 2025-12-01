@@ -128,6 +128,7 @@ class Request:
 
         if response.text:
             # pylint: disable=protected-access
+            obj._populated = True
             obj._bypass = True
             obj.hydrate(**response.json())
             obj._bypass = False

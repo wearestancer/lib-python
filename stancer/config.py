@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import timezone
 
+from .core.enum.version import Version
 from .core.singleton import Singleton
 from .exceptions import StancerValueError
 
@@ -29,7 +30,7 @@ class Config(Singleton):
         self._mode: str | None = None
         self._port: int | None = None
         self._timeout: int | None = None
-        self._version: int | None = None
+        self._version: Version = Version.DEFAULT
 
         del self.host
         del self.keys
@@ -280,11 +281,9 @@ class Config(Singleton):
         self._timeout = None
 
     @property
-    def version(self) -> int | None:
+    def version(self) -> Version:
         """
         API version.
-
-        Not really used for now, it's just in case we need it.
 
         Args:
             value: New target API version.
@@ -295,9 +294,9 @@ class Config(Singleton):
         return self._version
 
     @version.setter
-    def version(self, value: int) -> None:
+    def version(self, value: Version) -> None:
         self._version = value
 
     @version.deleter
     def version(self) -> None:
-        self._version = 1
+        self._version = Version.DEFAULT

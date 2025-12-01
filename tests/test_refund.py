@@ -9,12 +9,12 @@ import responses
 
 from pytz import timezone as tz
 
-from stancer import Config
-from stancer import Payment
-from stancer import Refund
-from stancer import RefundStatus
-from stancer.core import AbstractAmount
-from stancer.core import AbstractObject
+from stancer.config import Config
+from stancer.core.abstract_amount import AbstractAmount
+from stancer.core.abstract_object import AbstractObject
+from stancer.payment import Payment
+from stancer.refund import Refund
+from stancer.status.refund import RefundStatus
 
 from .TestHelper import TestHelper
 
@@ -165,3 +165,14 @@ class TestRefund(TestHelper):
         assert isinstance(result, str)
         assert result.find('"amount":') == -1
         assert result.find(f'"payment":"{payment.id}"') > 0
+
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, version):
+        obj = Refund()
+        uid = self.random_string(29)
+        self.conf.version = version
+        assert obj.uri == f'https://{self.conf.host}/v{self.conf.version}/refunds/'
+
+        obj.hydrate(id=uid)
+
+        assert obj.uri == f'https://{self.conf.host}/v{self.conf.version}/refunds/{uid}'

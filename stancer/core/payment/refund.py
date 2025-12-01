@@ -6,8 +6,8 @@ from typing import Any
 
 from ...exceptions import InvalidAmountError
 from ...status.refund import RefundStatus
-from ..decorators import populate_on_call
-from ..decorators import validate_type
+from ..decorators.populate_on_call import populate_on_call
+from ..decorators.validate_type import validate_type
 from .payment_protocol import PaymentProtocol
 
 if TYPE_CHECKING:

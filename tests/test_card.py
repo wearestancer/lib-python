@@ -1,18 +1,25 @@
 """Test card object"""
 
+import json
+import uuid
+
 import pytest
 import responses
 
-from stancer import Card
-from stancer.core import AbstractCountry
-from stancer.core import AbstractName
-from stancer.core import AbstractObject
+from stancer.card import Card
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_deleted import AbstractDeleted
+from stancer.core.abstract_name import AbstractName
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.enum.version import Version
 from stancer.exceptions import InvalidCardExpirationMonthError
 from stancer.exceptions import InvalidCardExpirationYearError
+from stancer.exceptions import InvalidCardExternalIdError
 from stancer.exceptions import InvalidCardNumberError
 from stancer.exceptions import InvalidCardTokenizeError
 from stancer.exceptions import InvalidCardVerificationCodeError
 from stancer.exceptions import InvalidZipCodeError
+from stancer.exceptions.attribute import DeleteSetterError
 
 from .TestHelper import TestHelper
 
@@ -22,6 +29,7 @@ class TestCard(TestHelper):
         assert issubclass(Card, AbstractCountry)
         assert issubclass(Card, AbstractName)
         assert issubclass(Card, AbstractObject)
+        assert issubclass(Card, AbstractDeleted)
 
     @pytest.mark.parametrize('number', TestHelper.card_number_provider())
     def test__repr(self, number):
@@ -136,6 +144,32 @@ class TestCard(TestHelper):
         assert len(responses.calls) == 1
 
     @responses.activate
+    def test_deleted_v2(self, version=Version.API_V2):
+        """
+        This is only available for API V2
+        The deletion in V1 is not handle in the same way.
+        """
+        obj = Card()
+        self.conf.version = version
+
+        assert obj.deleted is None
+
+        with pytest.raises(DeleteSetterError):
+            obj.deleted = True
+
+        obj = Card(f'card_{self.random_string(24)}')
+        params = {
+            'deleted': self.random_bool(),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.deleted == params['deleted']
+        assert obj.is_populated
+        assert type(obj.deleted) is bool
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_exp_month(self):
         obj = Card()
         exp_month = self.random_integer(1, 12)
@@ -212,6 +246,51 @@ class TestCard(TestHelper):
         assert obj.exp_year == params['exp_year']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_external_id(self):
+        obj = Card()
+        external_id = self.random_string(36)
+
+        assert obj.external_id is None
+
+        obj.external_id = external_id
+
+        assert obj.external_id == external_id
+
+        with pytest.raises(
+            InvalidCardExternalIdError,
+            match='External ID must be a string.',
+        ):
+            obj.external_id = self.random_integer(20)
+
+        with pytest.raises(
+            InvalidCardExternalIdError,
+            match='External ID must be 36 characters maximum.',
+        ):
+            obj.external_id = self.random_string(40)
+
+        obj = Card(self.random_string(29))
+        params = {
+            'external_id': self.random_string(36),
+        }
+
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.external_id == params['external_id']
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+        # Works with uuid
+
+        obj = Card()
+        external_id = uuid.uuid4()
+
+        assert obj.external_id is None
+
+        obj.external_id = external_id
+
+        assert obj.external_id == str(external_id)
 
     @responses.activate
     def test_funding(self):
@@ -444,6 +523,22 @@ class TestCard(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, host, version):
+        obj = Card()
+        uid = self.random_string(29)
+        self.conf.version = version
+        self.conf.host = host
+        assert obj.uri == f'https://{host}/v{version}/cards/'
+
+        obj.hydrate(id=uid)
+
+        assert obj.uri == f'https://{host}/v{version}/cards/{uid}'
+
+        with pytest.raises(AttributeError):
+            obj.uri = self.random_string(29)
+
     def test_to_json(self):
         obj = Card()
 
@@ -454,7 +549,10 @@ class TestCard(TestHelper):
             'number': '4242424242424242',
             'exp_month': self.random_integer(1, 12),
             'exp_year': self.random_year(),
+            'external_id': '43343',
             'created': 1546867615,
+            'deleted': False,
+            'zip_code': '12340',
         }
 
         obj.hydrate(**params)
@@ -463,15 +561,30 @@ class TestCard(TestHelper):
 
         assert isinstance(result, str)
 
-        assert result.find(f'"name":"{params["name"]}"') > 0
-        assert result.find(f'"number":"{params["number"]}"') > 0
-        assert result.find(f'"exp_month":{params["exp_month"]}') > 0
-        assert result.find(f'"exp_year":{params["exp_year"]}') > 0
+        loaded_result = json.loads(result)
 
-        assert result.find('brand') == -1
-        assert result.find('country') == -1
-        assert result.find('created') == -1
-        assert result.find('last4') == -1
+        assert loaded_result['name'] == params['name']
+        assert loaded_result['number'] == params['number']
+        assert loaded_result['exp_month'] == params['exp_month']
+        assert loaded_result['exp_year'] == params['exp_year']
+        assert loaded_result['external_id'] == params['external_id']
+        assert loaded_result['zip_code'] == params['zip_code']
+
+        # brand can only be obtained from API
+        with pytest.raises(KeyError):
+            assert loaded_result['brand']
+
+        # created can only be obtained from API
+        with pytest.raises(KeyError):
+            assert loaded_result['created']
+
+        # last4 can only be obtained from API
+        with pytest.raises(KeyError):
+            assert loaded_result['last4']
+
+        # deleted can only be obtained from API
+        with pytest.raises(KeyError):
+            assert loaded_result['deleted'] == params['deleted']
 
     @responses.activate
     def test_zip_code(self):

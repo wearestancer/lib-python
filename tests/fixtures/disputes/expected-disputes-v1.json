@@ -1,0 +1,114 @@
+{
+    "disputes": [
+        {
+            "amount": 8645,
+            "created": 1758717843,
+            "date_bank": 1758664800,
+            "id": "dspt_Y4JmIKWJNGJuzB0GQRWYHWQC",
+            "order_id": null,
+            "payment": "paym_qx42DzICXTja05PLRyfv1M5a",
+            "response": "1040",
+            "type": "chargeback"
+        },
+        {
+            "amount": 2859,
+            "created": 1758724410,
+            "date_bank": 1758664800,
+            "id": "dspt_xiJmUQFkVHsSXEBLAB5aeA38",
+            "order_id": null,
+            "payment": "paym_vOronI9fSoi7oLcRbGXEbgUI",
+            "response": "1040",
+            "type": "chargeback"
+        },
+        {
+            "amount": 3169,
+            "created": 1758724778,
+            "date_bank": 1758664800,
+            "id": "dspt_35VS4wjsT6blW4Rurf3HWGu9",
+            "order_id": null,
+            "payment": "paym_OYeuzFqXkvNjxNMrCVonebKu",
+            "response": "1040",
+            "type": "chargeback"
+        },
+        {
+            "amount": 5907,
+            "created": 1758726136,
+            "date_bank": 1758664800,
+            "id": "dspt_ane6tzUFyH0Bd0L4KQr2yNjH",
+            "order_id": null,
+            "payment": "paym_4zKp8WAIeR5QheD4pGwklBl2",
+            "response": "45",
+            "type": "chargeback"
+        },
+        {
+            "amount": 4575,
+            "created": 1758726672,
+            "date_bank": 1758664800,
+            "id": "dspt_IXxIvZqQ5gDz04XdTRcY82el",
+            "order_id": null,
+            "payment": "paym_PeRNsf2lTGvDEijw6zJQCPQw",
+            "response": "1040",
+            "type": "chargeback"
+        },
+        {
+            "amount": 1623,
+            "created": 1758810428,
+            "date_bank": 1758751200,
+            "id": "dspt_5380WGkkjhFLgWlaTdauh2Pf",
+            "order_id": null,
+            "payment": "paym_qLBSNCTBy5r56gp9BsJa1QIe",
+            "response": "1040",
+            "type": "chargeback"
+        },
+        {
+            "amount": 1141,
+            "created": 1758811978,
+            "date_bank": 1758751200,
+            "id": "dspt_i5K2Xhf2C20n7i7VEz83UtVB",
+            "order_id": null,
+            "payment": "paym_VYSb2ugl3BRETBFG5C3MPZPe",
+            "response": "1040",
+            "type": "chargeback"
+        },
+        {
+            "amount": 2279,
+            "created": 1758813160,
+            "date_bank": 1758751200,
+            "id": "dspt_jncNp01FT8WrWmcc2gzzC6BR",
+            "order_id": null,
+            "payment": "paym_fFekFFRxAna6IODZKsehwNId",
+            "response": "45",
+            "type": "chargeback"
+        },
+        {
+            "amount": 7723,
+            "created": 1758878296,
+            "date_bank": 1758837600,
+            "id": "dspt_oq2jyQbfJi2ekHL90zMLzKd9",
+            "order_id": null,
+            "payment": "paym_TdPKZM2NLNaD1PJfL78YBLqv",
+            "response": "42",
+            "type": "chargeback"
+        },
+        {
+            "amount": 9243,
+            "created": 1758896890,
+            "date_bank": 1758837600,
+            "id": "dspt_WBsdWLNYWBqIKsjySXSks22S",
+            "order_id": null,
+            "payment": "paym_NCamnvgV25iBHiHNgZFma0hH",
+            "response": "42",
+            "type": "chargeback"
+        }
+    ],
+    "live_mode": false,
+    "range": {
+        "created": 1758717843,
+        "end": 9,
+        "has_more": false,
+        "limit": 10,
+        "order_id": null,
+        "start": 0,
+        "unique_id": null
+    }
+}

@@ -27,6 +27,10 @@ class InvalidCardExpirationYearError(StancerValueError):
     """Raised when an invalid expiration year is used."""
 
 
+class InvalidCardExternalIdError(StancerValueError):
+    """Raised when an invalid external ID is used."""
+
+
 class InvalidCardNumberError(StancerValueError):
     """Raised when an invalid card number is used."""
 
@@ -43,12 +47,20 @@ class InvalidCustomerError(StancerValueError):
     """Raised when an invalid customer is used."""
 
 
+class InvalidCustomerDateBirthError(StancerValueError):
+    """Raised when an invalid date of birth is used."""
+
+
 class InvalidCustomerEmailError(StancerValueError):
     """Raised when an invalid email is used."""
 
 
 class InvalidCustomerExternalIdError(StancerValueError):
     """Raised when an invalid external ID is used."""
+
+
+class InvalidCustomerLegalIdError(StancerValueError):
+    """Raised when an invalid legal ID is used."""
 
 
 class InvalidCustomerMobileError(StancerValueError):

@@ -5,8 +5,8 @@ import base64
 import pytest
 import responses
 
-from stancer import Config
-from stancer.core import Request
+from stancer.config import Config
+from stancer.core.request import Request
 from stancer.exceptions import StancerValueError
 from stancer.exceptions import UnauthorizedError
 

@@ -5,52 +5,58 @@ import uuid
 
 import pytest
 
-from stancer import Auth
-from stancer import AuthStatus
-from stancer import Card
-from stancer import Config
-from stancer import Customer
-from stancer import Device
-from stancer import Payment
-from stancer import PaymentStatus
+from stancer.auth import Auth
+from stancer.card import Card
+from stancer.config import Config
+from stancer.core.enum.version import Version
+from stancer.customer import Customer
+from stancer.device import Device
 from stancer.exceptions import ConflictError
 from stancer.exceptions import NotFoundError
+from stancer.payment import Payment
+from stancer.status.auth import AuthStatus
+from stancer.status.payment import PaymentStatus
 
-from .TestHelper import TestHelper
+from .FunctionalTestHelper import FunctionalTestHelper
 
 
-class TestFunctionalPayment(TestHelper):
-    def test_get(self):
+class TestFunctionalPayment(FunctionalTestHelper):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_get(self, version):
+        self.conf.version = version
         # 404 with an unknown payment (with a random id)
         with pytest.raises(NotFoundError) as error:
-            obj = Payment(self.random_string(29))
+            obj = Payment(f'paym_{self.random_string(24)}')
             obj.amount
 
-        assert error.value.message == f'No such payment {obj.id}'
+        assert error.value.message == self.get_not_found_message(obj)
         assert error.value.reason == 'Not Found'
         assert error.value.status_code == 404
-        assert error.value.type == 'invalid_request_error'
 
         # Recover a valid payment
-        obj = Payment('paym_FQgpGVJpyGPVJVIuQtO3zy6i')
+        obj = Payment('paym_9i0jdIWD7yYi5BVPYjKFjt2G')
 
-        assert obj.amount == 7810
-        assert obj.currency == 'usd'
-        assert obj.description == 'Automatic test, 78.10 USD'
+        assert obj.amount == 8973
+        assert obj.currency == 'eur'
+        assert (
+            obj.description == 'Python 3.12.3 automatic test for `unique_id`, 89.73 EUR'
+        )
         assert obj.method == 'card'
 
         assert isinstance(obj.card, Card)
-        assert obj.card.id == 'card_nsA0eap90E6HRod6j54pnVWg'
+        assert obj.card.id == 'card_QhPTMv7tHdkTIHEhTc8RVLVL'
 
         assert isinstance(obj.customer, Customer)
-        assert obj.customer.id == 'cust_6FbQaYtxjADzerqdO5gs79as'
+        assert obj.customer.id == 'cust_nqjcoW1NscmX6TP3QvkxU5pG'
 
-    def test_list(self):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_list(self, version):
+        self.conf.version = version
         order_id = self.random_string(36)
         unique_id = self.random_string(36)
 
         amount1 = self.random_integer(50, 100_00)
-        currency1 = TestHelper.currency_provider(True)
+        currency1 = FunctionalTestHelper.currency_provider(True)
 
         payment1 = Payment()
         payment1.amount = amount1
@@ -68,7 +74,7 @@ class TestFunctionalPayment(TestHelper):
         payment1.send()
 
         amount2 = self.random_integer(50, 100_00)
-        currency2 = TestHelper.currency_provider(True)
+        currency2 = FunctionalTestHelper.currency_provider(True)
 
         payment2 = Payment()
         payment2.amount = amount2
@@ -118,8 +124,10 @@ class TestFunctionalPayment(TestHelper):
 
         assert counter == 1
 
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_send(self, currency):
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_send(self, currency, version):
+        self.conf.version = version
         obj = Payment()
 
         amount = self.random_integer(50, 10000)
@@ -159,8 +167,10 @@ class TestFunctionalPayment(TestHelper):
         assert obj.card.id == card_uid
         assert obj.customer.id == customer_uid
 
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_send_with_authentification(self, currency):
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_send_with_authentification(self, currency, version):
+        self.conf.version = version
         amount = self.random_integer(50, 99999)
         description = f'Automatic auth test for Python, {amount / 100:.2f} {currency}'
         return_url = f'https://www.example.org/?{self.random_string(30)}'
@@ -195,8 +205,10 @@ class TestFunctionalPayment(TestHelper):
         assert payment.auth.redirect_url is not None
         assert payment.auth.redirect_url.startswith('https://3ds.')
 
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_send_for_payment_page(self, currency):
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_send_for_payment_page(self, currency, version):
+        self.conf.version = version
         amount = self.random_integer(50, 99999)
         description = f'Payment page test for Python, {amount / 100:.2f} {currency}'
         return_url = f'https://www.example.org/?{self.random_string(30)}'
@@ -227,13 +239,13 @@ class TestFunctionalPayment(TestHelper):
 
         assert payment.payment_page_url() is not None
         assert payment.payment_page_url().startswith('https://payment')
-        assert payment.payment_page_url().find(fake_public_key) > 0
-        assert payment.payment_page_url().find(payment.id) > 0
+        assert fake_public_key in payment.payment_page_url()
 
         config.keys = keys
 
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_send_path_status(self, currency):
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    def test_send_path_status_v1(self, currency, version=Version.API_V1):
+        self.conf.version = version
         amount = self.random_integer(50, 99999)
         description = f'Patch status test for Python, {amount / 100:.2f} {currency}'
 
@@ -279,9 +291,54 @@ class TestFunctionalPayment(TestHelper):
         assert payment.send() == payment
         assert payment.status == PaymentStatus.TO_CAPTURE
 
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_send_with_unique_id(self, currency):
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    def test_send_path_status_v2(self, currency, version=Version.API_V2):
+        self.conf.version = version
+
+        amount = self.random_integer(50, 99999)
+        description = f'Patch status test for Python, {amount / 100:.2f} {currency}'
+
+        payment = Payment()
+        payment.amount = amount
+        payment.currency = currency
+        payment.description = description
+        payment.capture = False
+
+        assert payment.send() == payment
+        assert payment.id is not None
+        assert payment.id.startswith('paym_')
+        assert payment.method is None
+        assert payment.status is None
+
+        # We have a payment without status, we need to add a method
+
+        card = Card(
+            cvc=str(self.random_integer(100, 999)),
+            exp_month=self.random_integer(1, 12),
+            exp_year=self.random_year(),
+            number=self.get_card_number(),
+        )
+        payment.card = card
+
+        ## When we add a method we authorize the payment contrary to the v1 api
+        assert payment.send() == payment
+        assert payment.method == 'card'
+        assert card.id is not None
+        assert card.id.startswith('card_')
+        assert payment.status == PaymentStatus.AUTHORIZED
+
+        # Let's try a capture
+
+        payment.status = PaymentStatus.CAPTURE
+
+        assert payment.send() == payment
+        assert payment.status == PaymentStatus.TO_CAPTURE
+
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    def test_send_with_unique_id(self, currency, version):
         obj = Payment()
+        self.conf.version = version
 
         amount = self.random_integer(50, 10000)
         desc = f'Python {platform.python_version()} automatic test for `unique_id`, {amount / 100:.2f} {currency.upper()}'
@@ -295,7 +352,7 @@ class TestFunctionalPayment(TestHelper):
 
         customer = Customer()
         customer.name = 'John Doe'
-        customer.email = 'john.doe@example.com'
+        customer.email = f'john.doe+{unique_id}@example.com'
 
         obj.amount = amount
         obj.card = card

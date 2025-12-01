@@ -25,12 +25,15 @@ from .invalid_value import InvalidBicError
 from .invalid_value import InvalidCardError
 from .invalid_value import InvalidCardExpirationMonthError
 from .invalid_value import InvalidCardExpirationYearError
+from .invalid_value import InvalidCardExternalIdError
 from .invalid_value import InvalidCardNumberError
 from .invalid_value import InvalidCardVerificationCodeError
 from .invalid_value import InvalidCurrencyError
+from .invalid_value import InvalidCustomerDateBirthError
 from .invalid_value import InvalidCustomerEmailError
 from .invalid_value import InvalidCustomerError
 from .invalid_value import InvalidCustomerExternalIdError
+from .invalid_value import InvalidCustomerLegalIdError
 from .invalid_value import InvalidCustomerMobileError
 from .invalid_value import InvalidDateMandateError
 from .invalid_value import InvalidDeviceError
@@ -83,12 +86,15 @@ __all__ = (
     'InvalidCardError',
     'InvalidCardExpirationMonthError',
     'InvalidCardExpirationYearError',
+    'InvalidCardExternalIdError',
     'InvalidCardNumberError',
     'InvalidCardVerificationCodeError',
     'InvalidCurrencyError',
     'InvalidCustomerError',
+    'InvalidCustomerDateBirthError',
     'InvalidCustomerEmailError',
     'InvalidCustomerExternalIdError',
+    'InvalidCustomerLegalIdError',
     'InvalidCustomerMobileError',
     'InvalidDateMandateError',
     'InvalidDeviceError',

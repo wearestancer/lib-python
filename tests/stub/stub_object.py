@@ -1,8 +1,8 @@
 """Stub abstract object"""
 
-from stancer import Card
-from stancer.core import AbstractObject
-from stancer.core.decorators import populate_on_call
+from stancer.card import Card
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.decorators.populate_on_call import populate_on_call
 
 
 class StubObject(AbstractObject):

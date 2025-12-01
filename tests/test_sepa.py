@@ -11,15 +11,14 @@ import responses
 
 from pytz import timezone as tz
 
-from stancer import Config
-from stancer import Sepa
-from stancer.core import AbstractCountry
-from stancer.core import AbstractName
-from stancer.core import AbstractObject
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_name import AbstractName
+from stancer.core.abstract_object import AbstractObject
 from stancer.exceptions import InvalidBicError
 from stancer.exceptions import InvalidDateMandateError
 from stancer.exceptions import InvalidIbanError
 from stancer.exceptions import InvalidMandateError
+from stancer.sepa import Sepa
 
 from .TestHelper import TestHelper
 
@@ -108,7 +107,6 @@ class TestSepa(TestHelper):
         obj = Sepa()
         timestamp = self.random_integer(1_500_000_000, 1_600_000_000)
         date = datetime.now()
-        config = Config()
         zone = 'Europe/Paris'
 
         assert obj.date_mandate is None
@@ -124,7 +122,7 @@ class TestSepa(TestHelper):
         assert isinstance(obj.date_mandate, datetime)
         assert obj.date_mandate == date
 
-        config.default_timezone = tz(zone)
+        self.conf.default_timezone = tz(zone)
 
         obj.date_mandate = timestamp
 
@@ -310,3 +308,18 @@ class TestSepa(TestHelper):
         assert obj.mandate == params['mandate']
         assert obj.is_populated
         assert len(responses.calls) == 1
+
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, version):
+        self.conf.version = version
+        obj = Sepa()
+        uid = self.random_string(29)
+
+        assert obj.uri == f'https://{self.conf.host}/v{version}/sepa/'
+
+        obj.hydrate(id=uid)
+
+        assert obj.uri == f'https://{self.conf.host}/v{version}/sepa/{uid}'
+
+        with pytest.raises(AttributeError):
+            obj.uri = self.random_string(29)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
+import os
 import string
 
 
@@ -9,7 +10,8 @@ from datetime import date
 from random import choice
 from random import randint
 
-from stancer import Config
+from stancer.config import Config
+from stancer.core.enum.version import Version
 from stancer.exceptions import BadRequestError
 from stancer.exceptions import ConflictError
 from stancer.exceptions import ForbiddenError
@@ -30,11 +32,14 @@ class TestHelper:
     """Add some helper for tests."""
 
     def setup_method(self, method):
-        conf = Config()
+        self.conf = Config()
 
-        conf.keys = f'stest_{self.random_string(24)}'
+        self.conf.keys = f'stest_{self.random_string(24)}'
+        self.conf.version = Version[f'API_V{os.getenv("API_VERSION", 1)}']
+        del self.conf.default_timezone
 
-        del conf.default_timezone
+    def random_bool(self) -> bool:
+        return bool(self.random_integer(0, 1))
 
     def random_integer(self, min, max=0):
         if max < min:
@@ -55,21 +60,31 @@ class TestHelper:
 
         return ''.join(choice(chars) for i in range(limit))
 
+    # With the API v2 implementation we need to create phone number that matches with this regex:
+    # "(?:6(?:[0-24-8]\d|3[0-8]|9[589])|7[3-9]\d)\d{6}"
     def random_mobile(self):
         # Simulate a french mobile phone number
         first = self.random_integer(6, 7)
-        counter = 4
+        counter = 3
 
-        mobile = f'+33{str(first)}'
+        mobile = str(first)
 
         if first == 7:
             mobile += str(self.random_integer(30, 99)).zfill(2)
-            counter -= 1
+
+        if first == 6:
+            first_number_duo = [
+                str(self.random_integer(0, 20)).zfill(2),
+                str(self.random_integer(40, 80)),
+                f'3{self.random_integer(0, 8)}',
+                f'9{choice([5, 8, 9])}',
+            ]
+            mobile += choice(first_number_duo)
 
         for idx in range(counter):
             mobile += str(self.random_integer(0, 99)).zfill(2)
 
-        return mobile
+        return f'+33{mobile}'
 
     def random_timezone(self):
         zones = [
@@ -263,4 +278,16 @@ class TestHelper:
             '2a03:2880:f11f:83:face:b00c:0:25de',  # www.facebook.com
             '2001:0503:ba3e:0000:0000:0000:0002:0030',  # a.root-servers.org
             '2001:503:ba3e::2:30',  # a.root-servers.org
+        ]
+
+    @classmethod
+    def version_provider(cls):
+        return list(Version)
+
+    @classmethod
+    def host_provider(cls):
+        return [
+            'api.stancer.com',
+            'api.dev.stancer.com',
+            Config().host,
         ]

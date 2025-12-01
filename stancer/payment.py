@@ -4,17 +4,18 @@ from datetime import datetime
 from typing import Any
 
 from .card import Card
-from .core import AbstractAmount
-from .core import AbstractCountry
-from .core import AbstractObject
-from .core import AbstractSearch
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
-from .core.helpers import coerce_status
-from .core.helpers import coerce_uuid
-from .core.payment import PaymentAuth
-from .core.payment import PaymentPage
-from .core.payment import PaymentRefund
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_country import AbstractCountry
+from .core.abstract_object import AbstractObject
+from .core.abstract_search import AbstractSearch
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.enum.version import Version
+from .core.helpers.coerce_status import coerce_status
+from .core.helpers.coerce_uuid import coerce_uuid
+from .core.payment.auth import PaymentAuth
+from .core.payment.page import PaymentPage
+from .core.payment.refund import PaymentRefund
 from .customer import Customer
 from .exceptions import InvalidAmountError
 from .exceptions import InvalidCardError
@@ -58,7 +59,8 @@ class Payment(
     # our way of building object imposes many ancestors
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'
+    _DEPRECATED_ENDPOINT = {'version': Version.API_V1, 'route': 'checkout'}
+    _ENDPOINT = 'payments'
 
     _allowed_attributes = [
         'capture',
@@ -69,6 +71,11 @@ class Payment(
         'sepa',
         'status',
         'unique_id',
+    ]
+    _flat_attributes = [
+        'card',
+        'customer',
+        'sepa',
     ]
     _datetime_property = [
         'date_bank',

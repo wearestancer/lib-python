@@ -6,13 +6,24 @@ import pytest
 
 from pytz import timezone
 
-from stancer import Config
+from stancer.config import Config
+from stancer.core.enum.version import Version
 from stancer.exceptions import StancerValueError
 
 from .TestHelper import TestHelper
 
 
 class TestConfig(TestHelper):
+    def setup_method(self, method):
+        conf = Config()
+        del conf.host
+        del conf.keys
+        del conf.mode
+        del conf.port
+        del conf.timeout
+        del conf.version
+        return
+
     def test_class(self):
         assert Config() == Config()
 
@@ -32,7 +43,8 @@ class TestConfig(TestHelper):
         assert isinstance(obj.default_timezone, datetime.tzinfo)
         assert obj.default_timezone == datetime.timezone.utc
 
-    def test_host(self):
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
+    def test_host(self, host):
         obj = Config()
         host = f'{self.random_string(15)}.{self.random_string(2)}'
 
@@ -287,6 +299,7 @@ class TestConfig(TestHelper):
 
     def test_timeout(self):
         obj = Config()
+
         timeout = self.random_integer(1, 1000)
 
         assert obj.timeout is None
@@ -304,7 +317,7 @@ class TestConfig(TestHelper):
         obj = Config()
         version = self.random_integer(1, 20)
 
-        assert obj.version == 1
+        assert obj.version == Version.API_V1
 
         obj.version = version
 
@@ -313,4 +326,4 @@ class TestConfig(TestHelper):
         # Delete will put it on default
         del obj.version
 
-        assert obj.version == 1
+        assert obj.version == Version.API_V1

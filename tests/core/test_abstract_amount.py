@@ -2,7 +2,7 @@
 
 import pytest
 
-from stancer.core import AbstractAmount
+from stancer.core.abstract_amount import AbstractAmount
 from stancer.exceptions import InvalidAmountError
 from stancer.exceptions import InvalidCurrencyError
 
