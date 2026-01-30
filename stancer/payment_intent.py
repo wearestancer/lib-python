@@ -3,7 +3,6 @@
 import re
 
 from typing import Any
-from typing import Callable
 from typing import Generator
 from typing import Type
 from typing import TypeVar
@@ -41,7 +40,7 @@ from .sepa import Sepa
 try:
     from typing import Never  # type: ignore
 except ImportError:
-    from typing import NoReturn as Never
+    from typing_extensions import Never
 CurrentInstance = TypeVar('CurrentInstance', bound='PaymentIntent')
 
 ORDER_ID_MAX_LEN = 36
@@ -225,7 +224,7 @@ class PaymentIntent(
 
         return params
 
-    def get_payment_list(self, **kwargs) -> Callable[[], Generator]:
+    def get_payment_list(self, **kwargs) -> Generator[Payment, None, None]:
         """
         Get A generator on the list of payment linked to the payment intent.
 
@@ -286,7 +285,9 @@ class PaymentIntent(
 
     @methods_allowed.setter
     @validate_type(
-        list, coerce=coerce_methods_allowed, throws=InvalidPaymentIntentMethodsAllowed
+        list,
+        coerce=coerce_methods_allowed,
+        throws=InvalidPaymentIntentMethodsAllowed,
     )
     def methods_allowed(self, value: list) -> None:
         self._data['methods_allowed'] = value
@@ -309,7 +310,12 @@ class PaymentIntent(
         return self._data.get('order_id')
 
     @order_id.setter
-    @validate_type(str, min=1, max=36, throws=InvalidPaymentIntentOrderIdError)
+    @validate_type(
+        str,
+        min=1,
+        max=36,
+        throws=InvalidPaymentIntentOrderIdError,
+    )
     def order_id(self, value: str) -> None:
         self._data['order_id'] = value
 
@@ -421,7 +427,11 @@ class PaymentIntent(
         return self._data.get('threeds')
 
     @threeds.setter
-    @validate_type(str, coerce=coerce_status, throws=InvalidThreedsStatusError)
+    @validate_type(
+        str,
+        coerce=coerce_status,
+        throws=InvalidThreedsStatusError,
+    )
     def threeds(self, value: str):
         self._data['threeds'] = value
 

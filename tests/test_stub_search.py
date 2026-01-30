@@ -1,11 +1,15 @@
 """Test abstract object with search"""
 
+from datetime import datetime
+from datetime import timedelta
 from inspect import isgenerator
 from time import time
 
 import pytest
 import responses
 
+from stancer.core.abstract_object import AbstractObject
+from stancer.exceptions import InvalidSearchFilter
 from stancer.exceptions import InvalidSearchResponse
 
 from .stub.stub_search import StubSearch
@@ -159,3 +163,92 @@ class TestStubSearch(TestHelper):
         assert f'start={2}' in api_call.request.url  # 2 => start + limit in response
         assert f'foo={foo}' in api_call.request.url
         assert 'foobar' not in api_call.request.url
+
+    def test_invalid_created(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be a position integer or a DateTime object.',
+        ):
+            StubSearch.list(created=-1)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be a position integer or a DateTime object.',
+        ):
+            StubSearch.list(created=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be a position integer or a DateTime object.',
+        ):
+            StubSearch.list(created=AbstractObject())
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be in the past.',
+        ):
+            StubSearch.list(created=time() + 100)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be in the past.',
+        ):
+            date = datetime.now() + timedelta(days=1)
+            StubSearch.list(created=date)
+
+    def test_invalid_filters(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Invalid search filters.',
+        ):
+            StubSearch.list()
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Invalid search filters.',
+        ):
+            StubSearch.list(bar='bar')
+
+    def test_invalid_limit(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=0)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=101)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=AbstractObject())
+
+    def test_invalid_start(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            StubSearch.list(start=-1)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            StubSearch.list(start=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            StubSearch.list(start=AbstractObject())

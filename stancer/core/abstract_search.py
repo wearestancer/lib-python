@@ -7,12 +7,14 @@ from abc import abstractmethod
 from datetime import datetime
 from time import time
 from typing import Any
-from typing import Callable
 from typing import Generator
+from typing import TypeVar
 
 from ..exceptions import InvalidSearchFilter
 from ..exceptions import InvalidSearchResponse
 from ..exceptions import NotFoundError
+from ..exceptions import StancerTypeError
+from .abstract_object import AbstractObject
 from .request import Request
 
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
@@ -20,9 +22,9 @@ try:
     # Self is available in Python 3.11
     from typing import Self  # type: ignore
 except ImportError:
-    from typing import TypeVar
-
     Self = TypeVar('Self', bound='AbstractSearch')  # type: ignore
+
+SearchedObject = TypeVar('SearchedObject', bound=AbstractObject)
 
 
 class AbstractSearch(ABC):
@@ -161,7 +163,11 @@ class AbstractSearch(ABC):
         return params
 
     @staticmethod
-    def _create_generator(obj, searched_class, **kwargs) -> Callable[[], Generator]:
+    def _create_generator(
+        obj: AbstractObject,
+        searched_class: type[SearchedObject],
+        **kwargs,
+    ) -> Generator[SearchedObject, None, None]:
         """
         Create a generator that will iterate on all the object on a given route.
 
@@ -174,45 +180,48 @@ class AbstractSearch(ABC):
         """
         request = Request()
 
-        def gen():
-            has_more = True
+        has_more = True
 
-            while has_more:
-                try:
-                    response = json.loads(request.get(obj, update=False, **kwargs))
+        while has_more:
+            try:
+                response = json.loads(
+                    request.get(  # type: ignore [arg-type] # request with update False return str
+                        obj,
+                        update=False,
+                        **kwargs,
+                    ),
+                )
 
-                    keys = list(response.keys() - ['live_mode', 'range'])
+                keys = list(response.keys() - ['live_mode', 'range'])
 
-                    if len(keys) != 1:
-                        raise InvalidSearchResponse('Results not found.')
+                if len(keys) != 1:
+                    raise InvalidSearchResponse('Results not found.')
 
-                    key = keys[0]
-                    has_more = response['range']['has_more']
-                    kwargs['start'] = (
-                        response['range']['start'] + response['range']['limit']
-                    )
+                key = keys[0]
+                has_more = response['range']['has_more']
+                kwargs['start'] = (
+                    response['range']['start'] + response['range']['limit']
+                )
 
-                    for item in response[key]:
-                        yield searched_class().hydrate(**item)
+                for item in response[key]:
+                    yield searched_class().hydrate(**item)
 
-                except NotFoundError:
-                    has_more = False
+            except NotFoundError:
+                has_more = False
 
-                except json.JSONDecodeError as err:
-                    has_more = False
+            except json.JSONDecodeError as err:
+                has_more = False
 
-                    raise InvalidSearchResponse('Invalid results.') from err
-
-        return gen()
+                raise InvalidSearchResponse('Invalid results.') from err
 
     @classmethod
     def list(
-        cls,
+        cls: type[Self],
         created: int | datetime | None = None,
         limit: int | None = None,
         start: int | None = None,
         **kwargs,
-    ) -> Callable[[], Generator]:
+    ) -> Generator[Self, None, None]:
         """
         List elements.
 
@@ -228,6 +237,9 @@ class AbstractSearch(ABC):
         Returns:
             Generator.
         """
+
+        if not (issubclass(cls, AbstractObject) and issubclass(cls, AbstractSearch)):
+            raise StancerTypeError(cls.__name__ + ' cannot be Searched.')
 
         params = cls.get_param(created, limit, start, **kwargs)
 

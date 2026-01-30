@@ -1,19 +1,21 @@
-from typing import Callable
 from typing import Generator
 from typing import Type
+from typing import TypeVar
 
 from stancer.core.abstract_object import AbstractObject
 from stancer.core.abstract_search import AbstractSearch
 from stancer.core.inner_search_object import InnerSearchObject
+
+SearchedObject = TypeVar('SearchedObject', bound=AbstractObject)
 
 
 class AbstractSearchInner(AbstractSearch):
     def list_inner(
         self,
         inner_search_object: InnerSearchObject,
-        searched_class: Type[AbstractObject],
+        searched_class: Type[SearchedObject],
         **kwargs,
-    ) -> Callable[[], Generator]:
+    ) -> Generator[SearchedObject, None, None]:
         """
         List searched_class elements, linked to our instance.
 
@@ -32,7 +34,7 @@ class AbstractSearchInner(AbstractSearch):
         Returns:
             Generator.
         """
-        if hasattr(searched_class, 'get_param'):
+        if issubclass(searched_class, AbstractSearch):
             params = searched_class.get_param(**kwargs)
             return self._create_generator(inner_search_object, searched_class, **params)
         return self._create_generator(inner_search_object, searched_class)
