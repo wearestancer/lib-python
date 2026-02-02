@@ -26,12 +26,13 @@ class Refund(AbstractObject, AbstractAmount):
     _allowed_attributes = [
         'payment',
     ]
+    _flat_attributes = ['payment']
     _datetime_property = [
         'date_bank',
         'date_refund',
     ]
 
-    def __init__(self, uid: str | None = None, **kwargs):
+    def __init__(self, uid: str | None = None, **kwargs) -> None:
         """
         Create or get a Refund object.
 

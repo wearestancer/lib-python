@@ -1,0 +1,238 @@
+{
+    "payment_intents": [
+        {
+            "amount": 583,
+            "capture": false,
+            "card": "card_nRBHRjo5UP2pLFb27WxApj8l",
+            "created_at": 1720443441,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_Tn16lAUhI8l3ppgFsiYB6cCs",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa",
+                "card"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": null,
+            "status": "require_authentication",
+            "threeds": "none",
+            "url": "https://payment.stancer.com/test_pi_Tn16lAUhI8l3ppgFsiYB6cCs"
+        },
+        {
+            "amount": 4111,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443441,
+            "currency": "eur",
+            "customer": "cust_7hvOWUeiZE7IKrMjPbjcaUns",
+            "date_settlement": null,
+            "description": "test complete PI",
+            "id": "pi_Cat0Tp7D7IuiKn477eiLN6nx",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa",
+                "card"
+            ],
+            "order_id": "ID_68",
+            "payment": null,
+            "return_url": "https://perdu.com",
+            "sepa": "sepa_GKllAB2Ha9GnVUSBLYWCNWni",
+            "status": "authorized",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_Cat0Tp7D7IuiKn477eiLN6nx"
+        },
+        {
+            "amount": 100,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443440,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_oxGa4QLd4vWIlfE7IhKdxNNs",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa",
+                "card"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "authorized",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_oxGa4QLd4vWIlfE7IhKdxNNs"
+        },
+        {
+            "amount": 200,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443439,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": "functional python test send without method",
+            "id": "pi_FqQx8IglfeLGIq2qlVDcIYVD",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "authorized",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_FqQx8IglfeLGIq2qlVDcIYVD"
+        },
+        {
+            "amount": 100,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443439,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_UNi1V83iqOec1fixMXw5OAXv",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "processing",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_UNi1V83iqOec1fixMXw5OAXv"
+        },
+        {
+            "amount": 100,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443370,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_7QVmKs2QCAoDA2CZXHCJgUcL",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa",
+                "card"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "authorized",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_7QVmKs2QCAoDA2CZXHCJgUcL"
+        },
+        {
+            "amount": 551,
+            "capture": false,
+            "card": "card_nRBHRjo5UP2pLFb27WxApj8l",
+            "created_at": 1720443370,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_Tf5M1slktJr7vbmoOjaCMTbP",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa",
+                "card"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": null,
+            "status": "require_authentication",
+            "threeds": "none",
+            "url": "https://payment.stancer.com/test_pi_Tf5M1slktJr7vbmoOjaCMTbP"
+        },
+        {
+            "amount": 100,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443369,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_is59zHqijy39jZ9pWHgL5BlI",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "processing",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_is59zHqijy39jZ9pWHgL5BlI"
+        },
+        {
+            "amount": 200,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443368,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": "functional python test send without method",
+            "id": "pi_fFX60heNITc2tGvWCslZyTIE",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "authorized",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_fFX60heNITc2tGvWCslZyTIE"
+        },
+        {
+            "amount": 100,
+            "capture": true,
+            "card": null,
+            "created_at": 1720443346,
+            "currency": "eur",
+            "customer": null,
+            "date_settlement": null,
+            "description": null,
+            "id": "pi_lS6ywmB1EfKSvbIq9dJaALEM",
+            "metadata": null,
+            "methods_allowed": [
+                "sepa",
+                "card"
+            ],
+            "order_id": null,
+            "payment": null,
+            "return_url": null,
+            "sepa": "sepa_k6oqETdIVYLU6rH3tbkB1YRW",
+            "status": "authorized",
+            "threeds": "required",
+            "url": "https://payment.stancer.com/test_pi_lS6ywmB1EfKSvbIq9dJaALEM"
+        }
+    ],
+    "range": {
+        "count": 10,
+        "end": 9,
+        "has_more": false,
+        "limit": 10,
+        "start": 0
+    }
+}
+

@@ -3,7 +3,7 @@
 from datetime import datetime
 from functools import wraps
 
-from ...config import Config
+from stancer.config import Config
 
 # pylint: disable=too-many-branches, too-many-statements, too-many-locals
 
@@ -14,7 +14,6 @@ def validate_type(type_expected, **options):
 
     This also add modified flag after modification.
     """
-
     config = Config()
 
     if 'silent' not in options:

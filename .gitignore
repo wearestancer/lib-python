@@ -14,5 +14,7 @@ __pycache__/
 .coverage
 coverage.xml
 junit.xml
+codequality.json
 
 .venv
+.env

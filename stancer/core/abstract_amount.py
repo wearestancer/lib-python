@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from typing import Any
 
-from ..exceptions import InvalidAmountError
-from ..exceptions import InvalidCurrencyError
+from stancer.exceptions import InvalidAmountError
+from stancer.exceptions import InvalidCurrencyError
+
 from .decorators.populate_on_call import populate_on_call
 from .decorators.validate_type import validate_type
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from typing import Any
 
 from .card import Card
 from .core.abstract_amount import AbstractAmount
@@ -14,19 +13,19 @@ from .core.enum.version import Version
 from .core.helpers.coerce_status import coerce_status
 from .core.helpers.coerce_uuid import coerce_uuid
 from .core.payment.auth import PaymentAuth
+from .core.payment.card import PaymentCard
+from .core.payment.customer import PaymentCustomer
 from .core.payment.page import PaymentPage
 from .core.payment.refund import PaymentRefund
+from .core.payment.sepa import PaymentSepa
 from .customer import Customer
 from .exceptions import InvalidAmountError
-from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
-from .exceptions import InvalidCustomerError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidPaymentUniqueIdError
 from .exceptions import InvalidSearchFilter
-from .exceptions import InvalidSepaError
 from .exceptions import InvalidStatusError
 from .exceptions import MissingPaymentMethodError
 from .exceptions import StancerNotImplementedError
@@ -36,6 +35,7 @@ from .status.payment import PaymentStatus
 # This code is a Hack to let us use Self from typing if available, else we use TypeVar
 try:
     # Self is available in Python 3.11
+    from typing import Any  # type: ignore
     from typing import Self  # type: ignore
 except ImportError:
     from typing import TypeVar
@@ -53,8 +53,11 @@ class Payment(
     AbstractCountry,
     AbstractSearch,
     PaymentAuth,
-    PaymentRefund,
+    PaymentCard,
+    PaymentCustomer,
     PaymentPage,
+    PaymentRefund,
+    PaymentSepa,
 ):  # pylint: disable='too-many-ancestors'
     # our way of building object imposes many ancestors
     """Representation of a payment."""
@@ -64,18 +67,10 @@ class Payment(
 
     _allowed_attributes = [
         'capture',
-        'card',
-        'customer',
         'description',
         'order_id',
-        'sepa',
         'status',
         'unique_id',
-    ]
-    _flat_attributes = [
-        'card',
-        'customer',
-        'sepa',
     ]
     _datetime_property = [
         'date_bank',
@@ -117,51 +112,6 @@ class Payment(
     @validate_type(bool, throws=InvalidPaymentCaptureError)
     def capture(self, value: bool):
         self._data['capture'] = value
-
-    @property
-    @populate_on_call
-    def card(self) -> Card | None:
-        """
-        Source card for the payment.
-
-        Args:
-            value (Card): A valid `Card` object.
-
-        Returns:
-            Card: Card used for the payment.
-
-        Raises:
-            InvalidCardError: When card is invalid.
-        """
-        return self._data.get('card')
-
-    @card.setter
-    @validate_type(Card, throws=InvalidCardError)
-    def card(self, value: Card):
-        self._data['card'] = value
-        self._data['method'] = 'card'
-
-    @property
-    @populate_on_call
-    def customer(self) -> Customer | None:
-        """
-        Customer handling the payment.
-
-        Args:
-            value (Customer): A valid `Customer` object.
-
-        Returns:
-            Customer: Customer handling the payment.
-
-        Raises:
-            InvalidCustomerError: When customer is invalid.
-        """
-        return self._data.get('customer')
-
-    @customer.setter
-    @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer) -> None:
-        self._data['customer'] = value
 
     @property
     @populate_on_call
@@ -436,29 +386,6 @@ class Payment(
         self._create_device()
 
         return super().send()
-
-    @property
-    @populate_on_call
-    def sepa(self) -> Sepa | None:
-        """
-        Source SEPA account for the payment.
-
-        Args:
-            value (Sepa): A valid `Sepa` object.
-
-        Returns:
-            Sepa: SEPA used for the payment.
-
-        Raises:
-            InvalidSepaError: When sepa is invalid.
-        """
-        return self._data.get('sepa')
-
-    @sepa.setter
-    @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value: Sepa) -> None:
-        self._data['sepa'] = value
-        self._data['method'] = 'sepa'
 
     @property
     @populate_on_call

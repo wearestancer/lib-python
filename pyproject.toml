@@ -47,7 +47,6 @@ dev = [
     'pylint-quotes ~=0.2',
     'pytest ~=8.4',
     'pytest-cov ~=6.2',
-    'pytest-xdist ~=3.8',
     'pytz',
     'responses ~=0.25',
     'ruff ~=0.12',
@@ -93,10 +92,6 @@ relative-imports-order = 'furthest-to-closest'
 #REGION pytest
 [tool.pytest.ini_options]
 addopts = '-m "not future"'
-looponfailroots = [
-    'stancer',
-    'tests',
-]
 testpaths = ['tests']
 markers = ['future']
 #ENDREGION

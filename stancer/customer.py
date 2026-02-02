@@ -40,7 +40,7 @@ def validate_birth_date(value: str | date) -> date:
     try:
         return date.fromisoformat(value)
     except ValueError as exc:
-        raise InvalidCustomerDateBirthError from exc
+        raise InvalidCustomerDateBirthError() from exc
 
 
 class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
@@ -142,6 +142,9 @@ class Customer(AbstractObject, AbstractName, AbstractCountry, AbstractDeleted):
         Returns:
             Is the customer complete ?
         """
+        if self.id is not None:
+            return True
+
         if self.email is None and self.mobile is None:
             return False
 

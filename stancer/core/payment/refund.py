@@ -22,7 +22,7 @@ class PaymentRefund(ABC, PaymentProtocol):
         pass
 
     @property
-    def _init_refunds(self):
+    def _init_refunds(self) -> type['Refund']:
         # Prevent import loop
         from ...refund import Refund  # pylint: disable=import-outside-toplevel
 
@@ -35,7 +35,7 @@ class PaymentRefund(ABC, PaymentProtocol):
         optional=True,
         silent=True,
     )
-    def refund(self, amount: int = 0):
+    def refund(self, amount: int = 0) -> 'Refund':
         """
         Refund a payment, or part of it.
 

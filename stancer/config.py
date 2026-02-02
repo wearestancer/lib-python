@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from datetime import timezone
 
+from stancer.exceptions import StancerValueError
+
 from .core.enum.version import Version
 from .core.singleton import Singleton
-from .exceptions import StancerValueError
 
 
 class Config(Singleton):
@@ -110,7 +111,7 @@ class Config(Singleton):
         return self._keys
 
     @keys.setter
-    def keys(self, value: list[str] | str):
+    def keys(self, value: list[str] | str) -> None:
         keychain: list[str] | str | tuple[str, ...] = value
 
         if isinstance(value, str):
@@ -167,7 +168,7 @@ class Config(Singleton):
         self._mode = value
 
     @mode.deleter
-    def mode(self):
+    def mode(self) -> None:
         self._mode = self.TEST_MODE
 
     @property

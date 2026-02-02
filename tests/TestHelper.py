@@ -31,7 +31,7 @@ from stancer.exceptions import UnauthorizedError
 class TestHelper:
     """Add some helper for tests."""
 
-    def setup_method(self, method):
+    def setup_method(self, method) -> None:
         self.conf = Config()
 
         self.conf.keys = f'stest_{self.random_string(24)}'
@@ -41,13 +41,13 @@ class TestHelper:
     def random_bool(self) -> bool:
         return bool(self.random_integer(0, 1))
 
-    def random_integer(self, min, max=0):
+    def random_integer(self, min, max=0) -> int:
         if max < min:
             (min, max) = (max, min)
 
         return randint(min, max)
 
-    def random_string(self, min, max=None):
+    def random_string(self, min, max=None) -> str:
         chars = list(string.ascii_letters) + list(string.digits)
 
         if max is None:
@@ -62,7 +62,7 @@ class TestHelper:
 
     # With the API v2 implementation we need to create phone number that matches with this regex:
     # "(?:6(?:[0-24-8]\d|3[0-8]|9[589])|7[3-9]\d)\d{6}"
-    def random_mobile(self):
+    def random_mobile(self) -> str:
         # Simulate a french mobile phone number
         first = self.random_integer(6, 7)
         counter = 3
@@ -86,7 +86,7 @@ class TestHelper:
 
         return f'+33{mobile}'
 
-    def random_timezone(self):
+    def random_timezone(self) -> str:
         zones = [
             'UTC',
             'America/Phoenix',
@@ -97,21 +97,24 @@ class TestHelper:
 
         return choice(zones)
 
-    def random_year(self):
+    def random_year(self) -> int:
         return self.random_integer(1, 20) + self.current_year
 
+    def api_version(self) -> Version:
+        return self.conf.version
+
     @property
-    def current_year(self):
+    def current_year(self) -> int:
         return date.today().year
 
     @classmethod
-    def api_key_provider(cls):
+    def api_key_provider(cls) -> list[tuple[str, str, str]]:
         obj = TestHelper()
 
         return obj.public_api_key_provider() + obj.secret_api_key_provider()
 
     @classmethod
-    def public_api_key_provider(cls):
+    def public_api_key_provider(cls) -> list[tuple[str, str, str]]:
         obj = TestHelper()
 
         return [
@@ -120,7 +123,7 @@ class TestHelper:
         ]
 
     @classmethod
-    def secret_api_key_provider(cls):
+    def secret_api_key_provider(cls) -> list[tuple[str, str, str]]:
         obj = TestHelper()
 
         return [
@@ -129,7 +132,7 @@ class TestHelper:
         ]
 
     @classmethod
-    def card_brand_provider(cls):
+    def card_brand_provider(cls) -> list[tuple[str, str]]:
         obj = TestHelper()
         unknown_brand = obj.random_string(10)
 
@@ -145,7 +148,7 @@ class TestHelper:
         ]
 
     @classmethod
-    def card_number_provider(cls):
+    def card_number_provider(cls) -> tuple[str, ...]:
         return (
             # VISA
             '4532160583905253',
@@ -198,7 +201,7 @@ class TestHelper:
         )
 
     @classmethod
-    def currency_provider(cls, one=False):
+    def currency_provider(cls, one=False) -> str | tuple[str, ...]:
         currencies = (
             'eur',
             'gbp',
@@ -211,7 +214,7 @@ class TestHelper:
         return currencies
 
     @classmethod
-    def http_code_provider(cls):
+    def http_code_provider(cls) -> list[tuple[int, object]]:
         return [
             (400, BadRequestError),
             (401, UnauthorizedError),
@@ -230,7 +233,7 @@ class TestHelper:
         ]
 
     @classmethod
-    def iban_provider(cls):
+    def iban_provider(cls) -> tuple[str, ...]:
         # Thanks Wikipedia
         return (
             'BE71 0961 2345 6769',
@@ -246,7 +249,7 @@ class TestHelper:
         )
 
     @classmethod
-    def ip_provider(cls, one=False):
+    def ip_provider(cls, one=False) -> str | list[str]:
         ips = cls.ipv4_provider() + cls.ipv6_provider()
 
         if one:
@@ -255,7 +258,7 @@ class TestHelper:
         return ips
 
     @classmethod
-    def ipv4_provider(cls):  # 7 addresses
+    def ipv4_provider(cls) -> list[str]:  # 7 addresses
         return [
             '212.27.48.10',  # www.free.fr
             '216.58.206.238',  # www.google.com
@@ -267,7 +270,7 @@ class TestHelper:
         ]
 
     @classmethod
-    def ipv6_provider(cls):  # 9 addresses
+    def ipv6_provider(cls) -> list[str]:  # 9 addresses
         return [
             '2a01:0e0c:0001:0000:0000:0000:0000:0001',  # www.free.fr
             '2a01:e0c:1:0:0:0:0:1',  # www.free.fr
@@ -281,11 +284,11 @@ class TestHelper:
         ]
 
     @classmethod
-    def version_provider(cls):
+    def version_provider(cls) -> list[Version]:
         return list(Version)
 
     @classmethod
-    def host_provider(cls):
+    def host_provider(cls) -> list[str | None]:
         return [
             'api.stancer.com',
             'api.dev.stancer.com',

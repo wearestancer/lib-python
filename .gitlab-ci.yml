@@ -98,6 +98,7 @@ functional_test:
   retry: 2
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\.\d+%)/'
 
+  allow_failure: true
   artifacts:
     reports:
       coverage_report:

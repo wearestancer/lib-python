@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from ..config import Config
+from ..exceptions import StancerApiVersionError
 from .decorators.populate_on_call import populate_on_call
 from .enum.version import Version
 from .request import Request
@@ -28,7 +29,7 @@ class AbstractObject:
     _DEPRECATED_ENDPOINT: dict[str, Any] = {}  # pylint: disable=invalid-name
     _ENDPOINT: str | None = None  # pylint: disable=invalid-name
     _allowed_attributes: list[str] = []
-    _flat_attributes: list[str] = []
+    _version = Version.API_V1
     _datetime_property: list[str] = [
         'created',
     ]
@@ -58,11 +59,13 @@ class AbstractObject:
         self._data: dict[str, Any] = {}
         self._bypass = False
         self._populated = True
-
         # init modified flags
         self.__modified: set[str] | None = None
         del self._modified
-
+        if self._version > Config().version:
+            raise StancerApiVersionError(
+                f'{self.__class__} is not implement on API V{Config().version}'
+            )
         self.hydrate(**self._default_values)
 
         if kwargs:
@@ -143,6 +146,16 @@ class AbstractObject:
         return allowed
 
     @classmethod
+    def _get_flat_attributes(cls) -> set[str]:
+        flat_attributes = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_flat_attributes'):
+                flat_attributes.update(parent._flat_attributes)  # pylint: disable=protected-access
+
+        return flat_attributes
+
+    @classmethod
     def _get_datetime_property(cls) -> set[str]:
         allowed = set()
 
@@ -209,6 +222,17 @@ class AbstractObject:
             Creation date and time (into the API) during server side creation.
         """
         return self._data.get('created')
+
+    @property
+    @populate_on_call
+    def created_at(self) -> datetime | None:
+        """
+        Return the creation date and time of the current object.
+
+        Returns:
+            Creation date and time (into the API) during server side creation.
+        """
+        return self._data.get('created_at')
 
     def delete(self: Self) -> Self:
         """
@@ -320,7 +344,6 @@ class AbstractObject:
                     val = {'id': value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access
-
                     modify = False
                     populated = tmp._populated
                     tmp._populated = True
@@ -343,9 +366,9 @@ class AbstractObject:
                     if prop is not None and prop.fset is not None:
                         prop.fset(self, value)
                         applied = True
-                except ValueError:
+                except ValueError as exc:
                     if not self._bypass:
-                        raise
+                        raise exc
 
                 if not applied:
                     self._data[key] = value
@@ -527,7 +550,10 @@ class AbstractObject:
             )
         }
         for key, value in items.items():
-            if key in self._flat_attributes and Config().version != Version.API_V1:
+            if (
+                key in self._get_flat_attributes()
+                and Config().version != Version.API_V1
+            ):
                 representation[key] = value.send().id
                 continue
             if hasattr(value, 'to_json_repr'):

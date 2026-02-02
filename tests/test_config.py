@@ -324,6 +324,7 @@ class TestConfig(TestHelper):
         assert obj.version == version
 
         # Delete will put it on default
+        # We keep default to one, for now.
         del obj.version
 
         assert obj.version == Version.API_V1

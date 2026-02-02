@@ -65,13 +65,14 @@ class Request:
 
         Args:
             obj: Target object.
+            kwargs: Arbitrary keyword arguments.
 
         Returns:
             Current instance of Request.
         """
         return self._request('patch', obj)
 
-    def post(self: Self, obj: 'AbstractObject') -> Self | str:
+    def post(self: Self, obj: 'AbstractObject', **kwargs) -> Self | str:
         """
         Send a POST HTTP request.
 
@@ -81,7 +82,7 @@ class Request:
         Returns:
             Current instance of Request.
         """
-        return self._request('post', obj)
+        return self._request('post', obj, **kwargs)
 
     def _request(
         self: Self,
@@ -107,7 +108,7 @@ class Request:
 
         response = requests.request(
             method,
-            obj.uri,
+            f'{obj.uri}{kwargs.pop("inner_route", "")}',
             auth=(username, ''),
             data=body,
             params=kwargs,

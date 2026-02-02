@@ -48,7 +48,7 @@ class Card(
         'tokenize',
         'zip_code',
     ]
-    _repr_ignore = {'number'}
+    _repr_ignore = {'number', 'cvc'}
 
     @property
     @populate_on_call
