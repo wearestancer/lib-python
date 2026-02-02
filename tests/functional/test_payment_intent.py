@@ -58,11 +58,9 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
 
         payment_intent.amount = amount
         payment_intent.description = description
-        # payment_intent.methods_allowed = ['sepa']
         assert payment_intent.send() == payment_intent
         assert payment_intent.id is not None
         assert payment_intent.id.startswith('pi_')
-        # assert payment_intent.methods_allowed == ['sepa']/
         assert payment_intent.status == PaymentIntentStatus.REQUIRE_PAYMENT_METHOD
 
         card = Card()
@@ -128,13 +126,8 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
 
         assert pi.status == PaymentIntentStatus.REQUIRE_AUTHENTICATION
 
-        # For now the only way to test it is to make a payment manually heer
-        # I'll work on playwright tests to make it automatic
-
         with pytest.raises(ConflictError):
             pi.send_capture()
-
-        # assert pi.status == PaymentIntentStatus.CAPTURED
 
     def test_get_payment(self, version=Version.API_V2):
         self.conf.version = version
@@ -191,7 +184,6 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         assert clean_pi.currency == currency
         assert clean_pi.customer.id == customer.id
         assert clean_pi.description == description
-        # assert clean_pi.metadata == metadata TODO FIX METADATA
         assert set(clean_pi.methods_allowed) == set(methods_allowed)
         assert clean_pi.order_id == order_id
         assert clean_pi.return_url == return_url
@@ -243,7 +235,7 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         host = self.conf.host.replace('api.', 'payment.')
         assert pi.url == f'https://{host}/test_{pi.id}'
 
-        # DELETE PI This is not possible.
+        # Deleting Payment Intent is not possible.
 
         with pytest.raises(StancerNotImplementedError):
             pi.delete()
