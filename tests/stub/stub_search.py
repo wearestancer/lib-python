@@ -1,7 +1,7 @@
 """Stub abstract object with search"""
 
-from stancer.core import AbstractObject
-from stancer.core import AbstractSearch
+from stancer.core.abstract_object import AbstractObject
+from stancer.core.abstract_search import AbstractSearch
 
 
 class StubSearch(AbstractObject, AbstractSearch):

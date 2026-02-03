@@ -2,20 +2,24 @@
 
 import pytest
 
-from stancer import Card
-from stancer import Customer
-from stancer import Payment
-from stancer import PaymentStatus
-from stancer import Refund
+from stancer.card import Card
+from stancer.customer import Customer
 from stancer.exceptions import ConflictError
-from .TestHelper import TestHelper
+from stancer.payment import Payment
+from stancer.refund import Refund
+from stancer.status.payment import PaymentStatus
+
+from .FunctionalTestHelper import FunctionalTestHelper
 
 
-class TestFunctionalRefund(TestHelper):
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_single_refund(self, currency):
+class TestFunctionalRefund(FunctionalTestHelper):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.future
+    def test_single_refund(self, currency, version):
+        self.conf.version = version
         amount = self.random_integer(100, 10000)
-        desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
+        desc = f'Refund test, {amount / 100:.2f} {currency.upper()}'
 
         card = Card()
         card.number = self.get_card_number()
@@ -42,7 +46,10 @@ class TestFunctionalRefund(TestHelper):
         with pytest.raises(ConflictError) as error:
             payment.refund(amount - 1)
 
-        assert error.value.message == 'Payment cannot be partially refunded before it has been captured'
+        assert (
+            error.value.message
+            == 'Payment cannot be partially refunded before it has been captured'
+        )
         assert error.value.reason == 'Conflict'
         assert error.value.status_code == 409
 
@@ -60,13 +67,16 @@ class TestFunctionalRefund(TestHelper):
 
         assert payment.status == PaymentStatus.CANCELED
 
-    @pytest.mark.parametrize('currency', TestHelper.currency_provider())
-    def test_multiple_refund(self, currency):
+    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
+    @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
+    @pytest.mark.future
+    def test_multiple_refund(self, currency, version):
+        self.conf.version = version
         amount = self.random_integer(200, 100000)
         refund_amount1 = self.random_integer(50, amount // 4)
         refund_amount2 = self.random_integer(50, amount // 4)
         refund_amount3 = amount - refund_amount1 - refund_amount2
-        desc = 'Refund test, {:.2f} {}'.format(amount / 100, currency.upper())
+        desc = f'Refund test, {amount / 100:.2f} {currency.upper()}'
 
         card = Card()
         card.number = '4000000000000077'

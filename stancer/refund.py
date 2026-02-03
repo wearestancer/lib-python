@@ -1,14 +1,21 @@
 # -*- coding: utf-8 -*-
 
+
 from datetime import datetime
-from typing import TypeVar
+from typing import TYPE_CHECKING
+from typing import Any
 
-from .core import AbstractAmount
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .payment import Payment
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Refund')
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
+if TYPE_CHECKING:
+    from .payment import Payment
 
 
 class Refund(AbstractObject, AbstractAmount):
@@ -19,12 +26,13 @@ class Refund(AbstractObject, AbstractAmount):
     _allowed_attributes = [
         'payment',
     ]
+    _flat_attributes = ['payment']
     _datetime_property = [
         'date_bank',
         'date_refund',
     ]
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, uid: str | None = None, **kwargs) -> None:
         """
         Create or get a Refund object.
 
@@ -47,12 +55,14 @@ class Refund(AbstractObject, AbstractAmount):
         self._modified = 'payment'
 
     @property
-    def _init_payment(self) -> Payment:
+    def _init_payment(self) -> type['Payment']:
+        from .payment import Payment  # pylint: disable=import-outside-toplevel
+
         return Payment
 
     @property
     @populate_on_call
-    def date_bank(self) -> datetime:
+    def date_bank(self) -> datetime | None:
         """
         Value date.
 
@@ -63,7 +73,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def date_refund(self) -> datetime:
+    def date_refund(self) -> datetime | None:
         """
         Date when the refund is sent to the bank.
 
@@ -74,7 +84,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def payment(self) -> Payment:
+    def payment(self) -> 'Payment | None':
         """
         Original payment.
 
@@ -85,7 +95,7 @@ class Refund(AbstractObject, AbstractAmount):
 
     @property
     @populate_on_call
-    def status(self) -> str:
+    def status(self) -> str | None:
         """
         Refund status.
 
@@ -94,7 +104,8 @@ class Refund(AbstractObject, AbstractAmount):
         """
         return self._data.get('status')
 
-    def to_json_repr(self) -> dict:
+    @override
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
@@ -103,7 +114,9 @@ class Refund(AbstractObject, AbstractAmount):
         """
         representation = super().to_json_repr()
 
-        if isinstance(self.payment, Payment):
+        if isinstance(self.payment, AbstractObject) and isinstance(
+            representation, dict
+        ):
             representation['payment'] = self.payment.id
 
         return representation

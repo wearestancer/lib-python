@@ -1,10 +1,15 @@
 """Test abstract object with search"""
 
+from datetime import datetime
+from datetime import timedelta
 from inspect import isgenerator
-import pytest
-import responses
 from time import time
 
+import pytest
+import responses
+
+from stancer.core.abstract_object import AbstractObject
+from stancer.exceptions import InvalidSearchFilter
 from stancer.exceptions import InvalidSearchResponse
 
 from .stub.stub_search import StubSearch
@@ -17,7 +22,7 @@ class TestStubSearch(TestHelper):
         obj = StubSearch()
 
         created = int(time()) - self.random_integer(1_000, 2_000)
-        location = '{}?created={}'.format(obj.uri, created)
+        location = f'{obj.uri}?created={created}'
 
         responses.add(responses.GET, location, body='[')
 
@@ -86,9 +91,9 @@ class TestStubSearch(TestHelper):
         assert api_call.request.body is None
 
         assert api_call.request.url.startswith(obj.uri)
-        assert 'created={}'.format(created) in api_call.request.url
-        assert 'limit={}'.format(limit) in api_call.request.url
-        assert 'start={}'.format(start) in api_call.request.url
+        assert f'created={created}' in api_call.request.url
+        assert f'limit={limit}' in api_call.request.url
+        assert f'start={start}' in api_call.request.url
 
     @responses.activate
     def test_list(self):
@@ -103,7 +108,13 @@ class TestStubSearch(TestHelper):
         with open('./tests/fixtures/stub/list.json') as opened_file:
             responses.add(responses.GET, obj.uri, body=opened_file.read())
 
-        results = StubSearch.list(created=created, limit=limit, start=start, foo=foo, foobar=foobar)
+        results = StubSearch.list(
+            created=created,
+            limit=limit,
+            start=start,
+            foo=foo,
+            foobar=foobar,
+        )
 
         assert isgenerator(results)
         assert len(responses.calls) == 0
@@ -121,10 +132,10 @@ class TestStubSearch(TestHelper):
         assert api_call.request.body is None
 
         assert api_call.request.url.startswith(obj.uri)
-        assert 'created={}'.format(created) in api_call.request.url
-        assert 'limit={}'.format(limit) in api_call.request.url
-        assert 'start={}'.format(start) in api_call.request.url
-        assert 'foo={}'.format(foo) in api_call.request.url
+        assert f'created={created}' in api_call.request.url
+        assert f'limit={limit}' in api_call.request.url
+        assert f'start={start}' in api_call.request.url
+        assert f'foo={foo}' in api_call.request.url
         assert 'foobar' not in api_call.request.url
 
         item = next(results)
@@ -147,8 +158,97 @@ class TestStubSearch(TestHelper):
         assert api_call.request.body is None
 
         assert api_call.request.url.startswith(obj.uri)
-        assert 'created={}'.format(created) in api_call.request.url
-        assert 'limit={}'.format(limit) in api_call.request.url
-        assert 'start={}'.format(2) in api_call.request.url  # 2 => start + limit in response
-        assert 'foo={}'.format(foo) in api_call.request.url
+        assert f'created={created}' in api_call.request.url
+        assert f'limit={limit}' in api_call.request.url
+        assert f'start={2}' in api_call.request.url  # 2 => start + limit in response
+        assert f'foo={foo}' in api_call.request.url
         assert 'foobar' not in api_call.request.url
+
+    def test_invalid_created(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be a position integer or a DateTime object.',
+        ):
+            StubSearch.list(created=-1)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be a position integer or a DateTime object.',
+        ):
+            StubSearch.list(created=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be a position integer or a DateTime object.',
+        ):
+            StubSearch.list(created=AbstractObject())
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be in the past.',
+        ):
+            StubSearch.list(created=time() + 100)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Created must be in the past.',
+        ):
+            date = datetime.now() + timedelta(days=1)
+            StubSearch.list(created=date)
+
+    def test_invalid_filters(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Invalid search filters.',
+        ):
+            StubSearch.list()
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Invalid search filters.',
+        ):
+            StubSearch.list(bar='bar')
+
+    def test_invalid_limit(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=0)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=101)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Limit must be between 1 and 100.',
+        ):
+            StubSearch.list(limit=AbstractObject())
+
+    def test_invalid_start(self):
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            StubSearch.list(start=-1)
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            StubSearch.list(start=self.random_string(10))
+
+        with pytest.raises(
+            InvalidSearchFilter,
+            match='Start must be a positive integer.',
+        ):
+            StubSearch.list(start=AbstractObject())

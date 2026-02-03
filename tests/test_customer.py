@@ -1,16 +1,25 @@
 """Test customer object"""
 
-import pytest
-import responses
 import uuid
 
-from stancer import Customer
-from stancer.core import AbstractCountry
-from stancer.core import AbstractObject
-from stancer.core import AbstractName
+from datetime import date
+from datetime import datetime
+
+import pytest
+import responses
+
+from stancer.core.abstract_country import AbstractCountry
+from stancer.core.abstract_deleted import AbstractDeleted
+from stancer.core.abstract_name import AbstractName
+from stancer.core.abstract_object import AbstractObject
+from stancer.customer import Customer
+from stancer.exceptions import InvalidCustomerDateBirthError
 from stancer.exceptions import InvalidCustomerEmailError
 from stancer.exceptions import InvalidCustomerExternalIdError
+from stancer.exceptions import InvalidCustomerLegalIdError
 from stancer.exceptions import InvalidCustomerMobileError
+from stancer.exceptions.attribute import DeleteSetterError
+
 from .TestHelper import TestHelper
 
 
@@ -19,6 +28,61 @@ class TestCustomer(TestHelper):
         assert issubclass(Customer, AbstractCountry)
         assert issubclass(Customer, AbstractName)
         assert issubclass(Customer, AbstractObject)
+        assert issubclass(Customer, AbstractDeleted)
+
+    @responses.activate
+    def test_date_birth(self):
+        obj = Customer()
+        date_birth = datetime(
+            self.random_year(), self.random_integer(1, 12), self.random_integer(1, 28)
+        ).date()
+        assert obj.date_birth is None
+        assert obj.is_not_modified
+        # if the string is in isoformat we don't get an Error
+        obj.date_birth = '1993-12-12'
+
+        obj.date_birth = date_birth
+        assert obj.is_modified
+        assert obj.date_birth == date_birth
+
+        # If the string is too short we get an Error.
+        with pytest.raises(InvalidCustomerDateBirthError):
+            obj.date_birth = 'short'
+
+        # If the string is too long we get an Error
+        with pytest.raises(InvalidCustomerDateBirthError):
+            obj.date_birth = 'a very long string'
+
+        # If the string is not a isoformated dateTime we get an error
+        with pytest.raises(InvalidCustomerDateBirthError):
+            obj.date_birth = '1234567890'
+
+        obj = Customer(f'cust_{self.random_string(24)}')
+        params = {'date_birth': date_birth.isoformat()}
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert str(obj.date_birth) == params['date_birth']
+        assert isinstance(obj.date_birth, date)
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_deleted(self):
+        obj = Customer()
+        assert obj.deleted is None
+
+        with pytest.raises(DeleteSetterError):
+            obj.deleted = self.random_bool()
+        assert obj.deleted is None
+
+        obj = Customer(f'cust_{self.random_string(24)}')
+
+        params = {'deleted': self.random_bool()}
+        responses.add(responses.GET, obj.uri, json=params)
+        assert obj.deleted == params['deleted']
+        assert obj.is_populated
+        assert type(obj.deleted) is bool
+        assert len(responses.calls) == 1
 
     @responses.activate
     def test_email(self):
@@ -157,6 +221,40 @@ class TestCustomer(TestHelper):
         assert obj.is_not_complete is False
 
     @responses.activate
+    def test_legal_id(self):
+        obj = Customer()
+        legal_id = self.random_string(1, 16)
+
+        assert obj.legal_id is None
+        assert obj.is_not_modified
+
+        obj.legal_id = legal_id
+
+        assert obj.legal_id == legal_id
+        assert obj.is_modified
+
+        with pytest.raises(
+            InvalidCustomerLegalIdError,
+            match='Legal ID must be a string.',
+        ):
+            obj.legal_id = self.random_integer(16)
+
+        with pytest.raises(
+            InvalidCustomerLegalIdError,
+            match='Legal ID must be 16 characters maximum.',
+        ):
+            obj.legal_id = self.random_string(17, 64)
+
+        obj = Customer(f'cust_{self.random_string(24)}')
+        params = {'legal_id': legal_id}
+        responses.add(responses.GET, obj.uri, json=params)
+
+        assert obj.legal_id == params['legal_id']
+        assert type(obj.legal_id) is str
+        assert obj.is_populated
+        assert len(responses.calls) == 1
+
+    @responses.activate
     def test_mobile(self):
         obj = Customer()
         mobile = self.random_mobile()
@@ -224,15 +322,18 @@ class TestCustomer(TestHelper):
         assert obj.is_populated
         assert len(responses.calls) == 1
 
-    def test_uri(self):
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
+    @pytest.mark.parametrize('version', TestHelper.version_provider())
+    def test_uri(self, host, version):
         obj = Customer()
         uid = self.random_string(29)
-
-        assert obj.uri == 'https://api.stancer.com/v1/customers'
+        self.conf.host = host
+        self.conf.version = version
+        assert obj.uri == f'https://{host}/v{version}/customers/'
 
         obj.hydrate(id=uid)
 
-        assert obj.uri == 'https://api.stancer.com/v1/customers/' + uid
+        assert obj.uri == f'https://{host}/v{version}/customers/{uid}'
 
         with pytest.raises(AttributeError):
             obj.uri = self.random_string(29)

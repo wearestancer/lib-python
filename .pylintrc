@@ -1,7 +1,7 @@
 
 [MASTER]
 
-ignore = tests, setup.py
+ignore = tests, setup.py, .venv, venv
 
 
 [REPORTS]

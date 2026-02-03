@@ -1,32 +1,42 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import json
-from typing import Set
-from typing import TypeVar
+
+from datetime import datetime
+from typing import Any
 
 from ..config import Config
-from .decorators import populate_on_call
+from ..exceptions import StancerApiVersionError
+from .decorators.populate_on_call import populate_on_call
+from .enum.version import Version
 from .request import Request
 
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
 
-CurrentInstance = TypeVar('CurrentInstance', bound='AbstractObject')
+    Self = TypeVar('Self', bound='AbstractObject')  # type: ignore
 
 # pylint: disable=too-many-branches
 
 
-class AbstractObject(object):
+class AbstractObject:
     """Manage common code between API object."""
 
-    _ENDPOINT = None  # pylint: disable=invalid-name
-    _allowed_attributes = []
-    _datetime_property = [
+    _DEPRECATED_ENDPOINT: dict[str, Any] = {}  # pylint: disable=invalid-name
+    _ENDPOINT: str | None = None  # pylint: disable=invalid-name
+    _allowed_attributes: list[str] = []
+    _version = Version.API_V1
+    _datetime_property: list[str] = [
         'created',
     ]
-    _default_values = {}
-    _repr_ignore = set()
+    _default_values: dict[str, Any] = {}
+    _repr_ignore: set[str] = set()
 
-    def __init__(self, uid: str = None, **kwargs):
+    def __init__(self, uid: str | None = None, **kwargs):
         """
         Create or get an API object.
 
@@ -46,14 +56,16 @@ class AbstractObject(object):
             An instance of the current object.
         """
         self._id = uid
-        self._data = {}
+        self._data: dict[str, Any] = {}
         self._bypass = False
         self._populated = True
-
         # init modified flags
-        self.__modified = None
+        self.__modified: set[str] | None = None
         del self._modified
-
+        if self._version > Config().version:
+            raise StancerApiVersionError(
+                f'{self.__class__} is not implement on API V{Config().version}'
+            )
         self.hydrate(**self._default_values)
 
         if kwargs:
@@ -78,6 +90,16 @@ class AbstractObject(object):
             representation[key] = value
 
         return representation
+
+    @__dict__.setter
+    def __dict__(self, value: Any):
+        """
+        We don't modify the dict as our model fields aren't dynamic.
+
+        Returns:
+            Nothing.
+        """
+        raise ValueError(f'{value} cannot be added to our dataModel')
 
     def __repr__(self) -> str:
         args = []
@@ -105,7 +127,7 @@ class AbstractObject(object):
         return self.__bypass
 
     @_bypass.setter
-    def _bypass(self, value: bool):
+    def _bypass(self, value: bool) -> None:
         self.__bypass = value
 
         for obj in self._data.values():
@@ -114,7 +136,7 @@ class AbstractObject(object):
                 obj._bypass = value
 
     @classmethod
-    def _get_allowed_attributes(cls) -> Set[str]:
+    def _get_allowed_attributes(cls) -> set[str]:
         allowed = set()
 
         for parent in cls.mro():
@@ -124,7 +146,17 @@ class AbstractObject(object):
         return allowed
 
     @classmethod
-    def _get_datetime_property(cls) -> Set[str]:
+    def _get_flat_attributes(cls) -> set[str]:
+        flat_attributes = set()
+
+        for parent in cls.mro():
+            if hasattr(parent, '_flat_attributes'):
+                flat_attributes.update(parent._flat_attributes)  # pylint: disable=protected-access
+
+        return flat_attributes
+
+    @classmethod
+    def _get_datetime_property(cls) -> set[str]:
         allowed = set()
 
         for parent in cls.mro():
@@ -134,15 +166,18 @@ class AbstractObject(object):
         return allowed
 
     @property
-    def _modified(self) -> Set[str]:
+    def _modified(self) -> set[str] | None:
         return self.__modified
 
     @_modified.setter
-    def _modified(self, value: str):
-        self.__modified.add(value)
+    def _modified(self, value: str) -> None:
+        if self.__modified is None:
+            self.__modified = {value}
+        else:
+            self.__modified.add(value)
 
     @_modified.deleter
-    def _modified(self):
+    def _modified(self) -> None:
         self.__modified = set()
 
         for obj in self._data.values():
@@ -155,7 +190,7 @@ class AbstractObject(object):
         return self.__populated
 
     @_populated.setter
-    def _populated(self, value: bool):
+    def _populated(self, value: bool) -> None:
         self.__populated = value
 
         for obj in self._data.values():
@@ -164,7 +199,7 @@ class AbstractObject(object):
                 obj._populated = value
 
     @property
-    def id(self) -> str:  # pylint: disable=invalid-name
+    def id(self) -> str | None:
         """
         Return current object ID.
 
@@ -174,12 +209,12 @@ class AbstractObject(object):
         return self._id
 
     @id.deleter
-    def id(self):  # pylint: disable=invalid-name
+    def id(self) -> None:
         self._id = None
 
     @property
     @populate_on_call
-    def created(self) -> datetime:
+    def created(self) -> datetime | None:
         """
         Return the creation date and time of the current object.
 
@@ -188,7 +223,18 @@ class AbstractObject(object):
         """
         return self._data.get('created')
 
-    def delete(self) -> CurrentInstance:
+    @property
+    @populate_on_call
+    def created_at(self) -> datetime | None:
+        """
+        Return the creation date and time of the current object.
+
+        Returns:
+            Creation date and time (into the API) during server side creation.
+        """
+        return self._data.get('created_at')
+
+    def delete(self: Self) -> Self:
         """
         Delete the current object.
 
@@ -205,9 +251,9 @@ class AbstractObject(object):
 
         return self
 
-    def _hydrate_list(self, key, value):
+    def _hydrate_list(self, key: str, value: Any) -> list:
         tmp = getattr(self, key)
-        init_method = '_init_' + key
+        init_method = f'_init_{key}'
         new_values = []
 
         for current_value in value:
@@ -215,7 +261,7 @@ class AbstractObject(object):
             val = current_value
 
             if isinstance(current_value, str):
-                uid = current_value
+                uid: str | None = current_value
                 val = {}
             elif isinstance(current_value, AbstractObject):
                 uid = current_value.id
@@ -244,7 +290,7 @@ class AbstractObject(object):
 
         return new_values
 
-    def hydrate(self, **params) -> CurrentInstance:
+    def hydrate(self: Self, **params) -> Self:
         """
         Hydrate current object.
 
@@ -265,9 +311,13 @@ class AbstractObject(object):
 
             if hasattr(self, key):
                 tmp = getattr(self, key)
-                init_method = '_init_' + key
+                init_method = f'_init_{key}'
 
-                if isinstance(tmp, list) and isinstance(value, list) and hasattr(self, init_method):
+                if (
+                    isinstance(tmp, list)
+                    and isinstance(value, list)
+                    and hasattr(self, init_method)
+                ):
                     value = self._hydrate_list(key, value)
                     modify = not all(isinstance(val, AbstractObject) for val in value)
 
@@ -288,11 +338,12 @@ class AbstractObject(object):
                     else:
                         value = tmp(value)
 
-                elif isinstance(tmp, AbstractObject) and not isinstance(value, AbstractObject):
+                elif isinstance(tmp, AbstractObject) and not isinstance(
+                    value, AbstractObject
+                ):
                     val = {'id': value} if not isinstance(value, dict) else value
 
                     # pylint: disable=protected-access
-
                     modify = False
                     populated = tmp._populated
                     tmp._populated = True
@@ -308,14 +359,16 @@ class AbstractObject(object):
                 applied = False
 
                 try:
-                    prop = dict(self.__class__.__dict__).get(key)
+                    # because we override the __dict__ method,
+                    # mypy is a little lost on the correct type.
+                    prop = self.__class__.__dict__.get(key)  # type: ignore # (see above)
 
                     if prop is not None and prop.fset is not None:
                         prop.fset(self, value)
                         applied = True
-                except ValueError:
+                except ValueError as exc:
                     if not self._bypass:
-                        raise
+                        raise exc
 
                 if not applied:
                     self._data[key] = value
@@ -345,7 +398,7 @@ class AbstractObject(object):
         Returns
             Was it modified ?
         """
-        if len(self._modified) > 0:
+        if self._modified is not None and len(self._modified) > 0:
             return True
 
         for key, value in self._data.items():
@@ -406,7 +459,7 @@ class AbstractObject(object):
 
     @property
     @populate_on_call
-    def live_mode(self) -> bool:
+    def live_mode(self) -> bool | None:
         """
         Indicate if we are in live or test mode.
 
@@ -417,7 +470,7 @@ class AbstractObject(object):
         """
         return self._data.get('live_mode')
 
-    def populate(self) -> CurrentInstance:
+    def populate(self: Self) -> Self:
         """
         Populate the current object.
 
@@ -437,7 +490,7 @@ class AbstractObject(object):
 
         return self
 
-    def send(self) -> CurrentInstance:
+    def send(self: Self) -> Self:
         """
         Save the current object.
 
@@ -474,34 +527,41 @@ class AbstractObject(object):
         """
         return json.dumps(self.to_json_repr(), separators=(',', ':'))
 
-    def to_json_repr(self) -> dict:
+    def to_json_repr(self) -> dict[str, Any] | str | bool:
         """
         Return a dictionnary which will be used to make a JSON representation.
 
         Returns:
             A JSON still as a dictionnary.
         """
-        representation = {}
+        representation: dict[str, Any] = {}
 
         if self.id is not None and self.is_not_modified:
-            representation = self.id
-        else:
-            items = {
-                k: v
-                for k, v in self._data.items()
-                if k in self._get_allowed_attributes()
-                and v is not None
-                and (k in self._modified or (isinstance(v, AbstractObject) and v.is_modified))
-            }
+            return self.id
 
-            for key, value in items.items():
-                if hasattr(value, 'to_json_repr'):
-                    val = value.to_json_repr()
-
-                    if val:
-                        representation[key] = val
-                else:
-                    representation[key] = value
+        items = {
+            key: value
+            for key, value in self._data.items()
+            if key in self._get_allowed_attributes()
+            and value is not None
+            and (
+                (self._modified is not None and key in self._modified)
+                or (isinstance(value, AbstractObject) and value.is_modified)
+            )
+        }
+        for key, value in items.items():
+            if (
+                key in self._get_flat_attributes()
+                and Config().version != Version.API_V1
+            ):
+                representation[key] = value.send().id
+                continue
+            if hasattr(value, 'to_json_repr'):
+                val = value.to_json_repr()
+                if val:
+                    representation[key] = val
+            else:
+                representation[key] = value
 
         return representation
 
@@ -527,10 +587,13 @@ class AbstractObject(object):
 
         location = f'https://{conf.host}{port}/v{conf.version}'
 
-        if self._ENDPOINT is not None:
-            location += '/' + self._ENDPOINT
+        if len(self._DEPRECATED_ENDPOINT) == 2 and conf.version <= int(
+            self._DEPRECATED_ENDPOINT['version']
+        ):
+            location += f'/{self._DEPRECATED_ENDPOINT["route"]}'
+        elif self._ENDPOINT is not None:
+            location += f'/{self._ENDPOINT}'
 
-        if self.id is not None:
-            location += '/' + self.id
+        location += f'/{self.id if self.id is not None else ""}'
 
         return location

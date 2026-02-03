@@ -27,6 +27,10 @@ class InvalidCardExpirationYearError(StancerValueError):
     """Raised when an invalid expiration year is used."""
 
 
+class InvalidCardExternalIdError(StancerValueError):
+    """Raised when an invalid external ID is used."""
+
+
 class InvalidCardNumberError(StancerValueError):
     """Raised when an invalid card number is used."""
 
@@ -43,12 +47,20 @@ class InvalidCustomerError(StancerValueError):
     """Raised when an invalid customer is used."""
 
 
+class InvalidCustomerDateBirthError(StancerValueError):
+    """Raised when an invalid date of birth is used."""
+
+
 class InvalidCustomerEmailError(StancerValueError):
     """Raised when an invalid email is used."""
 
 
 class InvalidCustomerExternalIdError(StancerValueError):
     """Raised when an invalid external ID is used."""
+
+
+class InvalidCustomerLegalIdError(StancerValueError):
+    """Raised when an invalid legal ID is used."""
 
 
 class InvalidCustomerMobileError(StancerValueError):
@@ -83,6 +95,22 @@ class InvalidPaymentDescriptionError(StancerValueError):
     """Raised when an invalid description is used."""
 
 
+class InvalidPaymentIntentCaptureError(StancerValueError):
+    """Raised when an invalid capture value is used."""
+
+
+class InvalidPaymentIntentDescriptionError(StancerValueError):
+    """Raised when an invalid description is used."""
+
+
+class InvalidPaymentIntentOrderIdError(StancerValueError):
+    """Raised when an invalid order ID is used."""
+
+
+class InvalidPaymentIntentMethodsAllowed(StancerValueError):
+    """Raised when an invalid method is used."""
+
+
 class InvalidPaymentOrderIdError(StancerValueError):
     """Raised when an invalid order ID is used."""
 
@@ -109,6 +137,10 @@ class InvalidSepaError(StancerValueError):
 
 class InvalidStatusError(StancerValueError):
     """Raised when an invalid status is used."""
+
+
+class InvalidThreedsStatusError(StancerValueError):
+    """Raised when an invalid threeds status is used."""
 
 
 class InvalidUrlError(StancerValueError):

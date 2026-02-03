@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from .decorators import populate_on_call
+from .decorators.populate_on_call import populate_on_call
 
 
-class AbstractCountry(object):
+class AbstractCountry:
     """Common country management."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init internal data."""
-        self._data = {}
+        self._data: dict = {}
 
     @property
     @populate_on_call
-    def country(self) -> str:
+    def country(self) -> str | None:
         """
         Card, SEPA, customer, payment country.
 

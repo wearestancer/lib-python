@@ -1,26 +1,40 @@
 # -*- coding: utf-8 -*-
 
 import re
-from typing import Optional
-from typing import TypeVar
 
-from .core import AbstractCountry
-from .core import AbstractLast4
-from .core import AbstractName
-from .core import AbstractObject
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
-from .exceptions import InvalidCardVerificationCodeError
+from .core.abstract_country import AbstractCountry
+from .core.abstract_deleted import AbstractDeleted
+from .core.abstract_last4 import AbstractLast4
+from .core.abstract_name import AbstractName
+from .core.abstract_object import AbstractObject
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.helpers.coerce_uuid import coerce_uuid
 from .exceptions import InvalidCardExpirationMonthError
 from .exceptions import InvalidCardExpirationYearError
+from .exceptions import InvalidCardExternalIdError
 from .exceptions import InvalidCardNumberError
 from .exceptions import InvalidCardTokenizeError
+from .exceptions import InvalidCardVerificationCodeError
 from .exceptions import InvalidZipCodeError
 
-CurrentInstance = TypeVar('CurrentInstance', bound='Card')
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
+
+    Self = TypeVar('Self', bound='Card')  # type: ignore
 
 
-class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
+class Card(
+    AbstractObject,
+    AbstractName,
+    AbstractCountry,
+    AbstractLast4,
+    AbstractDeleted,
+):
     """Representation of a card."""
 
     _ENDPOINT = 'cards'
@@ -29,15 +43,16 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         'cvc',
         'exp_month',
         'exp_year',
+        'external_id',
         'number',
         'tokenize',
         'zip_code',
     ]
-    _repr_ignore = {'number'}
+    _repr_ignore = {'number', 'cvc'}
 
     @property
     @populate_on_call
-    def brand(self) -> str:
+    def brand(self) -> str | None:
         """
         Card brand.
 
@@ -47,7 +62,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         return self._data.get('brand')
 
     @property
-    def brandname(self) -> str:
+    def brandname(self) -> str | None:
         """
         Return real brand name.
 
@@ -77,7 +92,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def cvc(self) -> str:
+    def cvc(self) -> str | None:
         """
         Card Verification Code.
 
@@ -101,12 +116,12 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         name='CVC',
         throws=InvalidCardVerificationCodeError,
     )
-    def cvc(self, value: str):
+    def cvc(self, value: str) -> None:
         self._data['cvc'] = value
 
     @property
     @populate_on_call
-    def exp_month(self) -> int:
+    def exp_month(self) -> int | None:
         """
         Expiration month.
 
@@ -129,12 +144,12 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         name='Expiration month',
         throws=InvalidCardExpirationMonthError,
     )
-    def exp_month(self, value: int):
+    def exp_month(self, value: int) -> None:
         self._data['exp_month'] = value
 
     @property
     @populate_on_call
-    def exp_year(self) -> int:
+    def exp_year(self) -> int | None:
         """
         Expiration year.
 
@@ -155,12 +170,42 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         name='Expiration year',
         throws=InvalidCardExpirationYearError,
     )
-    def exp_year(self, value: int):
+    def exp_year(self, value: int) -> None:
         self._data['exp_year'] = value
 
     @property
     @populate_on_call
-    def funding(self) -> Optional[str]:
+    def external_id(self) -> str | None:
+        """
+        Card's external ID.
+
+        External for the API, you can store your card's identifier here.
+
+        Args:
+            value (str): New ID, must be between 36 characters max.
+
+        Returns:
+            str: Card's external ID.
+
+        Raises:
+            InvalidCardExternalIdError: When external ID is invalid.
+        """
+        return self._data.get('external_id')
+
+    @external_id.setter
+    @validate_type(
+        str,
+        coerce=coerce_uuid,
+        max=36,
+        name='External ID',
+        throws=InvalidCardExternalIdError,
+    )
+    def external_id(self, value: str) -> None:
+        self._data['external_id'] = value
+
+    @property
+    @populate_on_call
+    def funding(self) -> str | None:
         """
         Type of funding.
 
@@ -199,7 +244,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def nature(self) -> Optional[str]:
+    def nature(self) -> str | None:
         """
         Nature of the card.
 
@@ -213,7 +258,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def network(self) -> Optional[str]:
+    def network(self) -> str | None:
         """
         Card network.
 
@@ -227,7 +272,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def number(self) -> str:
+    def number(self) -> str | None:
         """
         Card number.
 
@@ -244,7 +289,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @number.setter
     @validate_type(str, throws=InvalidCardNumberError)
-    def number(self, value: str):
+    def number(self, value: str) -> None:
         number = re.sub(r'\D', '', value)
         parts = list(map(int, number))
         calc = [
@@ -273,7 +318,7 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @property
     @populate_on_call
-    def tokenize(self) -> CurrentInstance:
+    def tokenize(self: Self) -> Self | None:
         """
         Indicate if the card can be reuse later.
 
@@ -290,12 +335,12 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
 
     @tokenize.setter
     @validate_type(bool, throws=InvalidCardTokenizeError)
-    def tokenize(self, value: bool):
+    def tokenize(self, value: bool) -> None:
         self._data['tokenize'] = value
 
     @property
     @populate_on_call
-    def zip_code(self) -> str:
+    def zip_code(self) -> str | None:
         """
         City zip code.
 
@@ -318,5 +363,5 @@ class Card(AbstractObject, AbstractName, AbstractCountry, AbstractLast4):
         name='Zip code',
         throws=InvalidZipCodeError,
     )
-    def zip_code(self, value: str):
+    def zip_code(self, value: str) -> None:
         self._data['zip_code'] = value

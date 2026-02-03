@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .core import AbstractAmount
-from .core import AbstractObject
-from .core import AbstractSearch
-from .core.decorators import populate_on_call
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_object import AbstractObject
+from .core.abstract_search import AbstractSearch
+from .core.decorators.populate_on_call import populate_on_call
 from .payment import Payment
 
 
@@ -13,12 +13,12 @@ class Dispute(AbstractObject, AbstractAmount, AbstractSearch):
     _ENDPOINT = 'disputes'
 
     @property
-    def _init_payment(self) -> Payment:
+    def _init_payment(self) -> type[Payment]:
         return Payment
 
     @property
     @populate_on_call
-    def order_id(self) -> str:
+    def order_id(self) -> str | None:
         """
         External order id.
 
@@ -29,7 +29,7 @@ class Dispute(AbstractObject, AbstractAmount, AbstractSearch):
 
     @property
     @populate_on_call
-    def payment(self) -> Payment:
+    def payment(self) -> Payment | None:
         """
         Original payment.
 
@@ -40,7 +40,7 @@ class Dispute(AbstractObject, AbstractAmount, AbstractSearch):
 
     @property
     @populate_on_call
-    def response(self) -> str:
+    def response(self) -> str | None:
         """
         API response code.
 

@@ -1,33 +1,53 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=missing-docstring
 
-# pylint: enable=missing-docstring
-from datetime import date
-import pytest
-from random import choice, randint
+import os
 import string
 
-from stancer import Config
-from stancer.exceptions import *  # pylint: disable=wildcard-import
+
+# pylint: enable=missing-docstring
+from datetime import date
+from random import choice
+from random import randint
+
+from stancer.config import Config
+from stancer.core.enum.version import Version
+from stancer.exceptions import BadRequestError
+from stancer.exceptions import ConflictError
+from stancer.exceptions import ForbiddenError
+from stancer.exceptions import GoneError
+from stancer.exceptions import InternalServerError
+from stancer.exceptions import MethodNotAllowedError
+from stancer.exceptions import NotAcceptableError
+from stancer.exceptions import NotFoundError
+from stancer.exceptions import PaymentRequiredError
+from stancer.exceptions import ProxyAuthenticationRequiredError
+from stancer.exceptions import RequestTimeoutError
+from stancer.exceptions import StancerHTTPClientError
+from stancer.exceptions import StancerHTTPServerError
+from stancer.exceptions import UnauthorizedError
 
 
-class TestHelper(object):
+class TestHelper:
     """Add some helper for tests."""
 
-    def setup_method(self, method):
-        conf = Config()
+    def setup_method(self, method) -> None:
+        self.conf = Config()
 
-        conf.keys = 'stest_' + self.random_string(24)
+        self.conf.keys = f'stest_{self.random_string(24)}'
+        self.conf.version = Version[f'API_V{os.getenv("API_VERSION", 1)}']
+        del self.conf.default_timezone
 
-        del conf.default_timezone
+    def random_bool(self) -> bool:
+        return bool(self.random_integer(0, 1))
 
-    def random_integer(self, min, max=0):
+    def random_integer(self, min, max=0) -> int:
         if max < min:
             (min, max) = (max, min)
 
         return randint(min, max)
 
-    def random_string(self, min, max=None):
+    def random_string(self, min, max=None) -> str:
         chars = list(string.ascii_letters) + list(string.digits)
 
         if max is None:
@@ -40,23 +60,33 @@ class TestHelper(object):
 
         return ''.join(choice(chars) for i in range(limit))
 
-    def random_mobile(self):
+    # With the API v2 implementation we need to create phone number that matches with this regex:
+    # "(?:6(?:[0-24-8]\d|3[0-8]|9[589])|7[3-9]\d)\d{6}"
+    def random_mobile(self) -> str:
         # Simulate a french mobile phone number
         first = self.random_integer(6, 7)
-        counter = 4
+        counter = 3
 
-        mobile = '+33' + str(first)
+        mobile = str(first)
 
         if first == 7:
             mobile += str(self.random_integer(30, 99)).zfill(2)
-            counter -= 1
+
+        if first == 6:
+            first_number_duo = [
+                str(self.random_integer(0, 20)).zfill(2),
+                str(self.random_integer(40, 80)),
+                f'3{self.random_integer(0, 8)}',
+                f'9{choice([5, 8, 9])}',
+            ]
+            mobile += choice(first_number_duo)
 
         for idx in range(counter):
             mobile += str(self.random_integer(0, 99)).zfill(2)
 
-        return mobile
+        return f'+33{mobile}'
 
-    def random_timezone(self):
+    def random_timezone(self) -> str:
         zones = [
             'UTC',
             'America/Phoenix',
@@ -67,21 +97,24 @@ class TestHelper(object):
 
         return choice(zones)
 
-    def random_year(self):
+    def random_year(self) -> int:
         return self.random_integer(1, 20) + self.current_year
 
+    def api_version(self) -> Version:
+        return self.conf.version
+
     @property
-    def current_year(self):
+    def current_year(self) -> int:
         return date.today().year
 
     @classmethod
-    def api_key_provider(cls):
+    def api_key_provider(cls) -> list[tuple[str, str, str]]:
         obj = TestHelper()
 
         return obj.public_api_key_provider() + obj.secret_api_key_provider()
 
     @classmethod
-    def public_api_key_provider(cls):
+    def public_api_key_provider(cls) -> list[tuple[str, str, str]]:
         obj = TestHelper()
 
         return [
@@ -90,7 +123,7 @@ class TestHelper(object):
         ]
 
     @classmethod
-    def secret_api_key_provider(cls):
+    def secret_api_key_provider(cls) -> list[tuple[str, str, str]]:
         obj = TestHelper()
 
         return [
@@ -99,7 +132,7 @@ class TestHelper(object):
         ]
 
     @classmethod
-    def card_brand_provider(cls):
+    def card_brand_provider(cls) -> list[tuple[str, str]]:
         obj = TestHelper()
         unknown_brand = obj.random_string(10)
 
@@ -115,63 +148,52 @@ class TestHelper(object):
         ]
 
     @classmethod
-    def card_number_provider(cls):
+    def card_number_provider(cls) -> tuple[str, ...]:
         return (
             # VISA
             '4532160583905253',
             '4103344114503410',
             '4716929813250776300',
-
             # MasterCard
             '5312580044202748',
             '2720995588028031',
             '5217849688268117',
-
             # American Express (AMEX)
             '370301138747716',
             '340563568138644',
             '371461161518951',
-
             # Discover
             '6011651456571367',
             '6011170656779399',
             '6011693048292929421',
-
             # JCB
             '3532433013111566',
             '3544337258139297',
             '3535502591342895821',
-
             # Diners Club - North America
             '5480649643931654',
             '5519243149714783',
             '5509141180527803',
-
             # Diners Club - Carte Blanche
             '30267133988393',
             '30089013015810',
             '30109478108973',
-
             # Diners Club - International
             '36052879958170',
             '36049904526204',
             '36768208048819',
-
             # Maestro
             '5893433915020244',
             '6759761854174320',
             '6759998953884124',
-
             # Visa Electron
             '4026291468019846',
             '4844059039871494',
             '4913054050962393',
-
             # InstaPayment
             '6385037148943057',
             '6380659492219803',
             '6381454097795863',
-
             # Classic one
             '4111111111111111',
             '4242424242424242',
@@ -179,7 +201,7 @@ class TestHelper(object):
         )
 
     @classmethod
-    def currency_provider(cls, one=False):
+    def currency_provider(cls, one=False) -> str | tuple[str, ...]:
         currencies = (
             'eur',
             'gbp',
@@ -192,7 +214,7 @@ class TestHelper(object):
         return currencies
 
     @classmethod
-    def http_code_provider(cls):
+    def http_code_provider(cls) -> list[tuple[int, object]]:
         return [
             (400, BadRequestError),
             (401, UnauthorizedError),
@@ -211,7 +233,7 @@ class TestHelper(object):
         ]
 
     @classmethod
-    def iban_provider(cls):
+    def iban_provider(cls) -> tuple[str, ...]:
         # Thanks Wikipedia
         return (
             'BE71 0961 2345 6769',
@@ -227,7 +249,7 @@ class TestHelper(object):
         )
 
     @classmethod
-    def ip_provider(cls, one=False):
+    def ip_provider(cls, one=False) -> str | list[str]:
         ips = cls.ipv4_provider() + cls.ipv6_provider()
 
         if one:
@@ -236,7 +258,7 @@ class TestHelper(object):
         return ips
 
     @classmethod
-    def ipv4_provider(cls):  # 7 addresses
+    def ipv4_provider(cls) -> list[str]:  # 7 addresses
         return [
             '212.27.48.10',  # www.free.fr
             '216.58.206.238',  # www.google.com
@@ -248,7 +270,7 @@ class TestHelper(object):
         ]
 
     @classmethod
-    def ipv6_provider(cls):  # 9 addresses
+    def ipv6_provider(cls) -> list[str]:  # 9 addresses
         return [
             '2a01:0e0c:0001:0000:0000:0000:0000:0001',  # www.free.fr
             '2a01:e0c:1:0:0:0:0:1',  # www.free.fr
@@ -259,4 +281,16 @@ class TestHelper(object):
             '2a03:2880:f11f:83:face:b00c:0:25de',  # www.facebook.com
             '2001:0503:ba3e:0000:0000:0000:0002:0030',  # a.root-servers.org
             '2001:503:ba3e::2:30',  # a.root-servers.org
+        ]
+
+    @classmethod
+    def version_provider(cls) -> list[Version]:
+        return list(Version)
+
+    @classmethod
+    def host_provider(cls) -> list[str | None]:
+        return [
+            'api.stancer.com',
+            'api.dev.stancer.com',
+            Config().host,
         ]

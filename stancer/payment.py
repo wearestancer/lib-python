@@ -1,65 +1,74 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from typing import TypeVar
 
 from .card import Card
-from .customer import Customer
-from .sepa import Sepa
-from .core import AbstractAmount
-from .core import AbstractCountry
-from .core import AbstractObject
-from .core import AbstractSearch
-from .core.decorators import populate_on_call
-from .core.decorators import validate_type
-from .core.helpers import coerce_status
-from .core.helpers import coerce_uuid
+from .core.abstract_amount import AbstractAmount
+from .core.abstract_country import AbstractCountry
+from .core.abstract_object import AbstractObject
+from .core.abstract_search import AbstractSearch
+from .core.decorators.populate_on_call import populate_on_call
+from .core.decorators.validate_type import validate_type
+from .core.enum.version import Version
+from .core.helpers.coerce_status import coerce_status
+from .core.helpers.coerce_uuid import coerce_uuid
 from .core.payment.auth import PaymentAuth
+from .core.payment.card import PaymentCard
+from .core.payment.customer import PaymentCustomer
 from .core.payment.page import PaymentPage
 from .core.payment.refund import PaymentRefund
-from .exceptions import StancerNotImplementedError
+from .core.payment.sepa import PaymentSepa
+from .customer import Customer
 from .exceptions import InvalidAmountError
-from .exceptions import InvalidCardError
 from .exceptions import InvalidCurrencyError
-from .exceptions import InvalidCustomerError
 from .exceptions import InvalidPaymentCaptureError
 from .exceptions import InvalidPaymentDescriptionError
 from .exceptions import InvalidPaymentOrderIdError
 from .exceptions import InvalidPaymentUniqueIdError
 from .exceptions import InvalidSearchFilter
-from .exceptions import InvalidSepaError
 from .exceptions import InvalidStatusError
 from .exceptions import MissingPaymentMethodError
+from .exceptions import StancerNotImplementedError
+from .sepa import Sepa
 from .status.payment import PaymentStatus
 
+# This code is a Hack to let us use Self from typing if available, else we use TypeVar
+try:
+    # Self is available in Python 3.11
+    from typing import Any  # type: ignore
+    from typing import Self  # type: ignore
+except ImportError:
+    from typing import TypeVar
 
-BaseObject = (
+    Self = TypeVar('Self', bound='Payment')  # type: ignore
+
+ORDER_ID_MAX_LEN = 36
+
+UNIQUE_ID_MAX_LEN = 36
+
+
+class Payment(
     AbstractObject,
     AbstractAmount,
     AbstractCountry,
     AbstractSearch,
     PaymentAuth,
+    PaymentCard,
+    PaymentCustomer,
     PaymentPage,
     PaymentRefund,
-)
-CurrentInstance = TypeVar('CurrentInstance', bound='Payment')
-
-ORDER_ID_MAX_LEN = 36
-UNIQUE_ID_MAX_LEN = 36
-
-
-class Payment(*BaseObject):
+    PaymentSepa,
+):  # pylint: disable='too-many-ancestors'
+    # our way of building object imposes many ancestors
     """Representation of a payment."""
 
-    _ENDPOINT = 'checkout'  # pylint: disable=invalid-name
+    _DEPRECATED_ENDPOINT = {'version': Version.API_V1, 'route': 'checkout'}
+    _ENDPOINT = 'payments'
 
     _allowed_attributes = [
         'capture',
-        'card',
-        'customer',
         'description',
         'order_id',
-        'sepa',
         'status',
         'unique_id',
     ]
@@ -68,20 +77,20 @@ class Payment(*BaseObject):
     ]
 
     @property
-    def _init_card(self) -> Card:
+    def _init_card(self) -> type[Card]:
         return Card
 
     @property
-    def _init_customer(self) -> Customer:
+    def _init_customer(self) -> type[Customer]:
         return Customer
 
     @property
-    def _init_sepa(self) -> Sepa:
+    def _init_sepa(self) -> type[Sepa]:
         return Sepa
 
     @property
     @populate_on_call
-    def capture(self) -> bool:
+    def capture(self) -> bool | None:
         """
         Do we need to capture the payment ?
 
@@ -106,52 +115,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def card(self) -> Card:
-        """
-        Source card for the payment.
-
-        Args:
-            value (Card): A valid `Card` object.
-
-        Returns:
-            Card: Card used for the payment.
-
-        Raises:
-            InvalidCardError: When card is invalid.
-        """
-        return self._data.get('card')
-
-    @card.setter
-    @validate_type(Card, throws=InvalidCardError)
-    def card(self, value: Card):
-        self._data['card'] = value
-        self._data['method'] = 'card'
-
-    @property
-    @populate_on_call
-    def customer(self) -> Customer:
-        """
-        Customer handling the payment.
-
-        Args:
-            value (Customer): A valid `Customer` object.
-
-        Returns:
-            Customer: Customer handling the payment.
-
-        Raises:
-            InvalidCustomerError: When customer is invalid.
-        """
-        return self._data.get('customer')
-
-    @customer.setter
-    @validate_type(Customer, throws=InvalidCustomerError)
-    def customer(self, value: Customer):
-        self._data['customer'] = value
-
-    @property
-    @populate_on_call
-    def date_bank(self) -> datetime:
+    def date_bank(self) -> datetime | None:
         """
         Value date.
 
@@ -160,7 +124,8 @@ class Payment(*BaseObject):
         """
         return self._data.get('date_bank')
 
-    def delete(self):
+    # We raise an error before return so no need for type checking here.
+    def delete(self: Self) -> Self:  # type: ignore # see above
         """
         Delete the current object.
 
@@ -169,15 +134,14 @@ class Payment(*BaseObject):
                 delete, refund it.
         """
         message = (
-            'You are not allowed to delete a payment, '
-            'you need to refund it instead.'
+            'You are not allowed to delete a payment, you need to refund it instead.'
         )
 
         raise StancerNotImplementedError(message)
 
     @property
     @populate_on_call
-    def description(self) -> str:
+    def description(self) -> str | None:
         """
         Open description for your uses.
 
@@ -194,12 +158,12 @@ class Payment(*BaseObject):
 
     @description.setter
     @validate_type(str, min=3, max=64, throws=InvalidPaymentDescriptionError)
-    def description(self, value: str):
+    def description(self, value: str) -> None:
         self._data['description'] = value
 
     @property
     @populate_on_call
-    def fee(self) -> datetime:
+    def fee(self) -> str | None:
         """
         Fee applied at checkout.
 
@@ -209,7 +173,7 @@ class Payment(*BaseObject):
         return self._data.get('fee')
 
     @classmethod
-    def filter_list_params(cls, **kwargs) -> dict:
+    def filter_list_params(cls, **kwargs) -> dict[str, Any]:
         """
         Filter for list method.
 
@@ -231,8 +195,10 @@ class Payment(*BaseObject):
 
             length = len(kwargs['order_id'])
 
-            if length > ORDER_ID_MAX_LEN or length == 0:
-                raise InvalidSearchFilter(base_message.format('order ID', 1, ORDER_ID_MAX_LEN))
+            if length > ORDER_ID_MAX_LEN or not length:
+                raise InvalidSearchFilter(
+                    base_message.format('order ID', 1, ORDER_ID_MAX_LEN)
+                )
 
             params['order_id'] = kwargs['order_id']
 
@@ -242,8 +208,10 @@ class Payment(*BaseObject):
 
             length = len(kwargs['unique_id'])
 
-            if length > UNIQUE_ID_MAX_LEN or length == 0:
-                raise InvalidSearchFilter(base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN))
+            if length > UNIQUE_ID_MAX_LEN or not length:
+                raise InvalidSearchFilter(
+                    base_message.format('unique ID', 1, UNIQUE_ID_MAX_LEN)
+                )
 
             params['unique_id'] = kwargs['unique_id']
 
@@ -307,7 +275,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def method(self) -> str:
+    def method(self) -> str | None:  # type: ignore
         """
         Payment method used.
 
@@ -318,7 +286,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def order_id(self) -> str:
+    def order_id(self) -> str | None:
         """
         External order id.
 
@@ -344,12 +312,12 @@ class Payment(*BaseObject):
         name='Order id',
         throws=InvalidPaymentOrderIdError,
     )
-    def order_id(self, value: str):
+    def order_id(self, value: str) -> None:
         self._data['order_id'] = value
 
     @property
     @populate_on_call
-    def response(self) -> str:
+    def response(self) -> str | None:
         """
         API response code.
 
@@ -363,7 +331,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def response_message(self) -> str:
+    def response_message(self) -> str | None:
         """
         API response message.
 
@@ -383,7 +351,7 @@ class Payment(*BaseObject):
 
         return responses.get(response)
 
-    def send(self) -> CurrentInstance:
+    def send(self: Self) -> Self:
         """
         Create or update the payment.
 
@@ -421,30 +389,7 @@ class Payment(*BaseObject):
 
     @property
     @populate_on_call
-    def sepa(self) -> Sepa:
-        """
-        Source SEPA account for the payment.
-
-        Args:
-            value (Sepa): A valid `Sepa` object.
-
-        Returns:
-            Sepa: SEPA used for the payment.
-
-        Raises:
-            InvalidSepaError: When sepa is invalid.
-        """
-        return self._data.get('sepa')
-
-    @sepa.setter
-    @validate_type(Sepa, throws=InvalidSepaError)
-    def sepa(self, value: Sepa):
-        self._data['sepa'] = value
-        self._data['method'] = 'sepa'
-
-    @property
-    @populate_on_call
-    def status(self) -> str:
+    def status(self) -> str | None:
         """
         Payment status.
 
@@ -455,12 +400,12 @@ class Payment(*BaseObject):
 
     @status.setter
     @validate_type(str, coerce=coerce_status, throws=InvalidStatusError)
-    def status(self, value: str):
+    def status(self, value: str) -> None:
         self._data['status'] = value
 
     @property
     @populate_on_call
-    def unique_id(self) -> str:
+    def unique_id(self) -> str | None:
         """
         External unique ID.
 
@@ -488,5 +433,5 @@ class Payment(*BaseObject):
         name='Unique ID',
         throws=InvalidPaymentUniqueIdError,
     )
-    def unique_id(self, value: str):
+    def unique_id(self, value: str) -> None:
         self._data['unique_id'] = value

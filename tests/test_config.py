@@ -1,15 +1,29 @@
 """Test config object"""
 
 import datetime
+
 import pytest
+
 from pytz import timezone
 
-from stancer import Config
+from stancer.config import Config
+from stancer.core.enum.version import Version
 from stancer.exceptions import StancerValueError
+
 from .TestHelper import TestHelper
 
 
 class TestConfig(TestHelper):
+    def setup_method(self, method):
+        conf = Config()
+        del conf.host
+        del conf.keys
+        del conf.mode
+        del conf.port
+        del conf.timeout
+        del conf.version
+        return
+
     def test_class(self):
         assert Config() == Config()
 
@@ -29,9 +43,10 @@ class TestConfig(TestHelper):
         assert isinstance(obj.default_timezone, datetime.tzinfo)
         assert obj.default_timezone == datetime.timezone.utc
 
-    def test_host(self):
+    @pytest.mark.parametrize('host', TestHelper.host_provider())
+    def test_host(self, host):
         obj = Config()
-        host = self.random_string(15) + '.' + self.random_string(2)
+        host = f'{self.random_string(15)}.{self.random_string(2)}'
 
         assert obj.host == 'api.stancer.com'
 
@@ -46,10 +61,10 @@ class TestConfig(TestHelper):
 
     def test_keys(self):
         obj = Config()
-        pprod = 'pprod_' + self.random_string(24)
-        sprod = 'sprod_' + self.random_string(24)
-        ptest = 'ptest_' + self.random_string(24)
-        stest = 'stest_' + self.random_string(24)
+        pprod = f'pprod_{self.random_string(24)}'
+        sprod = f'sprod_{self.random_string(24)}'
+        ptest = f'ptest_{self.random_string(24)}'
+        stest = f'stest_{self.random_string(24)}'
 
         # test setup add a stest key, we will put back after this test
         previous_keys = obj.keys
@@ -129,18 +144,18 @@ class TestConfig(TestHelper):
         assert 'stest' in keys
         assert keys['stest'] == stest
 
-        key1 = 'sprod_' + self.random_string(24)
-        key2 = 'sprod_' + self.random_string(24)
+        key1 = f'sprod_{self.random_string(24)}'
+        key2 = f'sprod_{self.random_string(24)}'
 
         obj.keys = (key1, key2)
 
         assert obj.sprod == key2
 
         keychain = {
-            'pprod': 'pprod_' + self.random_string(24),
-            'sprod': 'sprod_' + self.random_string(24),
-            'ptest': 'ptest_' + self.random_string(24),
-            'stest': 'stest_' + self.random_string(24),
+            'pprod': f'pprod_{self.random_string(24)}',
+            'sprod': f'sprod_{self.random_string(24)}',
+            'ptest': f'ptest_{self.random_string(24)}',
+            'stest': f'stest_{self.random_string(24)}',
         }
 
         obj.keys = keychain
@@ -154,7 +169,7 @@ class TestConfig(TestHelper):
 
         with pytest.raises(
             StancerValueError,
-            match='"{}" is not a valid API key.'.format(bad_key),
+            match=f'"{bad_key}" is not a valid API key.',
         ):
             obj.keys = bad_key
 
@@ -171,10 +186,7 @@ class TestConfig(TestHelper):
 
         assert obj.mode == Config.LIVE_MODE
 
-        message = (
-            'Unknonw mode "{}". '
-            'Please use class constant "LIVE_MODE" or "TEST_MODE".'
-        ).format(mode)
+        message = f'Unknown mode "{mode}". Please use class constant "LIVE_MODE" or "TEST_MODE".'
 
         with pytest.raises(
             StancerValueError,
@@ -204,10 +216,10 @@ class TestConfig(TestHelper):
 
     def test_public_key(self):
         obj = Config()
-        pprod = 'pprod_' + self.random_string(24)
-        sprod = 'sprod_' + self.random_string(24)
-        ptest = 'ptest_' + self.random_string(24)
-        stest = 'stest_' + self.random_string(24)
+        pprod = f'pprod_{self.random_string(24)}'
+        sprod = f'sprod_{self.random_string(24)}'
+        ptest = f'ptest_{self.random_string(24)}'
+        stest = f'stest_{self.random_string(24)}'
 
         # test setup add a stest key, we will put back after this test
         previous_keys = obj.keys
@@ -261,10 +273,10 @@ class TestConfig(TestHelper):
 
     def test_secret_key(self):
         obj = Config()
-        pprod = 'pprod_' + self.random_string(24)
-        sprod = 'sprod_' + self.random_string(24)
-        ptest = 'ptest_' + self.random_string(24)
-        stest = 'stest_' + self.random_string(24)
+        pprod = f'pprod_{self.random_string(24)}'
+        sprod = f'sprod_{self.random_string(24)}'
+        ptest = f'ptest_{self.random_string(24)}'
+        stest = f'stest_{self.random_string(24)}'
 
         # test setup add a stest key, we will put back after this test
         previous_keys = obj.keys
@@ -287,6 +299,7 @@ class TestConfig(TestHelper):
 
     def test_timeout(self):
         obj = Config()
+
         timeout = self.random_integer(1, 1000)
 
         assert obj.timeout is None
@@ -304,13 +317,14 @@ class TestConfig(TestHelper):
         obj = Config()
         version = self.random_integer(1, 20)
 
-        assert obj.version == 1
+        assert obj.version == Version.API_V1
 
         obj.version = version
 
         assert obj.version == version
 
         # Delete will put it on default
+        # We keep default to one, for now.
         del obj.version
 
-        assert obj.version == 1
+        assert obj.version == Version.API_V1

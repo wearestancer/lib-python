@@ -19,3 +19,7 @@ class StancerValueError(StancerException, ValueError):
 
 class StancerWarning(StancerException, Warning):
     """Base class for warning categories."""
+
+
+class StancerApiVersionError(StancerException):
+    """Raised when an operation is not available for this version of the api"""

@@ -9,10 +9,21 @@ from .customer import Customer
 from .device import Device
 from .dispute import Dispute
 from .payment import Payment
+from .payment_intent import PaymentIntent
 from .refund import Refund
 from .sepa import Sepa
-from .status.auth import AuthStatus
-from .status.payment import PaymentStatus
-from .status.refund import RefundStatus
-
 from .version import __version__
+
+__all__ = (
+    'Auth',
+    'Card',
+    'Config',
+    'Customer',
+    'Device',
+    'Dispute',
+    'Payment',
+    'PaymentIntent',
+    'Refund',
+    'Sepa',
+    '__version__',
+)

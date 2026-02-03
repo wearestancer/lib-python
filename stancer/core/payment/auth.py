@@ -1,29 +1,38 @@
 # -*- coding: utf-8 -*-
 
-from typing import Union
+from abc import ABC
+from abc import abstractmethod
+from typing import TYPE_CHECKING
 
-from ..decorators import populate_on_call
-from ..decorators import validate_type
 from ...auth import Auth
 from ...device import Device
-from ...exceptions import StancerException
 from ...exceptions import InvalidAuthError
 from ...exceptions import InvalidDeviceError
+from ...exceptions import InvalidUrlError
+from ...exceptions import StancerException
+from ..decorators.populate_on_call import populate_on_call
+from ..decorators.validate_type import validate_type
+from .payment_protocol import PaymentProtocol
+
+if TYPE_CHECKING:
+    from ...payment import Payment
 
 
-def _coerce_auth(value: Union[Auth, str, bool]) -> Auth:
+def _coerce_auth(value: Auth | str | bool) -> Auth | None:
+    if value is False:
+        return None
     if isinstance(value, str):
+        if not value:
+            raise InvalidUrlError()
         return Auth(return_url=value)
 
-    if isinstance(value, bool):
-        if value:
-            return Auth()
-        return None
+    if value is True:
+        return Auth()
 
     return value
 
 
-class PaymentAuth(object):
+class PaymentAuth(ABC, PaymentProtocol):
     """Specific auth property and method for payment."""
 
     _allowed_attributes = [
@@ -31,15 +40,13 @@ class PaymentAuth(object):
         'device',
     ]
 
-    def __init__(self):
-        """Init internal data."""
-        self._data = {}
-        self.id = None  # pylint: disable=invalid-name
-        self.method = None
+    @abstractmethod
+    def __init__(self) -> None:
+        pass
 
     @property
     @populate_on_call
-    def auth(self) -> Auth:
+    def auth(self) -> Auth | None:
         """
         Authentication request.
 
@@ -60,12 +67,12 @@ class PaymentAuth(object):
         throws=InvalidAuthError,
         coerce=_coerce_auth,
     )
-    def auth(self, value: Auth):
+    def auth(self, value: Auth) -> None:
         self._data['auth'] = value
 
     @property
     @populate_on_call
-    def device(self) -> Device:
+    def device(self) -> Device | None:
         """
         Device handling the payment.
 
@@ -82,10 +89,11 @@ class PaymentAuth(object):
 
     @device.setter
     @validate_type(Device, throws=InvalidDeviceError)
-    def device(self, value: Device):
+    def device(self, value: Device) -> None:
         self._data['device'] = value
 
-    def _create_device(self):
+    # Auth must be implemented by payment.
+    def _create_device(self: 'Payment') -> 'Payment':  # type: ignore # (see above)
         """
         Create and populate device.
 
@@ -102,7 +110,7 @@ class PaymentAuth(object):
 
         device = Device()
 
-        if self.auth and self.auth.return_url:
+        if self.auth and (hasattr(self.auth, 'return_url') and self.auth.return_url):
             device.hydrate_from_env()
             self.device = device
         else:

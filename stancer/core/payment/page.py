@@ -1,35 +1,35 @@
 # -*- coding: utf-8 -*-
-
-from typing import Optional
+from abc import ABC
+from abc import abstractmethod
 from urllib.parse import urlencode
 
-from ..decorators import populate_on_call
-from ..decorators import validate_type
 from ...config import Config
 from ...exceptions import InvalidUrlError
 from ...exceptions import MissingApiKeyError
 from ...exceptions import MissingPaymentIdError
 from ...exceptions import MissingReturnUrlError
+from ..decorators.populate_on_call import populate_on_call
+from ..decorators.validate_type import validate_type
+from .payment_protocol import PaymentProtocol
 
 
-def _valid_retur_url(value) -> Optional[str]:
+def _valid_return_url(value) -> str | None:
     if value.startswith('https://'):
         return None
 
     return 'Return URL must use HTTPS protocol.'
 
 
-class PaymentPage(object):
+class PaymentPage(ABC, PaymentProtocol):
     """Specific property and method for payment page."""
 
     _allowed_attributes = [
         'return_url',
     ]
 
-    def __init__(self):
-        """Init internal data."""
-        self._data = {}
-        self.id = None  # pylint: disable=invalid-name
+    @abstractmethod
+    def __init__(self) -> None:
+        pass
 
     def payment_page_url(self, **kwargs) -> str:
         """
@@ -57,12 +57,9 @@ class PaymentPage(object):
                 your keychain.
         """
 
+        config = Config()
         if self.return_url is None:
-            message = (
-                'You must provide a return URL'
-                ' '
-                'before going to the payment page.'
-            )
+            message = 'You must provide a return URL before going to the payment page.'
 
             raise MissingReturnUrlError(message)
 
@@ -75,39 +72,32 @@ class PaymentPage(object):
 
             raise MissingPaymentIdError(message)
 
-        config = Config()
-
         if config.public_key is None:
-            message = (
-                'A public API key is needed to obtain a payment page URL.'
-            )
+            message = 'A public API key is needed to obtain a payment page URL.'
 
             raise MissingApiKeyError(message)
 
-        if config.port is None:
-            pattern = 'https://{host}/{key}/{id}'
-        else:
-            pattern = 'https://{host}:{port}/{key}/{id}'
+        if config.host is None:
+            message = 'You need to declare the API host'
 
-        tmp = {
-            'host': config.host.replace('api', 'payment'),
-            'id': self.id,
-            'key': config.public_key,
-            'port': config.port,
-        }
-        url = pattern.format(**tmp)
+            raise InvalidUrlError(message)
+
+        host = config.host.replace('api', 'payment')
+        port = f':{config.port}' if config.port else ''
+
+        url = f'https://{host}{port}/{config.public_key}/{self.id}'
 
         allowed = ('lang',)
-        params = { k: v for k, v in kwargs.items() if k in allowed }
+        params = {k: v for k, v in kwargs.items() if k in allowed}
 
         if params:
-            return url + '?' + urlencode(params)
+            return f'{url}?{urlencode(params)}'
 
         return url
 
     @property
     @populate_on_call
-    def return_url(self) -> Optional[str]:
+    def return_url(self) -> str | None:
         """
         URL used to return to your store when using the payment page.
 
@@ -126,8 +116,8 @@ class PaymentPage(object):
     @validate_type(
         str,
         name='Return URL',
-        validation=_valid_retur_url,
+        validation=_valid_return_url,
         throws=InvalidUrlError,
     )
-    def return_url(self, value: str):
+    def return_url(self, value: str) -> None:
         self._data['return_url'] = value

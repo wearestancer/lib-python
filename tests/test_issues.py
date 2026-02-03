@@ -1,9 +1,10 @@
-
 import json
+
 import responses
 
-from stancer import Payment
-from stancer import PaymentStatus
+from stancer.payment import Payment
+from stancer.status.payment import PaymentStatus
+
 from .TestHelper import TestHelper
 
 
