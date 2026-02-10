@@ -249,8 +249,8 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         first_pi = next(pi_list)
         assert isinstance(first_pi.card, Card)
         assert first_pi.id == 'pi_lydVCyMTK9HNgK4dGyC4Yb9x'
-        assert first_pi.created_at == 1759853014
-        assert first_pi.created is None
+        assert first_pi.created_at.timestamp() == 1759853014
+        assert first_pi.created == first_pi.created_at
         assert first_pi.amount == 5912
         assert first_pi.capture is False
         assert first_pi.card.id == 'card_si9kF0BO5ALWjzVIb9GpShaS'
@@ -272,8 +272,8 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         second_pi = next(pi_list)
         assert isinstance(second_pi.card, Card)
         assert second_pi.id == 'pi_4BtRpGvmKYWYR1XsUhVglmyG'
-        assert second_pi.created_at == 1759913918
-        assert second_pi.created is None
+        assert second_pi.created_at.timestamp() == 1759913918
+        assert second_pi.created == second_pi.created_at
         assert second_pi.amount == 8883
         assert second_pi.capture is False
         assert second_pi.card.id == 'card_si9kF0BO5ALWjzVIb9GpShaS'

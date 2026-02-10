@@ -370,8 +370,8 @@ class TestPaymentIntent(TestHelper):
         first_pi = next(pi_list)
         assert isinstance(first_pi.card, Card)
         assert first_pi.id == 'pi_Tn16lAUhI8l3ppgFsiYB6cCs'
-        assert first_pi.created_at == 1720443441
-        assert first_pi.created is None
+        assert first_pi.created_at.timestamp() == 1720443441
+        assert first_pi.created == first_pi.created_at
         assert first_pi.amount == 583
         assert first_pi.capture is False
         assert first_pi.card.id == 'card_nRBHRjo5UP2pLFb27WxApj8l'
@@ -396,8 +396,8 @@ class TestPaymentIntent(TestHelper):
 
         assert isinstance(second_pi.sepa, Sepa)
         assert second_pi.id == 'pi_Cat0Tp7D7IuiKn477eiLN6nx'
-        assert second_pi.created_at == 1720443441
-        assert second_pi.created is None
+        assert second_pi.created_at.timestamp() == 1720443441
+        assert second_pi.created == second_pi.created_at
         assert second_pi.amount == 4111
         assert second_pi.capture is True
         assert second_pi.card is None
@@ -592,8 +592,8 @@ class TestPaymentIntent(TestHelper):
 
         assert isinstance(payment_intent_call.sepa, Sepa)
         assert payment_intent_call.id == 'pi_Yqtbqm0gv4Z2yljRJ5hhfugd'
-        assert payment_intent_call.created_at == 1717141292
-        assert payment_intent_call.created is None
+        assert payment_intent_call.created_at.timestamp() == 1717141292
+        assert payment_intent_call.created == payment_intent_call.created_at
         assert payment_intent_call.amount == 122
         assert payment_intent_call.capture is True
         assert payment_intent_call.card is None
@@ -662,8 +662,8 @@ class TestPaymentIntent(TestHelper):
         assert len(responses.calls) == 1
         # Data from fixture
         assert payment_intent.id == 'pi_fIjxmx7WVoRHACoeadtFrUkC'
-        assert payment_intent.created_at == 1717080772
-        assert payment_intent.created is None
+        assert payment_intent.created_at.timestamp() == 1717080772
+        assert payment_intent.created == payment_intent.created_at
         assert payment_intent.amount == 100
         assert payment_intent.capture is True
         assert payment_intent.card is None
@@ -686,8 +686,8 @@ class TestPaymentIntent(TestHelper):
         assert len(responses.calls) == 2
         # Data from fixture
         assert payment_intent.id == 'pi_fIjxmx7WVoRHACoeadtFrUkC'
-        assert payment_intent.created_at == 1717080772
-        assert payment_intent.created is None
+        assert payment_intent.created_at.timestamp() == 1717080772
+        assert payment_intent.created == payment_intent.created_at
         assert payment_intent.amount == 100
         assert payment_intent.capture is True
         assert payment_intent.card is None
@@ -747,8 +747,8 @@ class TestPaymentIntent(TestHelper):
         assert len(responses.calls) == 2
         # Data from fixture
         assert payment_intent.id == 'pi_Yqtbqm0gv4Z2yljRJ5hhfugd'
-        assert payment_intent.created_at == 1717141292
-        assert payment_intent.created is None
+        assert payment_intent.created_at.timestamp() == 1717141292
+        assert payment_intent.created == payment_intent.created_at
         assert payment_intent.amount == 122
         assert payment_intent.capture is True
         assert payment_intent.card.id == 'card_oNKkmI6XoRgHxA9HqMOWblfF'

@@ -32,6 +32,7 @@ class AbstractObject:
     _version = Version.API_V1
     _datetime_property: list[str] = [
         'created',
+        'created_at',
     ]
     _default_values: dict[str, Any] = {}
     _repr_ignore: set[str] = set()
@@ -232,7 +233,7 @@ class AbstractObject:
         Returns:
             Creation date and time (into the API) during server side creation.
         """
-        return self._data.get('created_at')
+        return self._data.get('created')
 
     def delete(self: Self) -> Self:
         """
@@ -306,6 +307,8 @@ class AbstractObject:
         for key, value in list(params.items()):
             if value is not False and not value:
                 continue
+            if key == 'created_at':
+                key = 'created'
 
             modify = True
 

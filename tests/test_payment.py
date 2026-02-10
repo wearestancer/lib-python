@@ -1066,6 +1066,7 @@ class TestPayment(TestHelper):
         assert obj.id == 'paym_KIVaaHi7G8QAYMQpQOYBrUQE'
         assert isinstance(obj.created, date)
         assert obj.created.timestamp() == 1538564253
+        assert obj.created == obj.created_at
         assert obj.amount == 100
         assert obj.capture is True
         assert obj.card == card
