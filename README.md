@@ -1,1 +1,1 @@
-Documentation available [here](https://stancer.com/documentation/api/?lang=python)
+Documentation available [here](https://docs.stancer.com/fr/API.html)
