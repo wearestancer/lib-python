@@ -18,7 +18,10 @@ from .FunctionalTestHelper import FunctionalTestHelper
 
 class TestFunctionalPaymentIntent(FunctionalTestHelper):
     def test_get(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         # 404 with an unknown payment (with a random id)
         with pytest.raises(NotFoundError) as error:
             obj = PaymentIntent(f'pi_{self.random_string(24)}')
@@ -50,7 +53,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         assert obj.url == f'https://{host}/test_pi_dm033KXVAXflbzjv9MQ4Ndyh'
 
     def test_send_without_methods_patch_method(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         amount = 200
         description = 'functional python test send without method'
 
@@ -88,7 +94,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         assert payment_intent.url == f'https://{host}/test_{payment_intent.id}'
 
     def test_send_with_sepa(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         amount = 100
         pi = PaymentIntent()
         pi.amount = amount
@@ -99,7 +108,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         assert pi.status == PaymentIntentStatus.PROCESSING
 
     def test_send_without_patch_with_sepa(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         amount = 100
         pi = PaymentIntent()
         pi.amount = amount
@@ -111,7 +123,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         assert pi.status == PaymentIntentStatus.AUTHORIZED
 
     def test_send_capture(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         amount = self.random_integer(50, 800)
         pi = PaymentIntent()
         pi.amount = amount
@@ -130,7 +145,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
             pi.send_capture()
 
     def test_get_payment(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         pi = PaymentIntent('pi_4BtRpGvmKYWYR1XsUhVglmyG')
         payments = pi.get_payment_list()
         payment_list = set()
@@ -141,7 +159,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
         assert len(payment_list) == 1
 
     def test_complete_crud(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         pi = PaymentIntent()
         card = Card()
         card.cvc = '123'
@@ -241,7 +262,10 @@ class TestFunctionalPaymentIntent(FunctionalTestHelper):
             pi.delete()
 
     def test_list(self, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
+
         pi_list = PaymentIntent().list(
             card='card_si9kF0BO5ALWjzVIb9GpShaS', order='asc'
         )

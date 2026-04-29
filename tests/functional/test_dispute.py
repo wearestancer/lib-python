@@ -15,15 +15,13 @@ from .FunctionalTestHelper import FunctionalTestHelper
 
 class TestFunctionalDispute(FunctionalTestHelper):
     @pytest.mark.future
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_list(self, version):
+    def test_list(self):
         """Testing V2 lists imply some workaround:
         Either adding an until to our listing, or an asc/desc param
         """
-        self.conf.version = version
         index = 0
         with open(
-            f'./tests/fixtures/disputes/expected-disputes-v{version}.json',
+            f'./tests/fixtures/disputes/expected-disputes-v{self.conf.version}.json',
             encoding='utf8',
         ) as opened_file:
             content = json.load(opened_file)

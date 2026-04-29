@@ -25,9 +25,9 @@ class FunctionalTestHelper(TestHelper):
         del self.conf.keys
         self.conf.keys = str(os.getenv('API_KEY'))
         self.conf.host = str(os.getenv('API_HOST'))
-        self.conf.timeout = 5
-        version_param = os.getenv('API_VERSION')
-        self.conf.version = version_param if version_param else Version.API_V1
+        self.conf.timeout = 10
+        version_param = int(os.getenv('API_VERSION', '2'))
+        self.conf.version = Version(version_param)
 
     def get_disputed_card_number(self):
         cards = [

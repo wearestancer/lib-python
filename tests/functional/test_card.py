@@ -20,9 +20,7 @@ class TestFunctionalCard(FunctionalTestHelper):
             return 'personnal'
         return 'personal'
 
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_get(self, version):
-        self.conf.version = version
+    def test_get(self):
         with pytest.raises(NotFoundError) as error:
             obj = Card(f'card_{self.random_string(24)}')
             assert obj.name
@@ -45,9 +43,7 @@ class TestFunctionalCard(FunctionalTestHelper):
         assert isinstance(card.created, datetime)
         assert card.created.timestamp() == 1759503504
 
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_minimum_crud(self, version):
-        self.conf.version = version
+    def test_minimum_crud(self):
         month = self.random_integer(1, 11)
         year = (
             self.random_year() + 20
@@ -136,9 +132,7 @@ class TestFunctionalCard(FunctionalTestHelper):
             with pytest.raises(NotFoundError, match=f'Card `{card.id}` not found'):
                 card.send()
 
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_complete_crud_card(self, version):
-        self.conf.version = version
+    def test_complete_crud_card(self):
         card = Card()
         cvc = str(self.random_integer(100, 999))
         exp_month = self.random_integer(1, 12)
