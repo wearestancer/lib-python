@@ -13,9 +13,7 @@ from .FunctionalTestHelper import FunctionalTestHelper
 
 
 class TestFunctionalCustomer(FunctionalTestHelper):
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_get(self, version):
-        self.conf.version = version
+    def test_get(self):
         with pytest.raises(NotFoundError) as error:
             customer = Customer(f'cust_{self.random_string(24)}')
             assert customer.name
@@ -30,9 +28,7 @@ class TestFunctionalCustomer(FunctionalTestHelper):
         assert customer.email == 'john.doe@example.com'
         assert customer.mobile == '+33666172730'  # Random generated number
 
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_send(self, version):
-        self.conf.version = version
+    def test_send(self):
         customer = Customer()
 
         tmp = self.random_string(5)
@@ -139,9 +135,7 @@ class TestFunctionalCustomer(FunctionalTestHelper):
                 else True
             )
 
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_update_delete(self, version):
-        self.conf.version = version
+    def test_update_delete(self):
         customer = Customer()
 
         tmp = self.random_string(5)

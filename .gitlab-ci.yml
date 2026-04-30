@@ -43,6 +43,19 @@ variables:
           - "3.13"
           - "3.14rc"
 
+.python::api-versions:
+  extends:
+    - .python::current-versions
+  rules:
+    - if: $API_VERSION == "1"
+      allow_failure: true
+    - when: on_success
+  parallel:
+    matrix:
+      - API_VERSION:
+          - "1"
+          - "2"
+
 
 pylint:
   extends: .python::base
@@ -89,7 +102,7 @@ unit_test:
 
 
 functional_test:
-  extends: .python::current-versions
+  extends: .python::api-versions
 
   stage: test
 
@@ -98,7 +111,6 @@ functional_test:
   retry: 2
   coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+\.\d+%)/'
 
-  allow_failure: true
   artifacts:
     reports:
       coverage_report:

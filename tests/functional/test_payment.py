@@ -21,9 +21,7 @@ from .FunctionalTestHelper import FunctionalTestHelper
 
 
 class TestFunctionalPayment(FunctionalTestHelper):
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_get(self, version):
-        self.conf.version = version
+    def test_get(self):
         # 404 with an unknown payment (with a random id)
         with pytest.raises(NotFoundError) as error:
             obj = Payment(f'paym_{self.random_string(24)}')
@@ -49,9 +47,7 @@ class TestFunctionalPayment(FunctionalTestHelper):
         assert isinstance(obj.customer, Customer)
         assert obj.customer.id == 'cust_nqjcoW1NscmX6TP3QvkxU5pG'
 
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_list(self, version):
-        self.conf.version = version
+    def test_list(self):
         order_id = self.random_string(36)
         unique_id = self.random_string(36)
 
@@ -125,9 +121,7 @@ class TestFunctionalPayment(FunctionalTestHelper):
         assert counter == 1
 
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_send(self, currency, version):
-        self.conf.version = version
+    def test_send(self, currency):
         obj = Payment()
 
         amount = self.random_integer(50, 10000)
@@ -168,9 +162,7 @@ class TestFunctionalPayment(FunctionalTestHelper):
         assert obj.customer.id == customer_uid
 
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_send_with_authentification(self, currency, version):
-        self.conf.version = version
+    def test_send_with_authentification(self, currency):
         amount = self.random_integer(50, 99999)
         description = f'Automatic auth test for Python, {amount / 100:.2f} {currency}'
         return_url = f'https://www.example.org/?{self.random_string(30)}'
@@ -206,9 +198,7 @@ class TestFunctionalPayment(FunctionalTestHelper):
         assert payment.auth.redirect_url.startswith('https://3ds.')
 
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_send_for_payment_page(self, currency, version):
-        self.conf.version = version
+    def test_send_for_payment_page(self, currency):
         amount = self.random_integer(50, 99999)
         description = f'Payment page test for Python, {amount / 100:.2f} {currency}'
         return_url = f'https://www.example.org/?{self.random_string(30)}'
@@ -245,7 +235,9 @@ class TestFunctionalPayment(FunctionalTestHelper):
 
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
     def test_send_path_status_v1(self, currency, version=Version.API_V1):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
         amount = self.random_integer(50, 99999)
         description = f'Patch status test for Python, {amount / 100:.2f} {currency}'
 
@@ -293,7 +285,9 @@ class TestFunctionalPayment(FunctionalTestHelper):
 
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
     def test_send_path_status_v2(self, currency, version=Version.API_V2):
-        self.conf.version = version
+        if version != self.conf.version:
+            assert True
+            return
 
         amount = self.random_integer(50, 99999)
         description = f'Patch status test for Python, {amount / 100:.2f} {currency}'
@@ -335,10 +329,8 @@ class TestFunctionalPayment(FunctionalTestHelper):
         assert payment.status == PaymentStatus.TO_CAPTURE
 
     @pytest.mark.parametrize('currency', FunctionalTestHelper.currency_provider())
-    @pytest.mark.parametrize('version', FunctionalTestHelper.version_provider())
-    def test_send_with_unique_id(self, currency, version):
+    def test_send_with_unique_id(self, currency):
         obj = Payment()
-        self.conf.version = version
 
         amount = self.random_integer(50, 10000)
         desc = f'Python {platform.python_version()} automatic test for `unique_id`, {amount / 100:.2f} {currency.upper()}'
